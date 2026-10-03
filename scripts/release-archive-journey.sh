@@ -37,7 +37,11 @@ curl -fsS -D "$work/allowed-origin.headers" -o /dev/null \
 grep -Eqi '^access-control-allow-origin: http://127\.0\.0\.1:13100' "$work/allowed-origin.headers"
 curl -fsS -D "$work/denied-origin.headers" -o /dev/null \
   -H 'origin: https://unrelated.example.test' "$server_url/api/health"
-! grep -Eqi '^access-control-allow-origin:' "$work/denied-origin.headers"
+grep -Eqi '^access-control-allow-origin: http://127\.0\.0\.1:13100' "$work/denied-origin.headers"
+if grep -Eqi '^access-control-allow-origin: https://unrelated\.example\.test' "$work/denied-origin.headers"; then
+  echo 'unrelated origin was allowed' >&2
+  exit 1
+fi
 
 headers="$work/login.headers"
 curl -fsS -D "$headers" -o /dev/null -X POST "$server_url/api/auth/login" \
