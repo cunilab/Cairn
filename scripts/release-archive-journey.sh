@@ -21,6 +21,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
+wait_for_daemon() {
+  for _ in $(seq 1 100); do
+    if test -S "$socket" && kill -0 "$daemon_pid" 2>/dev/null; then return 0; fi
+    if ! kill -0 "$daemon_pid" 2>/dev/null; then return 1; fi
+    sleep 0.05
+  done
+  echo 'packaged daemon did not create its socket' >&2
+  return 1
+}
+
 CAIRN_ADMIN_EMAIL=archive-admin@example.test \
 CAIRN_ADMIN_PASSWORD=hunter2hunter2 \
 DATABASE_URL="$database_url" \
@@ -65,6 +75,7 @@ git -C "$repo" remote add origin "$journey_remote"
 env HOME="$isolated_home" XDG_CONFIG_HOME="$isolated_home/.config" CAIRN_HOME="$isolated_home" CAIRN_SOCKET="$socket" \
   "$bin/cairnd" --socket "$socket" >"$work/daemon.log" 2>&1 &
 daemon_pid=$!
+wait_for_daemon
 (cd "$repo" && env HOME="$isolated_home" XDG_CONFIG_HOME="$isolated_home/.config" CAIRN_HOME="$isolated_home" CAIRN_SOCKET="$socket" \
   CAIRN_SERVER_URL="$server_url" CAIRN_SERVER_TOKEN="$token" \
   CAIRN_WEB_URL=http://127.0.0.1:13100 "$bin/cairn" --json setup) >"$work/setup.json"
@@ -103,6 +114,7 @@ daemon_pid=
 env HOME="$isolated_home" XDG_CONFIG_HOME="$isolated_home/.config" CAIRN_HOME="$isolated_home" CAIRN_SOCKET="$socket" \
   "$bin/cairnd" --socket "$socket" >"$work/daemon-restart.log" 2>&1 &
 daemon_pid=$!
+wait_for_daemon
 
 for actor in archive-actor-a archive-actor-b; do
   printf '{"session_id":"%s","source":"startup"}\n' "$actor" | \
