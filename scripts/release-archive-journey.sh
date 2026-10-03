@@ -34,10 +34,10 @@ done
 curl -fsS "$server_url/api/health" >/dev/null || { cat "$server_log"; exit 1; }
 curl -fsS -D "$work/allowed-origin.headers" -o /dev/null \
   -H 'origin: http://127.0.0.1:13100' "$server_url/api/health"
-rg -qi '^access-control-allow-origin: http://127\.0\.0\.1:13100' "$work/allowed-origin.headers"
+grep -Eqi '^access-control-allow-origin: http://127\.0\.0\.1:13100' "$work/allowed-origin.headers"
 curl -fsS -D "$work/denied-origin.headers" -o /dev/null \
   -H 'origin: https://unrelated.example.test' "$server_url/api/health"
-! rg -qi '^access-control-allow-origin:' "$work/denied-origin.headers"
+! grep -Eqi '^access-control-allow-origin:' "$work/denied-origin.headers"
 
 headers="$work/login.headers"
 curl -fsS -D "$headers" -o /dev/null -X POST "$server_url/api/auth/login" \
@@ -140,12 +140,12 @@ PY
 
 remember='{ "action":"create", "agent_session_key":"archive-actor-a", "type":"fact", "topic_key":"archive.journey", "value_key":"remembered", "content":"archive journey keeps its remembered fact" }'
 remembered=$(mcp_tool cairn_remember "$remember")
-printf '%s' "$remembered" | rg -q '"accepted_for_delivery": true'
+printf '%s' "$remembered" | grep -Eq '"accepted_for_delivery": true'
 
 # A second caller proves the installed MCP process reads durable state after restart.
 for _ in $(seq 1 100); do
   recalled=$(mcp_tool cairn_search '{ "action":"search", "agent_session_key":"archive-actor-b", "query":"archive journey remembered fact" }')
-  printf '%s' "$recalled" | rg -q 'archive journey keeps its remembered fact' && exit 0
+  printf '%s' "$recalled" | grep -Eq 'archive journey keeps its remembered fact' && exit 0
   sleep 0.1
 done
 exit 1
