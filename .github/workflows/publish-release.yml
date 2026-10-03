@@ -159,3 +159,68 @@ jobs:
           for component in server web; do
             docker buildx imagetools inspect "ghcr.io/${GITHUB_REPOSITORY,,}-$component:$VERSION"
           done
+      - name: Smoke published images with published Linux archive
+        run: |
+          set -euo pipefail
+          export POSTGRES_USER=cairn
+          export POSTGRES_PASSWORD=alpha9-postpublication-disposable
+          export POSTGRES_DB=cairn
+          export CAIRN_VERSION="$VERSION"
+          export CAIRN_PORT=127.0.0.1:18081
+          export CAIRN_WEB_ORIGIN=http://127.0.0.1:18081
+          export CAIRN_ADMIN_EMAIL=postpub-admin@example.test
+          export CAIRN_ADMIN_PASSWORD=hunter2hunter2
+          project="cairn-postpub-${GITHUB_RUN_ID}"
+          tmp=$(mktemp -d)
+          cleanup() {
+            docker compose -p "$project" -f deploy/docker-compose.yml down --volumes || true
+            rm -rf "$tmp"
+          }
+          trap cleanup EXIT
+
+          # Pull the promoted version tags rather than reusing run-ID tags.
+          docker compose -p "$project" -f deploy/docker-compose.yml pull server web
+          timeout 180s docker compose -p "$project" -f deploy/docker-compose.yml up -d --wait
+          base=http://127.0.0.1:18081
+          for attempt in $(seq 1 60); do
+            if curl -fsS "$base/api/health" > /dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS "$base/api/health" | jq -e '.ok == true'
+          curl -fsS "$base/login" > /dev/null
+          curl -fsS -D "$tmp/login.headers" -o /dev/null -X POST "$base/api/auth/login" \
+            -H 'content-type: application/json' \
+            --data '{"email":"postpub-admin@example.test","password":"hunter2hunter2"}'
+          cookie=$(sed -n 's/^set-cookie: \([^;]*\).*/\1/ip' "$tmp/login.headers" | head -n1)
+          test -n "$cookie"
+          for attempt in $(seq 1 60); do
+            if curl -fsS "$base/api/readiness" -H "cookie: $cookie" \
+              | jq -e '.ready == true and .database == "reachable" and .worker.available == true' > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS "$base/api/readiness" -H "cookie: $cookie" \
+            | jq -e '.ready == true and .database == "reachable" and .worker.available == true'
+
+          remote="https://github.com/example/postpub-${GITHUB_RUN_ID}.git"
+          curl -fsS -X POST "$base/api/projects" -H "cookie: $cookie" \
+            -H 'content-type: application/json' \
+            --data "{\"name\":\"Published smoke\",\"repository_remote\":\"$remote\"}" \
+            | jq -e '.id'
+          token=$(curl -fsS -X POST "$base/api/tokens" -H "cookie: $cookie" \
+            -H 'content-type: application/json' --data '{"name":"published-smoke"}' \
+            | jq -r '.token')
+          test -n "$token" && test "$token" != null
+
+          name="cairn-v${VERSION}-x86_64-unknown-linux-gnu"
+          tar -C "$tmp" -xzf "published/$name.tar.gz"
+          mkdir -p "$tmp/home" "$tmp/repo"
+          git -C "$tmp/repo" init -q
+          git -C "$tmp/repo" remote add origin "$remote"
+          (cd "$tmp/repo" && env HOME="$tmp/home" CAIRN_HOME="$tmp/home" \
+            XDG_CONFIG_HOME="$tmp/home/.config" \
+            CAIRN_SERVER_URL="$base" CAIRN_SERVER_TOKEN="$token" \
+            CAIRN_WEB_URL="$base" CAIRND_BIN="$tmp/$name/cairnd" \
+            "$tmp/$name/cairn" --json setup) \
+            | jq -e '.data.project.linked == true'
