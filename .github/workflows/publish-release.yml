@@ -86,7 +86,17 @@ jobs:
           if git ls-remote --exit-code --heads origin "$SKILL_BRANCH" >/dev/null 2>&1; then
             echo "$SKILL_BRANCH already exists; it will not be moved"
           else
-            git push origin "$SOURCE_SHA:refs/heads/$SKILL_BRANCH"
+            # A workflow token cannot create a branch whose history contains
+            # workflow files. Publish only the immutable Skill tree instead of
+            # the full source history; the candidate manifest binds its hash.
+            skill_tree=$(git rev-parse "$SOURCE_SHA:skills/cairn")
+            skills_tree=$(printf '040000 tree %s\tcairn\n' "$skill_tree" | git mktree)
+            release_tree=$(printf '040000 tree %s\tskills\n' "$skills_tree" | git mktree)
+            skill_commit=$(printf 'Cairn Skill %s from %s\n' "$SKILL_REVISION" "$SOURCE_SHA" \
+              | GIT_AUTHOR_NAME='github-actions[bot]' GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com' \
+                GIT_COMMITTER_NAME='github-actions[bot]' GIT_COMMITTER_EMAIL='41898282+github-actions[bot]@users.noreply.github.com' \
+                git commit-tree "$release_tree")
+            git push origin "$skill_commit:refs/heads/$SKILL_BRANCH"
           fi
           url="https://github.com/${GITHUB_REPOSITORY}/archive/refs/heads/${SKILL_BRANCH}.zip"
           tmp=$(mktemp -d)
