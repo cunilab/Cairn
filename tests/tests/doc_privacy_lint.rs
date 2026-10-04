@@ -23,6 +23,8 @@ fn workspace_root() -> PathBuf {
 /// Current documentation that states the product's privacy and applicability
 /// boundaries. Historical specs remain available from Git tags.
 const TARGET_DOCS: &[&str] = &[
+    "README.md",
+    "SECURITY.md",
     "docs/product.md",
     "docs/architecture.md",
     "docs/integrations.md",
