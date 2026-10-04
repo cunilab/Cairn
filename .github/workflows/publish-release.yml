@@ -64,7 +64,7 @@ jobs:
           report_dir=$(mktemp -d)
           git show "$evidence_sha:.github/release-evidence/v${version}.md" > "$report_dir/v${version}.md"
           git checkout --detach "$source_sha"
-          CAIRN_RELEASE_EVIDENCE_DIR="$report_dir" scripts/check-release-evidence.sh "$version" "$source_sha"
+          CAIRN_RELEASE_EVIDENCE_DIR="$report_dir" bash scripts/check-release-evidence.sh "$version" "$source_sha"
           if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; then
             git fetch origin "refs/tags/v$version:refs/tags/v$version"
             test "$(git rev-parse "v$version^{commit}")" = "$source_sha"
