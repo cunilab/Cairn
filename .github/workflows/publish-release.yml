@@ -134,13 +134,13 @@ jobs:
             git push origin "refs/tags/$tag"
           fi
           if gh release view "$tag" >/dev/null 2>&1; then
-            echo "Release $tag already exists; refusing to replace artifacts" >&2
-            exit 1
+            echo "Release $tag already exists; verifying immutable artifacts below"
+          else
+            prerelease=()
+            [[ "$VERSION" == *-* ]] && prerelease=(--prerelease)
+            gh release create "$tag" --verify-tag --title "Cairn $tag" \
+              --notes-file ".github/release-notes/$tag.md" "${prerelease[@]}" dist/*
           fi
-          prerelease=()
-          [[ "$VERSION" == *-* ]] && prerelease=(--prerelease)
-          gh release create "$tag" --verify-tag --title "Cairn $tag" \
-            --notes-file ".github/release-notes/$tag.md" "${prerelease[@]}" dist/*
       - name: Verify published archives and images
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
