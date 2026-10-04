@@ -1,4 +1,4 @@
-//! Fixtures for the daemon's component tests (tier 2, `docs/engineering/testing.md`).
+//! Fixtures for the daemon's component tests (tier 2, `docs/validation.md`).
 //!
 //! A `Daemon` over an in-memory store, built in microseconds. Everything the
 //! daemon does to *storage* — reconciliation, idle reaping, link state, handoff

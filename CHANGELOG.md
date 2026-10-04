@@ -9,13 +9,18 @@ schemas, and the wire protocol without a deprecation period.
 
 ## [Unreleased]
 
-### Planned for 0.1.0-alpha.9 (not released)
+### Documentation
+
+- Consolidated current product, architecture, roadmap, integrations, and validation guidance into five canonical documents; historical alpha.7 contracts remain available from Git tags.
+- Corrected the security reporting link and current storage boundary, and recorded the alpha.9 publication and published-image smoke evidence.
+
+## [0.1.0-alpha.9] — 2026-10-04
 
 - Added a same-origin Compose entry point and setup-ready browser project creation with validated Git remotes and visible first-use feedback.
 - Bounded password verification, enforced authenticated database/worker readiness, and made operator backlog and worker progress visible.
 - Kept context delivery within one configured deadline, rendered the server's actual context envelope, and tightened session/caller attribution and recovery.
 - Made logical export a bounded repeatable-read snapshot that retains pending consolidation work; import remains idempotent and does not include credentials.
-- Added installed setup/recall, alpha.7 WAL upgrade, and browser regression journeys plus documented operating limits. Publication requires candidate-specific platform, usefulness, and artifact evidence.
+- Added installed setup/recall, alpha.7 WAL upgrade, and browser regression journeys plus documented operating limits. Candidate-specific platform, usefulness, and artifact evidence accompanied publication.
 
 ## [0.1.0-alpha.8] — 2026-09-24
 
@@ -289,7 +294,7 @@ free-form, searchable, briefable and syncable exactly as before.
 
 One documented approximation: `superseded_at` for supersessions that happened
 before this release is taken from `updated_at`. See
-`docs/history/alpha7/intelligence-migration.md` §Step 2(b).
+[alpha.7 intelligence migration](https://github.com/cunilab/Cairn/blob/812edab/docs/history/alpha7/intelligence-migration.md) §Step 2(b).
 
 ### Continuity, verified against live agents
 
@@ -320,10 +325,10 @@ permanently with no action available that could change it.
 - OpenCode cannot reach `automatic`: it publishes no post-compaction session
   open, and its compaction hook only biases the summarising model rather than
   placing text in the compacted context. A deterministic mechanism exists and is
-  tracked in [#49](https://github.com/Vellixia/Cairn/issues/49).
+  tracked in [#49](https://github.com/cunilab/Cairn/issues/49).
 - OpenCode's pre-compaction capability is reported `conditional` on a probe that
   can never be satisfied, so the stated condition is not actionable
-  ([#50](https://github.com/Vellixia/Cairn/issues/50)). It understates a real
+  ([#50](https://github.com/cunilab/Cairn/issues/50)). It understates a real
   capability and cannot cause an over-claim.
 - Topic keys do not converge across agents. Value keys do. Recorded, with the
   measurements, in `evals/topic-key-effectiveness/`.
@@ -556,9 +561,11 @@ upgradeable to this one, and have been retired.
   may change without a deprecation period before 1.0.0.
 - Sharing requires running your own Cairn server; no hosted service exists.
 
-[0.1.0-alpha.7]: https://github.com/Vellixia/Cairn/releases/tag/v0.1.0-alpha.7
-[0.1.0-alpha.5]: https://github.com/Vellixia/Cairn/releases/tag/v0.1.0-alpha.5
-[0.1.0-alpha.4]: https://github.com/Vellixia/Cairn/releases/tag/v0.1.0-alpha.4
-[0.1.0-alpha.3]: https://github.com/Vellixia/Cairn/releases/tag/v0.1.0-alpha.3
-[0.1.0-alpha.2]: https://github.com/Vellixia/Cairn/releases/tag/v0.1.0-alpha.2
-[0.1.0-alpha.1]: https://github.com/Vellixia/Cairn/releases/tag/v0.1.0-alpha.1
+[0.1.0-alpha.9]: https://github.com/cunilab/Cairn/releases/tag/v0.1.0-alpha.9
+[0.1.0-alpha.8]: https://github.com/cunilab/Cairn/releases/tag/v0.1.0-alpha.8
+[0.1.0-alpha.7]: https://github.com/cunilab/Cairn/releases/tag/v0.1.0-alpha.7
+[0.1.0-alpha.5]: https://github.com/cunilab/Cairn/releases/tag/v0.1.0-alpha.5
+[0.1.0-alpha.4]: https://github.com/cunilab/Cairn/releases/tag/v0.1.0-alpha.4
+[0.1.0-alpha.3]: https://github.com/cunilab/Cairn/releases/tag/v0.1.0-alpha.3
+[0.1.0-alpha.2]: https://github.com/cunilab/Cairn/releases/tag/v0.1.0-alpha.2
+[0.1.0-alpha.1]: https://github.com/cunilab/Cairn/releases/tag/v0.1.0-alpha.1
