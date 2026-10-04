@@ -1,38 +1,30 @@
 # Cairn
 
-Persistent, project-aware memory for AI coding agents.
+Persistent, project-aware memory for AI coding agents. Cairn captures safe, bounded activity during coding work and brings relevant decisions, failed approaches, and procedures into later sessions. People can inspect the evidence behind a memory and correct it when circumstances change.
 
-Cairn captures bounded structured events from supported agents, delivers them to a
-canonical server, and returns relevant memory to later sessions. PostgreSQL owns
-knowledge, evidence, relations, sessions, handoffs, governance, retrieval, and
-idempotency receipts. The local daemon owns only durable delivery spools, receipts,
-bounded context cache, hook correlation, and integration metadata.
+**Current status:** this checkout and the latest published release are `v0.1.0-alpha.9`. Cairn is pre-1.0; interfaces and storage may change between releases. Claude Code and Codex are the primary native agent paths. [Integration capabilities](docs/integrations.md) describe OpenCode and generic MCP limits. [Roadmap](docs/roadmap.md) describes future outcomes separately from shipped behavior.
 
-## Build
+## How it works
 
-The workspace uses its pinned Rust toolchain:
-
-```bash
-cargo build --workspace --release
-export PATH="$PWD/target/release:$PATH"
+```text
+agent hooks / MCP → local cairnd + SQLite delivery spool → cairn-server + PostgreSQL
+                                                          ↑
+                                                  web control plane
 ```
 
-Build the web application separately:
+The server owns canonical knowledge, evidence, sessions, governance, retrieval, and retry receipts. The local daemon queues safe work, correlates callers, and holds a finite context cache; it is not an independent knowledge database. The web app provisions accounts and projects and lets members inspect memory and session history. [Architecture](docs/architecture.md) explains the flow, privacy boundary, and source limits.
+
+## Deploy and connect
+
+The supplied Compose stack serves web at `/` and API at `/api` on one origin:
 
 ```bash
-cd web
-npm ci
-npm run build
+cp deploy/.env.example deploy/.env
+# Edit deploy/.env: PostgreSQL password, public origin, administrator credentials.
+docker compose -f deploy/docker-compose.yml up -d
 ```
 
-Supported targets: macOS arm64, Linux arm64/x86_64, and Windows x86_64. Intel
-macOS archive is built but remains unverified until native installed-artifact
-evidence is recorded for the release candidate.
-
-## Setup
-
-Create an API token in web **Settings**, then run the only human CLI command from
-the repository to connect:
+Only the proxy port is public in this example. Put TLS in front of it before exposing it outside a trusted network. The operator creates the project and grants membership in web **Settings**, then creates an API token. A repository must have a matching Git remote. From that repository:
 
 ```bash
 CAIRN_SERVER_URL=https://cairn.example.com \
@@ -40,129 +32,40 @@ CAIRN_SERVER_TOKEN="$CAIRN_INSTALL_TOKEN" \
 cairn setup
 ```
 
-For headless use, pass the same values as protected JSON on stdin:
+`setup` verifies the credential and membership, binds the project, installs supported agent resources, and starts `cairnd`. Rerun it to repair Cairn-owned bytes; user-edited conflicting resources are reported and preserved. It cannot grant access or create an account. Headless setup accepts protected JSON on stdin with `server_url`, `server_token`, and optional `account_id` and `web_url`. [Integrations](docs/integrations.md) explains what each agent actually supplies.
 
-```json
-{
-  "server_url": "https://cairn.example.com",
-  "server_token": "…",
-  "account_id": "optional-expected-account-uuid",
-  "web_url": "https://cairn.example.com"
-}
+When no administrator exists, the deployment environment account named by
+`CAIRN_ADMIN_EMAIL` and `CAIRN_ADMIN_PASSWORD` is created or promoted to
+`admin` and `active`. Restart does not replace an existing administrator's
+password. Whoever can set those variables and restart the server can always
+obtain administrator access. Protect the deployment environment accordingly.
+PostgreSQL physical backup and restore are operator responsibilities; web
+logical import/export transfers data between healthy deployments and excludes
+credentials.
+
+## Build and check this checkout
+
+The repository pins its Rust toolchain. Build native binaries and the web app separately:
+
+```bash
+cargo build --workspace --release
+cd web && npm ci && npm run build
 ```
 
-`setup` detects the Git repository, selects an existing server project by remote,
-installs supported-agent integration, starts `cairnd`, verifies the credential and
-project membership, and prints the web URL. It cannot register an account, create
-membership, or grant access.
-
-Run `cairn setup` again to repair Cairn-owned integration bytes. User edits that no
-longer match recorded ownership are reported as conflicts and are not overwritten.
-
-Repositories must have a remote that matches an existing project. Administrators
-create accounts and projects, and grant membership, in web before machine setup.
+Run `cargo test --workspace --all-targets` and `cargo clippy --workspace --all-targets -- -D warnings` for Rust. PostgreSQL suites need `CAIRN_TEST_DATABASE_URL`; [validation](docs/validation.md) describes test tiers, web checks, required release evidence, and limitations. Published archives and container images are on the [releases page](https://github.com/cunilab/Cairn/releases).
 
 ## Agent interface
 
-Hooks capture lifecycle and safe structured activity automatically. MCP exposes five
-tools:
+Supported native hooks capture lifecycle and safe structured activity. MCP exposes `cairn_context`, `cairn_search`, `cairn_remember`, `cairn_session`, and `cairn_handoff`. Explicit session and handoff calls are recovery controls for native paths and manual controls for generic MCP. Hidden `cairn hook` and `cairn mcp` commands are installed adapters, not human administration commands.
 
-- `cairn_context`
-- `cairn_search`
-- `cairn_remember`
-- `cairn_session`
-- `cairn_handoff`
+During an outage, bounded local capture can continue. A full spool reports loss or refusal; cached context shows its age and identity. Search does not pretend to be fresh, and an offline client cannot know about unseen revocation. Raw prompts, transcripts, diffs, command output, credentials, and unbounded payloads do not cross the machine boundary as safe memory.
 
-Explicit session and handoff calls are recovery overrides. Normal capture, session
-boundaries, delivery, consolidation, and handoff require no manual MCP calls.
+## Documentation
 
-`cairn hook` and `cairn mcp` are hidden machine adapters installed by `setup`; they
-are not human administration commands.
+- [Product](docs/product.md): promise, users, workflow, requirements, and non-goals.
+- [Architecture](docs/architecture.md): current components, authority, privacy, recovery, and limits.
+- [Roadmap](docs/roadmap.md): product outcomes from foundation to stable 0.1.
+- [Integrations](docs/integrations.md): supported agent behavior and setup ownership.
+- [Validation](docs/validation.md): tests, release proof, and acceptance evidence.
 
-## Offline behavior
-
-`cairnd` accepts privacy-filtered capture into bounded typed spools and drains them
-independently of agent lifetime. A full spool rejects new capture visibly; it never
-silently drops a boundary event. Delivery is at-least-once with stable operation
-identity, while the server records one canonical effect and returns the prior receipt
-for retries.
-
-Current caps, retention, overflow, and recovery limits are in
-[operating limits](docs/operating-limits.md). They are source defaults, not capacity
-guarantees.
-
-Eligible cached context is finite-age and labelled with its age and identity. Search
-reports server unavailability. Authentication denial invalidates matching cache
-immediately. Offline clients do not claim to know whether access was revoked.
-
-## Web
-
-Human work lives in six destinations:
-
-- **Project selector** — choose an authorized project.
-- **Overview** — bounded counts, recent accepted activity, delivery recency, and
-  retrieval effectiveness.
-- **Memory** — project/personal scope, search, mutation, evidence, verification,
-  relations, graph, and retrieval explanation.
-- **Sessions** — history, handoffs, and accepted-event replay.
-- **Governance** — proposals, conflicts, ratification, retirement, and supersession.
-- **Settings** — password, tokens, projects, membership, privacy policy, logical
-  import/export, users, and server health. Administrator controls are role-gated.
-
-Disconnected health is always shown with its last report timestamp and stale status.
-
-## Deployment
-
-Example deployment:
-
-```bash
-cp deploy/.env.example deploy/.env
-docker compose -f deploy/docker-compose.yml up -d
-```
-
-Recommended deployment serves web at `/` and API at `/api` on one origin. For split
-origins, set `CAIRN_API_ORIGIN` on the web container and configure server
-`--web-origin` to the exact web origin. The supplied Compose stack makes the
-same-origin layout default: only its `proxy` port is public; PostgreSQL, web, and API
-remain private to Compose. Put TLS in front of that port before exposing it publicly.
-
-Initial administrator credentials come from deployment environment only when no
-administrator exists; bootstrap creates an active account with the admin role. Restart
-never replaces a password changed in web. PostgreSQL backup and restore are operator
-infrastructure; web logical import/export is for healthy-deployment transfer and
-excludes credentials.
-
-Whoever can set `CAIRN_ADMIN_EMAIL` and `CAIRN_ADMIN_PASSWORD` and restart the server
-can always obtain administrator access. Protect deployment environment accordingly.
-
-## Legacy stores
-
-When `setup` finds a legacy SQLite database, it preserves the original, makes a
-verified backup including WAL state, creates a fresh edge database, and writes a
-versioned import bundle plus conservation report. Only unambiguously safe pending
-operations keep their original identities. Task, local-only, unsupported, and
-ambiguous records remain offline as `removed_feature`; scope is never widened.
-
-Upload an eligible bundle in web **Settings**. Server import is resumable and
-idempotent, with an accepted, rejected, retained, pending, or unchanged disposition
-for each source record. Migration failure does not block new safe capture.
-
-## Development checks
-
-```bash
-cargo test --workspace --all-targets
-cargo clippy --workspace --all-targets -- -D warnings
-cd web && npm run typecheck && npm run api-contract:check && npm run build
-```
-
-PostgreSQL integration tests use `CAIRN_TEST_DATABASE_URL`. Tests that need it report
-a skip when the variable is absent.
-
-## Privacy
-
-Raw prompts, transcripts, diffs, command output, credentials, and unbounded payloads
-do not cross the machine boundary. Both edge and server enforce the safe-event shape,
-bounds, path restrictions, and secret screening. Refusals name the policy class and
-never echo rejected content.
-
-Cairn is pre-1.0. Contracts and storage schemas may still change between releases.
+[CHANGELOG](CHANGELOG.md) records shipped changes. [SECURITY](SECURITY.md) explains private vulnerability reporting and the current trust boundary. Git tags preserve old implementation contracts and specs.

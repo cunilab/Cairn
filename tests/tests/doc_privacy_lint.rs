@@ -1,22 +1,14 @@
-//! T184 — the documentation-lint that keeps T183's corrections from silently
-//! regressing (FR-550, FR-570, FR-543, SC-467).
+//! Guard current privacy documentation against overstating free-text safety or
+//! conflating applicability with a knowledge topic.
 //!
-//! `promotion-privacy.md` and `data-model.md` were both corrected (D456/F11)
-//! to stop describing a free-text field — `content`, a topic key, a value
-//! key, or an applicability value — as structurally incapable of carrying a
-//! path or a command, when in fact those fields hold no such guarantee by
-//! *absence*: they are validated free text (Layer B), not an absent column
-//! (Layer A). Nothing stops a future edit from reintroducing that overstated
-//! claim, or from re-conflating an applicability fact with a record's own
-//! `topic_key` (FR-570), except a check that runs every time.
+//! A free-text field — `content`, a topic key, a value key, or an applicability
+//! value — can carry unsafe material unless validated. Applicability is also
+//! distinct from a knowledge record's `topic_key`.
 //!
-//! Exactly like `global_content_validation.rs` does for SC-453, this is
-//! written as a pure function over (path, text) pairs and exercised twice:
+//! This is written as a pure function over (path, text) pairs and exercised twice:
 //! once over the real documents, where it must find nothing, and once over
 //! the real documents **plus a phrase deliberately reinserted**, where it
-//! must find it. An audit that only ever inspects today's text passes today
-//! and passes again the day someone undoes T183 by hand — which is the exact
-//! failure mode `scope_audit.rs` (T174) demonstrated for an unrelated claim.
+//! must find it.
 
 use std::path::{Path, PathBuf};
 
@@ -28,13 +20,12 @@ fn workspace_root() -> PathBuf {
         .to_path_buf()
 }
 
-/// The documents T183 corrected, plus the two others FR-550/FR-570 bind
-/// alongside them (`tasks.md` T184).
+/// Current documentation that states the product's privacy and applicability
+/// boundaries. Historical specs remain available from Git tags.
 const TARGET_DOCS: &[&str] = &[
-    "docs/history/alpha7/promotion-privacy.md",
-    "docs/history/alpha7/global-memory-data-model.md",
-    "docs/history/alpha7/global-memory-compatibility.md",
-    "docs/history/alpha7/global-memory.md",
+    "docs/product.md",
+    "docs/architecture.md",
+    "docs/integrations.md",
 ];
 
 fn read_docs(paths: &[&str]) -> Vec<(String, String)> {

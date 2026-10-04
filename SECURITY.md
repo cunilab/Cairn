@@ -50,7 +50,7 @@ fixes.
 Please report security issues privately rather than opening a public issue.
 
 Use GitHub's private reporting: **Security → Report a vulnerability** on
-<https://github.com/Vellixia/Cairn/security/advisories/new>.
+<https://github.com/cunilab/Cairn/security/advisories/new>.
 
 Include what you need to describe the issue — affected version, environment,
 reproduction steps, and impact. We aim to acknowledge a report within a few
@@ -61,18 +61,21 @@ reasonable opportunity to release a fix before disclosing publicly.
 
 Understanding the data boundary is usually the fastest way to judge impact.
 
-- **Local, by default.** Observations, memories, handoffs, sessions and tasks
-  live in a SQLite database under your Cairn home directory. Nothing leaves the
-  machine unless you explicitly link a project to a server.
-- **Never persisted.** Full conversations and raw tool output are not stored.
-  Captured payloads are bounded and summarized, and values matching common
-  secret patterns are redacted before anything is written.
-- **Never transmitted.** Raw observation content cannot be sent to a server:
-  there is no observation entity type on the wire, so such a payload cannot be
-  constructed. A memory or handoff carries evidence as identifiers and a count,
-  not content. Local-only memories are never queued for sync.
+- **Local edge.** SQLite under the Cairn home holds project binding, bounded
+  structured-event and command spools, delivery receipts, hook correlation,
+  and integration metadata. Finite-age returned context is cached in daemon
+  memory. The edge does not own canonical knowledge. Safe queued activity is sent to the authorized server;
+  offline capture is bounded and may be refused when capacity is exhausted.
+- **Canonical server.** PostgreSQL holds accepted safe events, knowledge,
+  evidence, sessions, handoffs, governance, and retrieval state. The server
+  independently validates event bounds and privacy before accepting them.
+- **Excluded material.** Full conversations, raw prompts, transcripts, diffs,
+  command output, credentials, and unbounded payloads are not admitted as safe
+  memory. Both edge and server screen paths and secrets; a rejected payload
+  is reported by policy class without echoing its contents.
 - **Credentials.** A server API token is stored in the Cairn home directory
-  with `0600` permissions.
+  with restricted local permissions. Protect that directory and the deployment
+  environment; logical export does not include credentials.
 
 ## Deployment notes
 
