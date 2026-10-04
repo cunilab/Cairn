@@ -586,6 +586,15 @@ pub(crate) async fn logical_import(
                 table_import(&mut savepoint, table(&record.kind).unwrap().1, &record).await
             };
             match result {
+                Ok("rejected") if record.kind == "account" => {
+                    savepoint.rollback().await?;
+                    tx.rollback().await?;
+                    return Err(ApiError::new(
+                        axum::http::StatusCode::CONFLICT,
+                        "identity_conflict",
+                        "bundle account conflicts with an existing identity; import was not applied",
+                    ));
+                }
                 Ok(value) => {
                     savepoint.commit().await?;
                     let reason = (value == "rejected").then(|| "identity_conflict".to_owned());

@@ -214,3 +214,155 @@ fn snapshot_preserves_pending_work_and_import_is_idempotent() {
         1
     );
 }
+
+#[test]
+fn logical_import_refuses_account_identity_conflicts_atomically_and_retries_after_resolution() {
+    let email = "same-bootstrap@example.test";
+    let Some(source) = Server::start_with_admin(email, "hunter2hunter2") else {
+        eprintln!("NOT RUN: CAIRN_TEST_DATABASE_URL is required");
+        return;
+    };
+    let source_token = source.token_for(email, "hunter2hunter2");
+    let earlier_account = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
+    source.execute(&format!(
+        "INSERT INTO users (id, email, display_name, password_hash, created_at) VALUES ('{earlier_account}', 'earlier-account@example.test', 'Earlier account', '!test-disabled!', '2026-01-01T00:00:00Z')"
+    ));
+    let project = Uuid::now_v7();
+    let source_account = source.get_json("/api/auth/me", &source_token)["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    source.execute(&format!(
+        "INSERT INTO projects (id, name, repository_remote) VALUES ('{project}', 'identity-conflict', 'github.com/example/identity-conflict')"
+    ));
+    source.execute(&format!(
+        "INSERT INTO project_members (project_id, user_id) VALUES ('{project}', '{source_account}')"
+    ));
+    let (bundle, export_status) =
+        get_json_status_bearer(&source.base, "/api/admin/logical-export", &source_token);
+    assert_eq!(export_status, 200, "export: {bundle}");
+    let account_ids = bundle["records"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|record| record["kind"] == "account")
+        .map(|record| record["source_id"].as_str().unwrap())
+        .collect::<Vec<_>>();
+    assert_eq!(account_ids[0], earlier_account.to_string());
+    assert_eq!(account_ids[1], source_account);
+
+    let Some(destination) = Server::start_with_admin(email, "hunter2hunter2") else {
+        panic!("destination database unavailable")
+    };
+    let destination_token = destination.token_for(email, "hunter2hunter2");
+    let destination_account = destination.get_json("/api/auth/me", &destination_token)["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    assert_ne!(
+        source_account, destination_account,
+        "fixture needs distinct IDs"
+    );
+
+    let body = json!({"import_id": bundle["bundle_id"], "bundle": bundle});
+    let (refusal, import_status) = post_json_status_bearer(
+        &destination.base,
+        "/api/admin/logical-import",
+        &body,
+        &destination_token,
+    );
+    assert_eq!(import_status, 409, "identity conflict: {refusal}");
+    assert_eq!(refusal["error"]["code"], "identity_conflict");
+    assert_eq!(
+        destination.count("SELECT count(*) FROM projects"),
+        0,
+        "an identity conflict must not leave accepted project rows"
+    );
+    assert_eq!(
+        destination.count("SELECT count(*) FROM logical_imports"),
+        0,
+        "an identity conflict must not reserve a retry receipt"
+    );
+    assert_eq!(
+        destination.count(&format!(
+            "SELECT count(*) FROM users WHERE id = '{earlier_account}'"
+        )),
+        0,
+        "an account sorted before the conflict must be rolled back"
+    );
+    assert_eq!(destination.count("SELECT count(*) FROM users"), 1);
+
+    destination.execute(&format!(
+        "UPDATE users SET email = 'renamed-bootstrap@example.test' WHERE id = '{destination_account}'"
+    ));
+    let (receipt, retry_status) = post_json_status_bearer(
+        &destination.base,
+        "/api/admin/logical-import",
+        &body,
+        &destination_token,
+    );
+    assert_eq!(retry_status, 200, "resolved retry: {receipt}");
+    assert_eq!(receipt["rejected"], 0, "resolved retry: {receipt}");
+    assert_eq!(destination.count("SELECT count(*) FROM projects"), 1);
+    assert_eq!(destination.count("SELECT count(*) FROM logical_imports"), 1);
+    assert_eq!(destination.count("SELECT count(*) FROM users"), 3);
+
+    let (idempotent, idempotent_status) = post_json_status_bearer(
+        &destination.base,
+        "/api/admin/logical-import",
+        &body,
+        &destination_token,
+    );
+    assert_eq!(idempotent_status, 200, "idempotent retry: {idempotent}");
+    assert_eq!(idempotent, receipt);
+
+    let exact_import_id = Uuid::now_v7();
+    let mut exact_body = body.clone();
+    exact_body["import_id"] = json!(exact_import_id);
+    exact_body["bundle"]["bundle_id"] = json!(exact_import_id);
+    let (exact, exact_status) = post_json_status_bearer(
+        &destination.base,
+        "/api/admin/logical-import",
+        &exact_body,
+        &destination_token,
+    );
+    assert_eq!(exact_status, 200, "exact identities: {exact}");
+    assert_eq!(exact["accepted"], 0, "exact identities: {exact}");
+    assert_eq!(exact["rejected"], 0, "exact identities: {exact}");
+    assert_eq!(exact["unchanged"], 4, "exact identities: {exact}");
+
+    let Some(same_id_destination) =
+        Server::start_with_admin("other-bootstrap@example.test", "hunter2hunter2")
+    else {
+        panic!("same-id destination database unavailable")
+    };
+    let same_id_token =
+        same_id_destination.token_for("other-bootstrap@example.test", "hunter2hunter2");
+    same_id_destination.execute(&format!(
+        "INSERT INTO users (id, email, display_name, password_hash) VALUES ('{source_account}', 'different-email@example.test', 'Different account', '!test-disabled!')"
+    ));
+    let (same_id_refusal, same_id_status) = post_json_status_bearer(
+        &same_id_destination.base,
+        "/api/admin/logical-import",
+        &body,
+        &same_id_token,
+    );
+    assert_eq!(same_id_status, 409, "same UUID conflict: {same_id_refusal}");
+    assert_eq!(same_id_refusal["error"]["code"], "identity_conflict");
+    assert_eq!(
+        same_id_destination.count(&format!(
+            "SELECT count(*) FROM users WHERE id = '{earlier_account}'"
+        )),
+        0,
+        "an earlier account must roll back for a same-UUID conflict too"
+    );
+    assert_eq!(same_id_destination.count("SELECT count(*) FROM users"), 2);
+    assert_eq!(
+        same_id_destination.count("SELECT count(*) FROM projects"),
+        0
+    );
+    assert_eq!(
+        same_id_destination.count("SELECT count(*) FROM logical_imports"),
+        0
+    );
+}

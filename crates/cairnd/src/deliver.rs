@@ -5,14 +5,14 @@
 //! # One budget, two assemblers
 //!
 //! The server selects the durable sections — `session_memory`, `branch_memory`,
-//! `project_memory`, `patterns`, `personal_notes`, `team_guidance` — against
-//! one delivery point's whole budget, and reports what it spent
-//! (`budget.tokens`, `budget.spent`) plus what it withheld for whoever owes
-//! Level 0 (`budget.reserved_for_level0`). This module gives the daemon's own
-//! Level 0 / local-section assembly (`crate::briefing::build`) exactly what is
-//! left — `tokens - spent`, which the server guarantees is never less than
-//! `reserved_for_level0` — and never recomputes that fraction itself: a
-//! second place computing it is a second place for it to drift.
+//! `project_memory`, `patterns`, `personal_notes`, `team_guidance` — and sends
+//! the authenticated continuity inputs it alone owns: previous handoff,
+//! warnings, and pins. It reports what durable selection spent
+//! (`budget.tokens`, `budget.spent`) plus what it withheld for Level 0
+//! (`budget.reserved_for_level0`). This module gives the one Level 0 assembler
+//! exactly what remains — `tokens - spent` — and combines those server inputs
+//! with the repository working state derived on this machine. It never
+//! recomputes the reserve fraction, and it never reads historical SQLite state.
 //!
 //! `patterns` is taken from the server like every other durable section, and
 //! for a stricter reason than the others. The server selects a canonical
@@ -25,14 +25,6 @@
 //! (`cairn-server/src/retrieve.rs::SectionPattern`) and the merge below
 //! renders those fields under that id.
 //!
-//! The daemon's own `crate::briefing::level1_patterns` reads local
-//! `reusable_patterns` — this machine's promotions, matched against this
-//! project's recorded signals. That is a different universe of rows with
-//! different ids, so substituting one of them for a canonical selection would
-//! make the server's `delivered_context` a record of something the agent never
-//! saw. `briefing::build` runs it only under `Durable::Local`, for an unlinked
-//! project that has no server selection to be faithful to.
-//!
 //! # The outage cache (§12.3, FR-789, FR-790a, SC-718)
 //!
 //! Retrieval moved server-side, so an outage means no fresh *durable*
@@ -40,15 +32,11 @@
 //! bound to the account it was assembled for, and is consulted only when the
 //! server cannot be reached at all this call.
 //!
-//! **Level 0 is not always current, and saying so was the FR-790a defect.**
-//! For a project whose briefing is server-side, a call with no fresh response
-//! and no cache entry *for this account* serves nothing derived from the local
-//! store — not Level 0 or previous handoff.
-//! On a cache miss the server has not established what this caller may see, so
-//! there is nothing to check them against, and the local store is one machine's
-//! store shared by every account that signs in on it. An **unlinked** project
-//! is the other case and keeps its local assembly: there is no server authority
-//! to defer to, so its own store is the only authority there is.
+//! **Server-owned Level 0 is not always current, and saying so was the FR-790a
+//! defect.** With no fresh response and no cache entry *for this account*, the
+//! daemon serves only repository state: no handoff, warnings, pins, or durable
+//! knowledge. The local edge is deliberately not a fallback authority for any
+//! of those fields.
 
 use crate::state::{Daemon, Resolved};
 use serde_json::{json, Value};
@@ -103,6 +91,9 @@ const CACHE_TTL: Duration = Duration::from_secs(300);
 
 struct CachedResponse {
     account_id: Uuid,
+    trigger: Trigger,
+    open_trigger: Option<String>,
+    budget_tokens: usize,
     cached_at: std::time::Instant,
     /// The server's own answer, verbatim — `sections`, `degradation_level`,
     /// `budget`, `trace_id` and all. Read back through the same parser a
@@ -112,7 +103,7 @@ struct CachedResponse {
     response: Value,
 }
 
-/// Last briefing per session, account-bound, LRU-evicted at
+/// Last briefing per session, account- and request-bound, LRU-evicted at
 /// [`CACHE_MAX_SESSIONS`] sessions, each entry capped at [`CACHE_MAX_BYTES`].
 ///
 /// A cache, not durable state (Principle II): in-memory, lost on restart, and
@@ -140,7 +131,16 @@ impl OutageCache {
     /// truncated durable section would misrepresent what the server actually
     /// said the last time it was reachable, which is worse than simply not
     /// caching it. The session keeps whatever entry it already had.
-    fn put(&mut self, session_id: Uuid, account_id: Uuid, response: &Value) {
+    #[allow(clippy::too_many_arguments)]
+    fn put(
+        &mut self,
+        session_id: Uuid,
+        account_id: Uuid,
+        trigger: Trigger,
+        open_trigger: Option<&str>,
+        budget_tokens: usize,
+        response: &Value,
+    ) {
         let bytes = serde_json::to_vec(response)
             .map(|b| b.len())
             .unwrap_or(usize::MAX);
@@ -151,6 +151,9 @@ impl OutageCache {
             session_id,
             CachedResponse {
                 account_id,
+                trigger,
+                open_trigger: open_trigger.map(str::to_owned),
+                budget_tokens,
                 cached_at: std::time::Instant::now(),
                 response: response.clone(),
             },
@@ -163,12 +166,23 @@ impl OutageCache {
         }
     }
 
-    /// Served only for the account it was assembled for (FR-790a) — an entry
-    /// belonging to a different account is treated exactly as though none
-    /// existed, never returned and never even inspected beyond the id check.
-    fn get(&mut self, session_id: Uuid, account_id: Uuid) -> Option<Value> {
+    /// Served only for the account and exact retrieval request it was assembled
+    /// for (FR-790a). A different budget, trigger, or session-open reason may
+    /// have selected different content, so it is a miss rather than a replay.
+    fn get(
+        &mut self,
+        session_id: Uuid,
+        account_id: Uuid,
+        trigger: Trigger,
+        open_trigger: Option<&str>,
+        budget_tokens: usize,
+    ) -> Option<Value> {
         let hit = self.entries.get(&session_id)?;
-        if hit.account_id != account_id {
+        if hit.account_id != account_id
+            || hit.trigger != trigger
+            || hit.open_trigger.as_deref() != open_trigger
+            || hit.budget_tokens != budget_tokens
+        {
             return None;
         }
         if hit.cached_at.elapsed() > CACHE_TTL {
@@ -209,9 +223,8 @@ impl OutageCache {
 // Delivery
 // ---------------------------------------------------------------------------
 
-/// What one delivery produced, ready for a caller to render and — except for
-/// [`Trigger::Explicit`], and except when [`Delivered::trace_id`] is `None` —
-/// report the transmission outcome of.
+/// What one delivery produced, ready for a caller to render and inspect for a
+/// fresh `trace_id` before reporting the transmission outcome.
 pub struct Delivered {
     pub payload: Value,
 }
@@ -223,7 +236,7 @@ pub struct Delivered {
 /// constant of its own.
 pub async fn deliver(
     d: &Daemon,
-    _resolved: &Resolved,
+    resolved: &Resolved,
     session_id: Uuid,
     trigger: Trigger,
     open_trigger: Option<&str>,
@@ -256,11 +269,18 @@ pub async fn deliver(
 
     let (response, served_from_cache) = match remote {
         Answer::Answered(response) => {
+            if !response_budget_is_valid(&response, budget_tokens) {
+                return unavailable_delivery(d, resolved, budget_tokens, deadline, started).await;
+            }
             if let Some(account_id) = account_id {
-                d.outage_cache
-                    .lock()
-                    .await
-                    .put(session_id, account_id, &response);
+                d.outage_cache.lock().await.put(
+                    session_id,
+                    account_id,
+                    trigger,
+                    open_trigger,
+                    budget_tokens,
+                    &response,
+                );
             }
             (Some(response), false)
         }
@@ -278,31 +298,129 @@ pub async fn deliver(
         Answer::Rejected => (None, false),
         Answer::Unreachable => {
             let cached = match account_id {
-                Some(account_id) => d.outage_cache.lock().await.get(session_id, account_id),
+                Some(account_id) => d.outage_cache.lock().await.get(
+                    session_id,
+                    account_id,
+                    trigger,
+                    open_trigger,
+                    budget_tokens,
+                ),
                 None => None,
             };
             match cached {
-                Some(cached) => (Some(cached), true),
+                Some(cached) if response_budget_is_valid(&cached, budget_tokens) => {
+                    (Some(cached), true)
+                }
                 None => (None, false),
+                Some(_) => (None, false),
             }
         }
     };
 
-    let meta = ResponseMeta::extract(response.as_ref(), served_from_cache);
-    let mut payload = response.unwrap_or_else(|| {
-        json!({
-            "fresh_knowledge_unavailable": true,
-            "degradation_level": "none",
-            "sections": {},
-        })
-    });
+    let mut meta = ResponseMeta::extract(response.as_ref(), served_from_cache);
+    let local_budget = meta.local_budget(budget_tokens);
+    let continuity = response
+        .as_ref()
+        .and_then(|answer| answer.get("continuity"));
+    let payload_result = tokio::time::timeout(
+        remaining_deadline(deadline, started),
+        crate::briefing::build(d, resolved, continuity, response.is_some(), local_budget),
+    )
+    .await;
+    let mut payload = match payload_result {
+        Ok(Ok(built)) => serde_json::to_value(built).unwrap_or_else(|_| json!({})),
+        Ok(Err(e)) => {
+            meta.degradation_level = "none".into();
+            json!({ "error": e.message })
+        }
+        Err(_) => {
+            meta.degradation_level = "none".into();
+            json!({
+                "fresh_knowledge_unavailable": true,
+                "degradation_level": "none",
+                "sections": {},
+            })
+        }
+    };
+
+    match response.as_ref().and_then(|answer| answer.get("sections")) {
+        Some(sections) => merge_durable_sections(&mut payload, sections),
+        None => {
+            if let Some(object) = payload.as_object_mut() {
+                object.insert("fresh_knowledge_unavailable".into(), json!(true));
+            }
+        }
+    }
+    // The local assembler reports only what it spent. Add the server's
+    // already-budgeted durable spend and restore the caller-visible whole
+    // budget; `local_budget = tokens - spent` keeps the sum within it.
+    if meta.answered {
+        let local_spent = payload
+            .get("estimated_tokens")
+            .and_then(Value::as_u64)
+            .unwrap_or(0) as usize;
+        if let Some(object) = payload.as_object_mut() {
+            object.insert(
+                "estimated_tokens".into(),
+                json!(local_spent.saturating_add(meta.spent)),
+            );
+            object.insert("budget".into(), json!(meta.tokens));
+        }
+    }
+    if payload.get("degraded").and_then(Value::as_bool) == Some(true)
+        && meta.degradation_level == "full"
+    {
+        meta.degradation_level = "reduced".into();
+    }
+    copy_response_envelope(response.as_ref(), &mut payload);
     embed_meta(&mut payload, &meta, served_from_cache);
 
     Delivered { payload }
 }
 
+async fn unavailable_delivery(
+    d: &Daemon,
+    resolved: &Resolved,
+    budget_tokens: usize,
+    deadline: Duration,
+    started: std::time::Instant,
+) -> Delivered {
+    let built = tokio::time::timeout(
+        remaining_deadline(deadline, started),
+        crate::briefing::build(d, resolved, None, false, budget_tokens),
+    )
+    .await;
+    let mut payload = match built {
+        Ok(Ok(payload)) => serde_json::to_value(payload).unwrap_or_else(|_| json!({})),
+        Ok(Err(error)) => json!({ "error": error.message }),
+        Err(_) => json!({}),
+    };
+    if let Some(object) = payload.as_object_mut() {
+        object.insert("fresh_knowledge_unavailable".into(), json!(true));
+    }
+    embed_meta(&mut payload, &ResponseMeta::unavailable(), false);
+    Delivered { payload }
+}
+
 fn remaining_deadline(deadline: Duration, started: std::time::Instant) -> Duration {
     deadline.saturating_sub(started.elapsed())
+}
+
+/// A server answer must not be able to widen the caller's budget, and a cache
+/// entry created for a larger request must not be replayed into a smaller one.
+fn response_budget_is_valid(response: &Value, requested: usize) -> bool {
+    let Some(budget) = response.get("budget") else {
+        return false;
+    };
+    let (Some(tokens), Some(spent), Some(reserved)) = (
+        budget.get("tokens").and_then(Value::as_u64),
+        budget.get("spent").and_then(Value::as_u64),
+        budget.get("reserved_for_level0").and_then(Value::as_u64),
+    ) else {
+        return false;
+    };
+    let requested = requested as u64;
+    tokens <= requested && spent <= tokens && reserved <= tokens.saturating_sub(spent)
 }
 
 /// Report what actually happened to a generated briefing
@@ -442,11 +560,10 @@ enum Answer {
 /// pulled out of the raw `Value` once so the rest of the module never
 /// re-parses it.
 struct ResponseMeta {
+    answered: bool,
     trace_id: Option<Uuid>,
     degradation_level: String,
-    #[cfg(test)]
     tokens: usize,
-    #[cfg(test)]
     spent: usize,
 }
 
@@ -458,11 +575,10 @@ impl ResponseMeta {
     /// `none` row: "retrieval produced nothing").
     fn unavailable() -> Self {
         Self {
+            answered: false,
             trace_id: None,
             degradation_level: "none".to_string(),
-            #[cfg(test)]
             tokens: 0,
-            #[cfg(test)]
             spent: 0,
         }
     }
@@ -478,6 +594,7 @@ impl ResponseMeta {
             return Self::unavailable();
         };
         Self {
+            answered: true,
             trace_id: if from_cache {
                 None
             } else {
@@ -491,13 +608,11 @@ impl ResponseMeta {
                 .and_then(|v| v.as_str())
                 .unwrap_or("none")
                 .to_string(),
-            #[cfg(test)]
             tokens: response
                 .get("budget")
                 .and_then(|b| b.get("tokens"))
                 .and_then(|v| v.as_u64())
                 .unwrap_or(0) as usize,
-            #[cfg(test)]
             spent: response
                 .get("budget")
                 .and_then(|b| b.get("spent"))
@@ -513,9 +628,8 @@ impl ResponseMeta {
     /// this (`budget.reserved_for_level0`), so this never recomputes that
     /// fraction itself. The whole local budget when nothing durable was
     /// retrieved at all: nothing else claimed a share of it that time.
-    #[cfg(test)]
     fn local_budget(&self, full: usize) -> usize {
-        if self.tokens == 0 {
+        if !self.answered {
             full
         } else {
             self.tokens.saturating_sub(self.spent)
@@ -527,7 +641,6 @@ impl ResponseMeta {
 /// it, discarding everything but the rendered text — reference keys, ranks
 /// and costs are trace-only detail (`contracts/retrieval-delivery.md` §6),
 /// not briefing content.
-#[cfg(test)]
 fn section_contents(sections: &Value, name: &str) -> Vec<String> {
     sections
         .get(name)
@@ -553,7 +666,6 @@ fn section_contents(sections: &Value, name: &str) -> Vec<String> {
 /// shown. `patterns` is rendered from the canonical fields the server sent
 /// with its selection, under the very id the server traced; see the module
 /// docs for why that one is not merely a preference.
-#[cfg(test)]
 fn merge_durable_sections(payload: &mut Value, sections: &Value) {
     let Some(briefing) = payload.get_mut("briefing").and_then(|b| b.as_object_mut()) else {
         return;
@@ -631,6 +743,29 @@ fn merge_durable_sections(payload: &mut Value, sections: &Value) {
     }
 }
 
+/// Preserve the non-content parts of the authenticated retrieval envelope.
+/// `sections` and `continuity` are deliberately excluded: both were consumed
+/// through their typed/budgeted paths above rather than copied around them.
+fn copy_response_envelope(response: Option<&Value>, payload: &mut Value) {
+    let (Some(source), Some(target)) =
+        (response.and_then(Value::as_object), payload.as_object_mut())
+    else {
+        return;
+    };
+    for key in [
+        "trigger",
+        "delivery_point",
+        "open_trigger",
+        "restored_after_compaction",
+        "cache_age_seconds",
+        "cache_account_id",
+    ] {
+        if let Some(value) = source.get(key) {
+            target.insert(key.into(), value.clone());
+        }
+    }
+}
+
 /// Add what a caller needs beyond the rendered briefing itself: whether this
 /// answer is fresh or replayed, at what level, and — only when it is fresh —
 /// the trace to report a transmission outcome against.
@@ -664,6 +799,77 @@ mod tests {
                 "session_memory": [{ "content": "s1" }],
             },
         })
+    }
+
+    fn continuity() -> Value {
+        json!({
+            "previous_handoff": {
+                "id": "0199b6d0-d228-7b91-a420-2f935a954731",
+                "session_id": "0199b6d0-d228-7b91-a420-2f935a954732",
+                "trigger": "session_end",
+                "goal": "ship alpha.9",
+                "progress": "candidate built",
+                "completed_work": ["built candidate"],
+                "remaining_work": ["publish release"],
+                "changed_files": ["crates/cairnd/src/deliver.rs"],
+                "decisions": ["server authorizes continuity"],
+                "failures": ["old response omitted Level 0"],
+                "tests_executed": [],
+                "repository_state": {
+                    "branch": "main",
+                    "commit_sha": "abc1234",
+                    "staged": 0,
+                    "unstaged": 0,
+                    "untracked": 0
+                },
+                "next_step": "publish release",
+                "agent_note": null,
+                "evidence": [],
+                "created_at": "2026-10-04T00:00:00Z",
+                "deleted_at": null
+            },
+            "warnings": [{
+                "kind": "conflict",
+                "subject": "release channel",
+                "detail": "alpha and stable both recorded"
+            }],
+            "pins": [{
+                "id": "0199b6d0-d228-7b91-a420-2f935a954733",
+                "text": "never publish untested artifacts",
+                "drifted": false
+            }]
+        })
+    }
+
+    async fn serve_once(status: &'static str, body: Value) -> String {
+        let body = serde_json::to_vec(&body).unwrap();
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut request = [0_u8; 4096];
+            let _ = socket.read(&mut request).await.unwrap();
+            socket
+                .write_all(
+                    format!(
+                        "HTTP/1.1 {status}\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n",
+                        body.len()
+                    )
+                    .as_bytes(),
+                )
+                .await
+                .unwrap();
+            socket.write_all(&body).await.unwrap();
+        });
+        format!("http://{address}")
+    }
+
+    fn cache_put(cache: &mut OutageCache, session: Uuid, account: Uuid, response: &Value) {
+        cache.put(session, account, Trigger::Explicit, None, 3000, response);
+    }
+
+    fn cache_get(cache: &mut OutageCache, session: Uuid, account: Uuid) -> Option<Value> {
+        cache.get(session, account, Trigger::Explicit, None, 3000)
     }
 
     #[test]
@@ -704,6 +910,25 @@ mod tests {
         );
     }
 
+    #[test]
+    fn retrieval_budget_metadata_cannot_widen_or_overdraw_the_request() {
+        assert!(response_budget_is_valid(
+            &response("t", "full", 3000, 100),
+            3000
+        ));
+        assert!(!response_budget_is_valid(
+            &response("t", "full", 3001, 100),
+            3000
+        ));
+        assert!(!response_budget_is_valid(
+            &response("t", "full", 3000, 3001),
+            3000
+        ));
+        let mut steals_reserve = response("t", "full", 3000, 2000);
+        steals_reserve["budget"]["reserved_for_level0"] = json!(1200);
+        assert!(!response_budget_is_valid(&steals_reserve, 3000));
+    }
+
     // -- OutageCache -----------------------------------------------------
 
     /// The invariant the caller specifically asked to see tested: a cached
@@ -718,14 +943,25 @@ mod tests {
         let owner = Uuid::now_v7();
         let intruder = Uuid::now_v7();
 
-        cache.put(session, owner, &response("t1", "full", 3000, 100));
+        cache_put(
+            &mut cache,
+            session,
+            owner,
+            &response("t1", "full", 3000, 100),
+        );
 
         assert!(
-            cache.get(session, intruder).is_none(),
+            cache_get(&mut cache, session, intruder).is_none(),
             "a different account must not read the owner's cached briefing"
         );
         assert!(
-            cache.get(session, owner).is_some(),
+            cache
+                .get(session, owner, Trigger::PromptSubmit, None, 3000)
+                .is_none(),
+            "a different delivery point must not reuse an explicit answer"
+        );
+        assert!(
+            cache_get(&mut cache, session, owner).is_some(),
             "the owning account's own read must still succeed"
         );
     }
@@ -738,10 +974,20 @@ mod tests {
         let session = Uuid::now_v7();
         let owner = Uuid::now_v7();
 
-        cache.put(session, owner, &response("t1", "full", 3000, 100));
-        cache.put(session, owner, &response("t2", "reduced", 3000, 40));
+        cache_put(
+            &mut cache,
+            session,
+            owner,
+            &response("t1", "full", 3000, 100),
+        );
+        cache_put(
+            &mut cache,
+            session,
+            owner,
+            &response("t2", "reduced", 3000, 40),
+        );
 
-        let got = cache.get(session, owner).expect("entry");
+        let got = cache_get(&mut cache, session, owner).expect("entry");
         assert_eq!(got["trace_id"], "t2");
         assert_eq!(got["cache_account_id"], owner.to_string());
         assert!(got["cache_age_seconds"].is_u64());
@@ -752,10 +998,15 @@ mod tests {
         let mut cache = OutageCache::default();
         let session = Uuid::now_v7();
         let owner = Uuid::now_v7();
-        cache.put(session, owner, &response("t1", "full", 3000, 100));
+        cache_put(
+            &mut cache,
+            session,
+            owner,
+            &response("t1", "full", 3000, 100),
+        );
         cache.entries.get_mut(&session).unwrap().cached_at =
             std::time::Instant::now() - CACHE_TTL - Duration::from_secs(1);
-        assert!(cache.get(session, owner).is_none());
+        assert!(cache_get(&mut cache, session, owner).is_none());
     }
 
     #[test]
@@ -763,9 +1014,14 @@ mod tests {
         let mut cache = OutageCache::default();
         let session = Uuid::now_v7();
         let owner = Uuid::now_v7();
-        cache.put(session, owner, &response("t1", "full", 3000, 100));
+        cache_put(
+            &mut cache,
+            session,
+            owner,
+            &response("t1", "full", 3000, 100),
+        );
         cache.invalidate(session, owner);
-        assert!(cache.get(session, owner).is_none());
+        assert!(cache_get(&mut cache, session, owner).is_none());
     }
 
     #[tokio::test]
@@ -774,10 +1030,15 @@ mod tests {
         let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
         let session = Uuid::now_v7();
         let account = Uuid::now_v7();
+        let mut cached = response("cached", "full", 3000, 100);
+        cached["continuity"] = continuity();
         repo.daemon.outage_cache.lock().await.put(
             session,
             account,
-            &response("cached", "full", 3000, 100),
+            Trigger::Explicit,
+            None,
+            3000,
+            &cached,
         );
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let address = listener.local_addr().unwrap();
@@ -804,6 +1065,259 @@ mod tests {
         .await;
         assert_eq!(delivered.payload["served_from_cache"], true);
         assert_eq!(delivered.payload["cache_account_id"], account.to_string());
+        assert!(delivered.payload["trace_id"].is_null());
+        assert_eq!(
+            delivered.payload["briefing"]["previous_handoff"]["next_step"],
+            "publish release"
+        );
+        assert_eq!(
+            delivered.payload["briefing"]["constraints"][0]["text"],
+            "never publish untested artifacts"
+        );
+    }
+
+    #[tokio::test]
+    async fn a_live_refusal_never_replays_cached_continuity() {
+        let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
+        let session = fx::session(&repo.daemon, &resolved.project, "refused-level0").await;
+        let account = Uuid::now_v7();
+        let mut cached = response("cached", "full", 3000, 100);
+        cached["continuity"] = continuity();
+        repo.daemon.outage_cache.lock().await.put(
+            session.id,
+            account,
+            Trigger::Explicit,
+            None,
+            3000,
+            &cached,
+        );
+        let url = serve_once("403 Forbidden", json!({ "error": "forbidden" })).await;
+        *repo.daemon.server.write().await = ServerCredentials {
+            url: Some(url),
+            token: Some("token".into()),
+            account_id: Some(account),
+        };
+
+        let delivered = deliver(
+            &repo.daemon,
+            &resolved,
+            session.id,
+            Trigger::Explicit,
+            None,
+            3000,
+            Duration::from_secs(1),
+        )
+        .await;
+
+        assert_eq!(delivered.payload["served_from_cache"], false);
+        assert_eq!(delivered.payload["fresh_knowledge_unavailable"], true);
+        assert!(delivered.payload["briefing"]["previous_handoff"].is_null());
+        assert!(delivered.payload["briefing"]["constraints"].is_null());
+        assert!(repo
+            .daemon
+            .outage_cache
+            .lock()
+            .await
+            .get(session.id, account, Trigger::Explicit, None, 3000,)
+            .is_none());
+    }
+
+    /// Regression for the alpha.9 delivery-path rewrite: the server owns
+    /// durable selection, but its response is not itself a complete briefing.
+    /// The daemon must spend the budget the server left for Level 0 and then
+    /// merge the selected durable sections into that locally assembled frame.
+    #[tokio::test]
+    async fn a_fresh_server_answer_keeps_level0_and_merges_durable_sections() {
+        let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
+        let session = fx::session(&repo.daemon, &resolved.project, "level0").await;
+        let account = Uuid::now_v7();
+        let mut answer = response("0199b6d0-d228-7b91-a420-2f935a95473b", "full", 3000, 100);
+        answer["continuity"] = continuity();
+        let url = serve_once("200 OK", answer).await;
+        *repo.daemon.server.write().await = ServerCredentials {
+            url: Some(url),
+            token: Some("token".into()),
+            account_id: Some(account),
+        };
+
+        let delivered = deliver(
+            &repo.daemon,
+            &resolved,
+            session.id,
+            Trigger::Explicit,
+            None,
+            3000,
+            Duration::from_secs(1),
+        )
+        .await;
+
+        assert_eq!(
+            delivered.payload["briefing"]["repository"]["branch"],
+            "main"
+        );
+        assert_eq!(
+            delivered.payload["briefing"]["memory"]["session"],
+            json!(["s1"])
+        );
+        assert_eq!(
+            delivered.payload["briefing"]["previous_handoff"]["next_step"],
+            "publish release"
+        );
+        assert!(delivered.payload["briefing"]["warnings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|warning| warning["subject"] == "release channel"));
+        assert_eq!(
+            delivered.payload["briefing"]["constraints"][0]["text"],
+            "never publish untested artifacts"
+        );
+        assert!(
+            delivered.payload["estimated_tokens"].as_u64().unwrap() <= 3000,
+            "local continuity plus durable selection must fit the whole budget"
+        );
+        assert_eq!(delivered.payload["budget"], 3000);
+        assert_eq!(
+            delivered.payload["trace_id"],
+            "0199b6d0-d228-7b91-a420-2f935a95473b"
+        );
+    }
+
+    #[tokio::test]
+    async fn malformed_continuity_degrades_without_hiding_durable_sections() {
+        let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
+        let session = fx::session(&repo.daemon, &resolved.project, "malformed-level0").await;
+        let account = Uuid::now_v7();
+        let mut answer = response("0199b6d0-d228-7b91-a420-2f935a95473c", "full", 3000, 100);
+        answer["continuity"] = json!({ "pins": "not-an-array" });
+        let url = serve_once("200 OK", answer).await;
+        *repo.daemon.server.write().await = ServerCredentials {
+            url: Some(url),
+            token: Some("token".into()),
+            account_id: Some(account),
+        };
+
+        let delivered = deliver(
+            &repo.daemon,
+            &resolved,
+            session.id,
+            Trigger::Explicit,
+            None,
+            3000,
+            Duration::from_secs(1),
+        )
+        .await;
+
+        assert_eq!(delivered.payload["degraded"], true);
+        assert_eq!(
+            delivered.payload["briefing"]["memory"]["session"],
+            json!(["s1"])
+        );
+        assert!(delivered.payload["briefing"]["constraints"].is_null());
+    }
+
+    #[tokio::test]
+    async fn a_server_without_the_continuity_field_is_explicitly_degraded() {
+        let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
+        let session = fx::session(&repo.daemon, &resolved.project, "missing-level0").await;
+        let account = Uuid::now_v7();
+        let answer = response("0199b6d0-d228-7b91-a420-2f935a95473d", "full", 3000, 100);
+        let url = serve_once("200 OK", answer).await;
+        *repo.daemon.server.write().await = ServerCredentials {
+            url: Some(url),
+            token: Some("token".into()),
+            account_id: Some(account),
+        };
+
+        let delivered = deliver(
+            &repo.daemon,
+            &resolved,
+            session.id,
+            Trigger::Explicit,
+            None,
+            3000,
+            Duration::from_secs(1),
+        )
+        .await;
+
+        assert_eq!(delivered.payload["degraded"], true);
+        assert_eq!(delivered.payload["degradation_level"], "reduced");
+        assert_eq!(
+            delivered.payload["briefing"]["repository"]["branch"],
+            "main"
+        );
+        assert_eq!(
+            delivered.payload["briefing"]["memory"]["session"],
+            json!(["s1"])
+        );
+    }
+
+    #[tokio::test]
+    async fn a_cached_answer_for_a_larger_budget_is_not_replayed() {
+        let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
+        let session = fx::session(&repo.daemon, &resolved.project, "small-budget").await;
+        let account = Uuid::now_v7();
+        let mut cached = response("cached", "full", 3000, 100);
+        cached["continuity"] = continuity();
+        repo.daemon.outage_cache.lock().await.put(
+            session.id,
+            account,
+            Trigger::Explicit,
+            None,
+            3000,
+            &cached,
+        );
+        let url = serve_once("500 Internal Server Error", json!({})).await;
+        *repo.daemon.server.write().await = ServerCredentials {
+            url: Some(url),
+            token: Some("token".into()),
+            account_id: Some(account),
+        };
+
+        let delivered = deliver(
+            &repo.daemon,
+            &resolved,
+            session.id,
+            Trigger::Explicit,
+            None,
+            100,
+            Duration::from_secs(1),
+        )
+        .await;
+
+        assert_eq!(delivered.payload["served_from_cache"], false);
+        assert_eq!(delivered.payload["fresh_knowledge_unavailable"], true);
+        assert!(delivered.payload["briefing"]["previous_handoff"].is_null());
+        assert!(delivered.payload["estimated_tokens"].as_u64().unwrap() <= 100);
+    }
+
+    #[tokio::test]
+    async fn delivery_does_not_run_past_an_exhausted_deadline() {
+        let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
+        let session = fx::session(&repo.daemon, &resolved.project, "deadline").await;
+        let started = std::time::Instant::now();
+
+        let delivered = deliver(
+            &repo.daemon,
+            &resolved,
+            session.id,
+            Trigger::Explicit,
+            None,
+            3000,
+            Duration::ZERO,
+        )
+        .await;
+
+        assert!(started.elapsed() < Duration::from_millis(100));
+        assert_eq!(delivered.payload["fresh_knowledge_unavailable"], true);
+        assert_eq!(delivered.payload["degradation_level"], "none");
+        assert!(delivered.payload["trace_id"].is_null());
     }
 
     /// An over-budget entry is rejected outright, and whatever the session
@@ -815,7 +1329,12 @@ mod tests {
         let session = Uuid::now_v7();
         let owner = Uuid::now_v7();
 
-        cache.put(session, owner, &response("t1", "full", 3000, 100));
+        cache_put(
+            &mut cache,
+            session,
+            owner,
+            &response("t1", "full", 3000, 100),
+        );
 
         let huge_note = "x".repeat(CACHE_MAX_BYTES + 1024);
         let oversized = json!({
@@ -824,10 +1343,10 @@ mod tests {
             "budget": { "tokens": 3000, "spent": 100, "reserved_for_level0": 1200 },
             "sections": { "personal_notes": [{ "content": huge_note }] },
         });
-        cache.put(session, owner, &oversized);
+        cache_put(&mut cache, session, owner, &oversized);
 
         let got = cache
-            .get(session, owner)
+            .get(session, owner, Trigger::Explicit, None, 3000)
             .expect("the original entry survives");
         assert_eq!(
             got["trace_id"], "t1",
@@ -844,25 +1363,25 @@ mod tests {
         let sessions: Vec<Uuid> = (0..CACHE_MAX_SESSIONS).map(|_| Uuid::now_v7()).collect();
 
         for s in &sessions {
-            cache.put(*s, owner, &response("t", "full", 3000, 0));
+            cache_put(&mut cache, *s, owner, &response("t", "full", 3000, 0));
         }
         assert_eq!(cache.len(), CACHE_MAX_SESSIONS);
 
         // Touch every session but the first, so it is unambiguously the
         // least recently used one when the cap is next exceeded.
         for s in &sessions[1..] {
-            assert!(cache.get(*s, owner).is_some());
+            assert!(cache_get(&mut cache, *s, owner).is_some());
         }
 
         let newcomer = Uuid::now_v7();
-        cache.put(newcomer, owner, &response("t", "full", 3000, 0));
+        cache_put(&mut cache, newcomer, owner, &response("t", "full", 3000, 0));
 
         assert_eq!(cache.len(), CACHE_MAX_SESSIONS);
         assert!(
-            cache.get(sessions[0], owner).is_none(),
+            cache_get(&mut cache, sessions[0], owner).is_none(),
             "the session nothing touched again must be the one evicted"
         );
-        assert!(cache.get(newcomer, owner).is_some());
+        assert!(cache_get(&mut cache, newcomer, owner).is_some());
     }
 
     // -- ResponseMeta ------------------------------------------------------
@@ -888,6 +1407,12 @@ mod tests {
     fn local_budget_falls_back_to_the_full_local_budget_when_nothing_was_retrieved() {
         let meta = ResponseMeta::unavailable();
         assert_eq!(meta.local_budget(3000), 3000);
+    }
+
+    #[test]
+    fn a_real_zero_token_answer_does_not_become_the_full_local_budget() {
+        let meta = ResponseMeta::extract(Some(&response("t1", "full", 0, 0)), false);
+        assert_eq!(meta.local_budget(1), 0);
     }
 
     /// An empty durable selection is a complete delivery of nothing owed

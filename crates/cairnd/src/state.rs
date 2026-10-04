@@ -223,6 +223,17 @@ pub async fn git_status(worktree: PathBuf) -> Result<cairn_git::GitStatus, WireE
         .map_err(git_err)
 }
 
+/// Convert the caller-visible Git snapshot into briefing repository state.
+pub fn repo_state(st: &cairn_git::GitStatus) -> cairn_core::domain::RepositoryState {
+    cairn_core::domain::RepositoryState {
+        branch: st.branch.clone(),
+        commit_sha: st.commit_sha.clone(),
+        staged: st.staged,
+        unstaged: st.unstaged,
+        untracked: st.untracked,
+    }
+}
+
 pub fn git_err(e: cairn_git::GitError) -> WireError {
     match e {
         cairn_git::GitError::NotARepository(p) => WireError::new(

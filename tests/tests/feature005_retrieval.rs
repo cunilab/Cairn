@@ -50,12 +50,15 @@ macro_rules! pg {
 // ---------------------------------------------------------------------------
 
 fn retrieve(pg: &Pg, who: &Account, session: Uuid, trigger: &str) -> (Value, u16) {
-    post_json_status_bearer(
-        &pg.server.base,
-        "/api/retrieve",
-        &json!({ "session_id": session, "trigger": trigger }),
-        &who.token,
+    retrieve_with(
+        pg,
+        who,
+        json!({ "session_id": session, "trigger": trigger }),
     )
+}
+
+fn retrieve_with(pg: &Pg, who: &Account, body: Value) -> (Value, u16) {
+    post_json_status_bearer(&pg.server.base, "/api/retrieve", &body, &who.token)
 }
 
 fn report_transmitted(pg: &Pg, who: &Account, trace_id: &str) -> (Value, u16) {
@@ -85,6 +88,46 @@ fn seed_project_memory(pg: &Pg, session: Uuid, content: &str) -> Uuid {
         "INSERT INTO memories (id, project_id, type, scope, scope_key, content, origin_session_id)
          VALUES ('{id}', '{}', 'fact', 'project', '{}', '{content}', '{session}')",
         pg.project, pg.project
+    ));
+    id
+}
+
+fn seed_handoff(pg: &Pg, project: Uuid, session: Uuid, marker: &str) -> Uuid {
+    let id = Uuid::now_v7();
+    let marker = escape(marker);
+    pg.server.execute(&format!(
+        r#"INSERT INTO handoffs
+            (id, project_id, session_id, trigger, goal, progress, completed_work,
+             remaining_work, changed_files, decisions, failures, tests_executed,
+             repository_state, next_step)
+         VALUES ('{id}', '{project}', '{session}', 'session_end', '{marker} goal',
+                 '{marker} progress', '[]'::jsonb, '[]'::jsonb, '[]'::jsonb,
+                 '[]'::jsonb, '[]'::jsonb, '[]'::jsonb,
+                 '{{"branch":"main","commit_sha":null,"staged":0,"unstaged":0,"untracked":0}}'::jsonb,
+                 '{marker} next')"#
+    ));
+    id
+}
+
+fn seed_continuity_memory(
+    pg: &Pg,
+    project: Uuid,
+    session: Uuid,
+    content: &str,
+    pinned: bool,
+    verification: Option<&str>,
+) -> Uuid {
+    let id = Uuid::now_v7();
+    let content = escape(content);
+    let verification = verification
+        .map(|value| format!("'{}'", escape(value)))
+        .unwrap_or_else(|| "NULL".into());
+    pg.server.execute(&format!(
+        "INSERT INTO memories
+            (id, project_id, type, scope, scope_key, content, origin_session_id,
+             topic_key, pinned, verification)
+         VALUES ('{id}', '{project}', 'fact', 'project', '{project}', '{content}',
+                 '{session}', 'continuity', {pinned}, {verification})"
     ));
     id
 }
@@ -583,6 +626,259 @@ fn sc_767_identical_uuids_across_domains_coexist_and_personal_delivery_does_not_
         find_item(&resp, &team_key).unwrap()["knowledge_id"],
         "the two items were not actually the same id under different domains: {resp}"
     );
+}
+
+// ---------------------------------------------------------------------------
+// Thin-edge Level 0 continuity
+// ---------------------------------------------------------------------------
+
+#[test]
+fn a_fresh_session_gets_an_explicitly_empty_continuity_frame() {
+    let pg = pg!();
+    let session = pg.session_for(&pg.owner);
+
+    let (resp, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    assert_eq!(status, 200, "{resp}");
+    assert_eq!(
+        resp["continuity"],
+        json!({ "previous_handoff": null, "warnings": [], "pins": [] }),
+        "a fresh thin edge must receive an honest empty server-authorized frame"
+    );
+}
+
+#[test]
+fn ordinary_open_uses_the_bound_predecessor_handoff_while_compact_uses_the_current_session() {
+    let pg = pg!();
+    let previous = pg.session_for(&pg.owner);
+    let current = pg.session_for(&pg.owner);
+    pg.server.execute(&format!(
+        "UPDATE sessions SET previous_session_id = '{previous}' WHERE id = '{current}'"
+    ));
+    let previous_handoff = seed_handoff(&pg, pg.project, previous, "previous");
+    let current_handoff = seed_handoff(&pg, pg.project, current, "current");
+
+    let (ordinary, status) = retrieve(&pg, &pg.owner, current, "session_open");
+    assert_eq!(status, 200, "{ordinary}");
+    assert_eq!(
+        ordinary["continuity"]["previous_handoff"]["id"],
+        previous_handoff.to_string(),
+        "ordinary restoration must continue from the exact predecessor"
+    );
+
+    let (compact, status) = retrieve_with(
+        &pg,
+        &pg.owner,
+        json!({
+            "session_id": current,
+            "trigger": "session_open",
+            "open_trigger": "compact"
+        }),
+    );
+    assert_eq!(status, 200, "{compact}");
+    assert_eq!(
+        compact["continuity"]["previous_handoff"]["id"],
+        current_handoff.to_string(),
+        "post-compaction restoration must use the current session boundary"
+    );
+}
+
+#[test]
+fn an_oversized_handoff_is_projected_to_bounded_context_fields_before_the_response() {
+    let pg = pg!();
+    let previous = pg.session_for(&pg.owner);
+    let current = pg.session_for(&pg.owner);
+    pg.server.execute(&format!(
+        "UPDATE sessions SET previous_session_id = '{previous}' WHERE id = '{current}'"
+    ));
+    let handoff = seed_handoff(&pg, pg.project, previous, "oversized");
+    let evidence = Uuid::now_v7();
+    pg.server.execute(&format!(
+        "UPDATE handoffs SET
+             goal = repeat('g', 100000),
+             progress = repeat('p', 100000),
+             completed_work = jsonb_build_array(repeat('c', 100000)),
+             remaining_work = (SELECT jsonb_agg(repeat('r', 2000) || n::text)
+                                 FROM generate_series(1, 100) n),
+             changed_files = (SELECT jsonb_agg(repeat('f', 2000) || n::text)
+                                FROM generate_series(1, 100) n),
+             decisions = (SELECT jsonb_agg(repeat('d', 2000) || n::text)
+                            FROM generate_series(1, 100) n),
+             failures = (SELECT jsonb_agg(repeat('x', 2000) || n::text)
+                           FROM generate_series(1, 100) n),
+             repository_state = jsonb_build_object('branch', repeat('b', 100000)),
+             next_step = repeat('n', 100000),
+             agent_note = repeat('a', 100000),
+             observation_ids = jsonb_build_array('{evidence}')
+          WHERE id = '{handoff}'"
+    ));
+
+    let (resp, status) = retrieve(&pg, &pg.owner, current, "session_open");
+    assert_eq!(status, 200, "{resp}");
+    let returned = &resp["continuity"]["previous_handoff"];
+    assert_eq!(returned["goal"], "", "non-context handoff prose leaked");
+    assert_eq!(returned["progress"], "", "non-context handoff prose leaked");
+    assert_eq!(returned["completed_work"], json!([]));
+    assert_eq!(returned["tests_executed"], json!([]));
+    assert_eq!(returned["agent_note"], Value::Null);
+    assert_eq!(returned["evidence"], json!([]));
+    assert_eq!(returned["repository_state"]["branch"], "");
+    assert!(returned["next_step"].as_str().unwrap().len() <= 256);
+    for field in ["remaining_work", "changed_files", "decisions", "failures"] {
+        let values = returned[field].as_array().unwrap();
+        assert!(values.len() <= 9, "{field} was not count-bounded: {resp}");
+        assert!(
+            values
+                .iter()
+                .all(|value| value.as_str().is_some_and(|text| text.len() <= 256)),
+            "{field} carried an oversized item: {resp}"
+        );
+    }
+    assert!(
+        serde_json::to_vec(&resp["continuity"]).unwrap().len() < 16 * 1024,
+        "the Level 0 candidate itself is too large for a bounded response"
+    );
+}
+
+#[test]
+fn a_pin_older_than_twenty_four_newer_memories_still_reaches_level0() {
+    let pg = pg!();
+    let session = pg.session_for(&pg.owner);
+    let pin = seed_continuity_memory(
+        &pg,
+        pg.project,
+        session,
+        "keep the release branch immutable",
+        true,
+        None,
+    );
+    pg.server.execute(&format!(
+        "UPDATE memories SET updated_at = '2020-01-01T00:00:00Z' WHERE id = '{pin}'"
+    ));
+    for index in 0..25 {
+        seed_continuity_memory(
+            &pg,
+            pg.project,
+            session,
+            &format!("newer ordinary memory {index}"),
+            false,
+            None,
+        );
+    }
+
+    let (resp, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    assert_eq!(status, 200, "{resp}");
+    assert_eq!(
+        resp["continuity"]["pins"][0]["id"],
+        pin.to_string(),
+        "{resp}"
+    );
+    assert_eq!(
+        resp["continuity"]["pins"][0]["text"], "keep the release branch immutable",
+        "a Level 0 pin must not inherit the durable candidate window"
+    );
+}
+
+#[test]
+fn continuity_never_crosses_the_bound_account_or_project() {
+    let pg = pg!();
+    let other_project = pg.extra_project("other-continuity", &[&pg.owner]);
+    let foreign_project_session = pg.session_in(other_project, &pg.owner);
+    let foreign_project_handoff = seed_handoff(
+        &pg,
+        other_project,
+        foreign_project_session,
+        "foreign-project-secret",
+    );
+    seed_continuity_memory(
+        &pg,
+        other_project,
+        foreign_project_session,
+        "foreign-project-pin",
+        true,
+        Some("drifted"),
+    );
+
+    let cross_project = pg.session_for(&pg.owner);
+    pg.server.execute(&format!(
+        "UPDATE sessions SET previous_session_id = '{foreign_project_session}' \
+         WHERE id = '{cross_project}'"
+    ));
+    let (project_resp, status) = retrieve(&pg, &pg.owner, cross_project, "session_open");
+    assert_eq!(status, 200, "{project_resp}");
+    assert!(project_resp["continuity"]["previous_handoff"].is_null());
+    assert_eq!(project_resp["continuity"]["pins"], json!([]));
+    assert_eq!(project_resp["continuity"]["warnings"], json!([]));
+    assert!(!project_resp
+        .to_string()
+        .contains(&foreign_project_handoff.to_string()));
+    assert!(!project_resp.to_string().contains("foreign-project"));
+
+    let foreign_account_session = pg.session_for(&pg.member);
+    seed_handoff(
+        &pg,
+        pg.project,
+        foreign_account_session,
+        "foreign-account-secret",
+    );
+    let cross_account = pg.session_for(&pg.owner);
+    pg.server.execute(&format!(
+        "UPDATE sessions SET previous_session_id = '{foreign_account_session}' \
+         WHERE id = '{cross_account}'"
+    ));
+    let (account_resp, status) = retrieve(&pg, &pg.owner, cross_account, "session_open");
+    assert_eq!(status, 200, "{account_resp}");
+    assert!(account_resp["continuity"]["previous_handoff"].is_null());
+    assert!(!account_resp.to_string().contains("foreign-account-secret"));
+}
+
+#[test]
+fn a_tiny_budget_keeps_level0_candidates_bounded_and_leaves_durable_spend_at_zero() {
+    let pg = pg!();
+    let session = pg.session_for(&pg.owner);
+    for index in 0..7 {
+        seed_continuity_memory(
+            &pg,
+            pg.project,
+            session,
+            &format!("pinned constraint {index}"),
+            true,
+            None,
+        );
+        seed_continuity_memory(
+            &pg,
+            pg.project,
+            session,
+            &format!("drift warning {index}"),
+            false,
+            Some("drifted"),
+        );
+    }
+
+    let (resp, status) = retrieve_with(
+        &pg,
+        &pg.owner,
+        json!({
+            "session_id": session,
+            "trigger": "session_open",
+            "budget_tokens": 1
+        }),
+    );
+    assert_eq!(status, 200, "{resp}");
+    assert_eq!(resp["budget"]["tokens"], 1, "{resp}");
+    assert_eq!(resp["budget"]["spent"], 0, "{resp}");
+    let pins = resp["continuity"]["pins"].as_array().unwrap();
+    let warnings = resp["continuity"]["warnings"].as_array().unwrap();
+    assert_eq!(
+        pins.len(),
+        7,
+        "server must not impose the daemon's default cap"
+    );
+    assert_eq!(
+        warnings.len(),
+        7,
+        "server must not impose the daemon's default cap"
+    );
+    assert!(pins.len() <= 24 && warnings.len() <= 24, "{resp}");
 }
 
 // ---------------------------------------------------------------------------

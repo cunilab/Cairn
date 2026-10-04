@@ -36,7 +36,10 @@ use crate::auth::{self, ReaderContext, SessionBindingError, Visibility};
 use crate::error::{ApiError, ApiResult};
 use axum::http::StatusCode;
 use cairn_core::budget::{estimate, Budget};
-use cairn_core::domain::{KnowledgeDomain, KnowledgeRef, PatternRef, Reference};
+use cairn_core::domain::{
+    Handoff, HandoffTrigger, KnowledgeDomain, KnowledgeRef, PatternRef, Reference, RepositoryState,
+};
+use cairn_core::wire::{ContextWarning, PinnedConstraint};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -78,6 +81,16 @@ pub const SOFT_TARGET_PROMPT_TIME_MS: u128 = 100;
 /// would make its cost grow with the project's history for no gain — every item
 /// past the budget is discarded anyway.
 const CANDIDATES_PER_SECTION: i64 = 24;
+
+/// Bounded Level 0 inputs offered to the daemon before its configured caps and
+/// the shared token budget perform final admission.
+const LEVEL0_CANDIDATES_PER_KIND: i64 = 24;
+
+/// Per-string and per-list bounds applied before continuity enters the HTTP
+/// response or the daemon's outage cache. The final token budget is still the
+/// daemon's job; these are transport/memory safety bounds on candidates.
+const LEVEL0_TEXT_MAX_BYTES: usize = 256;
+const LEVEL0_LIST_MAX_ITEMS: usize = 8;
 
 /// The four levels, and no fifth (FR-836).
 pub const LEVEL_FULL: &str = "full";
@@ -254,7 +267,19 @@ pub struct RetrieveResponse {
     /// know it answered from one — a server that said so would be reporting a
     /// fact it does not have (FR-837).
     pub served_from_cache: bool,
+    /// Authenticated Level 0 inputs selected from the same bound project and
+    /// session as the durable sections. The daemon adds repository state and
+    /// performs the final shared-budget admission; it never reads historical
+    /// SQLite state or makes a second authorization call.
+    pub continuity: ContinuityResponse,
     pub sections: BTreeMap<String, Vec<SectionItem>>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ContinuityResponse {
+    pub previous_handoff: Option<Handoff>,
+    pub warnings: Vec<ContextWarning>,
+    pub pins: Vec<PinnedConstraint>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize)]
@@ -453,6 +478,14 @@ async fn generate(
     started: std::time::Instant,
 ) -> ApiResult<RetrieveResponse> {
     let candidates = gather(pool, reader, binding, request.session_id).await?;
+    let continuity = gather_continuity(
+        pool,
+        reader,
+        binding,
+        request.session_id,
+        open_trigger == Some(cairn_core::event::OpenTrigger::Compact),
+    )
+    .await?;
 
     // What this session already has, and when it had it. Read once: the
     // comparison is `relevant MINUS delivered PLUS changed`, and re-reading per
@@ -591,8 +624,266 @@ async fn generate(
             reserved_for_level0: budget.reserve(),
         },
         served_from_cache: false,
+        continuity,
         sections,
     })
+}
+
+// ---------------------------------------------------------------------------
+// Authenticated Level 0 continuity
+// ---------------------------------------------------------------------------
+
+async fn gather_continuity(
+    pool: &PgPool,
+    reader: &ReaderContext,
+    binding: &auth::SessionBinding,
+    session_id: Uuid,
+    compact_restore: bool,
+) -> ApiResult<ContinuityResponse> {
+    // Read the branch and predecessor from the already-bound session itself.
+    // Repeating project/account predicates here is intentional defence in
+    // depth: neither a corrupted predecessor pointer nor a later refactor may
+    // turn this helper into an account/project crossing read.
+    let (branch, previous_session_id): (String, Option<Uuid>) = sqlx::query_as(
+        "SELECT branch, previous_session_id FROM sessions
+          WHERE id = $1 AND project_id = $2 AND user_id = $3",
+    )
+    .bind(session_id)
+    .bind(binding.project_id)
+    .bind(reader.user_id())
+    .fetch_one(pool)
+    .await?;
+
+    let handoff_session = if compact_restore {
+        Some(session_id)
+    } else {
+        previous_session_id
+    };
+    let previous_handoff = match handoff_session {
+        Some(target) => latest_handoff(pool, reader, binding, target).await?,
+        None => None,
+    };
+
+    let warning_rows = sqlx::query(
+        "SELECT topic_key, content, verification
+           FROM memories
+          WHERE project_id = $1 AND deleted_at IS NULL AND state != 'superseded'
+            AND verification IN ('conflicted', 'drifted', 'needs_recheck')
+            AND (
+                (scope = 'project' AND scope_key = $2)
+                OR (scope = 'branch' AND scope_key = $3)
+                OR (scope = 'session' AND scope_key = $4)
+            )
+          ORDER BY CASE verification WHEN 'conflicted' THEN 0 ELSE 1 END,
+                   CASE scope WHEN 'session' THEN 0 WHEN 'branch' THEN 1 ELSE 2 END,
+                   pinned DESC, updated_at DESC, id
+          LIMIT $5",
+    )
+    .bind(binding.project_id)
+    .bind(binding.project_id.to_string())
+    .bind(&branch)
+    .bind(session_id.to_string())
+    .bind(LEVEL0_CANDIDATES_PER_KIND)
+    .fetch_all(pool)
+    .await?;
+    let warnings = warning_rows
+        .into_iter()
+        .map(|row| {
+            let content = level0_text(&row.get::<String, _>("content"));
+            let subject = row
+                .get::<Option<String>, _>("topic_key")
+                .map(|subject| level0_text(&subject))
+                .unwrap_or_else(|| level0_text(&content));
+            let verification = row.get::<String, _>("verification");
+            let claim = level0_text(&content);
+            let (kind, detail) = if verification == "conflicted" {
+                (
+                    "conflict",
+                    format!("remembered \"{claim}\" — its verification is conflicted"),
+                )
+            } else if verification == "drifted" {
+                (
+                    "drift",
+                    format!("remembered \"{claim}\" — its evidence moved"),
+                )
+            } else {
+                (
+                    "drift",
+                    format!(
+                        "remembered \"{claim}\" — its evidence changed, no verifier has run since"
+                    ),
+                )
+            };
+            ContextWarning {
+                kind: kind.into(),
+                subject,
+                detail: level0_text(&detail),
+            }
+        })
+        .collect();
+
+    // Pins have their own query and bound. In particular they do not inherit
+    // the durable candidate query: an older pin must survive any number of
+    // newer ordinary memories because Level 0, not recency, gives it
+    // precedence. The daemon applies its configured admission cap afterward.
+    let pin_rows = sqlx::query(
+        "SELECT id, content, verification
+           FROM memories
+          WHERE project_id = $1 AND pinned = true AND deleted_at IS NULL
+            AND state != 'superseded'
+            AND (
+                (scope = 'project' AND scope_key = $2)
+                OR (scope = 'branch' AND scope_key = $3)
+                OR (scope = 'session' AND scope_key = $4)
+            )
+          ORDER BY CASE scope WHEN 'session' THEN 0 WHEN 'branch' THEN 1 ELSE 2 END,
+                   CASE importance WHEN 'critical' THEN 0 WHEN 'high' THEN 1 ELSE 2 END,
+                   updated_at DESC, id
+          LIMIT $5",
+    )
+    .bind(binding.project_id)
+    .bind(binding.project_id.to_string())
+    .bind(&branch)
+    .bind(session_id.to_string())
+    .bind(LEVEL0_CANDIDATES_PER_KIND)
+    .fetch_all(pool)
+    .await?;
+    let pins = pin_rows
+        .into_iter()
+        .map(|row| PinnedConstraint {
+            id: row.get::<Uuid, _>("id"),
+            text: level0_text(&row.get::<String, _>("content")),
+            drifted: row.get::<Option<String>, _>("verification").as_deref() == Some("drifted"),
+        })
+        .collect();
+
+    Ok(ContinuityResponse {
+        previous_handoff,
+        warnings,
+        pins,
+    })
+}
+
+async fn latest_handoff(
+    pool: &PgPool,
+    reader: &ReaderContext,
+    binding: &auth::SessionBinding,
+    session_id: Uuid,
+) -> ApiResult<Option<Handoff>> {
+    let row = sqlx::query(
+        "SELECT h.id, h.session_id, h.trigger, h.remaining_work, h.changed_files,
+                h.decisions, h.failures, h.next_step, h.created_at
+           FROM handoffs h
+           JOIN sessions s ON s.id = h.session_id
+          WHERE h.session_id = $1 AND h.project_id = $2
+            AND s.project_id = $2 AND s.user_id = $3
+            AND h.deleted_at IS NULL
+          ORDER BY h.created_at DESC, h.id DESC LIMIT 1",
+    )
+    .bind(session_id)
+    .bind(binding.project_id)
+    .bind(reader.user_id())
+    .fetch_optional(pool)
+    .await?;
+    row.map(handoff_from_row).transpose()
+}
+
+fn handoff_from_row(row: sqlx::postgres::PgRow) -> ApiResult<Handoff> {
+    let parse = |column: &'static str| -> ApiResult<Value> { Ok(row.try_get(column)?) };
+    let strings = |column: &'static str| -> ApiResult<Vec<String>> {
+        serde_json::from_value(parse(column)?)
+            .map(level0_list)
+            .map_err(|e| ApiError::internal(format!("invalid handoff {column}: {e}")))
+    };
+    let trigger_text = row.get::<String, _>("trigger");
+    let trigger = trigger_text
+        .parse::<HandoffTrigger>()
+        .map_err(|_| ApiError::internal(format!("invalid handoff trigger `{trigger_text}`")))?;
+
+    let mut handoff = Handoff {
+        id: row.get("id"),
+        session_id: row.get("session_id"),
+        trigger,
+        // These fields are required by `Handoff`'s compatibility wire shape
+        // but are not consumed by context assembly. Do not expose or cache
+        // them merely because they share a database row with continuity.
+        goal: String::new(),
+        progress: String::new(),
+        completed_work: Vec::new(),
+        remaining_work: strings("remaining_work")?,
+        changed_files: strings("changed_files")?,
+        decisions: strings("decisions")?,
+        failures: strings("failures")?,
+        tests_executed: Vec::new(),
+        // Repository state is recomputed by the daemon from the checkout that
+        // receives this response, so the historical copy is both stale and
+        // outside this candidate's required data.
+        repository_state: RepositoryState::default(),
+        next_step: level0_text(&row.get::<String, _>("next_step")),
+        agent_note: None,
+        evidence: Vec::new(),
+        created_at: row.get("created_at"),
+        deleted_at: None,
+    };
+    // The retrieval response is a candidate for a 64 KiB outage cache. A
+    // stored handoff may be much larger; only its bounded briefing summary is
+    // needed here, never the raw agent note or evidence list.
+    for text in [
+        &mut handoff.goal,
+        &mut handoff.progress,
+        &mut handoff.next_step,
+    ] {
+        *text = text.chars().take(256).collect();
+    }
+    for items in [
+        &mut handoff.completed_work,
+        &mut handoff.remaining_work,
+        &mut handoff.changed_files,
+        &mut handoff.decisions,
+        &mut handoff.failures,
+    ] {
+        items.truncate(4);
+        for item in items.iter_mut() {
+            *item = item.chars().take(256).collect();
+        }
+    }
+    handoff.tests_executed.clear();
+    handoff.agent_note = None;
+    handoff.evidence.clear();
+    handoff.repository_state.branch = handoff.repository_state.branch.chars().take(128).collect();
+    handoff.repository_state.commit_sha = handoff
+        .repository_state
+        .commit_sha
+        .take()
+        .map(|sha| sha.chars().take(64).collect());
+    Ok(handoff)
+}
+
+fn level0_text(input: &str) -> String {
+    // Control characters can expand sixfold in JSON (`\u0000`) and make a
+    // byte-bounded Rust string an unbounded wire value. They carry no useful
+    // context semantics, so normalize them before applying the UTF-8-safe cap.
+    let normalized: String = input
+        .chars()
+        .map(|c| if c.is_control() { ' ' } else { c })
+        .collect();
+    cairn_core::bound::bound_text(&normalized, LEVEL0_TEXT_MAX_BYTES).text
+}
+
+fn level0_list(values: Vec<String>) -> Vec<String> {
+    let total = values.len();
+    let mut bounded: Vec<String> = values
+        .into_iter()
+        .take(LEVEL0_LIST_MAX_ITEMS)
+        .map(|value| level0_text(&value))
+        .collect();
+    if total > LEVEL0_LIST_MAX_ITEMS {
+        bounded.push(format!(
+            "… [+{} items omitted]",
+            total - LEVEL0_LIST_MAX_ITEMS
+        ));
+    }
+    bounded
 }
 
 /// Which of the four levels this retrieval reached.
