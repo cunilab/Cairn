@@ -37,7 +37,7 @@
 //! harness has no safe way to do — noted here rather than faked.
 
 use cairn_e2e::feature005::{Account, Pg};
-use cairn_e2e::{binary, get_json_status_bearer, post_json_status_bearer};
+use cairn_e2e::{get_json_status_bearer, post_json_status_bearer, server_binary};
 use serde_json::{json, Value};
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
@@ -170,7 +170,7 @@ impl Worker {
             let port = probe.local_addr().expect("addr").port();
             drop(probe);
             let addr = format!("127.0.0.1:{port}");
-            let mut child = Command::new(binary("cairn-server"))
+            let mut child = Command::new(server_binary())
                 .args([
                     "--addr",
                     &addr,
