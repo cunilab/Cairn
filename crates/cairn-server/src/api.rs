@@ -2417,23 +2417,33 @@ async fn project_memories(
     let limit = crate::global::view_page_limit(q.limit);
     let want_state = q.state.unwrap_or_else(|| "active".to_string());
 
+    // A natural-language query often adds words absent from a useful memory.
+    // Require two shared stemmed terms where possible, then rank by overlap.
     let rows = sqlx::query(
         "SELECT m.*,
                 CASE m.scope WHEN 'session' THEN 0 WHEN 'branch' THEN 1
                              WHEN 'project' THEN 2 ELSE 3 END AS scope_bucket,
                 CASE WHEN $2::text IS NULL OR $2 = '' THEN 0
-                     ELSE ts_rank(to_tsvector('english', m.content),
-                                  plainto_tsquery('english', $2)) END AS relevance,
+                     ELSE lex.term_overlap END AS relevance,
                 (SELECT COUNT(*) FROM memory_relations rel
                   WHERE rel.deleted_at IS NULL
                     AND (rel.from_memory_id = m.id OR rel.to_memory_id = m.id))
                   AS relation_count
          FROM memories m
+         CROSS JOIN LATERAL (
+             SELECT cardinality(ARRAY(
+                 SELECT unnest(tsvector_to_array(to_tsvector('english', m.content)))
+                 INTERSECT
+                 SELECT unnest(tsvector_to_array(to_tsvector('english', $2)))
+             )) AS term_overlap
+         ) lex
          WHERE m.project_id = $1
            AND m.deleted_at IS NULL
            AND m.state = $3
            AND ($2::text IS NULL OR $2 = ''
-                OR to_tsvector('english', m.content) @@ plainto_tsquery('english', $2))
+                OR (to_tsvector('english', m.content) @@
+                    replace(plainto_tsquery('english', $2)::text, ' & ', ' | ')::tsquery
+                    AND lex.term_overlap >= LEAST(2, cardinality(tsvector_to_array(to_tsvector('english', $2))))))
            AND ($4::text IS NULL OR m.scope = $4)
            AND ($5::text IS NULL OR m.scope_key = $5)
            AND ($6::text IS NULL OR m.type = $6)

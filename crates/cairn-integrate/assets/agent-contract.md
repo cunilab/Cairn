@@ -12,12 +12,12 @@ block = Search Cairn memory before repeating an investigation you may already ha
 mcp = Call `cairn_search` before repeating an investigation you may already have done.
 
 [rule record]
-block = Record durable facts, decisions, conventions, failures and procedures — never routine tool calls.
-mcp = Record durable facts, decisions, conventions, failures and procedures with `cairn_remember` — never routine tool calls.
+block = When a user supplies a new durable decision or failed approach absent from source, call `cairn_remember` before finishing. Record other durable findings, never routine tool calls.
+mcp = When a user supplies a new durable decision or failed approach absent from source, call `cairn_remember` before finishing. Record other durable findings, never routine tool calls.
 
 [rule scope]
-block = Use the narrowest correct scope: session, else branch, else project.
-mcp = Use the narrowest correct scope: session, else branch, else project.
+block = Use project scope for decisions valid across branches, branch for branch-specific facts, and session only for scratch state.
+mcp = Use project scope for decisions valid across branches, branch for branch-specific facts, and session only for scratch state.
 
 [rule evidence]
 block = Never invent an evidence observation identifier.

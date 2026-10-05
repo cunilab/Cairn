@@ -2,6 +2,8 @@
 
 use cairn_core::wire::ContextPayload;
 
+const CAPTURE_HINT: &str = "Before your final answer, if the user supplied a new durable decision or failed approach absent from source, call cairn_remember. Never store secrets or raw transcripts.\n\n";
+
 /// Render the canonical server envelope without inventing local history.
 /// Unknown populated sections fail closed so transmission cannot overclaim.
 pub fn context(value: &serde_json::Value) -> Result<String, String> {
@@ -26,6 +28,7 @@ pub fn context(value: &serde_json::Value) -> Result<String, String> {
         }
     }
     let mut out = String::from("# Cairn context\n\n");
+    out.push_str(CAPTURE_HINT);
     if value["served_from_cache"] == true {
         let age = value["cache_age_seconds"].as_u64().ok_or_else(invalid)?;
         out.push_str(&format!(
@@ -75,6 +78,7 @@ pub fn context(value: &serde_json::Value) -> Result<String, String> {
 pub fn briefing(payload: &ContextPayload) -> String {
     let briefing = &payload.briefing;
     let mut out = String::from("# Cairn context\n\n");
+    out.push_str(CAPTURE_HINT);
 
     if briefing.no_prior_history {
         out.push_str("Cairn has no prior history for this project yet.\n\n");

@@ -93,6 +93,7 @@ fn cwd() -> String {
 
 async fn setup() -> Result<serde_json::Value, WireError> {
     let credentials = headless_credentials()?;
+    let cwd = cwd();
     let web_url = credentials
         .as_ref()
         .map(|credentials| {
@@ -102,6 +103,7 @@ async fn setup() -> Result<serde_json::Value, WireError> {
                 .unwrap_or_else(|| credentials.url.clone())
         })
         .or_else(|| cairn_core::CairnConfig::load().server_url);
+    let mut saved_credentials = None;
     if let Some(credentials) = credentials {
         let account_id = authenticated_account(&credentials).await?;
         if let Some(expected) = credentials.account_id {
@@ -112,18 +114,88 @@ async fn setup() -> Result<serde_json::Value, WireError> {
                 ));
             }
         }
-        persist_credentials(&credentials, account_id).map_err(|error| {
-            WireError::new(
-                codes::STORAGE_UNAVAILABLE,
-                format!("could not save credentials: {error}"),
-            )
-        })?;
+        preflight_project(&credentials, &cwd).await?;
+        let saved = CredentialFiles::read().map_err(credential_storage_error)?;
+        if let Err(error) = persist_credentials(&credentials, account_id) {
+            saved.restore().map_err(credential_storage_error)?;
+            return Err(credential_storage_error(error));
+        }
+        saved_credentials = Some(saved);
     }
-    let mut value = client::send(&Request::Init { cwd: cwd() }).await?;
+    let mut value = match client::send(&Request::Init { cwd: cwd.clone() }).await {
+        Ok(value) => value,
+        Err(error) => {
+            if let Some(saved) = saved_credentials {
+                saved.restore().map_err(credential_storage_error)?;
+                // Init reloads the running daemon's credential snapshot before
+                // checking this checkout's binding, even if the check fails.
+                let _ = client::send(&Request::Init { cwd }).await;
+            }
+            return Err(error);
+        }
+    };
     if let (Some(object), Some(web_url)) = (value.as_object_mut(), web_url) {
         object.insert("web_url".into(), serde_json::Value::String(web_url));
     }
     Ok(value)
+}
+
+struct CredentialFiles {
+    config: Option<(Vec<u8>, std::fs::Permissions)>,
+    token: Option<(Vec<u8>, std::fs::Permissions)>,
+}
+
+impl CredentialFiles {
+    fn read() -> std::io::Result<Self> {
+        fn file(path: &Path) -> std::io::Result<Option<(Vec<u8>, std::fs::Permissions)>> {
+            match std::fs::read(path) {
+                Ok(bytes) => Ok(Some((bytes, std::fs::metadata(path)?.permissions()))),
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+                Err(error) => Err(error),
+            }
+        }
+        Ok(Self {
+            config: file(&cairn_core::paths::config_path())?,
+            token: file(&cairn_core::paths::token_path())?,
+        })
+    }
+
+    fn restore(self) -> std::io::Result<()> {
+        fn file(
+            path: &Path,
+            saved: Option<(Vec<u8>, std::fs::Permissions)>,
+        ) -> std::io::Result<()> {
+            match saved {
+                Some((bytes, permissions)) => {
+                    let mut options = std::fs::OpenOptions::new();
+                    options.write(true).create(true).truncate(true);
+                    #[cfg(unix)]
+                    {
+                        use std::os::unix::fs::OpenOptionsExt;
+                        options.mode(0o600);
+                    }
+                    use std::io::Write;
+                    options.open(path)?.write_all(&bytes)?;
+                    std::fs::set_permissions(path, permissions)
+                }
+                None => match std::fs::remove_file(path) {
+                    Ok(()) => Ok(()),
+                    Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+                    Err(error) => Err(error),
+                },
+            }
+        }
+        let config = file(&cairn_core::paths::config_path(), self.config);
+        let token = file(&cairn_core::paths::token_path(), self.token);
+        config.and(token)
+    }
+}
+
+fn credential_storage_error(error: std::io::Error) -> WireError {
+    WireError::new(
+        codes::STORAGE_UNAVAILABLE,
+        format!("could not preserve setup credentials: {error}"),
+    )
 }
 
 struct HeadlessCredentials {
@@ -179,10 +251,14 @@ fn parse_credentials(
     web_url: Option<String>,
 ) -> Result<Option<HeadlessCredentials>, WireError> {
     let (Some(url), Some(token)) = (url, token) else {
-        return Err(WireError::invalid("setup needs both server URL and token"));
+        return Err(WireError::invalid(
+            "setup needs both server URL and token; create an API token in web Settings, then provide CAIRN_SERVER_URL and CAIRN_SERVER_TOKEN",
+        ));
     };
     if url.trim().is_empty() || token.trim().is_empty() {
-        return Err(WireError::invalid("setup needs both server URL and token"));
+        return Err(WireError::invalid(
+            "setup needs both server URL and token; create an API token in web Settings, then provide CAIRN_SERVER_URL and CAIRN_SERVER_TOKEN",
+        ));
     }
     let account_id = account_id
         .filter(|id| !id.is_empty())
@@ -223,6 +299,69 @@ async fn authenticated_account(credentials: &HeadlessCredentials) -> Result<Uuid
         .and_then(serde_json::Value::as_str)
         .and_then(|id| Uuid::parse_str(id).ok())
         .ok_or_else(|| WireError::new(codes::SERVER_UNAVAILABLE, "invalid credential response"))
+}
+
+async fn preflight_project(credentials: &HeadlessCredentials, cwd: &str) -> Result<(), WireError> {
+    let remote = cairn_git::first_remote(Path::new(cwd))
+        .map_err(|error| WireError::new(codes::NOT_A_REPOSITORY, error.to_string()))?
+        .ok_or_else(|| WireError::new(codes::NOT_LINKED, "repository has no Git remote; add its origin remote and create a matching project in web Settings, then rerun `cairn setup`"))?;
+    let response = reqwest::Client::new()
+        .get(format!(
+            "{}/api/projects",
+            credentials.url.trim_end_matches('/')
+        ))
+        .bearer_auth(&credentials.token)
+        .send()
+        .await
+        .map_err(|_| {
+            WireError::new(
+                codes::SERVER_UNAVAILABLE,
+                "could not list permitted server projects",
+            )
+        })?;
+    if !response.status().is_success() {
+        return Err(WireError::new(
+            codes::UNAUTHORIZED,
+            "could not list permitted server projects",
+        ));
+    }
+    let body: serde_json::Value = response
+        .json()
+        .await
+        .map_err(|_| WireError::new(codes::SERVER_UNAVAILABLE, "invalid project list response"))?;
+    let projects = body
+        .get("projects")
+        .and_then(serde_json::Value::as_array)
+        .ok_or_else(|| {
+            WireError::new(codes::SERVER_UNAVAILABLE, "invalid project list response")
+        })?;
+    let matches: Vec<_> = projects
+        .iter()
+        .filter(|project| {
+            project
+                .get("repository_remote")
+                .and_then(serde_json::Value::as_str)
+                == Some(remote.as_str())
+        })
+        .collect();
+    if matches.len() != 1 {
+        return Err(WireError::new(
+            codes::NOT_LINKED,
+            if matches.is_empty() {
+                "no permitted server project matches this repository remote; check the remote in web Settings and ask a project administrator to grant this account membership, then rerun `cairn setup`"
+            } else {
+                "multiple permitted server projects match this repository remote; resolve the duplicate projects in web Settings, then rerun `cairn setup`"
+            },
+        ));
+    }
+    matches[0]
+        .get("id")
+        .and_then(serde_json::Value::as_str)
+        .and_then(|id| Uuid::parse_str(id).ok())
+        .ok_or_else(|| {
+            WireError::new(codes::SERVER_UNAVAILABLE, "invalid project lookup response")
+        })?;
+    Ok(())
 }
 
 fn persist_credentials(credentials: &HeadlessCredentials, account_id: Uuid) -> std::io::Result<()> {

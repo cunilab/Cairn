@@ -3,7 +3,7 @@ name: cairn
 description: Use Cairn's persistent project memory — resume prior work, search before investigating, record durable decisions and failures, choose the right memory scope, and bind work to a task.
 metadata:
   cairn_skill_schema: 1
-  cairn_skill_revision: 32bcfc07750f
+  cairn_skill_revision: f8b699f271c9
 ---
 
 # Cairn
@@ -17,9 +17,17 @@ guidance is a server-wide default every account sees. Both are deliberately stri
 anything that identifies where they came from — see
 [knowledge-domains](references/knowledge-domains.md).
 
-Use this Skill when you need more than the always-on rules: when you are resuming someone
-else's work, deciding whether something is worth recording, choosing a scope, or working out
-why Cairn is reporting a problem.
+Use this Skill when you are resuming someone else's work, deciding whether something is worth
+recording, choosing a scope, or working out why Cairn is reporting a problem.
+
+At the start of work, read any Cairn context and search before repeating an investigation.
+Before finishing work, record a durable decision, failed approach, procedure, or non-obvious
+fact that a later session would otherwise have to rediscover. Use project scope when it applies
+across branches, branch scope for branch-specific facts, and session only for scratch state.
+Skip routine tool calls and facts obvious from the
+current source. Never send secrets, raw prompts, transcripts, diffs, or unbounded output.
+When recording, use specific topic and value keys and attach existing evidence; never invent
+an observation identifier. If nothing durable was learned, do not create a memory.
 
 ## When to reach for which reference
 
@@ -33,7 +41,5 @@ why Cairn is reporting a problem.
 | Cairn reports a problem | [diagnosing-cairn](references/diagnosing-cairn.md) |
 | What you learned is about you, or about the whole team, rather than this repository | [knowledge-domains](references/knowledge-domains.md) |
 
-## The rules that always apply
-
-The always-on Cairn contract is already in your instructions. This Skill never repeats it —
-it explains how to act on it. If the two ever disagree, the contract wins.
+If this repository also supplies a Cairn instruction block, follow it when it is more
+specific than this Skill.

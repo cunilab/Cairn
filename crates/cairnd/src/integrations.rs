@@ -24,9 +24,9 @@ type Reply = Result<serde_json::Value, WireError>;
 
 /// Install or refresh detected integrations during explicit setup.
 ///
-/// Instructions stay user-owned: setup never edits `AGENTS.md`, `CLAUDE.md`,
-/// or committed `.claude/settings.json`. Existing Cairn-owned resources are
-/// updated only when inspection still matches their recorded ownership.
+/// Setup inserts a managed instruction block without replacing surrounding
+/// user text. Existing Cairn-owned resources are updated only when inspection
+/// still matches their recorded ownership.
 pub async fn setup(d: &Daemon, cwd: &str) -> serde_json::Value {
     setup_at(d, &cairn_integrate::scope::Env::discover(cwd)).await
 }
@@ -98,6 +98,7 @@ async fn setup_at(d: &Daemon, env: &cairn_integrate::scope::Env) -> serde_json::
                 only: vec![
                     ResourceKind::Mcp,
                     ResourceKind::Lifecycle,
+                    ResourceKind::Instructions,
                     ResourceKind::Skill,
                 ],
                 ..Default::default()
@@ -138,6 +139,28 @@ async fn setup_at(d: &Daemon, env: &cairn_integrate::scope::Env) -> serde_json::
             },
         )
         .await;
+
+        for change in &plan.changes {
+            if change.kind == ResourceKind::Instructions
+                && change.action == ChangeAction::Unchanged
+                && !records
+                    .iter()
+                    .any(|row| row.kind == ResourceKind::Instructions)
+            {
+                if let Some(target) = &change.target {
+                    if let Err(error) =
+                        rec::bind_existing(&d.store, agent.as_str(), change.kind.as_str(), target)
+                            .await
+                    {
+                        warnings.push(json!({
+                            "agent": agent.as_str(),
+                            "kind": change.kind.as_str(),
+                            "detail": format!("could not bind shared instructions: {error}"),
+                        }));
+                    }
+                }
+            }
+        }
 
         for change in plan
             .changes
@@ -484,14 +507,17 @@ mod tests {
         let repo = root.path().join("repo");
         std::fs::create_dir_all(home.join(".claude")).unwrap();
         std::fs::create_dir_all(&repo).unwrap();
+        std::fs::write(repo.join("CLAUDE.md"), "# Team notes\nKeep this text.\n").unwrap();
         let env = cairn_integrate::scope::Env::new(&home, &repo);
 
         let first = setup_at(&d, &env).await;
         assert_eq!(first["warnings"], json!([]));
-        assert_eq!(first["applied"].as_array().unwrap().len(), 3);
+        assert_eq!(first["applied"].as_array().unwrap().len(), 4);
         assert!(home.join(".claude.json").exists());
         assert!(repo.join(".claude/settings.local.json").exists());
-        assert!(!repo.join("CLAUDE.md").exists());
+        let instructions = std::fs::read_to_string(repo.join("CLAUDE.md")).unwrap();
+        assert!(instructions.starts_with("# Team notes\nKeep this text.\n"));
+        assert!(instructions.contains("cairn:managed:begin"));
         assert!(!repo.join("AGENTS.md").exists());
         assert!(!repo.join(".claude/settings.json").exists());
 
@@ -508,5 +534,34 @@ mod tests {
             std::fs::read_to_string(home.join(".claude.json")).unwrap(),
             edited
         );
+    }
+
+    #[tokio::test]
+    async fn setup_binds_codex_and_opencode_to_one_instruction_block() {
+        let d = crate::testsupport::daemon().await;
+        let root = tempfile::tempdir().unwrap();
+        let home = root.path().join("home");
+        let repo = root.path().join("repo");
+        std::fs::create_dir_all(home.join(".codex")).unwrap();
+        std::fs::create_dir_all(home.join(".config/opencode")).unwrap();
+        std::fs::create_dir_all(&repo).unwrap();
+        let env = cairn_integrate::scope::Env::new(&home, &repo);
+
+        let result = setup_at(&d, &env).await;
+        assert_eq!(result["warnings"], json!([]));
+        let codex = rec::bound_resources(&d.store, "codex").await.unwrap();
+        let opencode = rec::bound_resources(&d.store, "opencode").await.unwrap();
+        let codex_block = codex
+            .iter()
+            .find(|row| row.resource.kind == "instructions")
+            .unwrap();
+        let opencode_block = opencode
+            .iter()
+            .find(|row| row.resource.kind == "instructions")
+            .unwrap();
+        assert_eq!(codex_block.resource.id, opencode_block.resource.id);
+        assert_eq!(codex_block.serves, ["codex", "opencode"]);
+        assert!(codex_block.resource.created_container);
+        assert_eq!(setup_at(&d, &env).await["warnings"], json!([]));
     }
 }

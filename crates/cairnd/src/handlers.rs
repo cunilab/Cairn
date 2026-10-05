@@ -484,7 +484,7 @@ async fn bind_detected_project(d: &Daemon, project: &Project) -> Result<Project,
     let remote = project.repository_remote.as_deref().ok_or_else(|| {
         WireError::new(
             codes::NOT_LINKED,
-            "repository has no remote; cannot select a server project",
+            "repository has no Git remote; add its origin remote and create a matching project in web Settings, then rerun `cairn setup`",
         )
     })?;
     let response = crate::sync::client(d).await?.get("/api/projects").await?;
@@ -507,9 +507,9 @@ async fn bind_detected_project(d: &Daemon, project: &Project) -> Result<Project,
         return Err(WireError::new(
             codes::NOT_LINKED,
             if projects.is_empty() {
-                "no permitted server project matches this repository remote"
+                "no permitted server project matches this repository remote; check the remote in web Settings and ask a project administrator to grant this account membership, then rerun `cairn setup`"
             } else {
-                "multiple permitted server projects match this repository remote"
+                "multiple permitted server projects match this repository remote; resolve the duplicate projects in web Settings, then rerun `cairn setup`"
             },
         ));
     };
