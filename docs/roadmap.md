@@ -29,6 +29,8 @@ This is a sequence of product outcomes, not a release schedule. Alpha.9 is the c
 
 **Exit:** a fresh user completes deployment → project → setup → work → return → useful recall without undocumented fixes. Alpha.9 supplied candidate and published smoke evidence for major parts of this journey; a new candidate must prove it again.
 
+[Current candidate evidence](../evals/m1-m2/results.md) supports the local first-use and return journey. Fresh published images, HTTPS Compose deployment, and other native platforms remain unrun for this candidate; the full M1 exit is open.
+
 ## M2 — Recall can be trusted
 
 **Outcome:** Cairn returns useful, supported context and handles irrelevant, stale, conflicting, and unauthorized information honestly.
@@ -40,6 +42,8 @@ This is a sequence of product outcomes, not a release schedule. Alpha.9 is the c
 - [ ] Measure useful, irrelevant, and harmful recall; improve from measured failures
 
 **Exit:** paired evidence shows Cairn helps later work and does not create unacceptable harmful recall.
+
+The [current candidate](../evals/m1-m2/results.md) completed 30 paired tasks across three repositories and both primary agents. Capture occurred in 14/15 natural cases, but useful-recall, completion, delivered-claim quality, harmful-recall, and repeated-investigation gates are not established. Execution alone does not close M2.
 
 ## M3 — Safe and recoverable
 

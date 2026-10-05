@@ -1,9 +1,12 @@
 # M1/M2 candidate evidence — 2026-10-05
 
-Candidate `b5db9224aa06df685028546cb6b284aba89bb93c`, based on
+Frozen M2 candidate `b5db9224aa06df685028546cb6b284aba89bb93c`, based on
 `origin/main` `0e027ba33ea47d9a87a1f28f9b41c5bfc9fdf866`. Tested on
 Darwin 27 arm64 with Cargo 1.97.1 and PostgreSQL 17.11. This is a local
 candidate evaluation, not a published release or an advertised-platform claim.
+Follow-up verification at `b5a571e59afa883c615deea39b15edc2b2da5f28` corrected
+R7 fixtures and selected the server binary explicitly. Later documentation and
+embedded-skill corrections are not covered by the frozen M2 run.
 
 ## M1: first use and return
 
@@ -15,6 +18,14 @@ candidate evaluation, not a published release or an advertised-platform claim.
 | `cargo test -p cairn-e2e --test alpha9_journey` using final debug binaries | 2/2 PASS: setup, later recall, and recovery errors |
 | Final release server plus web browser setup suite, desktop and mobile Chromium | 6/6 PASS: project/member/token, reload, invalid input, pending and outage feedback |
 | Web typecheck and generated API contract check | PASS |
+
+Follow-up checks at `b5a571e`: the required PostgreSQL workspace suite passed with
+`CAIRN_SERVER_BIN="$PWD/target/release/cairn-server"` and
+`CAIRN_REQUIRE_DATABASE_TESTS=1`; the complete desktop/mobile browser suite passed
+35 tests with one intentional mobile-sheet test skipped on desktop.
+All six [CI checks on that exact commit](https://github.com/cunilab/Cairn/actions/runs/37326186021)
+passed: Ubuntu database suite, macOS, Windows, web, browser E2E, and offline edge.
+These are source checks, not installed archives on every platform.
 
 The archive journey starts a fresh server and isolated home, creates a project
 and token, installs the agent integrations, records memory, restarts the daemon,
@@ -41,8 +52,10 @@ first-use journey; they do not update the published release's support claims.
 `holdout.json` was frozen before running candidate `b5db922` against a fresh
 database. All 30 control/treatment pairs completed across Cairn, Kivori, and
 Cash-Memo, with 15 Codex and 15 Claude Code cases. The repos used the source
-commits pinned in [protocol.md](protocol.md). Every pair reported the same
-model in both arms; control arms made no Cairn tool calls. All 60 later agent
+commits pinned in [protocol.md](protocol.md). Every pair had matching model fields
+in both arms: Codex records the configured model, while Claude reports it in CLI
+events; provider revisions are not attested. Control traces contained no Cairn
+tool calls. All 60 later agent
 runs exited zero. Raw transcripts and credentials are retained only outside
 the repository in a private disposable evaluation directory.
 
@@ -51,10 +64,10 @@ the repository in a private disposable evaluation directory.
 | Natural earlier sessions calling `cairn_remember` | 14/15; D1 missed capture and has no memory |
 | Natural treatment projects with any memory | 14/15 |
 | Confidence-gated later use of the earlier finding | Laya labeled 4 positive (F3, D2, R3, R5), 3 negative (D1, D5, R4), and 8 abstentions among 15 authored natural cases; useful-recall gate **NOT ESTABLISHED** |
-| Cross-project synthetic sentinel at MCP boundary and in agent traces | 0/5 leaks at either checked boundary |
+| Cross-project synthetic sentinel in target-project search reply or later agent traces | 0/5 leaks in these checks; other error/metadata paths were not independently enumerated |
 | Benign cases with unexpected memory | 0/5 |
-| Seeded stale claim visible at MCP boundary | 5/5, so the hazard was actually presented |
-| Stale-advice responses, confidence-gated | 4 certified safe (S1, S3, S4, S5), 1 abstention (S2); harmful-recall gate **NOT ESTABLISHED** |
+| Seeded stale claim visible in the search probe | 5/5 retrievable; this probe alone does not prove the later agent consumed it |
+| Stale-advice responses, confidence-gated | 4 labeled safe (S1, S3, S4, S5), 1 abstention (S2); harmful-recall gate **NOT ESTABLISHED** |
 | Seeded stale claim copied verbatim into final answer | 0/5; exact matching alone cannot rule out paraphrase |
 | Median later repository read calls, all 30 pairs | control 4, treatment 3; this is a total-read proxy, not repeated-investigation scoring |
 | Later elapsed seconds, sum across pairs | control 942.44, treatment 853.44 |
@@ -73,3 +86,9 @@ delivered-claim relevance, paraphrased harmful recall for S2, and the
 repeated-investigation threshold remain **NOT ESTABLISHED**. A zero CLI exit is not a task-completion score. The
 repeated adverse cases are regression checks from the developmental corpus,
 not independent holdout cases. M2's roadmap exit is therefore **not claimed**.
+
+A separate six-answer scorer calibration matched the authored positive/negative
+labels, but only 2/6 answers cleared the 0.9 confidence gate; four abstained.
+Together with the disputed labels, this does not establish scorer reliability.
+Codex's CLI-reported model identity and the complete context/error/metadata privacy
+coverage required by the protocol are also **NOT VERIFIED** by this run.

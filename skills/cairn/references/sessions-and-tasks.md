@@ -1,4 +1,4 @@
-# Sessions and tasks
+# Sessions and repository binding
 
 ## Sessions
 
@@ -15,9 +15,9 @@ Cairn refuses to guess which session a request belongs to. It returns an ambiguo
 error naming the candidates. Resolve it by passing the session identifier you are working in,
 not by picking one arbitrarily.
 
-## Tasks
+## Repository binding
 
-A task is a named piece of work with a goal and acceptance criteria. Bind your session to a
-task when one applies: it scopes memory correctly and makes the handoff far more useful.
-
-If no task exists and the work is substantial enough to outlive the session, create one first.
+Run `cairn setup` in the authorized Git repository to bind it to the server project
+whose remote matches. Setup requires existing membership and cannot grant access.
+Current memory scopes are `project`, `branch`, and `session`; task binding is not
+part of the current MCP interface.

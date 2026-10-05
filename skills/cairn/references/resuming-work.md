@@ -1,15 +1,15 @@
 # Resuming existing work
 
-Cairn writes a handoff at every session boundary: before compaction, and when a session ends.
-The handoff is the record of what the previous session actually did — not a summary someone
-wrote by hand.
+Cairn writes handoffs when supported lifecycle hooks run. Automatic compaction and
+session-end coverage depends on the installed agent's capabilities and observed health.
+Generic MCP clients use explicit session and handoff calls.
 
 ## Do this first
 
-1. Read the handoff Cairn delivered in your context. It names changed files, tests that ran,
-   failures, decisions, work completed and remaining, and a next step.
-2. Continue from the next step. Do not re-derive the state of the branch by reading the whole
-   tree — the handoff already did that work, from evidence.
+1. Read the handoff Cairn delivered in your context. It can include captured activity and
+   recorded continuity; it may omit work that was never captured or recorded.
+2. Check the current branch state and continue from the recorded next step when present.
+   Use the handoff to avoid repeating established investigation.
 3. Where the handoff names a failure, check whether it still reproduces before assuming it does.
 
 ## What a handoff is not
@@ -20,4 +20,5 @@ and that conflict is itself worth recording.
 
 ## When there is no handoff
 
-A first session on a repository has none. That is normal. Search memory instead, then proceed.
+A first session may have none, and missing lifecycle delivery can also leave no handoff.
+Check integration health when a handoff was expected. Search memory, then proceed.

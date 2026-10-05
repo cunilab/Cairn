@@ -17,5 +17,6 @@ work here.
 
 ## When search returns nothing
 
-That is a real result. It means the investigation is new, so its outcome is worth recording
-when you finish — see [recording-knowledge](recording-knowledge.md).
+No matching memory was returned. That does not prove nobody investigated the subject.
+Check the query and current source, then proceed. Record a new durable finding if you
+establish one — see [recording-knowledge](recording-knowledge.md).

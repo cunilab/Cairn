@@ -1,6 +1,7 @@
 # Choosing the right memory scope
 
-Scope decides who sees a memory later. Choose the narrowest scope that is still correct.
+Scope decides where a project memory applies; authorization decides who can read it.
+Choose the narrowest scope that is still correct.
 
 | Scope | Use when | Example |
 |---|---|---|

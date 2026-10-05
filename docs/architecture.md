@@ -1,6 +1,6 @@
 # Cairn architecture
 
-This describes the current alpha.9 system. [Product](product.md) owns intended behavior; code and migrations own exact fields and wire contracts.
+This describes the current source, whose package version remains alpha.9. Candidate changes are not proof of published behavior; see the [M1/M2 evidence](../evals/m1-m2/results.md). [Product](product.md) owns intended behavior; code and migrations own exact fields and wire contracts.
 
 ```text
 agent hooks and MCP  →  cairn / cairnd  →  cairn-server  →  PostgreSQL

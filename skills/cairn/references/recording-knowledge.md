@@ -12,7 +12,7 @@ Record what a future session would otherwise have to rediscover.
 
 ## Not worth recording
 
-- Routine tool calls. Cairn already captures those as observations.
+- Routine tool calls. Supported hooks capture bounded structured activity; do not duplicate it as durable knowledge.
 - Restatements of what the code plainly says.
 - Anything you have not actually established.
 - Anything that will be false after the next commit.
@@ -43,8 +43,8 @@ as it would have been before, and Cairn tells you it did that.
 
 ## Attach evidence rather than asserting importance
 
-`importance` ranks within a bucket. It does not make a memory truer, does not change scope
-precedence, and does not admit anything into reserved context.
+An `importance` hint does not establish truth, verification, or authorization.
+Do not rely on it to make an unsupported claim authoritative.
 
 What does change how a memory is treated is **evidence**: a file, a configuration key, a Git
 ref, a command outcome. Attach one and Cairn can check it later and tell you when the world
@@ -70,13 +70,7 @@ other, both surfacing forever.
 
 ## Record what happened to a pattern
 
-A reusable pattern from another project is a suggestion, never an answer. When you act on
-one, say what happened — including when it did not help.
-
-- It resolved the problem → `record_outcome` with `resolved`.
-- Same symptom, different cause → `not_applicable`, with the cause you actually found.
-- The approach was right and it still failed → `failed`.
-
-A negative outcome is the most valuable one to record. It is what stops the next session in
-another project from spending an afternoon on a lead that was already ruled out, and it
-never deletes the pattern or reduces what it has done elsewhere.
+A reusable pattern from another project is a suggestion, never an answer. Check it against
+this repository. If applying it establishes a durable procedure or failed approach, record
+that finding through `cairn_remember` with the appropriate project, branch, or session scope
+and existing evidence. The current MCP interface has no `record_outcome` action.

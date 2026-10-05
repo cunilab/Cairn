@@ -1,9 +1,9 @@
 ---
 name: cairn
-description: Use Cairn's persistent project memory — resume prior work, search before investigating, record durable decisions and failures, choose the right memory scope, and bind work to a task.
+description: Use when resuming work in a Cairn-connected repository, investigating prior decisions or failures, recording durable findings, or diagnosing memory and session problems.
 metadata:
   cairn_skill_schema: 1
-  cairn_skill_revision: f8b699f271c9
+  cairn_skill_revision: ccc16d3a30ca
 ---
 
 # Cairn
@@ -37,7 +37,7 @@ an observation identifier. If nothing durable was learned, do not create a memor
 | You are about to investigate something | [searching-first](references/searching-first.md) |
 | You learned something worth keeping | [recording-knowledge](references/recording-knowledge.md) |
 | You are recording and must pick a scope | [choosing-scope](references/choosing-scope.md) |
-| Session or task binding is unclear | [sessions-and-tasks](references/sessions-and-tasks.md) |
+| Session identity or repository binding is unclear | [sessions-and-tasks](references/sessions-and-tasks.md) |
 | Cairn reports a problem | [diagnosing-cairn](references/diagnosing-cairn.md) |
 | What you learned is about you, or about the whole team, rather than this repository | [knowledge-domains](references/knowledge-domains.md) |
 

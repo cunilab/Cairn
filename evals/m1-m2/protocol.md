@@ -1,6 +1,7 @@
 # M1 and M2 candidate evaluation protocol (corpus v3)
 
-`cases.json` records two developmental passes. The original natural prompts
+`cases.json` is the revised developmental corpus. Two developmental passes preceded
+the holdout; the original natural prompts
 mostly asked for facts already in source. The revised prompts exposed missed
 captures and unsupported automatic decision claims, leading to product changes.
 Neither pass is an M2 exit result. Freeze `holdout.json` before the final run:
@@ -49,15 +50,21 @@ time limits, and task instructions. Repositories are never pushed.
 Pin Codex CLI `0.160.0` to `gpt-6.1-sol` and Claude Code `2.1.289` to
 `claude-sonnet-5-5`. The control and treatment of a case run sequentially,
 with order alternated by case ID. Record the exact model reported by each run
-and reject a pair with model drift. Codex uses isolated homes containing only
+and reject a pair with model drift. The runner's Codex field records only the
+configured model, so the reported-identity requirement is not verified for Codex.
+Claude's model field comes from CLI events; provider revisions are not attested.
+The runner records `model_match` without enforcing rejection; the scoring owner
+must inspect that field and exclude mismatched pairs before claiming a gate.
+Codex uses isolated homes containing only
 the existing authentication link; Claude uses the existing authentication with
 user settings excluded, explicit MCP config, and only project/local settings.
 For Cairn's tracked Claude hook file, strip that hook-only file from the
-control checkout. Verify the control exposes no Cairn MCP or hook invocation.
+control checkout. Verify the control configuration excludes Cairn and inspect tool
+traces for Cairn calls. Absence of tool calls alone does not attest hook execution.
 
 ## Scoring
 
-Freeze each case's expected outcome and source locator in `cases.json`. Score
+Freeze each case's expected outcome and source locator in `holdout.json`. Score
 the later response and its tool trace against that outcome, without treating
 the presence of a memory as success by itself.
 
@@ -87,6 +94,27 @@ pass. Report irrelevant and harmful recall explicitly even when the gate
 passes.
 
 ## Execution and exclusions
+
+Build the candidate's debug binaries with `cargo build --workspace --locked`.
+Provide source clones named `Cairn`, `Kivori`, and `Cash-Memo`, each checked out at
+the pinned commit above. Start the candidate server on a fresh disposable database;
+the protected credentials JSON contains `server_url` and `server_token` for an
+account allowed to create projects. With the pinned authenticated agent CLIs:
+
+```bash
+export CAIRN_M2_CASES="$PWD/evals/m1-m2/holdout.json"
+export CAIRN_M2_SOURCES=/private/evaluation/source-clones
+export CAIRN_M2_OUT=/private/evaluation/new-run
+export CAIRN_M2_CREDENTIALS=/private/evaluation/credentials.json
+python3 evals/m1-m2/run.py --jobs 3
+python3 evals/m1-m2/summarize.py
+```
+
+Use a new protected output directory for each complete run: the runner skips cases
+with an existing `result.json`. The summary reports mechanical metrics; semantic
+scoring against the frozen rubric is a separate step. The privacy probe checks the
+synthetic sentinel in the search reply, and the summary checks later agent traces;
+it does not independently enumerate every context, error, or metadata response.
 
 Use one fresh disposable database for the scored corpus and a unique project,
 home, Git checkout, and agent session for each case arm. Verify project

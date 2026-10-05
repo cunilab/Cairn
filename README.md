@@ -2,7 +2,7 @@
 
 Persistent, project-aware memory for AI coding agents. Cairn captures safe, bounded activity during coding work and brings relevant decisions, failed approaches, and procedures into later sessions. People can inspect the evidence behind a memory and correct it when circumstances change.
 
-**Current status:** this checkout and the latest published release are `v0.1.0-alpha.9`. Cairn is pre-1.0; interfaces and storage may change between releases. Claude Code and Codex are the primary native agent paths. [Integration capabilities](docs/integrations.md) describe OpenCode and generic MCP limits. [Roadmap](docs/roadmap.md) describes future outcomes separately from shipped behavior.
+**Current status:** the latest published release is `v0.1.0-alpha.9`; this checkout can include unshipped candidate changes. Cairn is pre-1.0; interfaces and storage may change between releases. Claude Code and Codex are the primary native agent paths. [Integration capabilities](docs/integrations.md) describe OpenCode and generic MCP limits. [Roadmap](docs/roadmap.md) describes future outcomes separately from shipped behavior.
 
 ## How it works
 
@@ -67,5 +67,6 @@ During an outage, bounded local capture can continue. A full spool reports loss 
 - [Roadmap](docs/roadmap.md): product outcomes from foundation to stable 0.1.
 - [Integrations](docs/integrations.md): supported agent behavior and setup ownership.
 - [Validation](docs/validation.md): tests, release proof, and acceptance evidence.
+- [M1/M2 candidate evidence](evals/m1-m2/results.md): local journeys, paired recall results, and remaining milestone gates.
 
 [CHANGELOG](CHANGELOG.md) records shipped changes. [SECURITY](SECURITY.md) explains private vulnerability reporting and the current trust boundary. Git tags preserve old implementation contracts and specs.
