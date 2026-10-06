@@ -1,4 +1,45 @@
-# M1/M2 candidate evidence — 2026-10-05
+# M1/M2 candidate evidence — through 2026-10-06
+
+## Latest regression status
+
+The [v4 protocol](protocol-v4.md) preserved the unchanged 30-case corpus and
+milestone thresholds. Laya failed the revised calibration (16/24 classified,
+three confidently wrong); the user authorized an independent calibrated judge.
+Fresh Astra calibration passed 24/24 development and 6/6 sealed fixtures. All
+authored fixtures and Laya results remain committed alongside the independent
+calibration. Screening accuracy does not certify real-task performance.
+
+Candidate `303e1e0956335e55c398a320bb51b526e093e29a` then encountered setup path
+length, account capacity, and host disk/Docker failures. Its
+[partial execution metadata](regression-v4b-metadata.json) retains 24/30 records,
+17 pairs with both later processes recorded, 11 valid comparisons after uniform
+project-trust-path reinspection, and seven runner failures. Six missing records
+remain missing. There were 16 failed agent phases, including 11 later nonzero
+exits. No privacy case completed its boundary probes, so zero observed leaks
+does **not** certify privacy for this attempt.
+
+Only F2 received a completed independent semantic judgment: treatment adopted
+the expected decision, control did not; three of five delivered claims were
+both relevant and supported, with two irrelevant implementation claims. No
+high-impact harm was identified, and repeated source reads were control three,
+treatment zero. This single case does not establish any full-corpus gate.
+Codex hook payloads were not recoverable in other partially reviewed cases.
+
+[Candidate workflow 37406056261](https://github.com/cunilab/Cairn/actions/runs/37406056261)
+failed verify before producing images or archives. Its sign-in failure diagnostic
+queried an obsolete `users.disabled` column and masked the original error. The
+diagnostic now reads current/legacy status safely; the real PostgreSQL ingest
+suite recheck passed 30/30. The original transient sign-in cause remains
+unestablished until the candidate workflow is rerun.
+
+The [v5 protocol](protocol-v5.md) requires a complete new run with bounded,
+forwarded hook-output evidence. Its wrapper passed a real native-hook preflight
+and the focused Python checks. The scheduled account reset was retried, but the
+tool then reported a weekly limit until October 11. Full M2 scoring and both
+primary-agent journeys remain unestablished. M1 platform/image/HTTPS checks are
+pending a successful candidate build; the PR remains draft.
+
+## Historical v3 candidate
 
 Frozen M2 candidate `b5db9224aa06df685028546cb6b284aba89bb93c`, based on
 `origin/main` `0e027ba33ea47d9a87a1f28f9b41c5bfc9fdf866`. Tested on

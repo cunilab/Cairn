@@ -1241,7 +1241,7 @@ impl Server {
     pub fn cookie_for_password(&self, email: &str, password: &str) -> String {
         self.sign_in(email, password).unwrap_or_else(|why| {
             let rows = self.query_column(&format!(
-                "SELECT email || ' disabled=' || COALESCE(disabled::text, '?')
+                "SELECT email || ' status=' || COALESCE(to_jsonb(users)->>'status', 'legacy-active')
                    FROM users WHERE email = '{}'",
                 email.replace('\'', "''")
             ));

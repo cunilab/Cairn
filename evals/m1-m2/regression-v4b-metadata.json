@@ -1,0 +1,404 @@
+{
+  "candidate_sha": "303e1e0956335e55c398a320bb51b526e093e29a",
+  "status": "INCOMPLETE",
+  "summary": {
+    "cases": 30,
+    "recorded": 24,
+    "completed": 17,
+    "valid_comparisons": 11,
+    "invalid_comparisons": 13,
+    "natural_with_explicit_remember": 12,
+    "natural_with_any_memory": 12,
+    "runner_failures": 7,
+    "later_nonzero_exit": 11,
+    "later_timeouts": 0,
+    "privacy_boundary_leaks": 0,
+    "privacy_trace_leaks": 0,
+    "privacy_probe_cases": 0,
+    "privacy_trace_cases": 0,
+    "median_later_read_calls": {
+      "control": 3,
+      "treatment": 2
+    }
+  },
+  "cases": [
+    {
+      "id": "F1",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 0,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "F2",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 0,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "F3",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 0,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "F4",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 0,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "F5",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 0,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "D1",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 0,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "D2",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 0,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "D3",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 0,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "D4",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "agent_run_failure:treatment:later",
+        "agent_run_failure:control:later"
+      ],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 1,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 1
+      }
+    },
+    {
+      "id": "D5",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 0,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "R1",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "agent_run_failure:control:later",
+        "agent_run_failure:treatment:prior",
+        "agent_run_failure:treatment:later"
+      ],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 1,
+        "treatment_prior_status": 1,
+        "treatment_later_status": 1
+      }
+    },
+    {
+      "id": "R2",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 0,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "R3",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "agent_run_failure:control:prior",
+        "agent_run_failure:control:later",
+        "agent_run_failure:treatment:prior",
+        "agent_run_failure:treatment:later"
+      ],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 1,
+        "control_later_status": 1,
+        "treatment_prior_status": 1,
+        "treatment_later_status": 1
+      }
+    },
+    {
+      "id": "R4",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "agent_run_failure:control:later"
+      ],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 0,
+        "control_later_status": 1,
+        "treatment_prior_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "R5",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "agent_run_failure:control:prior",
+        "agent_run_failure:control:later",
+        "agent_run_failure:treatment:prior",
+        "agent_run_failure:treatment:later"
+      ],
+      "failure": null,
+      "statuses": {
+        "control_prior_status": 1,
+        "control_later_status": 1,
+        "treatment_prior_status": 1,
+        "treatment_later_status": 1
+      }
+    },
+    {
+      "id": "S1",
+      "missing": false,
+      "valid": true,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {
+        "control_later_status": 0,
+        "treatment_later_status": 0
+      }
+    },
+    {
+      "id": "S2",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "agent_run_failure:treatment:later",
+        "agent_run_failure:control:later"
+      ],
+      "failure": null,
+      "statuses": {
+        "control_later_status": 1,
+        "treatment_later_status": 1
+      }
+    },
+    {
+      "id": "S3",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "runner_clone_failure"
+      ],
+      "failure": {
+        "stage": "clone",
+        "kind": "CalledProcessError"
+      },
+      "statuses": {}
+    },
+    {
+      "id": "S4",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "runner_clone_failure"
+      ],
+      "failure": {
+        "stage": "clone",
+        "kind": "CalledProcessError"
+      },
+      "statuses": {}
+    },
+    {
+      "id": "S5",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "runner_clone_failure"
+      ],
+      "failure": {
+        "stage": "clone",
+        "kind": "CalledProcessError"
+      },
+      "statuses": {}
+    },
+    {
+      "id": "P1",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "runner_clone_failure"
+      ],
+      "failure": {
+        "stage": "clone",
+        "kind": "CalledProcessError"
+      },
+      "statuses": {}
+    },
+    {
+      "id": "P2",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "runner_clone_failure"
+      ],
+      "failure": {
+        "stage": "clone",
+        "kind": "CalledProcessError"
+      },
+      "statuses": {}
+    },
+    {
+      "id": "P3",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "runner_clone_failure"
+      ],
+      "failure": {
+        "stage": "clone",
+        "kind": "CalledProcessError"
+      },
+      "statuses": {}
+    },
+    {
+      "id": "P4",
+      "missing": false,
+      "valid": false,
+      "invalid_reasons": [
+        "runner_clone_failure"
+      ],
+      "failure": {
+        "stage": "clone",
+        "kind": "CalledProcessError"
+      },
+      "statuses": {}
+    },
+    {
+      "id": "P5",
+      "missing": true,
+      "valid": null,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {}
+    },
+    {
+      "id": "B1",
+      "missing": true,
+      "valid": null,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {}
+    },
+    {
+      "id": "B2",
+      "missing": true,
+      "valid": null,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {}
+    },
+    {
+      "id": "B3",
+      "missing": true,
+      "valid": null,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {}
+    },
+    {
+      "id": "B4",
+      "missing": true,
+      "valid": null,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {}
+    },
+    {
+      "id": "B5",
+      "missing": true,
+      "valid": null,
+      "invalid_reasons": [],
+      "failure": null,
+      "statuses": {}
+    }
+  ]
+}

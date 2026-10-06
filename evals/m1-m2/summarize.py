@@ -34,6 +34,7 @@ for case in cases:
             row[prefix + "model"] = run["model"]
             row[prefix + "configured_model"] = run.get("configured_model")
             row[prefix + "trace_complete"] = run.get("trace_complete")
+            row[prefix + "hook_capture_enabled"] = run.get("hook_capture", {}).get("enabled", False)
             row[prefix + "remember_calls"] = sum("cairn_remember" in n for n in names)
             row[prefix + "search_calls"] = sum("cairn_search" in n for n in names)
             row[prefix + "read_calls"] = sum(n in ("shell", "Bash", "Read", "Grep", "Glob") for n in names)
@@ -42,11 +43,14 @@ for case in cases:
     if case["lane"] == "cross_project":
         traces = [out / case["id"] / arm / ("later." + stream)
                   for arm in ("control", "treatment") for stream in ("out", "err")]
-        row["sentinel_in_agent_trace"] = (any(case["seed"] in path.read_text(errors="replace")
-                                            for path in traces)
-                                           if all(path.exists() for path in traces) and
-                                           all(row.get(arm + "_later_trace_complete") is True
-                                               for arm in ("control", "treatment")) else None)
+        for arm in ("control", "treatment"):
+            if row.get(arm + "_later_hook_capture_enabled"):
+                traces.append(out / case["id"] / arm / "later.hooks.jsonl")
+        found = any(case["seed"] in path.read_text(errors="replace")
+                    for path in traces if path.exists())
+        complete = all(path.exists() for path in traces) and all(
+            row.get(arm + "_later_trace_complete") is True for arm in ("control", "treatment"))
+        row["sentinel_in_agent_trace"] = True if found else False if complete else None
     rows.append(row)
 
 natural = [row for row in rows if row.get("lane") == "natural"]

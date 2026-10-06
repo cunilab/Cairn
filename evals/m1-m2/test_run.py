@@ -10,6 +10,7 @@ from pathlib import Path
 import tempfile
 import unittest
 import runpy
+import subprocess
 
 
 MODULE = Path(__file__).with_name("run.py")
@@ -32,6 +33,41 @@ RUN = load_runner()
 
 
 class RunnerEvidenceTests(unittest.TestCase):
+    def test_hook_capture_forwards_bytes_and_exit_status(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binary = root / "fake-cairn"
+            binary.write_text('#!/usr/bin/env python3\nimport sys\n'
+                              'sys.stdout.buffer.write(b"context\\n")\n'
+                              'sys.stderr.buffer.write(b"diagnostic\\n")\n'
+                              'sys.exit(3)\n')
+            binary.chmod(0o700)
+            log = root / "hooks.jsonl"
+            output = subprocess.run([str(MODULE.with_name("hook_capture.py")), "hook", "SessionStart"],
+                env={**os.environ, "CAIRN_M2_REAL_BIN": str(binary), "CAIRN_M2_HOOK_LOG": str(log)},
+                capture_output=True)
+            self.assertEqual((output.stdout, output.stderr, output.returncode),
+                             (b"context\n", b"diagnostic\n", 3))
+            record = json.loads(log.read_text())
+            self.assertEqual(record["stdout"], "context\n")
+            self.assertEqual(record["stderr"], "diagnostic\n")
+            self.assertTrue(record["complete"])
+            self.assertTrue(record["stdout_forwarded"])
+            self.assertTrue(record["stderr_forwarded"])
+
+    def test_project_trust_path_is_not_cairn_configuration(self):
+        with tempfile.TemporaryDirectory(prefix="cairn-") as directory:
+            root = Path(directory)
+            repo, home = root / "repo", root / "home"
+            repo.mkdir()
+            (home / ".codex").mkdir(parents=True)
+            config = home / ".codex/config.toml"
+            trust = f'[projects."{repo}"]\ntrust_level = "trusted"\n'
+            config.write_text(trust)
+            self.assertTrue(RUN.control_configuration(repo, home)["hook_configuration_absent"])
+            config.write_text(trust + f'[mcp_servers.cairn]\ncommand = "{repo}/target/debug/cairn"\n')
+            self.assertFalse(RUN.control_configuration(repo, home)["hook_configuration_absent"])
+
     def test_privacy_summary_checks_stderr_and_complete_traces(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -48,7 +84,8 @@ class RunnerEvidenceTests(unittest.TestCase):
                 result["arms"][arm] = {"later": {"tools": [], "status": 0, "seconds": 1,
                     "model": "test", "trace_complete": True, "usage": {}}}
             os.environ.update({"CAIRN_M2_CASES": str(root / "cases.json"), "CAIRN_M2_OUT": str(root)})
-            for complete in (True, False):
+            for complete, visible in ((True, True), (False, True), (False, False)):
+                (root / "P1/treatment/later.err").write_text("PRIVATE" if visible else "")
                 result["arms"]["treatment"]["later"]["trace_complete"] = complete
                 (root / "P1/result.json").write_text(json.dumps(result))
                 output = io.StringIO()
@@ -56,8 +93,8 @@ class RunnerEvidenceTests(unittest.TestCase):
                     runpy.run_path(str(MODULE.with_name("summarize.py")))
                 summary = json.loads(output.getvalue())["summary"]
                 self.assertEqual(summary["privacy_boundary_leaks"], 1)
-                self.assertEqual(summary["privacy_trace_leaks"], int(complete))
-                self.assertEqual(summary["privacy_trace_cases"], int(complete))
+                self.assertEqual(summary["privacy_trace_leaks"], int(visible))
+                self.assertEqual(summary["privacy_trace_cases"], int(complete or visible))
 
     def test_observed_reported_model_drift_invalidates_pair(self):
         arms = {arm: {"later": {"reported_model": model}}

@@ -164,6 +164,14 @@ def environment(case, arm):
         "CAIRND_BIN": str(BIN / "cairnd"),
         "PATH": str(BIN) + os.pathsep + os.environ["PATH"],
     })
+    if arm == "treatment":
+        wrapper = home / "capture-bin"
+        wrapper.mkdir(exist_ok=True)
+        link = wrapper / "cairn"
+        if not link.exists():
+            link.symlink_to(ROOT / "evals/m1-m2/hook_capture.py")
+        env["PATH"] = str(wrapper) + os.pathsep + env["PATH"]
+        env["CAIRN_M2_REAL_BIN"] = str(BIN / "cairn")
     for key in ("CAIRN_SERVER_URL", "CAIRN_SERVER_TOKEN", "CAIRN_ACCOUNT_ID"):
         env.pop(key, None)
     return env, home
@@ -191,6 +199,9 @@ def command(case, arm, repo, home, env, prompt):
 
 
 def run_agent(case, arm, phase, repo, home, env):
+    hook_log = OUT / case["id"] / arm / f"{phase}.hooks.jsonl"
+    if arm == "treatment":
+        env = {**env, "CAIRN_M2_HOOK_LOG": str(hook_log)}
     cmd, run_env = command(case, arm, repo, home, env, case[phase])
     raw = OUT / case["id"] / arm / f"{phase}.out"
     err = OUT / case["id"] / arm / f"{phase}.err"
@@ -242,7 +253,16 @@ def run_agent(case, arm, phase, repo, home, env):
                 reported_models.update(event.get("modelUsage", {}))
     final_path = OUT / case["id"] / arm / f"{phase}.final"
     final_path.write_text(final)
-    trace_complete = all([bound_private_raw(path) for path in (raw, err, final_path)])
+    trace_complete = all([bound_private_raw(path) for path in (raw, err, final_path, hook_log)])
+    hook_records = []
+    if hook_log.exists():
+        for line in hook_log.read_text().splitlines():
+            try:
+                hook_records.append(json.loads(line))
+            except json.JSONDecodeError:
+                trace_complete = False
+    trace_complete = trace_complete and all(record["complete"] and record["stdout_forwarded"] and record["stderr_forwarded"]
+                                            for record in hook_records)
     return {"status": status, "seconds": elapsed, "usage": usage,
             "started_at_unix": started_at, "ended_at_unix": time.time(),
             "configured_model": configured_model(case), "reported_model": reported_model,
@@ -250,6 +270,7 @@ def run_agent(case, arm, phase, repo, home, env):
             # Compatibility for summarize.py. This is deliberately not a configured model.
             "model": reported_model,
             "trace_complete": trace_complete,
+            "hook_capture": {"enabled": arm == "treatment", "records": len(hook_records)},
             "tools": tools}
 
 
@@ -337,8 +358,16 @@ def control_configuration(repo, home):
         "agents": repo / "AGENTS.md",
         "claude": repo / "CLAUDE.md",
     }
-    mentions = [name for name, path in files.items()
-                if path.exists() and "cairn" in path.read_text(errors="replace").lower()]
+    mentions = []
+    for name, path in files.items():
+        if not path.exists():
+            continue
+        text = path.read_text(errors="replace")
+        if name == "codex_config":
+            # Codex writes a project trust entry; its path is not hook configuration.
+            text = text.replace(str(repo), "").replace(str(repo.resolve()), "")
+        if "cairn" in text.lower():
+            mentions.append(name)
     return {"inspected": list(files), "cairn_mentions": mentions,
             "hook_configuration_absent": not any(name in mentions for name in
                                                    ("codex_config", "codex_hooks", "claude_settings",
