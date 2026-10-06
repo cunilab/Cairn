@@ -35,8 +35,12 @@ unestablished until the candidate workflow is rerun.
 The [v5 protocol](protocol-v5.md) requires a complete new run with bounded,
 forwarded hook-output evidence. Its wrapper passed a real native-hook preflight
 and the focused Python checks. The scheduled account reset was retried, but the
-tool then reported a weekly limit until October 11. Full M2 scoring and both
-primary-agent journeys remain unestablished. M1 platform/image/HTTPS checks are
+tool then reported a weekly limit until October 11. A separate Codex CLI
+capacity check passed. The authorized substitute Claude judge classified all
+30 frozen calibration fixtures correctly; the [v6 protocol](protocol-v6.md)
+discloses that substitution and freezes the product/runner at `cce8141`.
+Full M2 scoring and both primary-agent journeys remain unestablished.
+M1 platform/image/HTTPS checks are
 pending a successful candidate build; the PR remains draft.
 
 ## Historical v3 candidate
