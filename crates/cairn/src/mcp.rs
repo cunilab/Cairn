@@ -176,11 +176,14 @@ fn tool_definitions() -> Vec<Value> {
         }),
         json!({
             "name": "cairn_remember",
-            "description": "Record durable knowledge, replace it, or forget it. Supporting \
-                            observations are optional and are never invented. Give durable \
+            "description": "Record durable knowledge, replace it, or forget it. Preserve user \
+                            choices as decisions and trials as observations, not implemented \
+                            or validated behavior. Keep those findings concise; cite bounded \
+                            source locators without appending implementation summaries. Give durable \
                             project facts a `topic_key` and a `value_key` specific enough to \
-                            state the whole claim. Attach evidence rather than asserting \
-                            importance. If Cairn reports a corroborating member and it is the \
+                            state the whole claim. Local observation IDs cannot be attached \
+                            to server-owned memory; source citations are agent attestations, \
+                            not server verification. If Cairn reports a corroborating member and it is the \
                             same claim, reinforce it. Record a conflict rather than overwriting.",
             "inputSchema": {
                 "type": "object",

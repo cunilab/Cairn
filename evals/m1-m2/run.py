@@ -7,11 +7,13 @@ import json
 import os
 from pathlib import Path
 import re
+import shlex
 import shutil
 import hashlib
 import secrets
 import subprocess
 import time
+import tomllib
 import urllib.error
 import urllib.request
 
@@ -21,7 +23,7 @@ SOURCES = Path(os.environ["CAIRN_M2_SOURCES"])
 OUT = Path(os.environ["CAIRN_M2_OUT"])
 CREDS = Path(os.environ["CAIRN_M2_CREDENTIALS"])
 BIN = ROOT / "target/debug"
-TIMEOUT = 180
+TIMEOUT = 300
 RAW_LIMIT = 2_000_000
 
 
@@ -44,6 +46,155 @@ def identities(case):
 
 def configured_model(case):
     return "gpt-6.1-sol" if case["agent"] == "codex" else "claude-sonnet-5-5"
+
+
+def file_sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def write_login_profiles(home, path_prefix):
+    """Keep the candidate PATH after macOS login-shell path initialization."""
+    prefix = os.pathsep.join(str(path) for path in path_prefix)
+    body = f'export PATH={shlex.quote(prefix)}:"$PATH"\n'
+    for name in (".zprofile", ".bash_profile"):
+        (home / name).write_text(body)
+
+
+def mcp_command(case, home):
+    if case["agent"] == "codex":
+        path = home / ".codex/config.toml"
+        if not path.exists():
+            return None
+        return tomllib.loads(path.read_text()).get("mcp_servers", {}).get("cairn", {}).get("command")
+    path = home / ".claude.json"
+    if not path.exists():
+        return None
+    return json.loads(path.read_text()).get("mcpServers", {}).get("cairn", {}).get("command")
+
+
+def pin_mcp_command(case, home):
+    """Replace setup's portable command with this evaluation's frozen candidate."""
+    command = str((BIN / "cairn").absolute())
+    if case["agent"] == "codex":
+        path = home / ".codex/config.toml"
+        text = path.read_text()
+        section = re.compile(r"(?ms)(^\[mcp_servers\.cairn\]\s*\n)(.*?)(?=^\[|\Z)")
+        match = section.search(text)
+        if not match:
+            raise RuntimeError("Cairn MCP config is absent")
+        body, count = re.subn(r'(?m)^command\s*=\s*.*$',
+                              "command = " + json.dumps(command), match.group(2), count=1)
+        if count != 1:
+            raise RuntimeError("Cairn MCP command is absent")
+        path.write_text(text[:match.start()] + match.group(1) + body + text[match.end():])
+    else:
+        path = home / ".claude.json"
+        document = json.loads(path.read_text())
+        entry = document.get("mcpServers", {}).get("cairn")
+        if not isinstance(entry, dict):
+            raise RuntimeError("Cairn MCP config is absent")
+        entry["command"] = command
+        path.write_text(json.dumps(document, indent=2) + "\n")
+    if mcp_command(case, home) != command:
+        raise RuntimeError("Cairn MCP command did not retain its absolute path")
+    return command
+
+
+def runtime_identity(case, arm, home, env):
+    """Prove login shells and MCP config select the frozen candidate."""
+    shell = Path(env.get("SHELL", ""))
+    if not shell.is_file():
+        found = shutil.which("zsh", path=env.get("PATH")) or shutil.which("bash", path=env.get("PATH"))
+        shell = Path(found) if found else Path()
+    resolution = subprocess.run([str(shell), "-lc", "command -v cairn"], env=env,
+                                text=True, capture_output=True, timeout=10)
+    resolved = Path(resolution.stdout.strip()) if resolution.returncode == 0 else None
+    expected = home / "capture-bin/cairn" if arm == "treatment" else BIN / "cairn"
+    login_matches = bool(resolved and resolved.exists() and resolved.samefile(expected))
+    candidate_hash = file_sha256(BIN / "cairn")
+    if arm == "treatment":
+        real = Path(env.get("CAIRN_M2_REAL_BIN", ""))
+        selected_hash = file_sha256(real) if real.is_file() else None
+        binary_matches = selected_hash == candidate_hash
+        configured = mcp_command(case, home)
+        mcp_matches = bool(configured and Path(configured).is_absolute() and
+                           Path(configured).exists() and Path(configured).samefile(BIN / "cairn"))
+    else:
+        selected_hash = file_sha256(resolved) if resolved and resolved.is_file() else None
+        binary_matches = selected_hash == candidate_hash
+        configured = mcp_command(case, home)
+        mcp_matches = configured is None
+    return {
+        "shell": shell.name,
+        "candidate_sha256": candidate_hash,
+        "selected_sha256": selected_hash,
+        "login_resolution_matches": login_matches,
+        "binary_sha256_matches": binary_matches,
+        "mcp_absolute_candidate": mcp_matches,
+        "passed": resolution.returncode == 0 and login_matches and binary_matches and mcp_matches,
+    }
+
+
+def cairn_cli_actions(command):
+    """Classify explicit Cairn CLI invocations without retaining shell text."""
+    actions = set()
+
+    def tokens(text):
+        try:
+            lexer = shlex.shlex(text, posix=True, punctuation_chars=";&|()")
+            lexer.whitespace_split = True
+            lexer.commenters = ""
+            return list(lexer)
+        except ValueError:
+            return []
+
+    def scan(text):
+        words = tokens(text)
+        for index, word in enumerate(words[:-1]):
+            if (word in ("-c", "-lc") and index > 0 and
+                    Path(words[index - 1]).name in ("bash", "sh", "zsh")):
+                scan(words[index + 1])
+        start = True
+        index = 0
+        while index < len(words):
+            word = words[index]
+            if word and all(character in ";&|()" for character in word):
+                start = True
+                index += 1
+                continue
+            if not start:
+                index += 1
+                continue
+            lower = word.lower()
+            if lower == "command" and words[index + 1:index + 2] == ["-v"]:
+                if words[index + 2:index + 3] == ["cairn"]:
+                    actions.add("discovery")
+                start = False
+                index += 1
+                continue
+            if lower in ("command", "env", "exec", "nohup", "sudo") or (
+                    "=" in word and not word.startswith("=")):
+                index += 1
+                continue
+            if Path(word).name.lower() == "cairn":
+                arguments = []
+                for argument in words[index + 1:]:
+                    if argument and all(character in ";&|()" for character in argument):
+                        break
+                    arguments.append(argument)
+                arguments = [argument for argument in arguments if argument != "--json"]
+                first = arguments[0].lower() if arguments else ""
+                if first in ("--help", "-h", "help", "--version", "version") or not first:
+                    actions.add("help")
+                elif first in ("memory", "mcp", "hook"):
+                    actions.add(first)
+                else:
+                    actions.add("other")
+            start = False
+            index += 1
+
+    scan(command)
+    return sorted(actions)
 
 
 def model_status(arms, phases):
@@ -158,12 +309,14 @@ def environment(case, arm):
     env = dict(os.environ)
     env.update({
         "HOME": str(home),
+        "ZDOTDIR": str(home),
         "XDG_CONFIG_HOME": str(home / ".config"),
         "CODEX_HOME": str(home / ".codex"),
         "CAIRN_HOME": str(home / "cairn"),
         "CAIRND_BIN": str(BIN / "cairnd"),
         "PATH": str(BIN) + os.pathsep + os.environ["PATH"],
     })
+    path_prefix = [BIN]
     if arm == "treatment":
         wrapper = home / "capture-bin"
         wrapper.mkdir(exist_ok=True)
@@ -172,6 +325,8 @@ def environment(case, arm):
             link.symlink_to(ROOT / "evals/m1-m2/hook_capture.py")
         env["PATH"] = str(wrapper) + os.pathsep + env["PATH"]
         env["CAIRN_M2_REAL_BIN"] = str(BIN / "cairn")
+        path_prefix.insert(0, wrapper)
+    write_login_profiles(home, path_prefix)
     for key in ("CAIRN_SERVER_URL", "CAIRN_SERVER_TOKEN", "CAIRN_ACCOUNT_ID"):
         env.pop(key, None)
     return env, home
@@ -192,7 +347,7 @@ def command(case, arm, repo, home, env, prompt):
     env = {**env, "HOME": str(Path.home())}
     return [
         "claude", "-p", "--model", "claude-sonnet-5-5",
-        "--output-format", "stream-json", "--verbose", "--max-turns", "8",
+        "--output-format", "stream-json", "--verbose", "--max-turns", "20",
         "--dangerously-skip-permissions", "--setting-sources", "project,local",
         "--strict-mcp-config", "--mcp-config", str(mcp), "--", prompt,
     ], env
@@ -216,6 +371,7 @@ def run_agent(case, arm, phase, repo, home, env):
     elapsed = round(time.monotonic() - start, 2)
     body = raw.read_text(errors="replace") if raw.exists() else ""
     final, usage, tools, reported_model = "", {}, [], None
+    cli_actions = set()
     reported_models = set()
     if case["agent"] == "codex":
         for line in body.splitlines():
@@ -231,6 +387,7 @@ def run_agent(case, arm, phase, repo, home, env):
                               "status": item.get("status")})
             if item.get("type") == "command_execution" and event.get("type") != "item.started":
                 tools.append({"name": "shell", "status": item.get("status")})
+                cli_actions.update(cairn_cli_actions(item.get("command") or ""))
             if event.get("type") == "turn.completed":
                 usage = event.get("usage", {})
     else:
@@ -246,6 +403,10 @@ def run_agent(case, arm, phase, repo, home, env):
                 for item in event.get("message", {}).get("content", []):
                     if item.get("type") == "tool_use":
                         tools.append({"name": item.get("name"), "status": "called"})
+                        if item.get("name") == "Bash":
+                            arguments = item.get("input")
+                            if isinstance(arguments, dict):
+                                cli_actions.update(cairn_cli_actions(arguments.get("command") or ""))
             if event.get("type") == "result":
                 final = event.get("result", "")
                 usage = event.get("usage", {})
@@ -271,6 +432,7 @@ def run_agent(case, arm, phase, repo, home, env):
             "model": reported_model,
             "trace_complete": trace_complete,
             "hook_capture": {"enabled": arm == "treatment", "records": len(hook_records)},
+            "cairn_cli_actions": sorted(cli_actions),
             "tools": tools}
 
 
@@ -415,6 +577,14 @@ def run_case(case, credentials):
                                env=setup_env, text=True, capture_output=True, timeout=45)
         if setup.returncode:
             raise RuntimeError("setup returned nonzero")
+        stage = "runtime_identity"
+        pin_mcp_command(case, home)
+        result["runtime_identity"] = {
+            arm: runtime_identity(case, arm, paths[arm][1], paths[arm][2])
+            for arm in ("control", "treatment")
+        }
+        if not all(identity["passed"] for identity in result["runtime_identity"].values()):
+            raise RuntimeError("candidate runtime identity did not verify")
         if case["agent"] == "claude":
             installed = home / ".claude/skills/cairn"
             if not installed.exists():
@@ -491,6 +661,14 @@ def run_case(case, credentials):
             tool["name"] for run in result["arms"]["control"].values()
             for tool in run["tools"] if "cairn" in tool["name"].lower()
         ]
+        result["control_cairn_cli_actions"] = sorted({
+            action for run in result["arms"]["control"].values()
+            for action in run.get("cairn_cli_actions", [])
+        })
+        result["control_cairn_calls"].extend(
+            "cli:" + action for action in result["control_cairn_cli_actions"]
+            if action not in ("discovery", "help")
+        )
         if result["control_cairn_calls"]:
             result["invalid_reasons"].append("control_cairn_calls")
         if not result["control_configuration"]["hook_configuration_absent"]:

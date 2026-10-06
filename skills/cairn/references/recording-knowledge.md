@@ -13,7 +13,12 @@ Record what a future session would otherwise have to rediscover.
 Keep user-supplied durable decisions and failure reports, including their identifiers and
 constraints, even when the code already follows them. A later session cannot recover the
 user's decision or incident history from the implementation alone. Keep the content focused
-on that finding; attach source evidence rather than appending unrelated implementation facts.
+on that finding. State what was chosen or observed, including constraints and identifiers;
+do not promote a proposed change or limited trial into implemented or validated behavior.
+For these records, preserve the user finding concisely and cite a source locator when useful.
+Do not append a code-path narrative, current constants, or other implementation summaries.
+Those details belong in the task answer; a later session asking about the choice needs the
+choice itself.
 
 ## Not worth recording
 

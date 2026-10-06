@@ -29,7 +29,7 @@ This is a sequence of product outcomes, not a release schedule. Alpha.9 is the c
 
 **Exit:** a fresh user completes deployment → project → setup → work → return → useful recall without undocumented fixes. Alpha.9 supplied candidate and published smoke evidence for major parts of this journey; a new candidate must prove it again.
 
-[Current candidate evidence](../evals/m1-m2/results.md) supports the local first-use and return journey. Fresh published images, HTTPS Compose deployment, and other native platforms remain unrun for this candidate; the full M1 exit is open.
+[Current candidate evidence](../evals/m1-m2/results.md) supports the local first-use and return journey. Earlier candidate platform builds passed; the corrected candidate still requires its own published images, native archive checks, and fresh HTTPS primary-agent journeys. The full M1 exit is open.
 
 ## M2 — Recall can be trusted
 
@@ -43,7 +43,7 @@ This is a sequence of product outcomes, not a release schedule. Alpha.9 is the c
 
 **Exit:** paired evidence shows Cairn helps later work and does not create unacceptable harmful recall.
 
-The [v6 candidate](../evals/m1-m2/results.md) completed 30 paired tasks across three repositories and both primary agents, with three invalid comparisons. Capture occurred in 13/15 natural cases. Useful application (7/15) and delivered-claim quality (21/29) failed their targets; completion, harmful-recall, and repeated-investigation gates remain unestablished. All five bounded privacy cases passed. A scope-key fix requires a fresh full regression before closing M2.
+The [v6 candidate](../evals/m1-m2/results.md) completed 30 paired tasks across three repositories and both primary agents, with three invalid comparisons. Capture occurred in 13/15 natural cases. Useful application (7/15) and delivered-claim quality (21/29) failed their targets; completion, harmful-recall, and repeated-investigation gates remain unestablished. All five bounded privacy cases passed. Scope-key and runtime identity fixes require the full [v8 regression](../evals/m1-m2/protocol-v8.md) before closing M2. Earlier Codex frontend identity was not attested.
 
 ## M3 — Safe and recoverable
 

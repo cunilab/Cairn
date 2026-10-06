@@ -12,8 +12,8 @@ block = Search Cairn memory before repeating an investigation you may already ha
 mcp = Call `cairn_search` before repeating an investigation you may already have done.
 
 [rule record]
-block = Call `cairn_remember` before finishing for durable user decisions and failures, including identifiers, even when code agrees. Cite evidence; skip source summaries and routine calls.
-mcp = Call `cairn_remember` before finishing for durable user decisions and failures, including identifiers, even when code agrees. Cite evidence; skip source summaries and routine calls.
+block = Call `cairn_remember` for durable user choices/failures with IDs before finishing, even when code agrees. Keep choices distinct from implemented facts; skip source summaries and routine calls.
+mcp = Call `cairn_remember` for durable user choices/failures with IDs before finishing, even when code agrees. Keep choices distinct from implemented facts; skip source summaries and routine calls.
 
 [rule scope]
 block = Use project scope for decisions valid across branches, branch for branch-specific facts, and session only for scratch state.

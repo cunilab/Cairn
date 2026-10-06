@@ -33,6 +33,83 @@ RUN = load_runner()
 
 
 class RunnerEvidenceTests(unittest.TestCase):
+    @unittest.skipUnless(Path("/bin/zsh").exists(), "macOS login-shell fixture")
+    def test_isolated_login_shell_keeps_candidate_path(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binary_dir = root / "target/debug"
+            binary_dir.mkdir(parents=True)
+            binary = binary_dir / "cairn"
+            binary.write_text("#!/bin/sh\nexit 0\n")
+            binary.chmod(0o700)
+            originals = RUN.OUT, RUN.BIN
+            try:
+                RUN.OUT, RUN.BIN = root / "out", binary_dir
+                treatment_env, treatment_home = RUN.environment({"id": "T1"}, "treatment")
+                control_env, control_home = RUN.environment({"id": "T1"}, "control")
+                (treatment_home / ".codex/config.toml").write_text(
+                    '[mcp_servers.cairn]\ncommand = "cairn"\nargs = ["mcp"]\n')
+                RUN.pin_mcp_command({"agent": "codex"}, treatment_home)
+                treatment = subprocess.run(["/bin/zsh", "-lc", "command -v cairn"],
+                    env=treatment_env, text=True, capture_output=True, check=True)
+                control = subprocess.run(["/bin/zsh", "-lc", "command -v cairn"],
+                    env=control_env, text=True, capture_output=True, check=True)
+                treatment_identity = RUN.runtime_identity(
+                    {"agent": "codex"}, "treatment", treatment_home, treatment_env)
+                control_identity = RUN.runtime_identity(
+                    {"agent": "codex"}, "control", control_home, control_env)
+            finally:
+                RUN.OUT, RUN.BIN = originals
+            self.assertEqual(Path(treatment.stdout.strip()), treatment_home / "capture-bin/cairn")
+            self.assertEqual(Path(control.stdout.strip()), binary)
+            self.assertTrue(treatment_identity["passed"])
+            self.assertTrue(control_identity["passed"])
+
+    def test_mcp_commands_are_pinned_to_absolute_candidate(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binary_dir = root / "target/debug"
+            binary_dir.mkdir(parents=True)
+            binary = binary_dir / "cairn"
+            binary.write_text("candidate")
+            original = RUN.BIN
+            RUN.BIN = binary_dir
+            try:
+                for agent in ("codex", "claude"):
+                    home = root / agent
+                    (home / ".codex").mkdir(parents=True)
+                    if agent == "codex":
+                        (home / ".codex/config.toml").write_text(
+                            '[mcp_servers.cairn]\ncommand = "cairn"\nargs = ["mcp"]\n')
+                    else:
+                        (home / ".claude.json").write_text(json.dumps({
+                            "mcpServers": {"cairn": {"command": "cairn", "args": ["mcp"]}}}))
+                    pinned = RUN.pin_mcp_command({"agent": agent}, home)
+                    self.assertEqual(Path(pinned), binary.absolute())
+                    self.assertEqual(RUN.mcp_command({"agent": agent}, home), pinned)
+            finally:
+                RUN.BIN = original
+
+    def test_control_cli_allows_help_but_detects_stateful_cairn_commands(self):
+        self.assertEqual(RUN.cairn_cli_actions('/bin/zsh -lc "cairn --help"'), ["help"])
+        self.assertEqual(RUN.cairn_cli_actions('/bin/zsh -lc "command -v cairn"'), ["discovery"])
+        self.assertEqual(RUN.cairn_cli_actions('/bin/zsh -lc "cairn memory add --content test"'),
+                         ["memory"])
+        self.assertEqual(RUN.cairn_cli_actions('/bin/zsh -lc "cairn mcp"'), ["mcp"])
+        self.assertEqual(RUN.cairn_cli_actions('/bin/zsh -lc "cairn hook SessionStart"'), ["hook"])
+        self.assertEqual(RUN.cairn_cli_actions('cd /tmp/example/Cairn && rg setup'), [])
+        self.assertEqual(RUN.cairn_cli_actions('echo "cairn mcp"'), [])
+        self.assertEqual(RUN.cairn_cli_actions('rg -c "cairn memory" .'), [])
+
+    def test_uniform_agent_budgets_are_not_short_caps(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "empty-mcp.json").write_text('{"mcpServers":{}}')
+            command, _ = RUN.command({"agent": "claude"}, "control", root, root,
+                                     dict(os.environ), "prompt")
+        self.assertEqual(RUN.TIMEOUT, 300)
+        self.assertEqual(command[command.index("--max-turns") + 1], "20")
+
     def test_hook_capture_forwards_bytes_and_exit_status(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

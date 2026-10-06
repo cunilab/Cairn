@@ -1,6 +1,17 @@
 # M1/M2 candidate evidence — through 2026-10-06
 
-## Latest regression status
+## Current corrected candidate
+
+The [v8 protocol](protocol-v8.md) requires another complete run with absolute
+candidate MCP paths and pre-actor shell/binary identity checks. Earlier Codex
+regressions could resolve an older global executable; their original scores
+remain preserved as observations and cannot certify the frozen candidate.
+V7 also exposed irrelevant implementation summaries and one control turn-limit
+failure. V8 strengthens capture guidance and gives both arms identical larger
+execution budgets without changing cases, models, rubric, or thresholds.
+Full corrected semantic and fresh HTTPS evidence remain pending. The PR is draft.
+
+## Historical regression status
 
 The [v4 protocol](protocol-v4.md) preserved the unchanged 30-case corpus and
 milestone thresholds. Laya failed the revised calibration (16/24 classified,
