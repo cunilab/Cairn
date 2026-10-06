@@ -9,7 +9,11 @@ remain preserved as observations and cannot certify the frozen candidate.
 V7 also exposed irrelevant implementation summaries and one control turn-limit
 failure. V8 strengthens capture guidance and gives both arms identical larger
 execution budgets without changing cases, models, rubric, or thresholds.
-Full corrected semantic and fresh HTTPS evidence remain pending. The PR is draft.
+The user then instructed us to skip the Claude arm. A Codex-only v8 attempt
+recorded all 15 Codex cases, but the provider quota caused every later phase to
+exit nonzero; no v8 semantic score is reported. The 15 missing Claude cases,
+the fresh full two-agent comparison, and semantic judging remain unrun. Fresh
+HTTPS evidence remains pending. The PR is draft.
 
 ## Historical regression status
 
@@ -54,6 +58,24 @@ V6 semantic scoring is now complete; its failed gates are reported below. Both
 primary-agent journeys against a fresh HTTPS deployment remain unestablished.
 The corrected candidate’s platform/image/HTTPS checks remain pending; the prior
 candidate build is reported below. The PR remains draft.
+
+## Completed v7 regression (identity not attested)
+
+Source `c53a57973a5bb01e7810ff32eafaab1f2be92070` produced all 30 case
+records and 30 valid independent judgments. [Sanitized metadata](regression-v7-metadata.json)
+preserves two invalid comparisons: R2 treatment prior and R4 control later.
+Capture occurred in 14/15 natural cases, with 14/15 observed useful applications.
+Delivered-claim quality was 43/61 (70.5%), below 90%; seven unsupported seeded
+hazard claims remain in that denominator. Observed completion was control 12/30
+and treatment 28/30, with zero judged high-impact endorsements or leaks. Twelve
+known eligible repeated-investigation pairs had an observed median reduction
+of 80.4%; F3/F5 counts remained unresolved. None of these observations closes
+M2 because of invalid comparisons and the Codex runtime identity defect.
+
+All five privacy cases completed their boundary probes and trace scans without
+an observed leak. Candidate runtime certification is still missing for this run.
+Earlier v6 privacy evidence likewise establishes only the bounded observed
+paths, not execution of an attested candidate Codex frontend.
 
 ## Completed v6 regression
 
