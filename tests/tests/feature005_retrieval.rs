@@ -92,6 +92,64 @@ fn seed_project_memory(pg: &Pg, session: Uuid, content: &str) -> Uuid {
     id
 }
 
+#[test]
+fn legacy_local_project_keys_reach_context_pins_and_warnings() {
+    let pg = pg!();
+    let session = pg.session_for(&pg.owner);
+    let ordinary = seed_project_memory(&pg, session, "legacy durable project finding");
+    let pin = seed_continuity_memory(
+        &pg,
+        pg.project,
+        session,
+        "legacy pinned constraint",
+        true,
+        None,
+    );
+    let warning = seed_continuity_memory(
+        &pg,
+        pg.project,
+        session,
+        "legacy conflicting claim",
+        false,
+        Some("conflicted"),
+    );
+    let foreign = pg.extra_project("legacy-foreign", &[&pg.owner]);
+    let foreign_session = pg.session_in(foreign, &pg.owner);
+    let foreign_pin = seed_continuity_memory(
+        &pg,
+        foreign,
+        foreign_session,
+        "foreign legacy secret",
+        true,
+        Some("drifted"),
+    );
+    pg.server.execute(&format!("UPDATE memories SET scope_key = '{}' WHERE id IN ('{ordinary}', '{pin}', '{warning}', '{foreign_pin}')", Uuid::now_v7()));
+    let (context, status) = retrieve(&pg, &pg.owner, session, "explicit");
+    assert_eq!(status, 200, "{context}");
+    assert!(
+        context
+            .to_string()
+            .contains("legacy durable project finding"),
+        "{context}"
+    );
+    assert!(
+        context["continuity"]["pins"]
+            .to_string()
+            .contains(&pin.to_string()),
+        "{context}"
+    );
+    assert!(
+        context["continuity"]["warnings"]
+            .to_string()
+            .contains("legacy conflicting claim"),
+        "{context}"
+    );
+    assert!(
+        !context.to_string().contains("foreign legacy secret"),
+        "{context}"
+    );
+}
+
 fn seed_handoff(pg: &Pg, project: Uuid, session: Uuid, marker: &str) -> Uuid {
     let id = Uuid::now_v7();
     let marker = escape(marker);

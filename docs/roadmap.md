@@ -43,7 +43,7 @@ This is a sequence of product outcomes, not a release schedule. Alpha.9 is the c
 
 **Exit:** paired evidence shows Cairn helps later work and does not create unacceptable harmful recall.
 
-The [current candidate](../evals/m1-m2/results.md) completed 30 paired tasks across three repositories and both primary agents. Capture occurred in 14/15 natural cases, but useful-recall, completion, delivered-claim quality, harmful-recall, and repeated-investigation gates are not established. Execution alone does not close M2.
+The [v6 candidate](../evals/m1-m2/results.md) completed 30 paired tasks across three repositories and both primary agents, with three invalid comparisons. Capture occurred in 13/15 natural cases. Useful application (7/15) and delivered-claim quality (21/29) failed their targets; completion, harmful-recall, and repeated-investigation gates remain unestablished. All five bounded privacy cases passed. A scope-key fix requires a fresh full regression before closing M2.
 
 ## M3 — Safe and recoverable
 

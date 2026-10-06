@@ -196,7 +196,7 @@ fn tool_definitions() -> Vec<Value> {
                     "scope": { "type": "string", "enum": ["project", "branch", "session"] },
                     "scope_key": { "type": "string" },
                     "content": { "type": "string" },
-                    "evidence_observation_ids": { "type": "array", "items": { "type": "string" } },
+                    "evidence_observation_ids": { "type": "array", "items": { "type": "string" }, "description": "Legacy local observation IDs are unsupported for server-owned memory; omit or leave empty." },
                     "local_only": { "type": "boolean" },
                     "memory_id": { "type": "string" },
                     // create / forget. `team` is deliberately absent from this
@@ -403,7 +403,14 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                         .ok_or_else(|| WireError::invalid("type is required"))?;
                     let content = str_arg(args, "content")
                         .ok_or_else(|| WireError::invalid("content is required"))?;
-                    let evidence = uuid_list(args, "evidence_observation_ids");
+                    if args.get("evidence_observation_ids").is_some_and(|value| {
+                        !value.is_null() && value.as_array().is_none_or(|ids| !ids.is_empty())
+                    }) {
+                        return Err(WireError::invalid(
+                            "local observation IDs cannot be attached to server-owned memory; omit evidence_observation_ids",
+                        ));
+                    }
+                    let evidence = Vec::new();
                     let local_only = args
                         .get("local_only")
                         .and_then(|v| v.as_bool())
@@ -656,18 +663,6 @@ fn uuid_opt(args: &Value, key: &str) -> Option<uuid::Uuid> {
 
 fn bool_arg(args: &Value, key: &str) -> bool {
     args.get(key).and_then(|v| v.as_bool()).unwrap_or(false)
-}
-
-fn uuid_list(args: &Value, key: &str) -> Vec<uuid::Uuid> {
-    args.get(key)
-        .and_then(|v| v.as_array())
-        .map(|a| {
-            a.iter()
-                .filter_map(|v| v.as_str())
-                .filter_map(|s| uuid::Uuid::parse_str(s).ok())
-                .collect()
-        })
-        .unwrap_or_default()
 }
 
 /// A list of enum-valued strings, or `None` when the caller omitted the key.

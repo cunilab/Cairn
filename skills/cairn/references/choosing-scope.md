@@ -17,3 +17,7 @@ narrow it.
 
 Too narrow is recoverable — someone re-records it. Too wide is not: a project-scoped memory
 that was only ever true on one branch quietly misleads every future session.
+
+An explicit branch `scope_key` can target another branch of this project without an active
+session. Omit it to use the attributed session’s branch. Session scope always requires an
+owned attributed session; its key must match that session. Project keys come from the server.

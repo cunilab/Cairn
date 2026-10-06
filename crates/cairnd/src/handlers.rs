@@ -1194,17 +1194,22 @@ async fn personal_create(
 async fn memory_create(
     d: &Daemon,
     cwd: &str,
-    _agent_session_key: Option<String>,
+    agent_session_key: Option<String>,
     session_id: Option<Uuid>,
     kind: MemoryType,
     scope: Option<MemoryScope>,
     scope_key: Option<String>,
     content: String,
-    _evidence: Vec<Uuid>,
+    evidence: Vec<Uuid>,
     local_only: bool,
     supersedes: Option<Uuid>,
     subject: SubjectProposal,
 ) -> Reply {
+    if !evidence.is_empty() {
+        return Err(WireError::invalid(
+            "local observation IDs cannot be attached to server-owned memory; omit evidence_observation_ids and cite the bounded finding in content",
+        ));
+    }
     if local_only {
         return Err(WireError::invalid(
             "local-only memory is unavailable; server owns durable knowledge",
@@ -1212,17 +1217,42 @@ async fn memory_create(
     }
     let r = d.resolve(cwd).await?;
     let scope = scope.unwrap_or(MemoryScope::Project);
+    let needs_session = match scope {
+        MemoryScope::Project => session_id.is_some() || agent_session_key.is_some(),
+        // An explicit nonempty branch key is a documented cross-session
+        // contract. All other branch writes need the attributed session.
+        MemoryScope::Branch => {
+            scope_key.is_none() || session_id.is_some() || agent_session_key.is_some()
+        }
+        MemoryScope::Session => true,
+    };
+    let session = if needs_session {
+        Some(resolve_session(d, &r, session_id, agent_session_key.as_deref()).await?)
+    } else {
+        None
+    };
+    let scope_key = memory_scope_key(
+        scope,
+        scope_key,
+        session
+            .as_ref()
+            .map(|session| (session.id, session.branch.as_str())),
+    )?;
+    let attributed_session_id = session.as_ref().map(|session| session.id);
     let payload = json!({
         "type": kind.as_str(), "scope": scope.as_str(),
-        "scope_key": scope_key.unwrap_or_else(|| r.project.id.to_string()),
+        // Project scope has no client-side default: the server owns its
+        // canonical project identity, which differs from this local UUID.
+        "scope_key": scope_key,
         "content": cairn_core::redact::redact(&content),
         "topic_key": subject.topic_key, "value_key": subject.value_key,
-        "session_id": session_id,
+        "session_id": attributed_session_id,
+        "target_id": supersedes,
     });
     queue_knowledge_command(
         d,
         Some(r.project.id),
-        session_id,
+        attributed_session_id,
         if supersedes.is_some() {
             cairn_store::spool::CommandKind::Supersede
         } else {
@@ -1231,6 +1261,44 @@ async fn memory_create(
         &payload,
     )
     .await
+}
+
+fn memory_scope_key(
+    scope: MemoryScope,
+    supplied: Option<String>,
+    session: Option<(Uuid, &str)>,
+) -> Result<Option<String>, WireError> {
+    match scope {
+        // `None` deliberately travels as JSON null for server canonicalization.
+        MemoryScope::Project => Ok(supplied),
+        MemoryScope::Branch => match supplied {
+            Some(key) if !key.trim().is_empty() => Ok(Some(key)),
+            Some(_) => Err(WireError::invalid("branch scope_key must be nonempty")),
+            None => session
+                .map(|(_, branch)| Some(branch.to_owned()))
+                .ok_or_else(|| {
+                    WireError::new(
+                        codes::NO_ACTIVE_SESSION,
+                        "branch-scoped memory without scope_key needs an active attributed session",
+                    )
+                }),
+        },
+        MemoryScope::Session => {
+            let (id, _) = session.ok_or_else(|| {
+                WireError::new(
+                    codes::NO_ACTIVE_SESSION,
+                    "session-scoped memory needs an active attributed session",
+                )
+            })?;
+            let key = id.to_string();
+            if supplied.as_deref().is_some_and(|supplied| supplied != key) {
+                return Err(WireError::invalid(
+                    "session scope_key must match the attributed session id",
+                ));
+            }
+            Ok(Some(key))
+        }
+    }
 }
 
 async fn memory_reinforce(
@@ -1467,6 +1535,37 @@ mod tests {
                 .unwrap()
                 .is_none()
         );
+    }
+
+    #[test]
+    fn implicit_scope_keys_use_server_or_attributed_session_identity() {
+        let session = Uuid::now_v7();
+        assert_eq!(
+            memory_scope_key(MemoryScope::Project, None, None).unwrap(),
+            None
+        );
+        assert_eq!(
+            memory_scope_key(MemoryScope::Branch, None, Some((session, "feature/recall"))).unwrap(),
+            Some("feature/recall".into())
+        );
+        assert_eq!(
+            memory_scope_key(MemoryScope::Session, None, Some((session, "main"))).unwrap(),
+            Some(session.to_string())
+        );
+    }
+
+    #[test]
+    fn session_scope_rejects_mismatched_key_and_missing_attribution() {
+        let session = Uuid::now_v7();
+        let mismatch = memory_scope_key(
+            MemoryScope::Session,
+            Some(Uuid::now_v7().to_string()),
+            Some((session, "main")),
+        )
+        .unwrap_err();
+        assert_eq!(mismatch.code, codes::INVALID_REQUEST);
+        let missing = memory_scope_key(MemoryScope::Branch, None, None).unwrap_err();
+        assert_eq!(missing.code, codes::NO_ACTIVE_SESSION);
     }
 
     #[tokio::test]

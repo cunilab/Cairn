@@ -133,9 +133,114 @@ fn creating_a_project_memory_states_an_intent_and_nothing_derived() {
 }
 
 #[test]
+fn create_and_supersede_use_retrievable_authenticated_scope_keys() {
+    let pg = pg!();
+    let session = pg.session_for(&pg.owner);
+    let other_session = pg.session_for(&pg.member);
+    let path = format!("/api/projects/{}/memories", pg.project);
+    let branch = pg.server.text(&format!(
+        "SELECT branch FROM sessions WHERE id = '{session}'"
+    ));
+    for (scope, expected) in [
+        ("project", pg.project.to_string()),
+        ("branch", branch),
+        ("session", session.to_string()),
+    ] {
+        let mut intent = json!({"type": "fact", "scope": scope, "content": "scope regression", "session_id": session, "topic_key":"scope.regression", "value_key":"canonical"});
+        if scope == "project" {
+            intent["scope_key"] = json!(Uuid::now_v7());
+        }
+        let (created, code) = post(&pg, &pg.owner, &path, &intent);
+        assert_eq!(code, 200, "{scope}: {created}");
+        let id = created["id"].as_str().unwrap();
+        assert_eq!(
+            pg.server
+                .text(&format!("SELECT scope_key FROM memories WHERE id = '{id}'")),
+            expected
+        );
+        let (replacement, code) = post(
+            &pg,
+            &pg.owner,
+            &format!("/api/memories/{id}/supersede"),
+            &intent,
+        );
+        assert_eq!(code, 200, "{scope}: {replacement}");
+        let replacement_id = replacement["id"].as_str().unwrap();
+        assert_eq!(
+            pg.server.text(&format!(
+                "SELECT scope_key FROM memories WHERE id = '{replacement_id}'"
+            )),
+            expected
+        );
+        assert_eq!(
+            pg.server.text(&format!(
+                "SELECT topic_key || ':' || value_key FROM memories WHERE id = '{replacement_id}'"
+            )),
+            "scope.regression:canonical"
+        );
+    }
+    for scope in ["branch", "session"] {
+        assert_eq!(
+            status(
+                &pg,
+                &pg.owner,
+                &path,
+                &json!({"type":"fact", "scope":scope,"content":"missing session"})
+            ),
+            400
+        );
+    }
+    assert_eq!(
+        status(
+            &pg,
+            &pg.owner,
+            &path,
+            &json!({"type":"fact","scope":"session","scope_key":other_session,"session_id":session,"content":"wrong scope"})
+        ),
+        400
+    );
+    assert_eq!(
+        status(
+            &pg,
+            &pg.owner,
+            &path,
+            &json!({"type":"fact","scope":"session","session_id":other_session,"content":"wrong owner"})
+        ),
+        403
+    );
+    assert_eq!(
+        status(
+            &pg,
+            &pg.owner,
+            &path,
+            &json!({"type":"fact","scope":"branch","scope_key":"release","content":"explicit branch outside session"})
+        ),
+        200
+    );
+    assert_eq!(
+        status(
+            &pg,
+            &pg.owner,
+            &path,
+            &json!({"type":"fact","scope":"branch","scope_key":"  ","content":"unreachable branch"})
+        ),
+        400
+    );
+}
+
+#[test]
 fn every_derived_field_is_refused_when_a_client_sends_it() {
     let pg = pg!();
     let path = format!("/api/projects/{}/memories", pg.project);
+    for field in ["evidence_observation_ids", "observation_ids"] {
+        let mut intent = json!({"type":"fact","content":"unattached evidence"});
+        intent[field] = json!([Uuid::now_v7()]);
+        assert_eq!(
+            status(&pg, &pg.owner, &path, &intent),
+            400,
+            "{field} must not be silently discarded"
+        );
+    }
     for (field, value) in derived_fields() {
         let mut body = json!({
             "type": "decision",

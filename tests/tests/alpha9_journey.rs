@@ -105,6 +105,11 @@ fn installed_setup_remembers_and_recalls_across_callers() {
         );
         std::thread::sleep(std::time::Duration::from_millis(25));
     }
+    assert_eq!(
+        pg.server.text("SELECT scope_key FROM memories"),
+        project["id"].as_str().expect("server project id"),
+        "native writes must use the shared project identity"
+    );
     let recalled = mcp.tool(
         "cairn_search",
         json!({
@@ -144,6 +149,13 @@ fn installed_setup_remembers_and_recalls_across_callers() {
         json!({"session_id": "alpha9-claude-return", "source": "startup"}),
     );
     assert_eq!(claude_return.code, 0, "{}", claude_return.stderr);
+    assert!(
+        claude_return
+            .stdout
+            .contains("the alpha9 journey remembers this durable fact"),
+        "a fresh native SessionStart must deliver the remembered fact: {}",
+        claude_return.stdout
+    );
     let returned_context = mcp.tool(
         "cairn_context",
         json!({"agent_session_key": "alpha9-claude-return", "reason": "session_start"}),
@@ -158,6 +170,37 @@ fn installed_setup_remembers_and_recalls_across_callers() {
     );
     assert!(returned_search.contains("the alpha9 journey remembers this durable fact"));
     assert_eq!(pg.server.count("SELECT count(*) FROM memories"), 1);
+    let original = pg.server.text("SELECT id::text FROM memories");
+    let unsupported = mcp.tool_result(
+        "cairn_remember",
+        json!({"action":"create", "type":"fact", "content":"unattached evidence", "evidence_observation_ids":[Uuid::now_v7()]}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert_eq!(unsupported["isError"], true, "{unsupported}");
+    let malformed = mcp.tool_result(
+        "cairn_remember",
+        json!({"action":"create", "type":"fact", "content":"malformed evidence", "evidence_observation_ids":["not-an-observation"]}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert_eq!(malformed["isError"], true, "{malformed}");
+    let corrected = mcp.tool_result(
+        "cairn_remember",
+        json!({"action":"supersede", "memory_id":original, "agent_session_key":"alpha9-claude-return", "type":"fact", "content":"the alpha9 journey keeps this corrected durable fact"}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert_eq!(corrected["isError"], false, "{corrected}");
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    while pg.server.text(&format!(
+        "SELECT state FROM memories WHERE id = '{original}'"
+    )) != "superseded"
+    {
+        assert!(
+            std::time::Instant::now() < deadline,
+            "supersede never reached its target"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(25));
+    }
+    assert_eq!(pg.server.count("SELECT count(*) FROM memories"), 2);
 }
 
 #[test]

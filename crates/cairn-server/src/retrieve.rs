@@ -670,17 +670,16 @@ async fn gather_continuity(
           WHERE project_id = $1 AND deleted_at IS NULL AND state != 'superseded'
             AND verification IN ('conflicted', 'drifted', 'needs_recheck')
             AND (
-                (scope = 'project' AND scope_key = $2)
-                OR (scope = 'branch' AND scope_key = $3)
-                OR (scope = 'session' AND scope_key = $4)
+                scope = 'project'
+                OR (scope = 'branch' AND scope_key = $2)
+                OR (scope = 'session' AND scope_key = $3)
             )
           ORDER BY CASE verification WHEN 'conflicted' THEN 0 ELSE 1 END,
                    CASE scope WHEN 'session' THEN 0 WHEN 'branch' THEN 1 ELSE 2 END,
                    pinned DESC, updated_at DESC, id
-          LIMIT $5",
+          LIMIT $4",
     )
     .bind(binding.project_id)
-    .bind(binding.project_id.to_string())
     .bind(&branch)
     .bind(session_id.to_string())
     .bind(LEVEL0_CANDIDATES_PER_KIND)
@@ -732,17 +731,16 @@ async fn gather_continuity(
           WHERE project_id = $1 AND pinned = true AND deleted_at IS NULL
             AND state != 'superseded'
             AND (
-                (scope = 'project' AND scope_key = $2)
-                OR (scope = 'branch' AND scope_key = $3)
-                OR (scope = 'session' AND scope_key = $4)
+                scope = 'project'
+                OR (scope = 'branch' AND scope_key = $2)
+                OR (scope = 'session' AND scope_key = $3)
             )
           ORDER BY CASE scope WHEN 'session' THEN 0 WHEN 'branch' THEN 1 ELSE 2 END,
                    CASE importance WHEN 'critical' THEN 0 WHEN 'high' THEN 1 ELSE 2 END,
                    updated_at DESC, id
-          LIMIT $5",
+          LIMIT $4",
     )
     .bind(binding.project_id)
-    .bind(binding.project_id.to_string())
     .bind(&branch)
     .bind(session_id.to_string())
     .bind(LEVEL0_CANDIDATES_PER_KIND)
@@ -1141,7 +1139,8 @@ async fn project_memory(
     let rows = sqlx::query(
         "SELECT id, content, updated_at
            FROM memories
-          WHERE project_id = $1 AND scope = $2 AND scope_key = $3
+          WHERE project_id = $1 AND scope = $2
+            AND (scope = 'project' OR scope_key = $3)
             AND state = 'active' AND deleted_at IS NULL
             AND origin_kind IS DISTINCT FROM 'corroboration'
           ORDER BY updated_at DESC, id

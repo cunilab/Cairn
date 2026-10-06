@@ -98,6 +98,15 @@ const CREDENTIAL_BOUND_FIELDS: &[&str] = &[
 /// assertion made one level down, and a check that only looked at the top level
 /// would be defeated by wrapping.
 fn reject_server_owned(body: &Value) -> ApiResult<()> {
+    for field in ["evidence_observation_ids", "observation_ids"] {
+        if let Some(value) = body.get(field) {
+            if !value.is_null() && value.as_array().is_none_or(|ids| !ids.is_empty()) {
+                return Err(ApiError::invalid(
+                    "local observation IDs cannot be attached to server-owned knowledge",
+                ));
+            }
+        }
+    }
     fn walk(value: &Value) -> Option<&'static str> {
         match value {
             Value::Object(map) => {
@@ -199,6 +208,54 @@ async fn attributed_session(
             Err(ApiError::forbidden("no session you can write to was named"))
         }
     }
+}
+
+async fn memory_scope_key(
+    pool: &PgPool,
+    project_id: Uuid,
+    scope: &str,
+    session: Uuid,
+    body: &Value,
+) -> ApiResult<String> {
+    // Older daemons sent their local project UUID here. Project membership is
+    // bound by the route, so normalize the redundant key at this boundary.
+    if scope == "project" {
+        return Ok(project_id.to_string());
+    }
+    let supplied = match body.get("scope_key") {
+        None | Some(Value::Null) => None,
+        Some(value) => Some(
+            value
+                .as_str()
+                .filter(|key| !key.trim().is_empty())
+                .ok_or_else(|| ApiError::invalid("`scope_key` must be a nonempty string"))?,
+        ),
+    };
+    if scope == "branch" {
+        if let Some(key) = supplied {
+            return Ok(key.to_string());
+        }
+        if session != UNATTRIBUTED_OWNER {
+            return Ok(sqlx::query_scalar(
+                "SELECT branch FROM sessions WHERE id = $1 AND project_id = $2",
+            )
+            .bind(session)
+            .bind(project_id)
+            .fetch_one(pool)
+            .await?);
+        }
+    } else if session != UNATTRIBUTED_OWNER {
+        let canonical = session.to_string();
+        if supplied.is_some_and(|key| key != canonical) {
+            return Err(ApiError::invalid(
+                "`scope_key` must match the attributed session",
+            ));
+        }
+        return Ok(canonical);
+    }
+    Err(ApiError::invalid(
+        "this scope requires an attributed session",
+    ))
 }
 
 /// Resolve a handoff command's session from its envelope, never its identity.
@@ -407,11 +464,7 @@ pub async fn create_memory(
     let topic_key = body.get("topic_key").and_then(Value::as_str);
     let value_key = body.get("value_key").and_then(Value::as_str);
     let session = attributed_session(&state.pool, &reader, project_id, &body).await?;
-    let scope_key = body
-        .get("scope_key")
-        .and_then(Value::as_str)
-        .map(str::to_string)
-        .unwrap_or_else(|| project_id.to_string());
+    let scope_key = memory_scope_key(&state.pool, project_id, &scope, session, &body).await?;
 
     let id = Uuid::now_v7();
     let mut tx = state.pool.begin().await?;
@@ -460,7 +513,10 @@ pub async fn supersede_memory(
     let scope = memory_scope(&body)?;
     let content = text(&body, "content")?;
     let session = attributed_session(&state.pool, &reader, project_id, &body).await?;
+    let scope_key = memory_scope_key(&state.pool, project_id, &scope, session, &body).await?;
     let replacement = Uuid::now_v7();
+    let topic_key = body.get("topic_key").and_then(Value::as_str);
+    let value_key = body.get("value_key").and_then(Value::as_str);
 
     // The replacement and the supersession commit together. A crash between
     // them would leave either a superseded record pointing at nothing, or a
@@ -473,16 +529,19 @@ pub async fn supersede_memory(
     }
     sqlx::query(
         "INSERT INTO memories
-             (id, project_id, type, scope, scope_key, content, origin_session_id, origin_kind)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'explicit')",
+             (id, project_id, type, scope, scope_key, content, origin_session_id,
+              topic_key, value_key, origin_kind)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'explicit')",
     )
     .bind(replacement)
     .bind(project_id)
     .bind(&kind)
     .bind(&scope)
-    .bind(project_id.to_string())
+    .bind(scope_key)
     .bind(&content)
     .bind(session)
+    .bind(topic_key)
+    .bind(value_key)
     .execute(&mut *tx)
     .await?;
 

@@ -10,6 +10,11 @@ Record what a future session would otherwise have to rediscover.
 - **Procedure** — a sequence that is easy to get wrong and that you had to work out.
 - **Fact** — a durable property of the system that is expensive to establish.
 
+Keep user-supplied durable decisions and failure reports, including their identifiers and
+constraints, even when the code already follows them. A later session cannot recover the
+user's decision or incident history from the implementation alone. Keep the content focused
+on that finding; attach source evidence rather than appending unrelated implementation facts.
+
 ## Not worth recording
 
 - Routine tool calls. Supported hooks capture bounded structured activity; do not duplicate it as durable knowledge.
@@ -46,10 +51,14 @@ as it would have been before, and Cairn tells you it did that.
 An `importance` hint does not establish truth, verification, or authorization.
 Do not rely on it to make an unsupported claim authoritative.
 
-What does change how a memory is treated is **evidence**: a file, a configuration key, a Git
-ref, a command outcome. Attach one and Cairn can check it later and tell you when the world
-moved. Assert `importance: high` instead and you have told the next session to trust
-something nobody can re-check.
+Evidence may be a file, a configuration key, a Git ref, or a command outcome.
+Include a bounded reference so a later session can re-check the finding.
+An `importance: high` hint cannot substitute for that support.
+
+The current explicit `cairn_remember` command cannot attach local observation IDs to
+server-owned memory. Leave `evidence_observation_ids` empty; nonempty IDs are refused.
+Cite a bounded source reference or observed outcome in the finding instead. This is an
+agent attestation, not server verification or an attached evidence record.
 
 An attestation — you reporting that you checked — is recorded and labelled as yours. It is
 worth having, and it is not the same as a check Cairn ran itself.

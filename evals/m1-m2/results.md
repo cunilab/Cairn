@@ -39,9 +39,57 @@ tool then reported a weekly limit until October 11. A separate Codex CLI
 capacity check passed. The authorized substitute Claude judge classified all
 30 frozen calibration fixtures correctly; the [v6 protocol](protocol-v6.md)
 discloses that substitution and freezes the product/runner at `cce8141`.
-Full M2 scoring and both primary-agent journeys remain unestablished.
-M1 platform/image/HTTPS checks are
-pending a successful candidate build; the PR remains draft.
+V6 semantic scoring is now complete; its failed gates are reported below. Both
+primary-agent journeys against a fresh HTTPS deployment remain unestablished.
+The corrected candidate’s platform/image/HTTPS checks remain pending; the prior
+candidate build is reported below. The PR remains draft.
+
+## Completed v6 regression
+
+Frozen source `cce8141692886d68f005095e15e717f4a361a0b0` completed all 30
+pairs across the unchanged three repositories and both primary agents.
+[Execution and judgment metadata](regression-v6-metadata.json) preserves every
+case, including three invalid comparisons (F2 control later, R2 treatment prior,
+S1 control later). All 30 complete packets received calibrated independent
+Claude judgments; one malformed S1 judge attempt was preserved before a fresh
+process retry. No valid judgment was replaced.
+
+| Gate | Observation | Status |
+| --- | --- | --- |
+| Useful application ≥80% | 7/15 natural cases (46.7%) | FAIL |
+| Delivered claims relevant and supported ≥90% | 21/29 distinct claims (72.4%) | FAIL |
+| Privacy | All five cases completed seven boundary probes and complete trace scans; zero leaks | PASS for bounded cases |
+| High-impact harm | Zero judged endorsements/leaks; three comparisons invalid | NOT ESTABLISHED |
+| Completion no worse than control | 20/30 treatment versus 12/30 control observed successes; three comparisons invalid | NOT ESTABLISHED |
+| Median repeated investigation reduction ≥20% | Four known eligible pairs, 41.7% observed median; eight natural cases unresolved, failed pairs retained | NOT ESTABLISHED |
+
+Natural capture occurred in 13/15 cases. The actual hook evidence exposed a
+production defect: the daemon wrote local project UUIDs into scope keys, while
+automatic context expected shared server UUIDs. Search could still find those
+rows, masking missing automatic recall. The correction covers daemon defaults,
+server create/supersede normalization, and legacy project rows in normal context,
+pins, and warnings. Capture instructions also retain user decisions/incident
+identifiers when implementation already agrees and omit unrelated source summaries.
+These corrections require a new complete regression; v6 does not validate them.
+
+The corrected source passed 47 required PostgreSQL command/delivery/retrieval
+tests, the native first-use/return journey (2/2, including automatic fresh-hook
+delivery), five focused daemon checks, and eight evaluation-runner checks.
+Additional native supersede and unsupported-evidence checks passed together
+with the 17 command-boundary tests. Workspace build, formatting, changed-package
+Clippy with warnings denied, and diff checks passed. Supersede now carries its
+target ID and supplied topic/value keys; nonempty local observation IDs are visibly refused instead of being
+silently discarded. Independent Sol review confirmed the core authorization
+and data-integrity paths; its whitespace-key and Skill wording findings were
+fixed. All 218 integration-library checks passed, including the 1,200-character
+instruction bounds. The [v7 protocol](protocol-v7.md) freezes a full rerun.
+
+[Candidate workflow 37412982704](https://github.com/cunilab/Cairn/actions/runs/37412982704)
+passed source/web gates, server/web image builds, and native installed archive
+journeys on Linux x86_64/ARM64, macOS Intel/ARM64, and Windows x86_64 for source
+`cce8141`. Its archives, images, checksums/SBOM, and candidate manifest were
+produced without promoting production version tags. These platform checks do
+not validate the subsequent scope correction or establish HTTPS agent journeys.
 
 ## Historical v3 candidate
 
