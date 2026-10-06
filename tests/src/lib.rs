@@ -164,13 +164,13 @@ impl Sandbox {
     /// `cairn`, with extra environment for a test that needs to change how the
     /// CLI or the daemon it starts is configured.
     pub fn cairn_with_env(&self, args: &[&str], env: &[(&str, &str)]) -> CliResult {
-        let mut command = Command::new(binary("cairn"));
+        let mut command = Command::new(cairn_binary());
         command
             .args(args)
             .current_dir(self.repo.path())
             .env("CAIRN_HOME", self.home.path())
             .env("CAIRN_SOCKET", &self.socket)
-            .env("CAIRND_BIN", binary("cairnd"))
+            .env("CAIRND_BIN", cairnd_binary())
             // Feature 002 writes per-user agent configuration. The sandbox
             // gives it a home of its own so a test can never reach the
             // developer's real `~/.claude` or `~/.codex`.
@@ -382,13 +382,13 @@ impl Sandbox {
             args.push("--agent".into());
             args.push(agent.into());
         }
-        let mut command = Command::new(binary("cairn"));
+        let mut command = Command::new(cairn_binary());
         command
             .args(&args)
             .current_dir(dir)
             .env("CAIRN_HOME", self.home.path())
             .env("CAIRN_SOCKET", &self.socket)
-            .env("CAIRND_BIN", binary("cairnd"))
+            .env("CAIRND_BIN", cairnd_binary())
             .env("HOME", self.fake_home())
             .env("XDG_CONFIG_HOME", self.fake_home().join(".config"));
         for (key, value) in env {
@@ -641,7 +641,7 @@ impl Drop for Sandbox {
         if !self.owns_daemon {
             return;
         }
-        if let Some(exe) = try_binary("cairn") {
+        if let Some(exe) = try_cairn_binary() {
             let _ = Command::new(exe)
                 .args(["daemon", "stop"])
                 .current_dir(self.repo.path())
@@ -705,37 +705,80 @@ pub fn binary(name: &str) -> PathBuf {
     candidate
 }
 
-/// The `cairn-server` executable the end-to-end suite spawns.
-///
-/// **`CAIRN_SERVER_BIN` wins, and CI sets it to the release build.**
-///
-/// Everything else here is resolved next to the test executable, which under
-/// `cargo test` means `target/debug/` — so the suite drove an *unoptimized*
-/// server. That matters for one reason above all others: a sign-in is an
-/// argon2 verify, and creating an account is an argon2 hash. The workflow
-/// already records the cost (`~0.7s` unoptimized against `~0.03s` released)
-/// and already builds a release server for the web end-to-end job for exactly
-/// this reason; the Rust suite signs in far more often and was not given the
-/// same treatment.
-///
-/// Only this binary is overridable, deliberately. `cairn` and `cairnd` are
-/// resolved as before: their cost is not argon2, and `CAIRND_BIN` already
-/// means something else here — it is how the CLI is *told* where the daemon
-/// is, so reading it back as an override would conflate two directions.
-///
-/// The fallback is the previous behaviour exactly, so a developer running
-/// `cargo test` with nothing set gets the debug server they always got.
-pub fn server_binary() -> PathBuf {
-    if let Some(path) = std::env::var_os("CAIRN_SERVER_BIN") {
-        let path = PathBuf::from(path);
+/// Resolve an installed archive binary when an end-to-end journey supplies
+/// one; ordinary test runs keep resolving the workspace build.
+fn binary_override(name: &str, variable: &str) -> PathBuf {
+    binary_override_path(
+        name,
+        variable,
+        std::env::var_os(variable).map(PathBuf::from),
+    )
+}
+
+fn binary_override_path(name: &str, variable: &str, override_path: Option<PathBuf>) -> PathBuf {
+    if let Some(path) = override_path {
         assert!(
             path.exists(),
-            "CAIRN_SERVER_BIN points at {}, which does not exist; build it first",
+            "{variable} points at {}, which does not exist; build it first",
             path.display()
         );
         return path;
     }
-    binary("cairn-server")
+    binary(name)
+}
+
+#[cfg(test)]
+mod binary_override_tests {
+    use super::*;
+
+    #[test]
+    fn uses_existing_override_path() {
+        let file = tempfile::NamedTempFile::new().expect("artifact");
+        assert_eq!(
+            binary_override_path("cairn", "CAIRN_BIN", Some(file.path().to_path_buf())),
+            file.path()
+        );
+    }
+
+    #[test]
+    fn optional_database_url_allows_a_skip() {
+        assert_eq!(configured_test_database_url(None, false), None);
+    }
+
+    #[test]
+    #[should_panic(expected = "CAIRN_REQUIRE_DATABASE_TESTS=1")]
+    fn required_database_url_cannot_skip() {
+        configured_test_database_url(None, true);
+    }
+}
+
+fn try_binary_override(name: &str, variable: &str) -> Option<PathBuf> {
+    std::env::var_os(variable)
+        .map(PathBuf::from)
+        .or_else(|| try_binary(name))
+        .filter(|path| path.exists())
+}
+
+/// The CLI used by every harness entry point.
+pub fn cairn_binary() -> PathBuf {
+    binary_override("cairn", "CAIRN_BIN")
+}
+
+/// The daemon the harness tells the CLI to start.
+pub fn cairnd_binary() -> PathBuf {
+    binary_override("cairnd", "CAIRND_BIN")
+}
+
+fn try_cairn_binary() -> Option<PathBuf> {
+    try_binary_override("cairn", "CAIRN_BIN")
+}
+
+/// The `cairn-server` executable the end-to-end suite spawns.
+///
+/// `CAIRN_SERVER_BIN` selects an installed artifact; the workspace binary is
+/// the default for ordinary test runs.
+pub fn server_binary() -> PathBuf {
+    binary_override("cairn-server", "CAIRN_SERVER_BIN")
 }
 
 fn binary_file_name(name: &str) -> String {
@@ -812,7 +855,7 @@ impl Drop for DaemonSocket {
         // Best effort, and never a panic: this runs during unwinding when a
         // test has already failed, and a panic here would replace that failure
         // with a SIGABRT.
-        if let Some(exe) = try_binary("cairn") {
+        if let Some(exe) = try_cairn_binary() {
             let _ = Command::new(exe)
                 .args(["daemon", "stop"])
                 .env("CAIRN_SOCKET", &self.path)
@@ -890,12 +933,12 @@ pub struct Mcp {
 
 impl Mcp {
     pub fn start(s: &Sandbox) -> Self {
-        let mut child = Command::new(binary("cairn"))
+        let mut child = Command::new(cairn_binary())
             .arg("mcp")
             .current_dir(s.repo_path())
             .env("CAIRN_HOME", s.home.path())
             .env("CAIRN_SOCKET", &s.socket)
-            .env("CAIRND_BIN", binary("cairnd"))
+            .env("CAIRND_BIN", cairnd_binary())
             // Same fake home as every other entry point: the MCP server is a
             // way into the same daemon, and inheriting the developer's real
             // home would make one process in the sandbox able to escape it.
@@ -970,6 +1013,21 @@ impl Drop for Mcp {
 // Server fixture (US6, US7)
 // ---------------------------------------------------------------------------
 
+fn configured_test_database_url(url: Option<String>, required: bool) -> Option<String> {
+    let url = url.filter(|url| !url.is_empty());
+    if required && url.is_none() {
+        panic!("CAIRN_REQUIRE_DATABASE_TESTS=1 requires CAIRN_TEST_DATABASE_URL")
+    }
+    url
+}
+
+fn test_database_url() -> Option<String> {
+    configured_test_database_url(
+        std::env::var("CAIRN_TEST_DATABASE_URL").ok(),
+        std::env::var("CAIRN_REQUIRE_DATABASE_TESTS").as_deref() == Ok("1"),
+    )
+}
+
 /// A running `cairn-server` against a real PostgreSQL.
 ///
 /// Requires `CAIRN_TEST_DATABASE_URL`. Tests that need it report a clear skip
@@ -1007,9 +1065,7 @@ impl Server {
     ///
     /// Call [`Server::upgraded`] to run the migration against the same data.
     pub fn start_at_schema(max_version: i64) -> Option<Self> {
-        let admin = std::env::var("CAIRN_TEST_DATABASE_URL")
-            .ok()
-            .filter(|u| !u.is_empty())?;
+        let admin = test_database_url()?;
         let name = format!("cairn_schema_{}", unique());
         create_database(&admin, &name);
         let url = replace_database(&admin, &name);
@@ -1117,18 +1173,14 @@ impl Server {
     /// server is up, by which time the migrations are done and the race is
     /// over.
     pub fn fresh_database() -> Option<String> {
-        let admin = std::env::var("CAIRN_TEST_DATABASE_URL")
-            .ok()
-            .filter(|u| !u.is_empty())?;
+        let admin = test_database_url()?;
         let name = format!("cairn_own_{}", unique());
         create_database(&admin, &name);
         Some(replace_database(&admin, &name))
     }
 
     pub fn start_own_database() -> Option<Self> {
-        let admin = std::env::var("CAIRN_TEST_DATABASE_URL")
-            .ok()
-            .filter(|u| !u.is_empty())?;
+        let admin = test_database_url()?;
         let name = format!("cairn_own_{}", unique());
         create_database(&admin, &name);
         let url = replace_database(&admin, &name);
@@ -1140,9 +1192,7 @@ impl Server {
     /// The break-glass identity: `ensure_admin` upserts it on every start, and
     /// several guarantees are only observable against a server that has one.
     pub fn start_with_admin(email: &str, password: &str) -> Option<Self> {
-        let admin = std::env::var("CAIRN_TEST_DATABASE_URL")
-            .ok()
-            .filter(|u| !u.is_empty())?;
+        let admin = test_database_url()?;
         // Its own database: the environment account is global to a server, so
         // two tests sharing one database would fight over its standing.
         let name = format!("cairn_admin_{}", unique());
@@ -1386,9 +1436,7 @@ impl Server {
     // `start`, which is exactly what clippy's lint cannot see.
     #[allow(clippy::zombie_processes)]
     pub fn start() -> Option<Self> {
-        let url = std::env::var("CAIRN_TEST_DATABASE_URL")
-            .ok()
-            .filter(|u| !u.is_empty())?;
+        let url = test_database_url()?;
 
         // A free port found by probing is only free until someone else takes
         // it. These tests run in parallel and each wants its own server, so two

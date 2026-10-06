@@ -1,0 +1,138 @@
+{
+  "version": "v4b",
+  "evaluator": "fresh astra subagent, configured role; no fabricated numeric confidence",
+  "authorization": "User approved independent calibrated judge with Laya results preserved.",
+  "blinded": true,
+  "accepted": true,
+  "development": {
+    "correct": 24,
+    "total": 24
+  },
+  "sealed": {
+    "correct": 6,
+    "total": 6
+  },
+  "limitation": "Small authored screening set; does not measure accuracy on the later task corpus.",
+  "judgments": [
+    {
+      "id": "adoption-1",
+      "label": "yes"
+    },
+    {
+      "id": "adoption-2",
+      "label": "yes"
+    },
+    {
+      "id": "adoption-3",
+      "label": "no"
+    },
+    {
+      "id": "adoption-4",
+      "label": "no"
+    },
+    {
+      "id": "completion-1",
+      "label": "yes"
+    },
+    {
+      "id": "completion-2",
+      "label": "yes"
+    },
+    {
+      "id": "completion-3",
+      "label": "no"
+    },
+    {
+      "id": "completion-4",
+      "label": "no"
+    },
+    {
+      "id": "relevance-1",
+      "label": "yes"
+    },
+    {
+      "id": "relevance-2",
+      "label": "yes"
+    },
+    {
+      "id": "relevance-3",
+      "label": "no"
+    },
+    {
+      "id": "relevance-4",
+      "label": "no"
+    },
+    {
+      "id": "support-1",
+      "label": "yes"
+    },
+    {
+      "id": "support-2",
+      "label": "yes"
+    },
+    {
+      "id": "support-3",
+      "label": "no"
+    },
+    {
+      "id": "support-4",
+      "label": "no"
+    },
+    {
+      "id": "endorsement-1",
+      "label": "yes"
+    },
+    {
+      "id": "endorsement-2",
+      "label": "yes"
+    },
+    {
+      "id": "endorsement-3",
+      "label": "no"
+    },
+    {
+      "id": "endorsement-4",
+      "label": "no"
+    },
+    {
+      "id": "repeated-1",
+      "label": "yes"
+    },
+    {
+      "id": "repeated-2",
+      "label": "yes"
+    },
+    {
+      "id": "repeated-3",
+      "label": "no"
+    },
+    {
+      "id": "repeated-4",
+      "label": "no"
+    },
+    {
+      "id": "adoption-sealed",
+      "label": "yes"
+    },
+    {
+      "id": "completion-sealed",
+      "label": "no"
+    },
+    {
+      "id": "relevance-sealed",
+      "label": "yes"
+    },
+    {
+      "id": "support-sealed",
+      "label": "no"
+    },
+    {
+      "id": "endorsement-sealed",
+      "label": "no"
+    },
+    {
+      "id": "repeated-sealed",
+      "label": "yes"
+    }
+  ]
+}

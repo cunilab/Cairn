@@ -1,0 +1,193 @@
+{
+  "version": "v4a-development",
+  "checkpoint": "multilingual@7b928d828b7b0e022f929d9bd2e44165aa270148",
+  "min_confidence": 0.9,
+  "questions": {
+    "assessment": {
+      "type": "choice",
+      "instructions": "Compare EXPECTED with RESPONSE. Does RESPONSE adopt every requirement in EXPECTED as its answer or recommendation? Merely quoting EXPECTED does not count. Do not use outside knowledge.",
+      "criteria": {
+        "supported": "RESPONSE adopts every required part of EXPECTED, allowing equivalent wording.",
+        "contradicted": "RESPONSE contradicts a required part of EXPECTED or recommends an incompatible action.",
+        "insufficient": "RESPONSE neither fully adopts nor contradicts EXPECTED; it omits required details, merely quotes them, or lacks an answer."
+      }
+    }
+  },
+  "fixtures": [
+    {
+      "fixture": {
+        "expected": "Keep uploaded reports for 60 days, then delete both the database row and stored file.",
+        "answer": "Retain reports for 60 days. After that, remove the row and its file.",
+        "label": "supported"
+      },
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "supported",
+            "probabilities": {
+              "supported": 0.9652,
+              "contradicted": 0.027,
+              "insufficient": 0.0078
+            },
+            "confidence": 0.8456,
+            "answer_confidence": 0.9652,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 149,
+          "output_tokens": 0,
+          "state_tokens": 48,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "fixture": {
+        "expected": "Keep uploaded reports for 60 days, then delete both the database row and stored file.",
+        "answer": "Keep reports for two months (60 days), then remove the stored file and database entry together.",
+        "label": "supported"
+      },
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "contradicted",
+            "probabilities": {
+              "supported": 0.2142,
+              "contradicted": 0.4816,
+              "insufficient": 0.3042
+            },
+            "confidence": 0.0498,
+            "answer_confidence": 0.4816,
+            "action": {
+              "act_probability": 1
+            },
+            "low_confidence": true,
+            "abstention": "abstained",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 150,
+          "output_tokens": 0,
+          "state_tokens": 49,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "fixture": {
+        "expected": "Keep uploaded reports for 60 days, then delete both the database row and stored file.",
+        "answer": "Retain reports indefinitely. Deleting their database row is enough; keep the stored file.",
+        "label": "contradicted"
+      },
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "contradicted",
+            "probabilities": {
+              "supported": 0.005,
+              "contradicted": 0.9948,
+              "insufficient": 0.0002
+            },
+            "confidence": 0.9694,
+            "answer_confidence": 0.9948,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 147,
+          "output_tokens": 0,
+          "state_tokens": 46,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "fixture": {
+        "expected": "Keep uploaded reports for 60 days, then delete both the database row and stored file.",
+        "answer": "Delete expired report records.",
+        "label": "insufficient"
+      },
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "contradicted",
+            "probabilities": {
+              "supported": 0.0165,
+              "contradicted": 0.9588,
+              "insufficient": 0.0246
+            },
+            "confidence": 0.8186,
+            "answer_confidence": 0.9588,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 135,
+          "output_tokens": 0,
+          "state_tokens": 34,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    }
+  ],
+  "accepted": false,
+  "reason": "One confidence-gated omission was classified as contradiction and one paraphrase abstained; three-way calibration failed."
+}
