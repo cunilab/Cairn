@@ -1,6 +1,41 @@
-# M1/M2 candidate evidence — through 2026-10-06
+# M1/M2 candidate evidence — through 2026-10-07
 
 ## Current corrected candidate
+
+The [v10 protocol](protocol-v10.md) freezes the next complete Codex-only run
+with GPT-6-Luna at low effort in both actor arms and the calibrated judge
+unchanged. Local setup identity, attested capture, recall compatibility,
+dependency invalidation, transfer, and deletion corrections have received
+independent review. Real older archive/server checks reject capture and all
+ordinary reuse operations without queued writes, memory changes, or legacy
+context delivery. The final workspace build, formatting, and Clippy with warnings
+denied passed; the 14 runner tests and web contract/type/lint checks passed.
+The full workspace test suite and fresh candidate evidence are still pending;
+these intermediate checks do not establish M1 or M2 exit gates.
+
+The [v9 regression](regression-v9-metadata.json) used the verified macOS ARM
+archive at source `2f1e043d2516060a3e3d61de5c571a382ee78a1d`. All 15 Codex
+cases were attempted, with 11 valid comparisons and four quota-invalid pairs
+preserved. The 15 Claude cases were skipped by user instruction. A calibrated,
+isolated Codex judge completed all 15 packets; failed judge attempts were
+preserved before retry. The [calibration](calibration-codex-v9-results.json)
+matched all 30 reused fixtures, with zero unknown labels or observed tool calls.
+Actor and judge share a model family; provider revisions are not attested.
+
+Useful application was observed in all eight natural cases. Delivered-claim
+quality was **25/31 (80.6%), below 90%**; four unsupported hazard claims remain
+in the denominator even though the actors rejected them. Eight known eligible
+natural pairs showed a 77.5% median reduction in repeated investigation.
+Incomplete comparisons prevent certification of the full exit gates.
+
+Candidate workflow [37448879539](https://github.com/cunilab/Cairn/actions/runs/37448879539)
+passed all 18 jobs, including five installed native archive journeys. A fresh
+deployment of its immutable server/web images passed the browser and native
+smoke over trusted HTTPS. These checks cover the frozen parent source, not the
+subsequent setup and reuse-policy changes. The PR remains draft pending a fresh
+candidate run and evaluation of those changes.
+
+## Preserved v8 attempt
 
 The [v8 protocol](protocol-v8.md) requires another complete run with absolute
 candidate MCP paths and pre-actor shell/binary identity checks. Earlier Codex

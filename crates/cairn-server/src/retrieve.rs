@@ -254,6 +254,9 @@ pub struct SectionItem {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct RetrieveResponse {
+    /// Lets the daemon reject or sanitize answers from a server that did not
+    /// enforce project-memory reuse eligibility.
+    pub project_reuse_policy: &'static str,
     pub trace_id: Uuid,
     pub trigger: &'static str,
     pub delivery_point: &'static str,
@@ -606,6 +609,7 @@ async fn generate(
     .await?;
 
     Ok(RetrieveResponse {
+        project_reuse_policy: crate::reuse::POLICY_ID,
         trace_id,
         trigger: request.trigger.as_str(),
         delivery_point: request.trigger.delivery_point(),
@@ -664,11 +668,12 @@ async fn gather_continuity(
         None => None,
     };
 
-    let warning_rows = sqlx::query(
+    let warning_sql = format!(
         "SELECT topic_key, content, verification
            FROM memories
           WHERE project_id = $1 AND deleted_at IS NULL AND state != 'superseded'
             AND verification IN ('conflicted', 'drifted', 'needs_recheck')
+            AND ({})
             AND (
                 scope = 'project'
                 OR (scope = 'branch' AND scope_key = $2)
@@ -678,13 +683,15 @@ async fn gather_continuity(
                    CASE scope WHEN 'session' THEN 0 WHEN 'branch' THEN 1 ELSE 2 END,
                    pinned DESC, updated_at DESC, id
           LIMIT $4",
-    )
-    .bind(binding.project_id)
-    .bind(&branch)
-    .bind(session_id.to_string())
-    .bind(LEVEL0_CANDIDATES_PER_KIND)
-    .fetch_all(pool)
-    .await?;
+        crate::reuse::eligible("memories")
+    );
+    let warning_rows = sqlx::query(&warning_sql)
+        .bind(binding.project_id)
+        .bind(&branch)
+        .bind(session_id.to_string())
+        .bind(LEVEL0_CANDIDATES_PER_KIND)
+        .fetch_all(pool)
+        .await?;
     let warnings = warning_rows
         .into_iter()
         .map(|row| {
@@ -725,11 +732,12 @@ async fn gather_continuity(
     // the durable candidate query: an older pin must survive any number of
     // newer ordinary memories because Level 0, not recency, gives it
     // precedence. The daemon applies its configured admission cap afterward.
-    let pin_rows = sqlx::query(
+    let pin_sql = format!(
         "SELECT id, content, verification
            FROM memories
           WHERE project_id = $1 AND pinned = true AND deleted_at IS NULL
             AND state != 'superseded'
+            AND ({})
             AND (
                 scope = 'project'
                 OR (scope = 'branch' AND scope_key = $2)
@@ -739,13 +747,15 @@ async fn gather_continuity(
                    CASE importance WHEN 'critical' THEN 0 WHEN 'high' THEN 1 ELSE 2 END,
                    updated_at DESC, id
           LIMIT $4",
-    )
-    .bind(binding.project_id)
-    .bind(&branch)
-    .bind(session_id.to_string())
-    .bind(LEVEL0_CANDIDATES_PER_KIND)
-    .fetch_all(pool)
-    .await?;
+        crate::reuse::eligible("memories")
+    );
+    let pin_rows = sqlx::query(&pin_sql)
+        .bind(binding.project_id)
+        .bind(&branch)
+        .bind(session_id.to_string())
+        .bind(LEVEL0_CANDIDATES_PER_KIND)
+        .fetch_all(pool)
+        .await?;
     let pins = pin_rows
         .into_iter()
         .map(|row| PinnedConstraint {
@@ -1136,22 +1146,25 @@ async fn project_memory(
     scope_key: &str,
     section: &'static str,
 ) -> ApiResult<Vec<Candidate>> {
-    let rows = sqlx::query(
+    let project_sql = format!(
         "SELECT id, content, updated_at
            FROM memories
           WHERE project_id = $1 AND scope = $2
             AND (scope = 'project' OR scope_key = $3)
             AND state = 'active' AND deleted_at IS NULL
             AND origin_kind IS DISTINCT FROM 'corroboration'
+            AND ({})
           ORDER BY updated_at DESC, id
           LIMIT $4",
-    )
-    .bind(project_id)
-    .bind(scope)
-    .bind(scope_key)
-    .bind(CANDIDATES_PER_SECTION)
-    .fetch_all(pool)
-    .await?;
+        crate::reuse::eligible("memories")
+    );
+    let rows = sqlx::query(&project_sql)
+        .bind(project_id)
+        .bind(scope)
+        .bind(scope_key)
+        .bind(CANDIDATES_PER_SECTION)
+        .fetch_all(pool)
+        .await?;
     Ok(rows
         .into_iter()
         .map(|row| Candidate {

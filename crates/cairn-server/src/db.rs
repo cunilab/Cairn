@@ -41,6 +41,11 @@ pub const MIGRATIONS: &[(i64, &str, &str)] = &[
         "logical_transfer",
         include_str!("../migrations/0008_logical_transfer.sql"),
     ),
+    (
+        9,
+        "project_memory_reuse",
+        include_str!("../migrations/0009_project_memory_reuse.sql"),
+    ),
 ];
 
 /// The highest migration this build carries.
@@ -48,7 +53,7 @@ pub const MIGRATIONS: &[(i64, &str, &str)] = &[
 /// Not what the server advertises: a deployment can be held at a lower schema
 /// deliberately, and what it can actually hold is the schema it **applied**.
 /// See [`applied_version`].
-pub const SCHEMA_VERSION: i64 = 8;
+pub const SCHEMA_VERSION: i64 = 9;
 
 /// The pool size a single server takes from PostgreSQL.
 pub const DEFAULT_MAX_CONNECTIONS: u32 = 10;
@@ -248,6 +253,17 @@ mod tests {
             MIGRATIONS.last().expect("a migration").0,
             "the version the server advertises must be the one it actually applied"
         );
+    }
+
+    #[test]
+    fn reuse_migration_does_not_attest_legacy_rows() {
+        let sql = include_str!("../migrations/0009_project_memory_reuse.sql");
+        assert!(sql.contains("CREATE TABLE project_memory_attestations"));
+        assert!(!sql
+            .to_ascii_uppercase()
+            .contains("INSERT INTO PROJECT_MEMORY_ATTESTATIONS"));
+        assert!(sql.contains("actor_user_id"));
+        assert!(sql.contains("dependency_updated_at"));
     }
 
     #[test]

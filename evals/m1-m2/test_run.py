@@ -48,8 +48,7 @@ class RunnerEvidenceTests(unittest.TestCase):
                 treatment_env, treatment_home = RUN.environment({"id": "T1"}, "treatment")
                 control_env, control_home = RUN.environment({"id": "T1"}, "control")
                 (treatment_home / ".codex/config.toml").write_text(
-                    '[mcp_servers.cairn]\ncommand = "cairn"\nargs = ["mcp"]\n')
-                RUN.pin_mcp_command({"agent": "codex"}, treatment_home)
+                    '[mcp_servers.cairn]\ncommand = ' + json.dumps(str(binary)) + '\nargs = ["mcp"]\n')
                 treatment = subprocess.run(["/bin/zsh", "-lc", "command -v cairn"],
                     env=treatment_env, text=True, capture_output=True, check=True)
                 control = subprocess.run(["/bin/zsh", "-lc", "command -v cairn"],
@@ -65,7 +64,7 @@ class RunnerEvidenceTests(unittest.TestCase):
             self.assertTrue(treatment_identity["passed"])
             self.assertTrue(control_identity["passed"])
 
-    def test_mcp_commands_are_pinned_to_absolute_candidate(self):
+    def test_generated_mcp_commands_are_read_without_rewriting(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             binary_dir = root / "target/debug"
@@ -79,16 +78,36 @@ class RunnerEvidenceTests(unittest.TestCase):
                     home = root / agent
                     (home / ".codex").mkdir(parents=True)
                     if agent == "codex":
-                        (home / ".codex/config.toml").write_text(
-                            '[mcp_servers.cairn]\ncommand = "cairn"\nargs = ["mcp"]\n')
+                        config = home / ".codex/config.toml"
+                        config.write_text('[mcp_servers.cairn]\ncommand = ' + json.dumps(str(binary)) + '\nargs = ["mcp"]\n')
                     else:
-                        (home / ".claude.json").write_text(json.dumps({
-                            "mcpServers": {"cairn": {"command": "cairn", "args": ["mcp"]}}}))
-                    pinned = RUN.pin_mcp_command({"agent": agent}, home)
-                    self.assertEqual(Path(pinned), binary.absolute())
-                    self.assertEqual(RUN.mcp_command({"agent": agent}, home), pinned)
+                        config = home / ".claude.json"
+                        config.write_text(json.dumps({"mcpServers": {"cairn": {"command": str(binary), "args": ["mcp"]}}}))
+                    before = config.read_bytes()
+                    self.assertEqual(RUN.mcp_command({"agent": agent}, home), str(binary))
+                    self.assertEqual(config.read_bytes(), before)
             finally:
                 RUN.BIN = original
+
+    def test_codex_context_is_complete_and_bound_to_the_current_thread(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sessions = root / '.codex/sessions'
+            sessions.mkdir(parents=True)
+            message = {"type": "response_item", "payload": {"type": "message", "role": "developer", "content": [{"text": "delivered context"}]}}
+            for identity in ('current', 'other'):
+                events = [{"type": "session_meta", "payload": {"id": identity}}, message]
+                (sessions / (identity + '.jsonl')).write_text('\n'.join(json.dumps(e) for e in events) + '\n')
+            dest = root / 'context.private.json'
+            body = json.dumps({"type": "thread.started", "thread_id": "current"})
+            capture = RUN.capture_codex_context(root, body, dest)
+            self.assertTrue(capture['complete'])
+            self.assertEqual(capture['records'], 1)
+            self.assertEqual(json.loads(dest.read_text())['messages'][0]['payload'], message['payload'])
+            self.assertFalse(RUN.capture_codex_context(root, '', dest)['complete'])
+            with (sessions / 'current.jsonl').open('a') as output:
+                output.write('malformed\n')
+            self.assertFalse(RUN.capture_codex_context(root, body, dest)['complete'])
 
     def test_control_cli_allows_help_but_detects_stateful_cairn_commands(self):
         self.assertEqual(RUN.cairn_cli_actions('/bin/zsh -lc "cairn --help"'), ["help"])
@@ -101,6 +120,26 @@ class RunnerEvidenceTests(unittest.TestCase):
         self.assertEqual(RUN.cairn_cli_actions('echo "cairn mcp"'), [])
         self.assertEqual(RUN.cairn_cli_actions('rg -c "cairn memory" .'), [])
 
+    def test_packet_retains_all_delivered_context_and_trace_lines(self):
+        spec = importlib.util.spec_from_file_location("m2_collect", MODULE.with_name("collect.py"))
+        collector = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(collector)
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            arm = folder / "treatment"
+            arm.mkdir()
+            (folder / "result.json").write_text(json.dumps({"arms": {"treatment": {"later": {"trace_complete": True}}}}))
+            for suffix, body in (("out", '{"type":"thread.started"}\nmalformed\n'),
+                                 ("err", "diagnostic"), ("final", "answer")):
+                (arm / ("later." + suffix)).write_text(body)
+            context = {"thread_id": "current", "messages": [{"line": 3, "payload": {"text": "unsupported memory"}}]}
+            (arm / "later.context.private.json").write_text(json.dumps(context))
+            packet = collector.collect({"id": "X"}, folder)["arms"]["treatment"]["later"]
+            self.assertEqual(packet["delivered_context"], context)
+            self.assertEqual(len(packet["events"]), 2)
+            self.assertEqual(packet["events"][1]["unparsed"], "malformed")
+            self.assertEqual(packet["stderr"], "diagnostic")
+
     def test_uniform_agent_budgets_are_not_short_caps(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -109,6 +148,10 @@ class RunnerEvidenceTests(unittest.TestCase):
                                      dict(os.environ), "prompt")
         self.assertEqual(RUN.TIMEOUT, 300)
         self.assertEqual(command[command.index("--max-turns") + 1], "20")
+        for arm in ("control", "treatment"):
+            command, _ = RUN.command({"agent": "codex"}, arm, root, root, dict(os.environ), "prompt")
+            self.assertEqual(command[command.index("-m") + 1], "gpt-6-luna")
+            self.assertEqual(command[command.index("--config") + 1], 'model_reasoning_effort="low"')
 
     def test_hook_capture_forwards_bytes_and_exit_status(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -172,6 +215,16 @@ class RunnerEvidenceTests(unittest.TestCase):
                 self.assertEqual(summary["privacy_boundary_leaks"], 1)
                 self.assertEqual(summary["privacy_trace_leaks"], int(visible))
                 self.assertEqual(summary["privacy_trace_cases"], int(complete or visible))
+            (root / "P1/treatment/later.err").write_text("")
+            context = root / "P1/treatment/later.context.private.json"
+            context.write_text(json.dumps({"messages": [{"text": "PRIVATE"}]}))
+            result["arms"]["treatment"]["later"]["context_capture"] = {"enabled": True, "complete": True}
+            result["arms"]["treatment"]["later"]["trace_complete"] = True
+            (root / "P1/result.json").write_text(json.dumps(result))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                runpy.run_path(str(MODULE.with_name("summarize.py")))
+            self.assertEqual(json.loads(output.getvalue())["summary"]["privacy_trace_leaks"], 1)
 
     def test_observed_reported_model_drift_invalidates_pair(self):
         arms = {arm: {"later": {"reported_model": model}}

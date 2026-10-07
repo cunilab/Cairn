@@ -105,6 +105,11 @@ fn seed_project_memory(pg: &Pg, session: Uuid, content: &str) -> Uuid {
          VALUES ('{id}', '{}', 'fact', 'project', '{}', '{content}', '{session}')",
         pg.project, pg.project
     ));
+    pg.attest_project_memory(
+        id,
+        &pg.owner,
+        "Fixture author reports this traced project fact.",
+    );
     id
 }
 

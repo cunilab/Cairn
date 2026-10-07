@@ -34,6 +34,11 @@ cairn setup
 
 `setup` verifies the credential and membership, binds the project, installs supported agent resources, and starts `cairnd`. Rerun it to repair Cairn-owned bytes; user-edited conflicting resources are reported and preserved. It cannot grant access or create an account. Headless setup accepts protected JSON on stdin with `server_url`, `server_token`, and optional `account_id` and `web_url`. [Integrations](docs/integrations.md) explains what each agent actually supplies.
 
+When upgrading, stop the older `cairnd` process using your operating system's
+process manager and wait for it to exit before running setup with the new `cairn` and matching `cairnd`
+archive. Setup reports an actionable error if the running daemon cannot confirm
+that generated integrations use the current executable.
+
 When no administrator exists, the deployment environment account named by
 `CAIRN_ADMIN_EMAIL` and `CAIRN_ADMIN_PASSWORD` is created or promoted to
 `admin` and `active`. Restart does not replace an existing administrator's

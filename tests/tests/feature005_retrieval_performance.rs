@@ -40,16 +40,20 @@ const LEVELS: &[&str] = &["full", "reduced", "minimal", "none"];
 
 fn seed_project_memory(pg: &Pg, session: Uuid, how_many: usize) {
     for i in 0..how_many {
+        let id = Uuid::now_v7();
         pg.server.execute(&format!(
             "INSERT INTO memories
                 (id, project_id, type, scope, scope_key, content, state, origin_session_id,
                  topic_key, value_key, origin_kind)
              VALUES ('{}', '{}', 'fact', 'project', '{}', 'project fact number {i}', 'active',
                      '{session}', 'topic.n{i}', 'v{i}', 'explicit')",
-            Uuid::now_v7(),
-            pg.project,
-            pg.project
+            id, pg.project, pg.project
         ));
+        pg.attest_project_memory(
+            id,
+            &pg.owner,
+            "Fixture author reports this performance-test fact.",
+        );
     }
 }
 

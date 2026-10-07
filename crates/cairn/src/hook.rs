@@ -267,7 +267,8 @@ pub fn run_blocking(event: &str) -> bool {
             wait_for_handoff: false,
             token_budget: None,
             capture: captured.output,
-        },
+        }
+        .for_project_reuse(),
         None => match captured.output {
             Some(output) => Request::CaptureEvents {
                 cwd: cwd.clone(),
@@ -344,7 +345,8 @@ pub async fn run(event: &str) {
         wait_for_handoff: false,
         token_budget: None,
         capture: captured.output,
-    };
+    }
+    .for_project_reuse();
 
     if !boundary {
         // Capture class: fire and forget. A missed deadline is a dropped
@@ -438,7 +440,8 @@ fn deliver_prompt_time(
         depth: None,
         trigger: Some("prompt_submit".to_string()),
         open_trigger: None,
-    };
+    }
+    .for_project_reuse();
     match client::send_blocking(&request, deadline) {
         Ok(value) => {
             let (_content_degraded, transport_ok) =
@@ -803,7 +806,7 @@ fn journal_capture_drop(
 /// so there is no single canonical kind to name and inventing one would file the
 /// loss under something that never existed.
 fn dropped_kind(request: &Request) -> Option<&'static str> {
-    match request {
+    match request.inner_operation() {
         Request::CanonicalEvent { event, .. } => Some(event.event.as_str()),
         _ => None,
     }

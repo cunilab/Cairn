@@ -6,7 +6,7 @@ use cairn_core::event::{EventContent, EventKind, OpenTrigger, SafeCanonicalEvent
 use cairn_core::wire::*;
 use cairn_integrate::AgentId;
 use cairn_store::repo;
-use serde_json::json;
+use serde_json::{json, Value};
 use uuid::Uuid;
 
 type Reply = Result<serde_json::Value, WireError>;
@@ -20,8 +20,27 @@ pub async fn dispatch(daemon: &Daemon, request: Request) -> Envelope {
 
 pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
     match request {
+        Request::ProjectReuse { request } => {
+            let allowed = match request.as_ref() {
+                Request::Context { .. } | Request::CanonicalEvent { .. } => true,
+                Request::MemorySearch { query, .. } => {
+                    query.purpose == cairn_core::reuse::ReusePurpose::Reuse
+                }
+                Request::Graph { purpose, .. } => {
+                    *purpose == cairn_core::reuse::ReusePurpose::Reuse
+                }
+                _ => false,
+            };
+            if !allowed {
+                return Err(WireError::invalid(
+                    "unsupported project_reuse inner operation",
+                ));
+            }
+            Box::pin(handle(d, *request)).await
+        }
         Request::DaemonStatus => Ok(json!({
             "running": true,
+            "setup_executable_identity": true,
             "run_id": d.run_id,
             "started_at": d.started_at,
             "schema_version": cairn_store::migrate::latest_version(),
@@ -43,7 +62,11 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
             Ok(json!({ "accepted": true }))
         }
 
-        Request::Init { cwd } => init(d, &cwd).await,
+        Request::Init { cwd } => init(d, &cwd, None).await,
+        Request::InitWithExecutable {
+            cwd,
+            cairn_executable,
+        } => init(d, &cwd, Some(&cairn_executable)).await,
 
         Request::SessionStart {
             cwd,
@@ -244,40 +267,49 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
             value_key,
             importance: _,
             domain,
-        } => match domain {
-            // FR-455, FR-527: no MCP action authors team knowledge directly.
-            // Team is reached only by `cairn team propose` or by
-            // `action: "promote", target: "team"` — never by `create`.
-            Some(KnowledgeDomain::Team) => Err(WireError::invalid(
-                "domain: \"team\" cannot be created through cairn_remember; team knowledge \
+            capture_attestation,
+        } => {
+            if capture_attestation.is_some() {
+                return Err(WireError::invalid(
+                    "use memory_capture for attested project writes",
+                ));
+            }
+            match domain {
+                // FR-455, FR-527: no MCP action authors team knowledge directly.
+                // Team is reached only by `cairn team propose` or by
+                // `action: "promote", target: "team"` — never by `create`.
+                Some(KnowledgeDomain::Team) => Err(WireError::invalid(
+                    "domain: \"team\" cannot be created through cairn_remember; team knowledge \
                  is reached only by proposal (`cairn team propose`) or by \
                  `action: \"promote\", target: \"team\"` — no MCP action authors \
                  authoritative team policy directly",
-            )),
-            Some(KnowledgeDomain::Personal) => {
-                personal_create(d, &cwd, kind, content, topic_key, value_key).await
+                )),
+                Some(KnowledgeDomain::Personal) => {
+                    personal_create(d, &cwd, kind, content, topic_key, value_key).await
+                }
+                None | Some(KnowledgeDomain::Project) => {
+                    memory_create(
+                        d,
+                        &cwd,
+                        agent_session_key,
+                        session_id,
+                        kind,
+                        scope,
+                        scope_key,
+                        content,
+                        evidence_observation_ids,
+                        local_only,
+                        None,
+                        SubjectProposal {
+                            topic_key,
+                            value_key,
+                        },
+                        None,
+                    )
+                    .await
+                }
             }
-            None | Some(KnowledgeDomain::Project) => {
-                memory_create(
-                    d,
-                    &cwd,
-                    agent_session_key,
-                    session_id,
-                    kind,
-                    scope,
-                    scope_key,
-                    content,
-                    evidence_observation_ids,
-                    local_only,
-                    None,
-                    SubjectProposal {
-                        topic_key,
-                        value_key,
-                    },
-                )
-                .await
-            }
-        },
+        }
         Request::MemorySupersede {
             cwd,
             agent_session_key,
@@ -292,7 +324,13 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
             topic_key,
             value_key,
             importance: _,
+            capture_attestation,
         } => {
+            if capture_attestation.is_some() {
+                return Err(WireError::invalid(
+                    "use memory_capture for attested project writes",
+                ));
+            }
             memory_create(
                 d,
                 &cwd,
@@ -309,6 +347,42 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
                     topic_key,
                     value_key,
                 },
+                None,
+            )
+            .await
+        }
+        Request::MemoryCapture {
+            cwd,
+            agent_session_key,
+            session_id,
+            kind,
+            scope,
+            scope_key,
+            content,
+            evidence_observation_ids,
+            local_only,
+            topic_key,
+            value_key,
+            supersedes,
+            capture_attestation,
+        } => {
+            memory_create(
+                d,
+                &cwd,
+                agent_session_key,
+                session_id,
+                kind,
+                scope,
+                scope_key,
+                content,
+                evidence_observation_ids,
+                local_only,
+                supersedes,
+                SubjectProposal {
+                    topic_key,
+                    value_key,
+                },
+                Some(capture_attestation),
             )
             .await
         }
@@ -432,7 +506,8 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
             cwd,
             memory_id,
             hops,
-        } => server_graph(d, &cwd, memory_id, hops).await,
+            purpose,
+        } => server_graph(d, &cwd, memory_id, hops, purpose).await,
         Request::Replay { cwd } => server_replay(d, &cwd).await,
         Request::Governance { cwd } => {
             // Resolve caller's repository before a server-wide governance read;
@@ -450,19 +525,28 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
 // Project and status
 // ---------------------------------------------------------------------------
 
-async fn init(d: &Daemon, cwd: &str) -> Reply {
+async fn init(d: &Daemon, cwd: &str, cairn_executable: Option<&str>) -> Reply {
+    if let Some(executable) = cairn_executable {
+        let path = std::path::Path::new(executable);
+        if !path.is_absolute() || !path.is_file() {
+            return Err(WireError::invalid(
+                "setup executable identity must name an existing absolute file",
+            ));
+        }
+    }
     reload_server_credentials(d).await;
     // `init` is the one place a checkout's identity is worth re-reading.
     d.forget_repo(cwd).await;
     let r = d.resolve(cwd).await?;
     let project = bind_detected_project(d, &r.project).await?;
-    let integrations = crate::integrations::setup(d, cwd).await;
+    let integrations = crate::integrations::setup(d, cwd, cairn_executable).await;
     let legacy_migration = d.legacy_migration.clone();
     Ok(json!({
         "project": ProjectSummary::from(&project),
         "worktree_path": r.worktree(),
         "git_common_dir": r.repo.git_common_dir.display().to_string(),
         "integrations": integrations,
+        "cairn_executable": cairn_executable,
         "legacy_migration": legacy_migration,
     }))
 }
@@ -1151,19 +1235,37 @@ pub(crate) async fn queue_knowledge_command(
         )),
     }
 }
-async fn server_graph(d: &Daemon, cwd: &str, memory_id: Uuid, hops: Option<i64>) -> Reply {
+async fn server_graph(
+    d: &Daemon,
+    cwd: &str,
+    memory_id: Uuid,
+    hops: Option<i64>,
+    purpose: cairn_core::reuse::ReusePurpose,
+) -> Reply {
     let resolved = d.resolve(cwd).await?;
     let project_id = resolved
         .project
         .server_project_id
         .ok_or_else(|| WireError::new(codes::NOT_LINKED, "project is not linked to a server"))?;
     let hops = hops.unwrap_or(1).clamp(1, 2);
-    crate::sync::client(d)
+    let answer = crate::sync::client(d)
         .await?
         .get(&format!(
-            "/api/projects/{project_id}/graph?memory_id={memory_id}&hops={hops}"
+            "/api/projects/{project_id}/graph?memory_id={memory_id}&hops={hops}&purpose={}",
+            purpose.as_str()
         ))
-        .await
+        .await?;
+    if purpose == cairn_core::reuse::ReusePurpose::Reuse
+        && (answer.get("purpose").and_then(|v| v.as_str()) != Some("reuse")
+            || answer.get("reuse_policy").and_then(|v| v.as_str())
+                != Some("project_attestation_v1"))
+    {
+        return Err(WireError::new(
+            codes::SERVER_UNAVAILABLE,
+            "the server did not confirm project-memory reuse eligibility; use purpose=inspect only for intentional archival review",
+        ));
+    }
+    Ok(answer)
 }
 
 async fn server_replay(d: &Daemon, cwd: &str) -> Reply {
@@ -1204,6 +1306,7 @@ async fn memory_create(
     local_only: bool,
     supersedes: Option<Uuid>,
     subject: SubjectProposal,
+    capture_attestation: Option<cairn_core::reuse::CaptureAttestation>,
 ) -> Reply {
     if !evidence.is_empty() {
         return Err(WireError::invalid(
@@ -1214,6 +1317,9 @@ async fn memory_create(
         return Err(WireError::invalid(
             "local-only memory is unavailable; server owns durable knowledge",
         ));
+    }
+    if let Some(attestation) = &capture_attestation {
+        attestation.validate().map_err(WireError::invalid)?;
     }
     let r = d.resolve(cwd).await?;
     let scope = scope.unwrap_or(MemoryScope::Project);
@@ -1248,12 +1354,17 @@ async fn memory_create(
         "topic_key": subject.topic_key, "value_key": subject.value_key,
         "session_id": attributed_session_id,
         "target_id": supersedes,
+        "capture_attestation": capture_attestation,
     });
     queue_knowledge_command(
         d,
         Some(r.project.id),
         attributed_session_id,
-        if supersedes.is_some() {
+        if payload["capture_attestation"].is_object() && supersedes.is_some() {
+            cairn_store::spool::CommandKind::SupersedeAttested
+        } else if payload["capture_attestation"].is_object() {
+            cairn_store::spool::CommandKind::RememberAttested
+        } else if supersedes.is_some() {
             cairn_store::spool::CommandKind::Supersede
         } else {
             cairn_store::spool::CommandKind::Remember
@@ -1411,7 +1522,10 @@ async fn memory_search(
         .project
         .server_project_id
         .ok_or_else(|| WireError::new(codes::NOT_LINKED, "project is not linked to a server"))?;
-    let mut params = vec![("domain".into(), "project".into())];
+    let mut params = vec![
+        ("domain".into(), "project".into()),
+        ("purpose".into(), query.purpose.as_str().into()),
+    ];
     for (key, value) in [
         ("q", query.query),
         ("scope", query.scope.map(|v| v.as_str().to_string())),
@@ -1439,6 +1553,17 @@ async fn memory_search(
     } else {
         json!({ "memories": [], "total": 0 })
     };
+    if domains.contains(&KnowledgeDomain::Project)
+        && query.purpose == cairn_core::reuse::ReusePurpose::Reuse
+        && (project.get("purpose").and_then(|v| v.as_str()) != Some("reuse")
+            || project.get("reuse_policy").and_then(|v| v.as_str())
+                != Some("project_attestation_v1"))
+    {
+        return Err(WireError::new(
+            codes::SERVER_UNAVAILABLE,
+            "the server did not confirm project-memory reuse eligibility; use purpose=inspect only for intentional archival review",
+        ));
+    }
     let personal = if domains.contains(&KnowledgeDomain::Personal) {
         client
             .get_with_query("/api/personal/knowledge", &params)
@@ -1456,6 +1581,9 @@ async fn memory_search(
     Ok(json!({
         "results": project.get("memories").cloned().unwrap_or_else(|| json!([])),
         "total": project.get("total").cloned().unwrap_or_else(|| json!(0)),
+        "purpose": query.purpose.as_str(),
+        "reuse_policy": project.get("reuse_policy").cloned().unwrap_or(Value::Null),
+        "inspection_instruction": project.get("inspection_instruction").cloned().unwrap_or(Value::Null),
         "personal": personal,
         "team": team,
     }))
@@ -1463,6 +1591,68 @@ async fn memory_search(
 
 #[cfg(test)]
 mod tests {
+    #[tokio::test]
+    async fn project_reuse_refuses_other_operations_and_nesting_before_dispatch() {
+        let daemon = crate::testsupport::daemon().await;
+        for inner in [
+            Request::DaemonShutdown,
+            Request::Init {
+                cwd: crate::testsupport::NOWHERE.into(),
+            },
+            Request::DaemonStatus.for_project_reuse(),
+            Request::MemorySearch {
+                cwd: crate::testsupport::NOWHERE.into(),
+                agent_session_key: None,
+                session_id: None,
+                query: serde_json::from_value(json!({"purpose":"inspect"})).unwrap(),
+            },
+            Request::Graph {
+                cwd: crate::testsupport::NOWHERE.into(),
+                memory_id: Uuid::nil(),
+                hops: None,
+                purpose: cairn_core::reuse::ReusePurpose::Inspect,
+            },
+        ] {
+            let error = handle(&daemon, inner.for_project_reuse())
+                .await
+                .unwrap_err();
+            assert_eq!(error.code, codes::INVALID_REQUEST);
+            assert!(error.message.contains("inner operation"));
+        }
+        for inner in [
+            serde_json::from_value::<Request>(
+                json!({"op":"context", "cwd": crate::testsupport::NOWHERE}),
+            )
+            .unwrap(),
+            Request::MemorySearch {
+                cwd: crate::testsupport::NOWHERE.into(),
+                agent_session_key: None,
+                session_id: None,
+                query: serde_json::from_value(json!({"purpose":"reuse"})).unwrap(),
+            },
+            Request::Graph {
+                cwd: crate::testsupport::NOWHERE.into(),
+                memory_id: Uuid::nil(),
+                hops: None,
+                purpose: cairn_core::reuse::ReusePurpose::Reuse,
+            },
+        ] {
+            let error = handle(&daemon, inner.for_project_reuse())
+                .await
+                .unwrap_err();
+            assert_eq!(error.code, codes::NOT_A_REPOSITORY);
+        }
+    }
+    #[tokio::test]
+    async fn setup_rejects_nonabsolute_or_nonfile_executable_identity() {
+        let daemon = crate::testsupport::daemon().await;
+        for path in ["relative/cairn", "/cairn-fixture-no-such-executable", "/"] {
+            let error = init(&daemon, crate::testsupport::NOWHERE, Some(path))
+                .await
+                .unwrap_err();
+            assert_eq!(error.code, codes::INVALID_REQUEST);
+        }
+    }
     use super::*;
     use crate::state::ServerCredentials;
     use crate::testsupport as fx;
@@ -1596,7 +1786,7 @@ mod tests {
         };
         config.save().unwrap();
         std::fs::write(&token_path, "reloaded-token").unwrap();
-        let value = init(&repo.daemon, &repo.cwd).await.unwrap();
+        let value = init(&repo.daemon, &repo.cwd, None).await.unwrap();
         assert_eq!(
             value["project"]["server_project_id"],
             server_project_id.to_string()
@@ -1604,7 +1794,7 @@ mod tests {
         assert_eq!(repo.daemon.server.read().await.account_id, Some(account));
         config.server_url = Some(lookup_server(Uuid::now_v7()).await);
         config.save().unwrap();
-        let error = init(&repo.daemon, &repo.cwd).await.unwrap_err();
+        let error = init(&repo.daemon, &repo.cwd, None).await.unwrap_err();
         assert_eq!(error.code, codes::NOT_LINKED);
         assert_eq!(
             repo.daemon
@@ -1617,7 +1807,7 @@ mod tests {
         );
         config.server_url = Some(lookup_server(server_project_id).await);
         config.save().unwrap();
-        assert!(init(&repo.daemon, &repo.cwd).await.is_ok());
+        assert!(init(&repo.daemon, &repo.cwd, None).await.is_ok());
         match old_config {
             Some(value) => std::fs::write(&config_path, value).unwrap(),
             None => {

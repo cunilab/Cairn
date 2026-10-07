@@ -35,6 +35,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check paired-evaluation evidence handling
+        run: python3 -B -m unittest discover -s evals/m1-m2 -p test_run.py
+
       - name: Record candidate version
         id: version
         run: |
@@ -55,6 +58,7 @@ jobs:
       - name: Test
         env:
           CAIRN_TEST_DATABASE_URL: postgres://cairn:cairn@localhost:5433/cairn
+          CAIRN_REQUIRE_DATABASE_TESTS: "1"
         run: cargo test --locked --workspace --all-targets
 
   # The exact source commit must pass every release-critical source gate. CI's

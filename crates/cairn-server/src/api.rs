@@ -563,6 +563,14 @@ pub fn routes() -> Router<AppState> {
             crate::commands::create_memory,
         )
         .route(
+            "/api/projects/{id}/captures",
+            post(crate::commands::create_attested_memory),
+        )
+        .route(
+            "/api/memories/{id}/captures",
+            post(crate::commands::supersede_attested_memory),
+        )
+        .route(
             "/api/projects/{id}/memory-relations",
             post(crate::commands::record_relation),
         )
@@ -754,6 +762,8 @@ struct GraphQuery {
     memory_id: Uuid,
     #[serde(default)]
     hops: Option<i64>,
+    #[serde(default)]
+    purpose: cairn_core::reuse::ReusePurpose,
 }
 
 async fn project_graph(
@@ -763,8 +773,21 @@ async fn project_graph(
     Query(query): Query<GraphQuery>,
 ) -> ApiResult<Json<Value>> {
     auth::require_member(&state.pool, project_id, user.id()).await?;
+    if query.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+        crate::reuse::require_schema(state.schema_version)?;
+    }
     let hops = query.hops.unwrap_or(1).clamp(1, GRAPH_MAX_HOPS);
-    let rows = sqlx::query(
+    let reuse_filter = if query.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+        format!(
+            "AND ({}) AND ({}) AND ({})",
+            crate::reuse::eligible("seed_memory"),
+            crate::reuse::eligible("from_memory"),
+            crate::reuse::eligible("to_memory")
+        )
+    } else {
+        String::new()
+    };
+    let graph_sql = format!(
         "WITH RECURSIVE walk(from_id, to_id, kind, current_id, depth, node_path, edge_path) AS (
             SELECT r.from_memory_id, r.to_memory_id, r.kind,
                    CASE WHEN r.from_memory_id = $2 THEN r.to_memory_id ELSE r.from_memory_id END,
@@ -772,10 +795,12 @@ async fn project_graph(
                    ARRAY[$2::uuid, CASE WHEN r.from_memory_id = $2 THEN r.to_memory_id ELSE r.from_memory_id END],
                    ARRAY[format('%s:%s:%s', r.from_memory_id, r.to_memory_id, r.kind)]
               FROM memory_relations r
+              JOIN memories seed_memory ON seed_memory.id = $2 AND seed_memory.project_id = $1
               JOIN memories from_memory ON from_memory.id = r.from_memory_id AND from_memory.project_id = $1
               JOIN memories to_memory ON to_memory.id = r.to_memory_id AND to_memory.project_id = $1
              WHERE r.deleted_at IS NULL AND r.project_id = $1
                AND (r.from_memory_id = $2 OR r.to_memory_id = $2)
+               {reuse_filter}
             UNION ALL
             SELECT r.from_memory_id, r.to_memory_id, r.kind,
                    CASE WHEN r.from_memory_id = w.current_id THEN r.to_memory_id ELSE r.from_memory_id END,
@@ -784,9 +809,11 @@ async fn project_graph(
                    w.edge_path || format('%s:%s:%s', r.from_memory_id, r.to_memory_id, r.kind)
               FROM walk w
               JOIN memory_relations r ON r.from_memory_id = w.current_id OR r.to_memory_id = w.current_id
+              JOIN memories seed_memory ON seed_memory.id = $2 AND seed_memory.project_id = $1
               JOIN memories from_memory ON from_memory.id = r.from_memory_id AND from_memory.project_id = $1
               JOIN memories to_memory ON to_memory.id = r.to_memory_id AND to_memory.project_id = $1
              WHERE r.deleted_at IS NULL AND r.project_id = $1 AND w.depth < $3
+               {reuse_filter}
                AND NOT (CASE WHEN r.from_memory_id = w.current_id THEN r.to_memory_id ELSE r.from_memory_id END = ANY(w.node_path))
                AND NOT (format('%s:%s:%s', r.from_memory_id, r.to_memory_id, r.kind) = ANY(w.edge_path))
          ), unique_edges AS (
@@ -794,16 +821,22 @@ async fn project_graph(
               FROM walk ORDER BY from_id, to_id, kind, depth
          ) SELECT from_id, to_id, kind, depth FROM unique_edges
            ORDER BY depth, kind, from_id, to_id LIMIT $4",
-    )
-    .bind(project_id).bind(query.memory_id).bind(hops).bind(GRAPH_MAX_EDGES)
-    .fetch_all(&state.pool).await?;
+    );
+    let rows = sqlx::query(&graph_sql)
+        .bind(project_id)
+        .bind(query.memory_id)
+        .bind(hops)
+        .bind(GRAPH_MAX_EDGES)
+        .fetch_all(&state.pool)
+        .await?;
     let edges: Vec<Value> = rows.iter().map(|r| json!({
         "from": r.get::<Uuid, _>("from_id"), "to": r.get::<Uuid, _>("to_id"),
         "kind": r.get::<String, _>("kind"), "depth": r.get::<i32, _>("depth"),
         "score": { "lexical": 0.0, "vector": 0.0, "relation": 1.0 / r.get::<i32, _>("depth") as f64, "recency": 0.0 }
     })).collect();
     Ok(Json(
-        json!({ "seed": query.memory_id, "hops": hops, "max_hops": GRAPH_MAX_HOPS,
+        json!({ "seed": query.memory_id, "hops": hops, "purpose": query.purpose.as_str(),
+        "reuse_policy": crate::reuse::POLICY_ID, "max_hops": GRAPH_MAX_HOPS,
         "max_edges": GRAPH_MAX_EDGES, "edges": edges, "truncated": rows.len() as i64 == GRAPH_MAX_EDGES }),
     ))
 }
@@ -1404,6 +1437,7 @@ async fn retrieve_context(
     user: SettledUser,
     Json(body): Json<crate::retrieve::RetrieveRequest>,
 ) -> ApiResult<Json<Value>> {
+    crate::reuse::require_schema(state.schema_version)?;
     let reader = auth::ReaderContext::load(&state.pool, &user.0).await?;
     let config = cairn_core::CairnConfig::default();
     let answer = crate::retrieve::retrieve(
@@ -2370,6 +2404,9 @@ fn handoff_json(r: &sqlx::postgres::PgRow) -> Value {
 
 #[derive(Deserialize)]
 struct MemoryQueryParams {
+    /// REST remains archival by default. Agent recall sends `reuse`.
+    #[serde(default)]
+    purpose: cairn_core::reuse::ReusePurpose,
     #[serde(default)]
     q: Option<String>,
     #[serde(default)]
@@ -2405,6 +2442,9 @@ async fn project_memories(
     Query(q): Query<MemoryQueryParams>,
 ) -> ApiResult<Json<Value>> {
     auth::require_member(&state.pool, id, user.id()).await?;
+    if q.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+        crate::reuse::require_schema(state.schema_version)?;
+    }
     if let Some(domain) = q.domain.as_deref() {
         if domain != "project" {
             return Err(ApiError::invalid(format!(
@@ -2419,8 +2459,15 @@ async fn project_memories(
 
     // A natural-language query often adds words absent from a useful memory.
     // Require two shared stemmed terms where possible, then rank by overlap.
-    let rows = sqlx::query(
-        "SELECT m.*,
+    let reuse_projection = reuse_projection(state.schema_version, "m");
+    let reuse_joins = reuse_joins(state.schema_version, "m");
+    let reuse_filter = if q.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+        format!("AND ({})", crate::reuse::eligible("m"))
+    } else {
+        String::new()
+    };
+    let memory_sql = format!(
+        "SELECT m.*, {reuse_projection},
                 CASE m.scope WHEN 'session' THEN 0 WHEN 'branch' THEN 1
                              WHEN 'project' THEN 2 ELSE 3 END AS scope_bucket,
                 CASE WHEN $2::text IS NULL OR $2 = '' THEN 0
@@ -2430,6 +2477,7 @@ async fn project_memories(
                     AND (rel.from_memory_id = m.id OR rel.to_memory_id = m.id))
                   AS relation_count
          FROM memories m
+         {reuse_joins}
          CROSS JOIN LATERAL (
              SELECT cardinality(ARRAY(
                  SELECT unnest(tsvector_to_array(to_tsvector('english', m.content)))
@@ -2447,23 +2495,30 @@ async fn project_memories(
            AND ($4::text IS NULL OR m.scope = $4)
            AND ($5::text IS NULL OR m.scope_key = $5)
            AND ($6::text IS NULL OR m.type = $6)
+           {reuse_filter}
          ORDER BY scope_bucket ASC, relevance DESC, m.created_at DESC
          LIMIT $7",
-    )
-    .bind(id)
-    .bind(q.q.clone().unwrap_or_default())
-    .bind(&want_state)
-    .bind(&q.scope)
-    .bind(&q.scope_key)
-    .bind(&q.kind)
-    .bind(limit)
-    .fetch_all(&state.pool)
-    .await?;
+    );
+    let rows = sqlx::query(&memory_sql)
+        .bind(id)
+        .bind(q.q.clone().unwrap_or_default())
+        .bind(&want_state)
+        .bind(&q.scope)
+        .bind(&q.scope_key)
+        .bind(&q.kind)
+        .bind(limit)
+        .fetch_all(&state.pool)
+        .await?;
 
     let memories: Vec<Value> = rows.iter().map(memory_json).collect();
     Ok(Json(json!({
         "memories": memories,
         "total": memories.len(),
+        "purpose": q.purpose.as_str(),
+        "reuse_policy": crate::reuse::POLICY_ID,
+        "inspection_instruction": if q.purpose == cairn_core::reuse::ReusePurpose::Inspect {
+            Some("Archived results may be ineligible for working reuse. Use their reuse status to inspect, verify, supersede, or correct them; do not treat capture attestation as objective proof.")
+        } else { None },
         // The bound this page was actually taken under. `total` is how many
         // came back, which is the same number for a full page and for a project
         // with exactly that many memories — a client cannot tell "there is more"
@@ -2511,6 +2566,100 @@ fn memory_json(r: &sqlx::postgres::PgRow) -> Value {
         },
         "created_at": r.get::<chrono::DateTime<chrono::Utc>, _>("created_at"),
         "updated_at": r.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
+        "reuse": reuse_status_json(r),
+    })
+}
+
+fn reuse_joins(schema_version: i64, alias: &'static str) -> String {
+    if schema_version >= crate::reuse::REQUIRED_SCHEMA {
+        format!(
+            "LEFT JOIN project_memory_attestations reuse_att ON reuse_att.memory_id = {alias}.id
+             LEFT JOIN memories reuse_dep ON reuse_dep.id = reuse_att.dependency_memory_id"
+        )
+    } else {
+        String::new()
+    }
+}
+
+fn reuse_projection(schema_version: i64, alias: &'static str) -> String {
+    if schema_version < crate::reuse::REQUIRED_SCHEMA {
+        return "false AS reuse_eligible, false AS reuse_attestation_present,
+                NULL::uuid AS reuse_actor_user_id, NULL::text AS reuse_basis,
+                NULL::text AS reuse_support_summary, NULL::text AS reuse_source_reference,
+                NULL::text AS reuse_source_revision, NULL::uuid AS reuse_dependency_memory_id,
+                NULL::text AS reuse_invalidation_reason, false AS reuse_dependency_changed,
+                false AS reuse_conflicted"
+            .into();
+    }
+    format!(
+        "({}) AS reuse_eligible,
+         reuse_att.memory_id IS NOT NULL AS reuse_attestation_present,
+         reuse_att.actor_user_id AS reuse_actor_user_id,
+         reuse_att.basis AS reuse_basis,
+         reuse_att.support_summary AS reuse_support_summary,
+         reuse_att.source_reference AS reuse_source_reference,
+         reuse_att.source_revision AS reuse_source_revision,
+         reuse_att.dependency_memory_id AS reuse_dependency_memory_id,
+         reuse_att.invalidation_reason AS reuse_invalidation_reason,
+         (reuse_att.dependency_memory_id IS NOT NULL AND (
+             reuse_dep.id IS NULL OR reuse_dep.updated_at IS DISTINCT FROM reuse_att.dependency_updated_at
+         )) AS reuse_dependency_changed,
+         EXISTS (
+             SELECT 1 FROM memory_relations reuse_conflict_status
+              WHERE reuse_conflict_status.deleted_at IS NULL
+                AND reuse_conflict_status.kind = 'conflicts_with'
+                AND ({alias}.id = reuse_conflict_status.from_memory_id
+                     OR {alias}.id = reuse_conflict_status.to_memory_id)
+         ) AS reuse_conflicted",
+        crate::reuse::eligible(alias)
+    )
+}
+
+fn reuse_status_json(r: &sqlx::postgres::PgRow) -> Value {
+    let eligible = r.try_get::<bool, _>("reuse_eligible").unwrap_or(false);
+    let present = r
+        .try_get::<bool, _>("reuse_attestation_present")
+        .unwrap_or(false);
+    let invalidation = r
+        .try_get::<Option<String>, _>("reuse_invalidation_reason")
+        .ok()
+        .flatten();
+    let reason = if eligible {
+        None
+    } else if !present {
+        Some("unattributed_legacy")
+    } else if let Some(reason) = invalidation.as_deref() {
+        Some(reason)
+    } else if r.get::<String, _>("state") != "active" {
+        Some("inactive")
+    } else if matches!(
+        r.get::<Option<String>, _>("verification").as_deref(),
+        Some("conflicted" | "drifted" | "needs_recheck")
+    ) {
+        Some("verification_invalidated")
+    } else if r.try_get::<bool, _>("reuse_conflicted").unwrap_or(false) {
+        Some("conflicted")
+    } else if r
+        .try_get::<bool, _>("reuse_dependency_changed")
+        .unwrap_or(false)
+    {
+        Some("source_changed")
+    } else {
+        Some("ineligible")
+    };
+    json!({
+        "eligible": eligible,
+        "status": if eligible { "eligible" } else { "ineligible" },
+        "reason": reason,
+        "attestation": if present { Some(json!({
+            "actor_user_id": r.try_get::<Option<Uuid>, _>("reuse_actor_user_id").ok().flatten(),
+            "basis": r.try_get::<Option<String>, _>("reuse_basis").ok().flatten(),
+            "support_summary": r.try_get::<Option<String>, _>("reuse_support_summary").ok().flatten(),
+            "source_reference": r.try_get::<Option<String>, _>("reuse_source_reference").ok().flatten(),
+            "source_revision": r.try_get::<Option<String>, _>("reuse_source_revision").ok().flatten(),
+            "dependency_memory_id": r.try_get::<Option<Uuid>, _>("reuse_dependency_memory_id").ok().flatten(),
+            "disclosure": crate::reuse::ACCOUNTABILITY_DISCLOSURE,
+        })) } else { None },
     })
 }
 
@@ -2542,18 +2691,21 @@ async fn memory_detail(
     user: SettledUser,
     Path(id): Path<Uuid>,
 ) -> ApiResult<Json<MemoryDetailResponse>> {
-    let row = sqlx::query(
-        "SELECT m.*,
+    let reuse_projection = reuse_projection(state.schema_version, "m");
+    let reuse_joins = reuse_joins(state.schema_version, "m");
+    let detail_sql = format!(
+        "SELECT m.*, {reuse_projection},
                 (SELECT COUNT(*) FROM memory_relations rel
                   WHERE rel.deleted_at IS NULL
                     AND (rel.from_memory_id = m.id OR rel.to_memory_id = m.id))
                   AS relation_count
-           FROM memories m WHERE m.id = $1",
-    )
-    .bind(id)
-    .fetch_optional(&state.pool)
-    .await?
-    .ok_or_else(|| ApiError::not_found("no such memory"))?;
+           FROM memories m {reuse_joins} WHERE m.id = $1",
+    );
+    let row = sqlx::query(&detail_sql)
+        .bind(id)
+        .fetch_optional(&state.pool)
+        .await?
+        .ok_or_else(|| ApiError::not_found("no such memory"))?;
 
     // **One answer to both questions**, and `require_member` was the wrong
     // guard here (found while building US5's reads).
@@ -2723,10 +2875,18 @@ async fn delete_memory(
     let project_id: Uuid = row.try_get("project_id")?;
     auth::require_member(&state.pool, project_id, user.id()).await?;
 
+    let mut tx = state.pool.begin().await?;
     sqlx::query("UPDATE memories SET deleted_at = now(), content = '' WHERE id = $1")
         .bind(id)
-        .execute(&state.pool)
+        .execute(&mut *tx)
         .await?;
+    if state.schema_version >= crate::reuse::REQUIRED_SCHEMA {
+        sqlx::query("DELETE FROM project_memory_attestations WHERE memory_id = $1")
+            .bind(id)
+            .execute(&mut *tx)
+            .await?;
+    }
+    tx.commit().await?;
     Ok((StatusCode::OK, Json(DeletedResponse { deleted: id })))
 }
 

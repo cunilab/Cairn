@@ -89,11 +89,12 @@ fn seed_project_memory(pg: &Pg, session: Uuid, content: &str) -> Uuid {
          VALUES ('{id}', '{}', 'fact', 'project', '{}', '{content}', '{session}')",
         pg.project, pg.project
     ));
+    pg.attest_project_memory(id, &pg.owner, "Fixture author reports this project fact.");
     id
 }
 
 #[test]
-fn legacy_local_project_keys_reach_context_pins_and_warnings() {
+fn legacy_project_rows_stay_archival_and_do_not_reach_context_pins_or_warnings() {
     let pg = pg!();
     let session = pg.session_for(&pg.owner);
     let ordinary = seed_project_memory(&pg, session, "legacy durable project finding");
@@ -123,23 +124,26 @@ fn legacy_local_project_keys_reach_context_pins_and_warnings() {
         true,
         Some("drifted"),
     );
+    pg.server.execute(&format!(
+        "DELETE FROM project_memory_attestations WHERE memory_id IN ('{ordinary}', '{pin}', '{warning}', '{foreign_pin}')"
+    ));
     pg.server.execute(&format!("UPDATE memories SET scope_key = '{}' WHERE id IN ('{ordinary}', '{pin}', '{warning}', '{foreign_pin}')", Uuid::now_v7()));
     let (context, status) = retrieve(&pg, &pg.owner, session, "explicit");
     assert_eq!(status, 200, "{context}");
     assert!(
-        context
+        !context
             .to_string()
             .contains("legacy durable project finding"),
         "{context}"
     );
     assert!(
-        context["continuity"]["pins"]
+        !context["continuity"]["pins"]
             .to_string()
             .contains(&pin.to_string()),
         "{context}"
     );
     assert!(
-        context["continuity"]["warnings"]
+        !context["continuity"]["warnings"]
             .to_string()
             .contains("legacy conflicting claim"),
         "{context}"
@@ -187,6 +191,11 @@ fn seed_continuity_memory(
          VALUES ('{id}', '{project}', 'fact', 'project', '{project}', '{content}',
                  '{session}', 'continuity', {pinned}, {verification})"
     ));
+    pg.attest_project_memory(
+        id,
+        &pg.owner,
+        "Fixture author reports this continuity record.",
+    );
     id
 }
 
@@ -933,8 +942,8 @@ fn a_tiny_budget_keeps_level0_candidates_bounded_and_leaves_durable_spend_at_zer
     );
     assert_eq!(
         warnings.len(),
-        7,
-        "server must not impose the daemon's default cap"
+        0,
+        "invalidated claims must not enter reuse warnings"
     );
     assert!(pins.len() <= 24 && warnings.len() <= 24, "{resp}");
 }

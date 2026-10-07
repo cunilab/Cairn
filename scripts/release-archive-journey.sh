@@ -154,7 +154,7 @@ PY
   printf '%s\n' "$result" | python3 -c 'import json,sys; r=json.load(sys.stdin)["result"]; assert not r["isError"], r; print(r["content"][0]["text"])'
 }
 
-remember='{ "action":"create", "agent_session_key":"archive-actor-a", "type":"fact", "topic_key":"archive.journey", "value_key":"remembered", "content":"archive journey keeps its remembered fact" }'
+remember='{ "action":"create", "agent_session_key":"archive-actor-a", "type":"fact", "topic_key":"archive.journey", "value_key":"remembered", "content":"archive journey keeps its remembered fact", "capture_attestation": { "basis":"user_report", "support_summary":"The release journey explicitly supplied this durable fact." } }'
 remembered=$(mcp_tool cairn_remember "$remember")
 printf '%s' "$remembered" | grep -Eq '"accepted_for_delivery": true'
 

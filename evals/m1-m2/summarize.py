@@ -35,6 +35,7 @@ for case in cases:
             row[prefix + "configured_model"] = run.get("configured_model")
             row[prefix + "trace_complete"] = run.get("trace_complete")
             row[prefix + "hook_capture_enabled"] = run.get("hook_capture", {}).get("enabled", False)
+            row[prefix + "context_capture"] = run.get("context_capture", {})
             row[prefix + "remember_calls"] = sum("cairn_remember" in n for n in names)
             row[prefix + "search_calls"] = sum("cairn_search" in n for n in names)
             row[prefix + "read_calls"] = sum(n in ("shell", "Bash", "Read", "Grep", "Glob") for n in names)
@@ -46,6 +47,8 @@ for case in cases:
         for arm in ("control", "treatment"):
             if row.get(arm + "_later_hook_capture_enabled"):
                 traces.append(out / case["id"] / arm / "later.hooks.jsonl")
+            if row.get(arm + "_later_context_capture", {}).get("enabled"):
+                traces.append(out / case["id"] / arm / "later.context.private.json")
         found = any(case["seed"] in path.read_text(errors="replace")
                     for path in traces if path.exists())
         complete = all(path.exists() for path in traces) and all(

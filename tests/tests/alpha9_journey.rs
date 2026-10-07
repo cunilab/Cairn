@@ -88,6 +88,10 @@ fn installed_setup_remembers_and_recalls_across_callers() {
             "topic_key": "alpha9.journey",
             "value_key": "remembered",
             "content": "the alpha9 journey remembers this durable fact",
+            "capture_attestation": {
+                "basis": "user_report",
+                "support_summary": "The journey explicitly supplied this durable fact."
+            },
         }),
         &sandbox.repo_dir().display().to_string(),
     );

@@ -409,6 +409,10 @@ pub enum DeleteTarget {
 /// Search parameters for memory recall (FR-022, FR-023).
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MemoryQuery {
+    /// `inspect` preserves archival search. Agent recall sends `reuse` so an
+    /// unattributed or invalidated record cannot become working context.
+    #[serde(default)]
+    pub purpose: crate::reuse::ReusePurpose,
     #[serde(default)]
     pub query: Option<String>,
     #[serde(default)]
@@ -472,11 +476,22 @@ pub struct MemoryQuery {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum Request {
+    /// Atomic capability boundary for ordinary project-memory delivery.
+    /// Older daemons reject this operation before processing its inner request.
+    ProjectReuse {
+        request: Box<Request>,
+    },
     DaemonStatus,
     DaemonShutdown,
 
     Init {
         cwd: String,
+    },
+    /// Atomic executable-aware setup. Older daemons reject the unknown op
+    /// before dispatch rather than ignoring an added field on legacy Init.
+    InitWithExecutable {
+        cwd: String,
+        cairn_executable: String,
     },
     SessionStart {
         cwd: String,
@@ -701,6 +716,10 @@ pub enum Request {
         /// FR-455, FR-517, FR-527).
         #[serde(default)]
         domain: Option<KnowledgeDomain>,
+        /// Accepted only to return an actionable refusal; support belongs in
+        /// the distinct MemoryCapture operation.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        capture_attestation: Option<crate::reuse::CaptureAttestation>,
     },
     MemorySupersede {
         cwd: String,
@@ -730,6 +749,34 @@ pub enum Request {
         value_key: Option<String>,
         #[serde(default)]
         importance: Option<Importance>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        capture_attestation: Option<crate::reuse::CaptureAttestation>,
+    },
+    /// A distinct operation prevents older daemons from silently dropping
+    /// support fields while accepting a legacy archival write.
+    MemoryCapture {
+        cwd: String,
+        #[serde(default)]
+        agent_session_key: Option<String>,
+        #[serde(default)]
+        session_id: Option<Uuid>,
+        kind: MemoryType,
+        #[serde(default)]
+        scope: Option<MemoryScope>,
+        #[serde(default)]
+        scope_key: Option<String>,
+        content: String,
+        #[serde(default)]
+        evidence_observation_ids: Vec<Uuid>,
+        #[serde(default)]
+        local_only: bool,
+        #[serde(default)]
+        topic_key: Option<String>,
+        #[serde(default)]
+        value_key: Option<String>,
+        #[serde(default)]
+        supersedes: Option<Uuid>,
+        capture_attestation: crate::reuse::CaptureAttestation,
     },
     MemoryForget {
         cwd: String,
@@ -757,6 +804,10 @@ pub enum Request {
         memory_id: Uuid,
         #[serde(default)]
         hops: Option<i64>,
+        /// Archival by default for older clients. MCP agent recall explicitly
+        /// sends `reuse`.
+        #[serde(default)]
+        purpose: crate::reuse::ReusePurpose,
     },
 
     /// Accepted safe-event metadata from authenticated server records only.
@@ -843,6 +894,23 @@ pub enum Request {
         #[serde(default)]
         rationale: Option<String>,
     },
+}
+
+impl Request {
+    pub fn for_project_reuse(self) -> Self {
+        Self::ProjectReuse {
+            request: Box::new(self),
+        }
+    }
+
+    /// View through exactly one capability envelope. Transport classification
+    /// must preserve canonical capture ordering; nested envelopes stay invalid.
+    pub fn inner_operation(&self) -> &Self {
+        match self {
+            Self::ProjectReuse { request } => request,
+            _ => self,
+        }
+    }
 }
 
 /// Project binding returned by setup.
@@ -1343,6 +1411,32 @@ pub struct ContextPayload {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::reuse::ReusePurpose;
+
+    #[test]
+    fn legacy_search_is_archival_but_memory_reuse_must_be_explicit() {
+        let query: MemoryQuery = serde_json::from_value(serde_json::json!({})).unwrap();
+        assert_eq!(query.purpose, ReusePurpose::Inspect);
+        let reuse: MemoryQuery =
+            serde_json::from_value(serde_json::json!({ "purpose": "reuse" })).unwrap();
+        assert_eq!(reuse.purpose, ReusePurpose::Reuse);
+    }
+
+    #[test]
+    fn capture_attestation_never_carries_actor_or_authority() {
+        let request = serde_json::json!({
+            "op": "memory_capture",
+            "cwd": "/tmp/repo",
+            "kind": "decision",
+            "content": "Use the bounded parser",
+            "capture_attestation": {
+                "basis": "user_report",
+                "support_summary": "The user chose this in the current conversation.",
+                "actor_user_id": "00000000-0000-0000-0000-000000000001"
+            }
+        });
+        assert!(serde_json::from_value::<Request>(request).is_err());
+    }
 
     #[test]
     fn envelope_roundtrip() {
@@ -1383,6 +1477,19 @@ mod tests {
         }))
         .unwrap();
         assert!(matches!(init, Request::Init { .. }));
+        let init: Request = serde_json::from_value(serde_json::json!({
+            "op": "init_with_executable",
+            "cwd": "/tmp",
+            "cairn_executable": "/opt/Cairn Candidate/cairn"
+        }))
+        .unwrap();
+        assert!(matches!(
+            init,
+            Request::InitWithExecutable {
+                cairn_executable: path,
+                ..
+            } if path == "/opt/Cairn Candidate/cairn"
+        ));
     }
 
     #[test]

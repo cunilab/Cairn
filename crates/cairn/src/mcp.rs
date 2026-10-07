@@ -7,7 +7,9 @@
 
 use crate::client;
 use crate::render;
+use cairn_core::reuse::{CaptureAttestation, ReusePurpose};
 use cairn_core::wire::{ContextDepth, MemoryQuery, Request, WireError};
+use cairn_core::KnowledgeDomain;
 use serde_json::{json, Value};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 
@@ -149,6 +151,7 @@ fn tool_definitions() -> Vec<Value> {
                     "query": { "type": "string" },
                     "memory_id": { "type": "string", "description": "Required for `graph`; seed memory id." },
                     "hops": { "type": "integer", "description": "Graph depth, capped at two." },
+                    "purpose": { "type": "string", "enum": ["reuse", "inspect"], "description": "`reuse` returns only currently eligible working knowledge (default). `inspect` is an intentional archival lookup and reports why records are ineligible." },
                     "scope": { "type": "string", "enum": ["project", "branch", "session"] },
                     "scope_key": { "type": "string" },
                     "type": { "type": "string", "enum": ["fact", "decision", "convention", "failure", "procedure"] },
@@ -213,6 +216,18 @@ fn tool_definitions() -> Vec<Value> {
                     "topic_key": { "type": "string", "description": "The subject this states something about. A key that will not normalize is reported and the memory is stored free-form." },
                     "value_key": { "type": "string", "description": "The comparable value it asserts. Needs a topic_key." },
                     "importance": { "type": "string", "enum": ["low", "normal", "high"], "description": "Ranks within a bucket, and nothing more" },
+                    "capture_attestation": {
+                        "type": "object",
+                        "description": "Accountable support for reusing a project-memory create or replacement. This is not objective verification. The authenticated actor is added by Cairn.",
+                        "properties": {
+                            "basis": { "type": "string", "enum": ["user_report", "inspected_source"], "description": "Use user_report for a user-supplied fact or choice; inspected_source only after reading the named revision." },
+                            "support_summary": { "type": "string", "description": "A concise authored reason this capture is supported. Never paste prompts, transcripts, credentials, or unbounded output." },
+                            "source_reference": { "type": "string", "description": "Bounded source name or repository-relative locator; required for inspected_source." },
+                            "source_revision": { "type": "string", "description": "Revision actually inspected; required for inspected_source." },
+                            "dependency_memory_id": { "type": "string", "description": "Optional eligible project memory with no dependency of its own (one hop maximum). Cairn records its current revision server-side." }
+                        },
+                        "required": ["basis", "support_summary"]
+                    },
                     // attach_evidence
                     "kind": { "type": "string", "enum": ["observation", "file", "git_ref", "configuration", "test_outcome", "command_outcome", "runtime_state", "schema_version"] },
                     "subject": { "type": "string" },
@@ -308,35 +323,38 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
 
     match name {
         "cairn_context" => {
-            let value = client::send(&Request::Context {
-                cwd,
-                agent_session_key: key,
-                session_id: uuid_arg(args, "session_id").ok(),
-                reason: args
-                    .get("reason")
-                    .and_then(|v| serde_json::from_value(v.clone()).ok()),
-                token_budget: args
-                    .get("token_budget")
-                    .and_then(|v| v.as_u64())
-                    .map(|v| v as usize),
-                // The five tools are fixed; diagnostics stay a web affordance.
-                explain: false,
+            let value = client::send(
+                &Request::Context {
+                    cwd,
+                    agent_session_key: key,
+                    session_id: uuid_arg(args, "session_id").ok(),
+                    reason: args
+                        .get("reason")
+                        .and_then(|v| serde_json::from_value(v.clone()).ok()),
+                    token_budget: args
+                        .get("token_budget")
+                        .and_then(|v| v.as_u64())
+                        .map(|v| v as usize),
+                    // The five tools are fixed; diagnostics stay a web affordance.
+                    explain: false,
 
-                // `minimum` excludes personal_notes/team_guidance entirely;
-                // absent means `standard`, today's full assembly, so a
-                // caller that has never named this sees no change (FR-481).
-                // `ContextDepth` has no `FromStr` (it derives only `Serialize`
-                // / `Deserialize`), so this goes through serde rather than
-                // `enum_arg`.
-                depth: args
-                    .get("depth")
-                    .and_then(|v| serde_json::from_value::<ContextDepth>(v.clone()).ok()),
-                // Absent: this tool always retrieves as an explicit pull
-                // (`contracts/retrieval-delivery.md` §3) -- FR-831's manual
-                // override, never a push, and never reported `transmitted`.
-                trigger: None,
-                open_trigger: None,
-            })
+                    // `minimum` excludes personal_notes/team_guidance entirely;
+                    // absent means `standard`, today's full assembly, so a
+                    // caller that has never named this sees no change (FR-481).
+                    // `ContextDepth` has no `FromStr` (it derives only `Serialize`
+                    // / `Deserialize`), so this goes through serde rather than
+                    // `enum_arg`.
+                    depth: args
+                        .get("depth")
+                        .and_then(|v| serde_json::from_value::<ContextDepth>(v.clone()).ok()),
+                    // Absent: this tool always retrieves as an explicit pull
+                    // (`contracts/retrieval-delivery.md` §3) -- FR-831's manual
+                    // override, never a push, and never reported `transmitted`.
+                    trigger: None,
+                    open_trigger: None,
+                }
+                .for_project_reuse(),
+            )
             .await?;
             // The agent gets the rendered briefing plus the raw envelope, so it
             // can read either.
@@ -345,16 +363,24 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
         }
 
         "cairn_search" => {
+            let purpose = enum_arg(args, "purpose").unwrap_or(ReusePurpose::Reuse);
             if str_arg(args, "action").as_deref() == Some("graph") {
-                let value = client::send(&Request::Graph {
+                let request = Request::Graph {
                     cwd,
                     memory_id: uuid_arg(args, "memory_id")?,
                     hops: args.get("hops").and_then(|v| v.as_i64()),
-                })
-                .await?;
+                    purpose,
+                };
+                let request = if purpose == ReusePurpose::Reuse {
+                    request.for_project_reuse()
+                } else {
+                    request
+                };
+                let value = client::send(&request).await?;
                 return Ok(pretty(&value));
             }
             let query = MemoryQuery {
+                purpose,
                 query: str_arg(args, "query"),
                 scope: enum_arg(args, "scope"),
                 scope_key: str_arg(args, "scope_key"),
@@ -388,13 +414,18 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                 // (FR-472).
                 domains: enum_list(args, "domains"),
             };
-            let value = client::send(&Request::MemorySearch {
+            let request = Request::MemorySearch {
                 cwd,
                 agent_session_key: key,
                 session_id: uuid_arg(args, "session_id").ok(),
                 query,
-            })
-            .await?;
+            };
+            let request = if purpose == ReusePurpose::Reuse {
+                request.for_project_reuse()
+            } else {
+                request
+            };
+            let value = client::send(&request).await?;
             Ok(pretty(&value))
         }
 
@@ -418,7 +449,36 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                         .get("local_only")
                         .and_then(|v| v.as_bool())
                         .unwrap_or(false);
-                    if action == "create" {
+                    if let Some(capture_attestation) = capture_attestation_arg(args)? {
+                        if matches!(
+                            knowledge_domain_arg(args)?,
+                            Some(KnowledgeDomain::Personal | KnowledgeDomain::Team)
+                        ) {
+                            return Err(WireError::invalid(
+                                "capture_attestation applies only to project memory",
+                            ));
+                        }
+                        client::send(&Request::MemoryCapture {
+                            cwd,
+                            agent_session_key: key,
+                            session_id: uuid_opt(args, "session_id"),
+                            kind,
+                            scope: enum_arg(args, "scope"),
+                            scope_key: str_arg(args, "scope_key"),
+                            content,
+                            evidence_observation_ids: evidence,
+                            local_only,
+                            topic_key: str_arg(args, "topic_key"),
+                            value_key: str_arg(args, "value_key"),
+                            supersedes: if action == "supersede" {
+                                Some(uuid_arg(args, "memory_id")?)
+                            } else {
+                                None
+                            },
+                            capture_attestation,
+                        })
+                        .await?
+                    } else if action == "create" {
                         client::send(&Request::MemoryCreate {
                             cwd,
                             agent_session_key: key,
@@ -434,6 +494,7 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                             importance: enum_arg(args, "importance"),
 
                             domain: knowledge_domain_arg(args)?,
+                            capture_attestation: None,
                         })
                         .await?
                     } else {
@@ -451,6 +512,7 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                             topic_key: str_arg(args, "topic_key"),
                             value_key: str_arg(args, "value_key"),
                             importance: enum_arg(args, "importance"),
+                            capture_attestation: None,
                         })
                         .await?
                     }
@@ -664,6 +726,16 @@ fn uuid_opt(args: &Value, key: &str) -> Option<uuid::Uuid> {
         .and_then(|s| uuid::Uuid::parse_str(s).ok())
 }
 
+fn capture_attestation_arg(args: &Value) -> Result<Option<CaptureAttestation>, WireError> {
+    let Some(value) = args.get("capture_attestation") else {
+        return Ok(None);
+    };
+    let attestation: CaptureAttestation = serde_json::from_value(value.clone())
+        .map_err(|e| WireError::invalid(format!("invalid capture_attestation: {e}")))?;
+    attestation.validate().map_err(WireError::invalid)?;
+    Ok(Some(attestation))
+}
+
 fn bool_arg(args: &Value, key: &str) -> bool {
     args.get(key).and_then(|v| v.as_bool()).unwrap_or(false)
 }
@@ -859,5 +931,51 @@ mod tests {
             );
             assert!(props["session_id"].is_object(), "{name} hides session_id");
         }
+    }
+
+    #[test]
+    fn search_defaults_working_recall_to_reuse_and_exposes_deliberate_inspection() {
+        let search = tool_definitions()
+            .into_iter()
+            .find(|tool| tool["name"] == "cairn_search")
+            .expect("cairn_search");
+        assert_eq!(
+            search["inputSchema"]["properties"]["purpose"]["enum"],
+            json!(["reuse", "inspect"])
+        );
+        assert_eq!(
+            enum_arg::<ReusePurpose>(&json!({}), "purpose").unwrap_or(ReusePurpose::Reuse),
+            ReusePurpose::Reuse
+        );
+    }
+
+    #[test]
+    fn remember_schema_exposes_bounded_accountable_capture() {
+        let remember = tool_definitions()
+            .into_iter()
+            .find(|tool| tool["name"] == "cairn_remember")
+            .expect("cairn_remember");
+        let attestation = &remember["inputSchema"]["properties"]["capture_attestation"];
+        assert_eq!(attestation["type"], "object");
+        assert_eq!(
+            attestation["properties"]["basis"]["enum"],
+            json!(["user_report", "inspected_source"])
+        );
+        assert!(attestation["properties"].get("actor_user_id").is_none());
+        assert!(attestation["properties"]
+            .get("verification_authority")
+            .is_none());
+    }
+
+    #[test]
+    fn forged_capture_identity_is_refused_by_the_parser() {
+        let args = json!({
+            "capture_attestation": {
+                "basis": "user_report",
+                "support_summary": "The user chose this design.",
+                "actor_user_id": uuid::Uuid::now_v7()
+            }
+        });
+        assert!(capture_attestation_arg(&args).is_err());
     }
 }

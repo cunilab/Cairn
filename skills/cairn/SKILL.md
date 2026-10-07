@@ -3,7 +3,7 @@ name: cairn
 description: Use when resuming work in a Cairn-connected repository, investigating prior decisions or failures, recording durable findings, or diagnosing memory and session problems.
 metadata:
   cairn_skill_schema: 1
-  cairn_skill_revision: 317db0bf0e28
+  cairn_skill_revision: a461f9348841
 ---
 
 # Cairn
@@ -30,8 +30,13 @@ not as implemented or validated behavior. For a user decision or incident, recor
 concisely; cite source locators without appending an implementation summary. Skip routine tool
 calls and plain source summaries. Never send secrets, raw prompts, transcripts, diffs, or
 unbounded output.
-When recording, use specific topic and value keys and cite bounded evidence; never invent
-an observation identifier. If nothing durable was learned, do not create a memory.
+When recording project knowledge for ordinary reuse, include a bounded
+`capture_attestation` with basis `user_report` or `inspected_source`; the server derives the
+actor. This records accountability and never objective verification. Use specific topic and
+value keys and never invent an observation identifier. If nothing durable was learned, do
+not create a memory. Ordinary search uses reuse eligibility. Use archival `inspect` only for
+deliberate auditing, verification, supersession, or correction, never as a fallback when
+reuse search returns nothing.
 
 ## When to reach for which reference
 

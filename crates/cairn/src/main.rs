@@ -94,6 +94,14 @@ fn cwd() -> String {
 async fn setup() -> Result<serde_json::Value, WireError> {
     let credentials = headless_credentials()?;
     let cwd = cwd();
+    let executable = std::env::current_exe().map_err(|error| {
+        WireError::invalid(format!("cannot identify setup executable: {error}"))
+    })?;
+    let cairn_executable = executable
+        .to_str()
+        .filter(|_| executable.is_absolute())
+        .ok_or_else(|| WireError::invalid("setup executable must have an absolute UTF-8 path"))?
+        .to_owned();
     let web_url = credentials
         .as_ref()
         .map(|credentials| {
@@ -122,20 +130,54 @@ async fn setup() -> Result<serde_json::Value, WireError> {
         }
         saved_credentials = Some(saved);
     }
-    let mut value = match client::send(&Request::Init { cwd: cwd.clone() }).await {
+    let mut value = match initialize(&cwd, &cairn_executable).await {
         Ok(value) => value,
         Err(error) => {
             if let Some(saved) = saved_credentials {
                 saved.restore().map_err(credential_storage_error)?;
                 // Init reloads the running daemon's credential snapshot before
                 // checking this checkout's binding, even if the check fails.
-                let _ = client::send(&Request::Init { cwd }).await;
+                let _ = initialize(&cwd, &cairn_executable).await;
             }
             return Err(error);
         }
     };
     if let (Some(object), Some(web_url)) = (value.as_object_mut(), web_url) {
         object.insert("web_url".into(), serde_json::Value::String(web_url));
+    }
+    Ok(value)
+}
+
+async fn initialize(cwd: &str, executable: &str) -> Result<serde_json::Value, WireError> {
+    let status = client::send(&Request::DaemonStatus).await?;
+    if status
+        .get("setup_executable_identity")
+        .and_then(serde_json::Value::as_bool)
+        != Some(true)
+    {
+        return Err(WireError::new(codes::DAEMON_UNAVAILABLE,
+            "older cairnd cannot pin setup to this executable; stop the daemon and wait for it to exit, install the matching cairnd sibling, then rerun setup"));
+    }
+    let request = Request::InitWithExecutable {
+        cwd: cwd.into(),
+        cairn_executable: executable.into(),
+    };
+    let mut value = client::send(&request).await.map_err(|error| {
+        if error.code == codes::INVALID_REQUEST && error.message.contains("init_with_executable") {
+            WireError::new(codes::DAEMON_UNAVAILABLE, "running cairnd does not support executable-aware setup; stop its process and wait for it to exit, install the matching cairnd sibling, then rerun setup")
+        } else {
+            error
+        }
+    })?;
+    if value
+        .get("cairn_executable")
+        .and_then(serde_json::Value::as_str)
+        != Some(executable)
+    {
+        return Err(WireError::new(codes::DAEMON_UNAVAILABLE, "setup could not verify its executable identity; stop the daemon and wait for it to exit, install the matching cairnd sibling, then rerun setup"));
+    }
+    if let Some(object) = value.as_object_mut() {
+        object.remove("cairn_executable");
     }
     Ok(value)
 }

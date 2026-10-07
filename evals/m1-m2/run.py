@@ -21,8 +21,10 @@ ROOT = Path(__file__).resolve().parents[2]
 CASES = json.loads(Path(os.environ.get("CAIRN_M2_CASES", Path(__file__).parent / "cases.json")).read_text())
 SOURCES = Path(os.environ["CAIRN_M2_SOURCES"])
 OUT = Path(os.environ["CAIRN_M2_OUT"])
+if OUT.resolve().is_relative_to(ROOT):
+    raise ValueError("Raw evaluation output must be outside the repository")
 CREDS = Path(os.environ["CAIRN_M2_CREDENTIALS"])
-BIN = ROOT / "target/debug"
+BIN = Path(os.environ.get("CAIRN_M2_BIN_DIR", ROOT / "target/debug")).resolve()
 TIMEOUT = 300
 RAW_LIMIT = 2_000_000
 
@@ -45,7 +47,7 @@ def identities(case):
 
 
 def configured_model(case):
-    return "gpt-6.1-sol" if case["agent"] == "codex" else "claude-sonnet-5-5"
+    return "gpt-6-luna" if case["agent"] == "codex" else "claude-sonnet-5-5"
 
 
 def file_sha256(path):
@@ -70,34 +72,6 @@ def mcp_command(case, home):
     if not path.exists():
         return None
     return json.loads(path.read_text()).get("mcpServers", {}).get("cairn", {}).get("command")
-
-
-def pin_mcp_command(case, home):
-    """Replace setup's portable command with this evaluation's frozen candidate."""
-    command = str((BIN / "cairn").absolute())
-    if case["agent"] == "codex":
-        path = home / ".codex/config.toml"
-        text = path.read_text()
-        section = re.compile(r"(?ms)(^\[mcp_servers\.cairn\]\s*\n)(.*?)(?=^\[|\Z)")
-        match = section.search(text)
-        if not match:
-            raise RuntimeError("Cairn MCP config is absent")
-        body, count = re.subn(r'(?m)^command\s*=\s*.*$',
-                              "command = " + json.dumps(command), match.group(2), count=1)
-        if count != 1:
-            raise RuntimeError("Cairn MCP command is absent")
-        path.write_text(text[:match.start()] + match.group(1) + body + text[match.end():])
-    else:
-        path = home / ".claude.json"
-        document = json.loads(path.read_text())
-        entry = document.get("mcpServers", {}).get("cairn")
-        if not isinstance(entry, dict):
-            raise RuntimeError("Cairn MCP config is absent")
-        entry["command"] = command
-        path.write_text(json.dumps(document, indent=2) + "\n")
-    if mcp_command(case, home) != command:
-        raise RuntimeError("Cairn MCP command did not retain its absolute path")
-    return command
 
 
 def runtime_identity(case, arm, home, env):
@@ -267,6 +241,46 @@ def bound_private_raw(path):
     return True
 
 
+def capture_codex_context(home, body, destination):
+    """Capture the exact developer context received by this thread, privately."""
+    threads = []
+    for line in body.splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if event.get("type") == "thread.started":
+            threads.append(event.get("thread_id"))
+    captured = {"thread_id": threads[0] if len(threads) == 1 else None, "messages": []}
+    complete, matches = len(threads) == 1 and bool(threads[0]), 0
+    for path in (home / ".codex/sessions").rglob("*.jsonl"):
+        with path.open() as stream:
+            try:
+                first = json.loads(stream.readline(RAW_LIMIT + 1))
+            except ValueError:
+                continue
+        if first.get("type") != "session_meta" or first.get("payload", {}).get("id") != captured["thread_id"]:
+            continue
+        matches += 1
+        if path.stat().st_size > RAW_LIMIT:
+            complete = False
+            continue
+        for index, line in enumerate(path.read_text().splitlines(), 1):
+            try:
+                event = json.loads(line)
+            except ValueError:
+                complete = False
+                continue
+            payload = event.get("payload", {})
+            if event.get("type") == "response_item" and payload.get("type") == "message" and payload.get("role") == "developer":
+                captured["messages"].append({"line": index, "payload": payload})
+    destination.write_text(json.dumps(captured) + "\n")
+    destination.chmod(0o600)
+    complete = bool(complete and matches == 1 and captured["messages"] and bound_private_raw(destination))
+    return {"enabled": True, "complete": complete, "records": len(captured["messages"]),
+            "sha256": file_sha256(destination)}
+
+
 def api(credentials, method, path, body=None):
     request = urllib.request.Request(
         credentials["server_url"] + path,
@@ -336,7 +350,8 @@ def command(case, arm, repo, home, env, prompt):
     prompt = "Do not edit files. Answer from this checkout.\n\n" + prompt
     if case["agent"] == "codex":
         return [
-            "codex", "exec", "-C", str(repo), "-m", "gpt-6.1-sol",
+            "codex", "exec", "-C", str(repo), "-m", configured_model(case),
+            "--config", 'model_reasoning_effort="low"',
             "--json", "--dangerously-bypass-approvals-and-sandbox",
             "--dangerously-bypass-hook-trust", prompt,
         ], env
@@ -424,14 +439,20 @@ def run_agent(case, arm, phase, repo, home, env):
                 trace_complete = False
     trace_complete = trace_complete and all(record["complete"] and record["stdout_forwarded"] and record["stderr_forwarded"]
                                             for record in hook_records)
+    context_capture = {"enabled": False}
+    if case["agent"] == "codex":
+        context_capture = capture_codex_context(home, body, OUT / case["id"] / arm / f"{phase}.context.private.json")
+        trace_complete = trace_complete and context_capture["complete"]
     return {"status": status, "seconds": elapsed, "usage": usage,
             "started_at_unix": started_at, "ended_at_unix": time.time(),
             "configured_model": configured_model(case), "reported_model": reported_model,
+            "configured_reasoning_effort": "low" if case["agent"] == "codex" else None,
             "reported_models": sorted(reported_models),
             # Compatibility for summarize.py. This is deliberately not a configured model.
             "model": reported_model,
             "trace_complete": trace_complete,
-            "hook_capture": {"enabled": arm == "treatment", "records": len(hook_records)},
+            "hook_capture": {"enabled": arm == "treatment" and hook_log.exists(), "records": len(hook_records)},
+            "context_capture": context_capture,
             "cairn_cli_actions": sorted(cli_actions),
             "tools": tools}
 
@@ -578,7 +599,6 @@ def run_case(case, credentials):
         if setup.returncode:
             raise RuntimeError("setup returned nonzero")
         stage = "runtime_identity"
-        pin_mcp_command(case, home)
         result["runtime_identity"] = {
             arm: runtime_identity(case, arm, paths[arm][1], paths[arm][2])
             for arm in ("control", "treatment")
@@ -701,10 +721,13 @@ def run_case(case, credentials):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--case", help="Run one case id, otherwise all 30")
+    parser.add_argument("--agent", choices=("codex", "claude"), help="Run the selected agent subset")
     parser.add_argument("--jobs", type=int, default=1)
     args = parser.parse_args()
     credentials = json.loads(CREDS.read_text())
-    selected = [case for case in CASES if args.case is None or case["id"] == args.case]
+    selected = [case for case in CASES
+                if (args.case is None or case["id"] == args.case)
+                and (args.agent is None or case["agent"] == args.agent)]
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         list(pool.map(lambda case: run_case(case, credentials), selected))
 

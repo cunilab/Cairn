@@ -62,11 +62,33 @@ An `importance: high` hint cannot substitute for that support.
 
 The current explicit `cairn_remember` command cannot attach local observation IDs to
 server-owned memory. Leave `evidence_observation_ids` empty; nonempty IDs are refused.
-Cite a bounded source reference or observed outcome in the finding instead. This is an
-agent attestation, not server verification or an attached evidence record.
 
-An attestation — you reporting that you checked — is recorded and labelled as yours. It is
-worth having, and it is not the same as a check Cairn ran itself.
+For a project record that should return in ordinary recall, add `capture_attestation`:
+
+```json
+{
+  "basis": "user_report",
+  "support_summary": "The user explicitly chose this database for production."
+}
+```
+
+Use `user_report` only for a user-supplied fact, decision, failure, or constraint. Use
+`inspected_source` only after reading a named source revision, and include both
+`source_reference` and `source_revision`. When the claim depends on another project memory,
+include `dependency_memory_id` naming an eligible record with no dependency of its own
+(one hop maximum). Cairn records that dependency's current revision itself and withholds
+the claim after the dependency changes or conflicts.
+
+Keep the support summary and references bounded and authored. Never paste prompts,
+transcripts, credentials, diffs, or command output. The authenticated actor is added by the
+server, so do not send an actor, eligibility status, or verification authority.
+
+A capture attestation is accountability: it records who reported the support and on what
+basis. It is not objective proof and it does not create `VerificationAuthority::Attested`.
+An arbitrary revision string, memory type, token, or the word "attested" does not establish
+verification. Source changes Cairn can observe, such as a dependency revision or a recorded
+verification drift, make the record ineligible for reuse. Cairn cannot independently detect
+an arbitrary remote source change until fresh evidence or inspection reports it.
 
 ## When Cairn names a corroborating member
 

@@ -88,6 +88,33 @@ impl Trigger {
 const CACHE_MAX_SESSIONS: usize = 200;
 const CACHE_MAX_BYTES: usize = 64 * 1024;
 const CACHE_TTL: Duration = Duration::from_secs(300);
+const PROJECT_REUSE_POLICY: &str = "project_attestation_v1";
+
+fn project_reuse_confirmed(response: &Value) -> bool {
+    response.get("project_reuse_policy").and_then(Value::as_str) == Some(PROJECT_REUSE_POLICY)
+}
+
+/// Remove server project-memory claims when their current eligibility cannot
+/// be established. Other domains and the prior handoff keep their existing
+/// authority contracts.
+fn withhold_unconfirmed_project_memory(response: &mut Value, reason: &'static str) {
+    if let Some(sections) = response.get_mut("sections").and_then(Value::as_object_mut) {
+        for section in ["session_memory", "branch_memory", "project_memory"] {
+            sections.remove(section);
+        }
+    }
+    if let Some(continuity) = response
+        .get_mut("continuity")
+        .and_then(Value::as_object_mut)
+    {
+        continuity.insert("warnings".into(), json!([]));
+        continuity.insert("pins".into(), json!([]));
+    }
+    if let Some(object) = response.as_object_mut() {
+        object.insert("project_memory_withheld".into(), json!(true));
+        object.insert("project_memory_withheld_reason".into(), json!(reason));
+    }
+}
 
 struct CachedResponse {
     account_id: Uuid,
@@ -198,6 +225,9 @@ impl OutageCache {
             );
             object.insert("cache_account_id".into(), json!(account_id));
         }
+        // A cache hit cannot prove that a server-side supersession, conflict,
+        // or dependency revision did not happen after this answer was stored.
+        withhold_unconfirmed_project_memory(&mut response, "outage_cache_cannot_revalidate");
         self.touch(session_id);
         Some(response)
     }
@@ -268,9 +298,15 @@ pub async fn deliver(
     .unwrap_or(Answer::Unreachable);
 
     let (response, served_from_cache) = match remote {
-        Answer::Answered(response) => {
+        Answer::Answered(mut response) => {
             if !response_budget_is_valid(&response, budget_tokens) {
                 return unavailable_delivery(d, resolved, budget_tokens, deadline, started).await;
+            }
+            if !project_reuse_confirmed(&response) {
+                withhold_unconfirmed_project_memory(
+                    &mut response,
+                    "server_did_not_confirm_reuse_policy",
+                );
             }
             if let Some(account_id) = account_id {
                 d.outage_cache.lock().await.put(
@@ -759,6 +795,9 @@ fn copy_response_envelope(response: Option<&Value>, payload: &mut Value) {
         "restored_after_compaction",
         "cache_age_seconds",
         "cache_account_id",
+        "project_reuse_policy",
+        "project_memory_withheld",
+        "project_memory_withheld_reason",
     ] {
         if let Some(value) = source.get(key) {
             target.insert(key.into(), value.clone());
@@ -791,6 +830,7 @@ mod tests {
     fn response(trace: &str, level: &str, tokens: u64, spent: u64) -> Value {
         json!({
             "trace_id": trace,
+            "project_reuse_policy": PROJECT_REUSE_POLICY,
             "degradation_level": level,
             "budget": { "tokens": tokens, "spent": spent, "reserved_for_level0": tokens * 4 / 10 },
             "sections": {
@@ -1070,9 +1110,29 @@ mod tests {
             delivered.payload["briefing"]["previous_handoff"]["next_step"],
             "publish release"
         );
+        assert!(delivered.payload["briefing"]["constraints"].is_null());
+        assert_eq!(delivered.payload["project_memory_withheld"], true);
         assert_eq!(
-            delivered.payload["briefing"]["constraints"][0]["text"],
-            "never publish untested artifacts"
+            delivered.payload["project_memory_withheld_reason"],
+            "outage_cache_cannot_revalidate"
+        );
+    }
+
+    #[test]
+    fn cached_replay_keeps_other_domains_but_removes_project_claims() {
+        let mut cached = response("cached", "full", 3000, 100);
+        cached["continuity"] = continuity();
+
+        withhold_unconfirmed_project_memory(&mut cached, "outage_cache_cannot_revalidate");
+
+        assert!(cached["sections"].get("session_memory").is_none());
+        assert_eq!(cached["sections"]["personal_notes"][0]["content"], "p1");
+        assert_eq!(cached["sections"]["team_guidance"][0]["content"], "g1");
+        assert_eq!(cached["continuity"]["warnings"], json!([]));
+        assert_eq!(cached["continuity"]["pins"], json!([]));
+        assert_eq!(
+            cached["continuity"]["previous_handoff"]["next_step"],
+            "publish release"
         );
     }
 
