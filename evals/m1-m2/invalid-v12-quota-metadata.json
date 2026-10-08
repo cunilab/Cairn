@@ -1,0 +1,421 @@
+{
+  "valid_comparisons": 0,
+  "valid_judgments": 0,
+  "phases": [
+    {
+      "id": "F1",
+      "arm": "control",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "3410aabf6d439167540a4f155c4c40c4c1fe07ed9c97a8b7b6ea3add7ff2ff8b",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F1",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "ec18b79328b7ca337e0e2115669760d20499311afc82b01532a7532f4eb69db3",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F1",
+      "arm": "treatment",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "a62161379a3eb2674749903a758aa751327935ea06d77bc03fa0108f4f91b6a1",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F1",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "8803e053268bcfbed97aeefbe17e8f5b094942cfc604db3e78d438abb71fc675",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F3",
+      "arm": "control",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "fb598d9b85804bed624ad7cdabb43a5466c3d6ef2c71fa0cad899d9bb2699158",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F3",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "95aaa0d51fae8ad2a6d28bc837147161cd16b665bdeda2e61ef41aedf4910faf",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F3",
+      "arm": "treatment",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "a9b3a7da17103e5ef8922380058c80d98945d7e9571091b15240bbf8e312230d",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F3",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "3fa27c39cbbe1856806f0c7f632383e0b885f69116853c61bbaa994aea27d454",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F5",
+      "arm": "control",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "415698bec37871b41d050ce5d7667fef080c16739d9422ba11385d29474a97b5",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F5",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "30b1f225d909833f4cb9713c9d1897148571e6b6b410f5fec18315eb3a034f25",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F5",
+      "arm": "treatment",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "054417d364542c147a6a60bf63248af5c57fab336eb9e599f3a7d4e0a43ab1ff",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "F5",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "90988aad0a8b376c79da319cee9b280123efdfed1f28049e1a4ee0c1d45a12bb",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "D2",
+      "arm": "control",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "bb17e6eed2e5cde0eb9b50b100aeec470dc9e823516927570f069fa1e7a6fe0b",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "D2",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "840312343b0b253dec162da5ec10c9b8e7091a006c6b346993b5bcf3c107fbff",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "D2",
+      "arm": "treatment",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "f9232f4975bd1e6b517b9bf58c9720be08e7a03617d987928243a7d6bbf82aae",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "D2",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "b90e4e6365798e28262c98b63f50aece90dae84049d9aa81a24053ba27adc5d1",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "D4",
+      "arm": "control",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "fc4e5fbc1c66793c6e2323cec7eba876f4ed141824c40cb5851c5ccd778d5d66",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "D4",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "41f3b1735e2dd2e6f1b8d35fec595ec08a4c44156d265adf9bb37c701b2a41fe",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "D4",
+      "arm": "treatment",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "9025744cc48fb8de7d8cab4d75339b1ef34b069de3b6fcd16b60881fba457f83",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "D4",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "394f94d70137da84953cce50c61c7d12d8e301254e5bac3dce19cef348203561",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R1",
+      "arm": "control",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "78cc47dc8eae1a198907dd1aa2f2a04adbc878c42bd6d4c335fe5aaa342aaad9",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R1",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "9d9020ba212645c70894244c703a08d02c6b46798fd8dcfde5f2f3cc443f0583",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R1",
+      "arm": "treatment",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "53da5c7acfc6e54ffd6cef1908d5b4ab026a5df9b643c92ee2f0341f83e74f65",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R1",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "f0b831c49e1556789b43bff74ffc002f454f27bdf3088b4f4251d8d71fc13241",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R3",
+      "arm": "control",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "28b9c9a7855b54b97fd674d91f1931704f0df3331e57d861c7141c85ddc59902",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R3",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "056c4c38627a7f66cc801970543377c2b0d5dba32f1ead739c883f6c2cca81b6",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R3",
+      "arm": "treatment",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "37aaea940943f41819aa3cc5a73e21b9d4be2a21d098adb47b4c6b31f4b0ed37",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R3",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "43e235b8e47e1ab793a363fca61e8f28dbad7a6bf69ca2c5a7798d3daca7099f",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R5",
+      "arm": "control",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "4201d46efa62c27e214406a77afba884e0539db43d9317801a6e92d4dc736672",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R5",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "b503202fd37db7966a5d92b299a2cb3dcaea7938833ed671294086dbf7bc731d",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R5",
+      "arm": "treatment",
+      "phase": "prior",
+      "status": 1,
+      "trace_sha256": "13af5d66e95347c774cb5ab48cc0c298be98ccaa1e028a38043d93f4eb03fc11",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "R5",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "31b9fe1fe08072a2be168e19d03e5e31bd29d21b0c9ab19b93d2e1539863d37f",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "S2",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "9606365e4fb4549abe779935e4063faa23c47d1a3dabe7b1ae3ff10f5fdfcf81",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "S2",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "1f29f679ac88b2471e9bded3b2fa1f67937a731aafef7c137ee2c3369199690c",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "S4",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "c784db3da20383ad9a552fd3c2cd5c85e7b273f62702001708537b298685b5a6",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "S4",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "ba2feb577f162329a52d903a87eee2d08fe5284c4e56d28da25bd82f875939ca",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "P1",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "6c1b5ccb6308b8c03355822a705c16ddca5c6cc823dabe1c9906100191880e32",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "P1",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "a68da9022bfa616077f65005ca28b71ed33f9469bae77f7254e322e78b028309",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "P3",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "40d6b7ba7a69ccf4ece3ae3555840f8318abb1394cce5a81705f5cca55c58205",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "P3",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "3713dc6edef448d7cfc9f96db84f6abc4fca6d0e453675e7c9a9ca3006110d03",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "P5",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "777740f7e36101fb976fd18c37289a64d0c326162db091557b262e3a4e18ea42",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "P5",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "2c2b7ca510d59fa01a7269ccb98c7df60841937679253e7ae07ddc2891e4bee6",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "B2",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "d0166e1776e3713cd65f51ed5f1a15c5a623ddcfea937d4c6d5df105e841d3ed",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "B2",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "552623de32a4c97800a58ce8cd2ad93a78787b243b201a0a4836251515fe60b7",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "B4",
+      "arm": "control",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "0c7fd23bd8712de066a16c9c74401854e5c72d62b8979350e7b68ef77a7dd5b9",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    },
+    {
+      "id": "B4",
+      "arm": "treatment",
+      "phase": "later",
+      "status": 1,
+      "trace_sha256": "d40d934bc8f3ec91b525dc3a21c7e690b731d70ea3e99e64eb6e659af78c6845",
+      "failure": "provider_usage_limit",
+      "reported_reset_local": "17:37 Asia/Jakarta"
+    }
+  ],
+  "qualification": "All actor phases failed with the same provider quota response; original full traces and comparisons preserved."
+}

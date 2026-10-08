@@ -34,6 +34,7 @@ pub async fn serve() -> anyhow::Result<()> {
     let stdin = tokio::io::stdin();
     let mut lines = BufReader::new(stdin).lines();
     let mut stdout = tokio::io::stdout();
+    let mut codex_identity = false;
 
     while let Some(line) = lines.next_line().await? {
         if line.trim().is_empty() {
@@ -63,9 +64,14 @@ pub async fn serve() -> anyhow::Result<()> {
         let Some(id) = id else { continue };
 
         let response = match method {
-            "initialize" => success(id, initialize(&params)),
+            "initialize" => {
+                // ponytail: bind only the observed pinned CLI profile; extend after checking another version's per-call metadata.
+                codex_identity = params["clientInfo"]["name"] == "codex-mcp-client"
+                    && params["clientInfo"]["version"] == "0.160.0";
+                success(id, initialize(&params))
+            }
             "tools/list" => success(id, json!({ "tools": tool_definitions() })),
-            "tools/call" => success(id, call(&params).await),
+            "tools/call" => success(id, call(&params, codex_identity).await),
             "ping" => success(id, json!({})),
             other => error_response(id, -32601, &format!("unknown method: {other}")),
         };
@@ -131,7 +137,7 @@ fn tool_definitions() -> Vec<Value> {
                     "include_patterns": { "type": "boolean", "description": "Signal-matched patterns from other projects, always labelled unverified here" },
                     "explain": { "type": "boolean", "description": "Return the selection diagnostics. Costs no budget when false." },
                     "token_budget": { "type": "integer", "description": "Cairn-estimated tokens" },
-                    "agent_session_key": { "type": "string", "description": "Your agent's own session key, not a Cairn session UUID. Required when more than one session is open unless session_id is supplied." },
+                    "agent_session_key": { "type": "string", "description": "Native Codex framework identity overrides this field. Otherwise use your existing vendor session key, never an invented key or Cairn UUID. Omit for one active session; ambiguity requires this key or your own session_id." },
                     "session_id": { "type": "string", "description": "Cairn session UUID, including candidates labelled session_id in a recovery error; distinct from agent_session_key" }
                 },
                 "required": ["cwd"]
@@ -171,7 +177,7 @@ fn tool_definitions() -> Vec<Value> {
                     // own corpus and returned in its own array; there is no
                     // comparator across them (FR-471, FR-472).
                     "domains": { "type": "array", "items": { "type": "string", "enum": ["project", "personal", "team"] }, "description": "Which knowledge domains to search. Omit for all three; personal and team return sibling arrays, never merged into results" },
-                    "agent_session_key": { "type": "string", "description": "Your agent's own session key, not a Cairn session UUID, so scope precedence uses your session" },
+                    "agent_session_key": { "type": "string", "description": "Native Codex framework identity overrides this field. Otherwise use your existing vendor session key, never an invented key or Cairn UUID. Omit for one active session; use an explicit existing identity when ambiguous." },
                     "session_id": { "type": "string", "description": "Cairn session UUID, including candidates labelled session_id in a recovery error; distinct from agent_session_key" }
                 },
                 "required": ["cwd"]
@@ -181,9 +187,12 @@ fn tool_definitions() -> Vec<Value> {
             "name": "cairn_remember",
             "description": "Record durable knowledge, replace it, or forget it. Preserve user \
                             choices as decisions and trials as observations, not implemented \
-                            or validated behavior. Preserve every requirement, count, qualifier \
-                            and identifier at its reported scope; never generalize a limited \
-                            observation. Record independently inspected findings separately \
+                            or validated behavior. For durable project findings preserve relevant \
+                            requirements, counts, qualifiers, identifiers, constraints, status and \
+                            lasting policies, including read-only policies. Omit temporary task \
+                            requests and completion reports; never generalize a limited observation. \
+                            When applying recall, preserve task-relevant details and distinguish \
+                            remembered intent from current implementation. Record independently inspected findings separately \
                             with their own source attestation. Keep those findings concise; cite bounded \
                             source locators without appending implementation summaries. Give durable \
                             project facts a `topic_key` and a `value_key` specific enough to \
@@ -249,17 +258,17 @@ fn tool_definitions() -> Vec<Value> {
                     "basis": { "type": "string", "enum": ["explicit_agent", "evidence"] },
                     "basis_evidence_id": { "type": "string" },
                     "rationale": { "type": "string" },
-                    "agent_session_key": { "type": "string", "description": "Your own session identifier. Required when more than one session is open in this worktree." },
-                    "session_id": { "type": "string", "description": "Cairn session id, as an alternative to agent_session_key" }
+                    "agent_session_key": { "type": "string", "description": "Native Codex framework identity overrides this field. Otherwise use your existing vendor session key, never an invented key or Cairn UUID. Omit for automatic resolution of one active session; multiple sessions require this key or your own session_id." },
+                    "session_id": { "type": "string", "description": "Your own Cairn session UUID, as an alternative to agent_session_key; pass it alone when recovering from an unknown vendor key." }
                 },
                 "required": ["cwd", "action"]
             }
         }),
         json!({
             "name": "cairn_session",
-            "description": "Inspect or steer the current session. Starting is idempotent per \
-                            agent session, so two agents in one checkout get two sessions — or \
-                            write a continuity checkpoint before you compact.",
+            "description": "Inspect an existing session or write a continuity checkpoint. \
+                            Native integrations manage lifecycle automatically. Generic MCP cannot start sessions; do not invent session keys. Use your existing vendor key \
+                            or omit it for one active session; ambiguity requires explicit selection.",
             "inputSchema": {
                 "type": "object",
                 "properties": {
@@ -300,14 +309,41 @@ fn tool_definitions() -> Vec<Value> {
     ]
 }
 
-async fn call(params: &Value) -> Value {
+fn call_arguments(params: &Value, codex_identity: bool) -> Result<Value, WireError> {
+    let mut args = params.get("arguments").cloned().unwrap_or(json!({}));
+    if codex_identity {
+        let thread = params["_meta"]["threadId"]
+            .as_str()
+            .and_then(|value| uuid::Uuid::parse_str(value).ok())
+            .filter(|id| !id.is_nil())
+            .ok_or_else(|| WireError::invalid("Codex call requires valid framework threadId metadata; reconnect the MCP server"))?;
+        let fields = args
+            .as_object_mut()
+            .ok_or_else(|| WireError::invalid("tool arguments must be an object"))?;
+        if let Some(id) = fields.get("session_id") {
+            id.as_str()
+                .and_then(|value| uuid::Uuid::parse_str(value).ok())
+                .filter(|id| !id.is_nil())
+                .ok_or_else(|| {
+                    WireError::invalid("session_id must be a valid Cairn session UUID")
+                })?;
+        }
+        // Client provenance selects a session; account/project/worktree authorization remains in the daemon.
+        fields.insert("agent_session_key".into(), json!(thread.to_string()));
+    }
+    Ok(args)
+}
+
+async fn call(params: &Value, codex_identity: bool) -> Value {
     let name = params
         .get("name")
         .and_then(|n| n.as_str())
         .unwrap_or_default();
-    let args = params.get("arguments").cloned().unwrap_or(json!({}));
-
-    match dispatch(name, &args).await {
+    let result = match call_arguments(params, codex_identity) {
+        Ok(args) => dispatch(name, &args).await,
+        Err(error) => Err(error),
+    };
+    match result {
         Ok(text) => json!({ "content": [{ "type": "text", "text": text }], "isError": false }),
         Err(e) => json!({
             "content": [{ "type": "text", "text": format!("{}: {}", e.code, e.message) }],
@@ -608,23 +644,21 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                 "current" => {
                     client::send(&Request::SessionShow {
                         cwd,
-                        session_id: None,
+                        session_id: uuid_opt(args, "session_id"),
                         agent_session_key: key,
                     })
                     .await?
                 }
                 "start" => {
-                    client::send(&Request::SessionStart {
-                        cwd,
-                        agent: str_arg(args, "agent").unwrap_or_else(|| "mcp-client".into()),
-                        agent_session_key: key,
-                    })
-                    .await?
+                    return Err(WireError::new(
+                        cairn_core::wire::codes::AGENT_UNSUPPORTED,
+                        "MCP cannot start native lifecycle sessions; use the session opened by your native integration",
+                    ));
                 }
                 "end" => {
                     client::send(&Request::SessionEnd {
                         cwd,
-                        session_id: None,
+                        session_id: uuid_opt(args, "session_id"),
                         agent_session_key: key,
                         status: enum_arg(args, "status")
                             .unwrap_or(cairn_core::domain::SessionStatus::Completed),
@@ -859,6 +893,40 @@ mod tests {
         assert!(triggers.contains(&"session_end"));
     }
 
+    #[tokio::test]
+    async fn mcp_cannot_start_a_session_by_claiming_a_native_agent() {
+        for agent in ["generic-mcp", "codex", "claude-code", "opencode"] {
+            let error = dispatch("cairn_session", &json!({
+                "action":"start", "agent":agent, "agent_session_key":"invented", "cwd":"/not-a-repo"
+            })).await.unwrap_err();
+            assert_eq!(error.code, cairn_core::wire::codes::AGENT_UNSUPPORTED);
+        }
+    }
+
+    #[test]
+    fn native_call_identity_comes_from_each_framework_request() {
+        for thread in [
+            "00000000-0000-4000-8000-000000000001",
+            "00000000-0000-4000-8000-000000000002",
+        ] {
+            let params = json!({"_meta":{"threadId":thread,"sessionId":"different-runtime-id"},
+                "arguments":{"cwd":"/repo","agent_session_key":"invented", "session_id":"00000000-0000-4000-8000-000000000003"}});
+            let args = call_arguments(&params, true).unwrap();
+            assert_eq!(args["agent_session_key"], thread);
+            assert_eq!(args["session_id"], "00000000-0000-4000-8000-000000000003");
+            assert_eq!(args["cwd"], "/repo");
+            assert_eq!(call_arguments(&params, false).unwrap(), params["arguments"]);
+        }
+        for params in [
+            json!({"arguments":{}}),
+            json!({"_meta":{"threadId":"invented"},"arguments":{}}),
+            json!({"_meta":{"threadId":"00000000-0000-4000-8000-000000000001"},"arguments":[]}),
+            json!({"_meta":{"threadId":"00000000-0000-4000-8000-000000000001"},"arguments":{"session_id":"invalid"}}),
+        ] {
+            assert!(call_arguments(&params, true).is_err());
+        }
+    }
+
     #[test]
     fn initialize_carries_the_usage_contract() {
         // FR-129, SC-107: the same rules the managed block states, in the
@@ -876,6 +944,22 @@ mod tests {
         let lower = instructions.to_lowercase();
         assert!(!lower.contains("hook"));
         assert!(!lower.contains("skill"));
+    }
+
+    #[test]
+    fn generic_mcp_instructions_do_not_offer_unsupported_lifecycle() {
+        let out = initialize(&json!({}));
+        let instructions = out["instructions"].as_str().unwrap();
+        assert!(instructions.contains("generic MCP cannot start sessions"));
+        assert!(instructions.contains("existing sessions"));
+        let session = tool_definitions()
+            .into_iter()
+            .find(|tool| tool["name"] == "cairn_session")
+            .unwrap();
+        assert!(session["description"]
+            .as_str()
+            .unwrap()
+            .contains("Generic MCP cannot start sessions"));
     }
 
     #[test]

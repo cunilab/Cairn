@@ -20,9 +20,12 @@ Do not append a code-path narrative, current constants, or other implementation 
 Those details belong in the task answer; a later session asking about the choice needs the
 choice itself.
 
-Preserve every requirement, count, qualifier and supplied identifier at its reported
-scope. A limited observation does not establish a broader result. If independent source
-inspection establishes another durable finding, record it separately with its own source
+For durable project findings, preserve task-relevant requirements, counts, qualifiers,
+supplied identifiers, constraints, and status at the reported scope. Keep genuine lasting
+policies, including read-only restrictions, but do not record temporary task requests or
+completion reports merely because they mention those details. Separate remembered intent from
+current implementation. A limited observation does not establish a broader result. If independent
+source inspection establishes another durable finding, record it separately with its own source
 attestation; do not fold it into the user-reported decision or trial.
 
 ## Not worth recording

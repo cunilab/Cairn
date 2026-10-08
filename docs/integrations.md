@@ -13,6 +13,20 @@ The current human command is `cairn setup` in an authorized Git repository. It i
 
 The five tools are `cairn_context`, `cairn_search`, `cairn_remember`, `cairn_session`, and `cairn_handoff`. Session and handoff calls are manual recovery controls for native integrations and the manual path for generic MCP. A tool's presence does not mean every lifecycle action is automatic. The running integration's reported capability and health are the source for its actual observed state.
 
+## Session identity
+
+For the verified Codex CLI `0.160.0`, Cairn uses the framework's per-call
+`threadId` metadata as the vendor session key. Model arguments cannot override
+that identity. Missing or malformed native metadata is refused; reconnect the
+MCP server. An explicit Cairn `session_id` must identify the same caller in the
+same project and worktree. Other CLI versions and generic clients retain
+explicit identity selection and refuse ambiguous worktrees. Generic MCP cannot
+start native lifecycle sessions; use an existing session rather than inventing
+a key. Native integrations manage their own lifecycle.
+
+Client identity metadata establishes local-client provenance, not authorization.
+Account credentials, project membership and worktree checks remain mandatory.
+
 ## Project memory reuse
 
 Ordinary context, search, graph, pins, and warnings reuse project records only

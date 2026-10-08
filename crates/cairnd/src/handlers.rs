@@ -782,7 +782,7 @@ pub(crate) async fn resolve_session(
             .ok_or_else(|| {
                 WireError::new(
                     codes::NO_ACTIVE_SESSION,
-                    format!("no session for agent key {key}"),
+                    format!("no session for agent key {key}; use your existing vendor session key, never an invented key; omit agent_session_key to resolve one active session automatically, or pass your own Cairn session_id alone; multiple active sessions require explicit selection"),
                 )
             })?;
         return checked_session(r, session, Some(key));
@@ -1592,6 +1592,82 @@ async fn memory_search(
 
 #[cfg(test)]
 mod tests {
+    #[tokio::test]
+    async fn unknown_agent_key_recovery_preserves_session_selection() {
+        let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
+        let mut ids = Vec::new();
+        for key in ["vendor-one", "vendor-two"] {
+            let session = repo::start_session(
+                &repo.daemon.store,
+                repo::StartSession {
+                    project_id: resolved.project.id,
+                    user_id: repo.daemon.user_id,
+                    agent: "codex",
+                    agent_session_key: key,
+                    branch: "main",
+                    commit_sha: None,
+                    worktree_path: &resolved.worktree(),
+                    daemon_run_id: repo.daemon.run_id,
+                },
+            )
+            .await
+            .unwrap();
+            ids.push(session.id);
+            let error = resolve_session(&repo.daemon, &resolved, None, Some("invented-key"))
+                .await
+                .unwrap_err();
+            assert_eq!(error.code, codes::NO_ACTIVE_SESSION);
+            assert!(error.message.contains("omit agent_session_key"));
+            assert!(error.message.contains("existing vendor session key"));
+            assert_eq!(
+                resolve_session(&repo.daemon, &resolved, Some(session.id), None)
+                    .await
+                    .unwrap()
+                    .id,
+                session.id
+            );
+            assert!(resolve_session(
+                &repo.daemon,
+                &resolved,
+                Some(session.id),
+                Some("invented-key")
+            )
+            .await
+            .is_err());
+            if ids.len() == 1 {
+                assert_eq!(
+                    resolve_session(&repo.daemon, &resolved, None, None)
+                        .await
+                        .unwrap()
+                        .id,
+                    session.id
+                );
+            }
+        }
+        assert_eq!(
+            resolve_session(&repo.daemon, &resolved, None, None)
+                .await
+                .unwrap_err()
+                .code,
+            codes::AMBIGUOUS_SESSION
+        );
+        assert!(
+            resolve_session(&repo.daemon, &resolved, Some(ids[0]), Some("vendor-two"))
+                .await
+                .is_err()
+        );
+        for (key, id) in ["vendor-one", "vendor-two"].into_iter().zip(ids) {
+            assert_eq!(
+                resolve_session(&repo.daemon, &resolved, None, Some(key))
+                    .await
+                    .unwrap()
+                    .id,
+                id
+            );
+        }
+    }
+
     #[tokio::test]
     async fn ambiguous_recovery_names_the_cairn_id_parameter() {
         let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;

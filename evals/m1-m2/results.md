@@ -1,6 +1,103 @@
 # M1/M2 candidate evidence — through 2026-10-08
 
-## Current v11 candidate — quality gate failed
+## Final v13 candidate — validation pending
+
+Astra's root-cause review separates infrastructure session identity, optional
+model-owned capture and model-owned answer fidelity. V13 binds the observed
+Codex CLI `0.160.0` profile to its actual per-call framework thread identity,
+which overrides invented model session keys. Explicit Cairn UUIDs remain
+validated against that key, project and worktree. Missing or malformed native
+metadata is refused; other client profiles retain explicit selection. MCP
+cannot start a native lifecycle session by claiming a different agent label.
+Local-client metadata is not authentication.
+
+A non-corpus actual pinned CLI → Cairn stdio → mock-daemon check passed with
+an invented model key overridden by the actual thread identity. Read-only
+inspection confirmed that this identity matches both real native hook sessions
+in the preserved deployment. Independent review passed after the lifecycle
+bypass was closed. The durable capture and recall guidance corrections remain
+scoped to project findings, lasting policies and relevant detail fidelity.
+
+The final [V13 protocol](protocol-v13.md) keeps the corpus, prompts, profiles,
+budgets, calibration and thresholds fixed. Freeze once and execute one fresh
+complete run. Do not start another wording-tuning cycle after that run. Passing
+requires actual persisted capture and useful application, not a capture
+acknowledgement or the presence of memory alone.
+
+This strategy is consistent with primary-source guidance on
+[unambiguous agent tools and actionable errors](https://www.anthropic.com/engineering/writing-tools-for-agents),
+[small, high-signal context](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents),
+and [evaluating both agent harness and final state](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents).
+Those sources inform the design; they do not establish Cairn's gate results.
+The full V13 calibration, candidate workflow, deployment and semantic results
+are pending. **PR #66 remains draft.**
+
+## Preserved v12 candidate — useful recall and quality failed
+
+Frozen source `9e48676b452804a1f14834f868f9f25385afed0d` passed all six PR
+checks. Its Ubuntu workspace suite passed **1,252 tests**, with zero failures or
+ignored tests. Local verification passed 310 affected-package tests, formatting,
+Clippy with warnings denied, and 14 runner checks. Independent review covered
+typed session recovery, capture scope, and prospective delivery provenance.
+
+The [v12 protocol](protocol-v12.md) preserves the corpus, repository pins,
+actor prompts, arm order, 300-second budgets and thresholds. Both Codex arms
+remain GPT-6-Luna / low through CLI `0.160.0`. The isolated `gpt-6.1-sol` judge
+passed [all 42 calibration fixtures](calibration-codex-v12-results.json) before
+actors: 30 reused predicates, seven reused delivery fixtures and five new
+operational-provenance fixtures. All 13 calibration transport calls passed
+isolation and raw-event checks, with no tools or compaction. Exact local input
+reconstruction and acknowledged injection do not establish provider readback.
+
+[Candidate workflow 37736051149](https://github.com/cunilab/Cairn/actions/runs/37736051149)
+passed all 17 jobs, including both images, the manifest and all five installed
+archive journeys. Archive checksums, native identities and actual fresh
+deployment revisions were verified. The first full actor attempt produced
+[46 provider quota failures](invalid-v12-quota-metadata.json), zero valid
+comparisons and no judgments; all original outputs remain preserved.
+
+After the reported reset, non-corpus readiness probes passed for both models
+using a private CLI `0.160.0`. A durable checkout restored the exact frozen
+source after temporary checkout cleanup. The same candidate assets were
+reverified, and a new deployment, volume, account, projects and output directory
+begin a complete retry. The original 42 valid calibration fixtures are reused
+with unchanged judge instructions, transport and model settings. The retry stops
+on renewed quota exhaustion; no valid comparison or judgment is replaced.
+
+The complete retry passed browser provisioning and ordinary setup, including nine
+absolute native hook commands, fresh empty personal/team domains and verified
+membership/token ownership. All **15 comparisons, 46 actor phases and 15
+judgments** are valid, with verified runtime identities. A packet collection
+failure caused by a missing credential environment variable was preserved;
+collection and judging resumed without rerunning actors. All 15 judge RPC logs
+passed isolation, input and compaction checks. See [bounded candidate proof](candidate-v12-metadata.json)
+and [complete gate results](regression-v12-metadata.json).
+
+| Gate | V12 observation | Status |
+| --- | --- | --- |
+| Useful natural application ≥80% | 5/8 (62.5%) | FAIL |
+| Delivered claims relevant and supported ≥90% | 26/30 (86.7%) | FAIL |
+| Privacy | Three complete boundary probes and trace scans, zero observed leaks | PASS for bounded cases |
+| High-impact harm | Zero judged harmful endorsements/leaks | PASS |
+| Completion no worse than control | Treatment 11/15 versus control 7/15 | PASS |
+| Median repeated investigation reduction ≥20% | Six eligible pairs, median 100%; no unknown natural counts | PASS |
+
+F1 did not capture the prior user decision: its later persisted source finding
+is not evidence of prior user-choice capture, and useful recall failed. The
+shared M1 return journey therefore **failed**. F5's attempted capture used an
+invented vendor session key and failed. R1 preserved a repeated failure count
+in memory but omitted that count when answering. The four quality failures are
+supported but irrelevant temporary workflow statements; all remain in the
+original denominator. No valid V12 observation is relabelled or replaced.
+
+Independent Astra review recommends general corrections to session recovery,
+durable capture scope and fidelity when applying recall. V13 will evaluate
+those corrections prospectively with the same corpus, prompts, profiles,
+budgets and gates. No pass is projected. Claude remains skipped by user
+instruction; original two-agent milestone exits remain open. **PR #66 remains
+draft and is not ready to merge.**
+
+## Preserved v11 candidate — quality gate failed
 
 Frozen source `6982de122ffca71a500a048358e7a6f207543ac9` passed all six PR
 checks. Its Ubuntu workspace suite passed **1,251 tests**, with zero failures or

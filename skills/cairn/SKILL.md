@@ -3,7 +3,7 @@ name: cairn
 description: Use when resuming work in a Cairn-connected repository, investigating prior decisions or failures, recording durable findings, or diagnosing memory and session problems.
 metadata:
   cairn_skill_schema: 1
-  cairn_skill_revision: c4fd1eedc345
+  cairn_skill_revision: 9aca9419341e
 ---
 
 # Cairn
@@ -25,7 +25,10 @@ Before finishing work, record a durable decision, failed approach, procedure, or
 fact that a later session would otherwise have to rediscover. Use project scope when it applies
 across branches, branch scope for branch-specific facts, and session only for scratch state.
 Keep user-supplied durable decisions, failure reports, and their identifiers even when the
-current implementation already agrees. State choices as decisions and trials as observations,
+current implementation already agrees. For durable project findings, preserve task-relevant
+requirements, counts, qualifiers, identifiers, constraints, and status. Keep lasting policies,
+including read-only restrictions, but not temporary task requests or completion reports. Separate
+remembered intent from current implementation. State choices as decisions and trials as observations,
 not as implemented or validated behavior. For a user decision or incident, record that finding
 concisely; cite source locators without appending an implementation summary. Skip routine tool
 calls and plain source summaries. Never send secrets, raw prompts, transcripts, diffs, or
