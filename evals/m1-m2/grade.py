@@ -10,7 +10,7 @@ if ROOT.resolve().is_relative_to(HERE.parents[1]):
 RULES = (HERE / "judge-instructions.md").read_text()
 RUBRIC = json.loads((HERE / "calibration-v4b.json").read_text())["predicates"]
 PROTOCOL = "\n".join((HERE / ("protocol-" + version + ".md")).read_text()
-                     for version in ("v4", "v8", "v9", "v10"))
+                     for version in ("v4", "v8", "v9", "v10", "v11"))
 
 def grade(packet, out):
     identity = packet.stem

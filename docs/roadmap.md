@@ -29,10 +29,10 @@ This is a sequence of product outcomes, not a release schedule. Alpha.9 is the c
 
 **Exit:** a fresh user completes deployment → project → setup → work → return → useful recall without undocumented fixes. Alpha.9 supplied candidate and published smoke evidence for major parts of this journey; a new candidate must prove it again.
 
-[Current candidate evidence](../evals/m1-m2/results.md) records five installed
-archive journeys and a fresh HTTPS smoke for the frozen parent candidate.
-Subsequent setup and reuse-policy corrections require fresh artifacts and a
-real Codex first-use/return journey. Claude journeys are skipped by user
+[Current candidate evidence](../evals/m1-m2/results.md) records all 17 workflow
+jobs and five installed archive journeys passing for corrected source `2842751`.
+A fresh HTTPS deployment completed browser provisioning, ordinary setup, and
+the real Codex prior/return processes with independently judged useful recall. Claude journeys are skipped by user
 instruction; the original two-agent M1 exit remains open.
 
 ## M2 — Recall can be trusted
@@ -53,8 +53,11 @@ was observed in all eight natural cases, but delivered-claim quality
 **25/31 (80.6%) failed the 90% target**. The next
 [v10 regression](../evals/m1-m2/protocol-v10.md) uses GPT-6-Luna at low effort
 in both actor arms at the user's request, with the calibrated judge unchanged.
-Claude's 15 cases remain explicitly skipped. Earlier results and unchanged
-thresholds are preserved; M2 is not established.
+All 15 v10 Codex comparisons and judgments completed, but useful application
+was 4/8 (50%) and the original quality score was 13/18 (72.2%). Instruction drift
+and a judge delivery-provenance confound require a corrected candidate and fresh
+evidence. Claude's 15 cases remain explicitly skipped. Earlier results and
+unchanged thresholds are preserved; M2 is not established.
 
 ## M3 — Safe and recoverable
 

@@ -10,8 +10,58 @@ independent review. Real older archive/server checks reject capture and all
 ordinary reuse operations without queued writes, memory changes, or legacy
 context delivery. The final workspace build, formatting, and Clippy with warnings
 denied passed; the 14 runner tests and web contract/type/lint checks passed.
-The full workspace test suite and fresh candidate evidence are still pending;
-these intermediate checks do not establish M1 or M2 exit gates.
+The full workspace suite passed **1,250 tests**, with zero failures or ignored
+tests and a disposable PostgreSQL database configured. All six PR CI checks
+passed on source `284275115644c34f95b00f00f18e4dfa5e265d62`.
+[Candidate workflow 37606436010](https://github.com/cunilab/Cairn/actions/runs/37606436010)
+passed all 17 jobs, including all five installed archive journeys. Its manifest,
+five archive checksums, SBOM, immutable image digests, and deployed image revisions
+were verified. [Bounded candidate evidence](candidate-v10-metadata.json) records
+these checks separately from the runtime and semantic gates.
+
+The first fresh runtime attempt passed browser project/token provisioning and
+the empty personal/team baseline, but ordinary setup failed before any actors
+ran: its artificially long private `CAIRN_HOME` exceeded macOS's Unix socket
+path limit. The original response and failed records are preserved as an
+infrastructure-invalid attempt, outside the scored corpus. The private harness
+now reports setup refusal before reading nonexistent hook files; its focused
+failure check passed. Astra approved a shorter documented `CAIRN_M2_OUT` and
+a new deployment volume/account, with every generated socket path checked
+before execution (maximum 73 bytes; macOS `SUN_LEN` is 104 bytes).
+
+The new full [v10 Codex run](regression-v10-metadata.json) completed all 15
+comparisons and all 15 isolated judgments, with 46 successful actor phases,
+complete private traces, ordinary setup, and runtime identities verified.
+Its first F1 project/token used the actual browser UI and is counted once as
+shared M1/M2 evidence. Membership/token identity, remote binding, empty
+personal/team domains, trusted HTTPS, accepted capture, persisted `user_report`
+authorship, actual transmission, and judged useful return all passed. Successful
+short-path setup does not establish support for arbitrary custom home lengths.
+
+| Gate | V10 observation | Status |
+| --- | --- | --- |
+| Useful natural application ≥80% | 4/8 (50%); four capture misses retained | FAIL |
+| Delivered claims relevant and supported ≥90% | Original judge: 13/18 (72.2%) | FAIL, provenance issue identified |
+| Privacy | Three cases, complete probes and trace scans, zero observed leaks | PASS for authorized bounded cases |
+| High-impact harm | Zero judged harmful endorsements/leaks | PASS |
+| Completion no worse than control | Treatment 10/15 versus control 6/15 | PASS |
+| Median repeated investigation reduction ≥20% | Seven eligible pairs, median 50%; no unresolved natural counts | PASS |
+
+Independent Astra inspection found that all five failing quality claims were
+ordinary repository `rg` output quoting historical release evidence in R3,
+while current Cairn context/search returned no memory. Historical quotations
+were conflated with current Cairn delivery. The original judgment, denominator,
+and failing score remain preserved; v10 is not certified. Before the next run,
+clarify delivery provenance and calibrate current delivery versus historical
+quotations, shell transports, and selection without transmission.
+
+The four capture misses also exposed conflicting product guidance: native
+context restricted capture to findings absent from source, while the canonical
+skill preserves user choices even when code agrees. The next candidate derives
+native record/secrets guidance from the canonical contract and clarifies optional
+identifiers and reported support. These corrections need new artifacts and a
+complete unchanged-corpus run. Claude remains skipped; the original two-agent
+milestone exit stays open and the PR remains draft.
 
 The [v9 regression](regression-v9-metadata.json) used the verified macOS ARM
 archive at source `2f1e043d2516060a3e3d61de5c571a382ee78a1d`. All 15 Codex
@@ -29,7 +79,7 @@ natural pairs showed a 77.5% median reduction in repeated investigation.
 Incomplete comparisons prevent certification of the full exit gates.
 
 Candidate workflow [37448879539](https://github.com/cunilab/Cairn/actions/runs/37448879539)
-passed all 18 jobs, including five installed native archive journeys. A fresh
+passed all 17 jobs, including five installed native archive journeys. A fresh
 deployment of its immutable server/web images passed the browser and native
 smoke over trusted HTTPS. These checks cover the frozen parent source, not the
 subsequent setup and reuse-policy changes. The PR remains draft pending a fresh

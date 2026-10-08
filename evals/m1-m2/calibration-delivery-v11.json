@@ -1,0 +1,599 @@
+{
+  "version": "v11",
+  "purpose": "Blinded calibration of the delivery-boundary inventory before the next complete run.",
+  "judge_instruction": "Score each judge_input as a complete synthetic packet using judge-instructions.md. Expected objects are withheld. For delivery claims, compare record_id and canonical_claim rather than an arbitrary output claim id.",
+  "expected_withheld_from_judge": true,
+  "fixtures": [
+    {
+      "id": "native-context-current-record",
+      "judge_input": {
+        "case": {
+          "id": "cal-e4173864",
+          "lane": "calibration_non_natural",
+          "expected": "State the retry limit as three."
+        },
+        "authority": [
+          {
+            "id": "A1",
+            "kind": "pinned_source",
+            "content": "config.toml: retry_limit = 3"
+          }
+        ],
+        "execution": {
+          "valid": true
+        },
+        "arms": {
+          "control": {
+            "later": {
+              "trace_complete": true,
+              "events": [],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          },
+          "treatment": {
+            "later": {
+              "trace_complete": true,
+              "events": [],
+              "hooks": [],
+              "delivered_context": {
+                "channel": "native_context",
+                "records": [
+                  {
+                    "record_id": "R1",
+                    "canonical_claim": "The retry limit is three."
+                  }
+                ]
+              },
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          }
+        },
+        "server_later_delivery": {
+          "snapshot_complete": true,
+          "transmitted_items": [
+            {
+              "record_id": "R1"
+            }
+          ],
+          "selected_without_transmission": []
+        }
+      },
+      "expected": {
+        "completion": {
+          "control": "yes",
+          "treatment": "yes"
+        },
+        "useful_application": null,
+        "delivery": {
+          "complete": true,
+          "claim_count": 1,
+          "claims": [
+            {
+              "record_id": "R1",
+              "canonical_claim": "The retry limit is three.",
+              "relevant": "yes",
+              "supported": "yes"
+            }
+          ]
+        },
+        "harm": {
+          "high_impact": "no",
+          "lower_impact": false
+        },
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      }
+    },
+    {
+      "id": "mcp-search-current-record",
+      "judge_input": {
+        "case": {
+          "id": "cal-5e184739",
+          "lane": "calibration_non_natural",
+          "expected": "State that reports are stored in the archive bucket."
+        },
+        "authority": [
+          {
+            "id": "A2",
+            "kind": "pinned_source",
+            "content": "storage.md: Reports are stored in the archive bucket."
+          }
+        ],
+        "execution": {
+          "valid": true
+        },
+        "arms": {
+          "control": {
+            "later": {
+              "trace_complete": true,
+              "events": [],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "Reports are stored in the archive bucket."
+            }
+          },
+          "treatment": {
+            "later": {
+              "trace_complete": true,
+              "events": [
+                {
+                  "tool": "cairn_search",
+                  "response": {
+                    "records": [
+                      {
+                        "record_id": "R2",
+                        "canonical_claim": "Reports are stored in the archive bucket."
+                      }
+                    ]
+                  }
+                }
+              ],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "Reports are stored in the archive bucket."
+            }
+          }
+        },
+        "server_later_delivery": {
+          "snapshot_complete": true,
+          "transmitted_items": [
+            {
+              "record_id": "R2"
+            }
+          ],
+          "selected_without_transmission": []
+        }
+      },
+      "expected": {
+        "completion": {
+          "control": "yes",
+          "treatment": "yes"
+        },
+        "useful_application": null,
+        "delivery": {
+          "complete": true,
+          "claim_count": 1,
+          "claims": [
+            {
+              "record_id": "R2",
+              "canonical_claim": "Reports are stored in the archive bucket.",
+              "relevant": "yes",
+              "supported": "yes"
+            }
+          ]
+        },
+        "harm": {
+          "high_impact": "no",
+          "lower_impact": false
+        },
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      }
+    },
+    {
+      "id": "shell-transports-cairn-cli-response",
+      "judge_input": {
+        "case": {
+          "id": "cal-e3d15e38",
+          "lane": "calibration_non_natural",
+          "expected": "State the retry limit as three."
+        },
+        "authority": [
+          {
+            "id": "A3",
+            "kind": "earlier_authored_user_statement",
+            "content": "The team decision sets the retry limit to three."
+          }
+        ],
+        "execution": {
+          "valid": true
+        },
+        "arms": {
+          "control": {
+            "later": {
+              "trace_complete": true,
+              "events": [],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          },
+          "treatment": {
+            "later": {
+              "trace_complete": true,
+              "events": [
+                {
+                  "tool": "shell",
+                  "command": "cairn context",
+                  "stdout": "Current Cairn record R3: The retry limit is three."
+                }
+              ],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          }
+        },
+        "server_later_delivery": {
+          "snapshot_complete": true,
+          "transmitted_items": [
+            {
+              "record_id": "R3"
+            }
+          ],
+          "selected_without_transmission": []
+        }
+      },
+      "expected": {
+        "completion": {
+          "control": "yes",
+          "treatment": "yes"
+        },
+        "useful_application": null,
+        "delivery": {
+          "complete": true,
+          "claim_count": 1,
+          "claims": [
+            {
+              "record_id": "R3",
+              "canonical_claim": "The retry limit is three.",
+              "relevant": "yes",
+              "supported": "yes"
+            }
+          ]
+        },
+        "harm": {
+          "high_impact": "no",
+          "lower_impact": false
+        },
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      }
+    },
+    {
+      "id": "repository-history-quote-excluded",
+      "judge_input": {
+        "case": {
+          "id": "cal-38215a9d",
+          "lane": "calibration_non_natural",
+          "expected": "State the retry limit as three."
+        },
+        "authority": [
+          {
+            "id": "A4",
+            "kind": "pinned_source",
+            "content": "config.toml: retry_limit = 3"
+          }
+        ],
+        "execution": {
+          "valid": true
+        },
+        "arms": {
+          "control": {
+            "later": {
+              "trace_complete": true,
+              "events": [],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          },
+          "treatment": {
+            "later": {
+              "trace_complete": true,
+              "events": [
+                {
+                  "tool": "shell",
+                  "command": "rg 'retry limit' docs/history.md",
+                  "stdout": "Historical evaluation text: memory R4: The retry limit is three."
+                }
+              ],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          }
+        },
+        "server_later_delivery": {
+          "snapshot_complete": true,
+          "transmitted_items": [],
+          "selected_without_transmission": []
+        }
+      },
+      "expected": {
+        "completion": {
+          "control": "yes",
+          "treatment": "yes"
+        },
+        "useful_application": null,
+        "delivery": {
+          "complete": true,
+          "claim_count": 0,
+          "claims": []
+        },
+        "harm": {
+          "high_impact": "no",
+          "lower_impact": false
+        },
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      }
+    },
+    {
+      "id": "local-cairn-log-quote-excluded",
+      "judge_input": {
+        "case": {
+          "id": "cal-656c7632",
+          "lane": "calibration_non_natural",
+          "expected": "State the retry limit as three."
+        },
+        "authority": [
+          {
+            "id": "A5",
+            "kind": "pinned_source",
+            "content": "config.toml: retry_limit = 3"
+          }
+        ],
+        "execution": {
+          "valid": true
+        },
+        "arms": {
+          "control": {
+            "later": {
+              "trace_complete": true,
+              "events": [],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          },
+          "treatment": {
+            "later": {
+              "trace_complete": true,
+              "events": [
+                {
+                  "tool": "shell",
+                  "command": "cat $HOME/cairn/log",
+                  "stdout": "Archived local log quote: memory R5: The retry limit is three."
+                }
+              ],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          }
+        },
+        "server_later_delivery": {
+          "snapshot_complete": true,
+          "transmitted_items": [],
+          "selected_without_transmission": []
+        }
+      },
+      "expected": {
+        "completion": {
+          "control": "yes",
+          "treatment": "yes"
+        },
+        "useful_application": null,
+        "delivery": {
+          "complete": true,
+          "claim_count": 0,
+          "claims": []
+        },
+        "harm": {
+          "high_impact": "no",
+          "lower_impact": false
+        },
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      }
+    },
+    {
+      "id": "selected-not-transmitted-excluded",
+      "judge_input": {
+        "case": {
+          "id": "cal-5974a93a",
+          "lane": "calibration_non_natural",
+          "expected": "State the retry limit as three."
+        },
+        "authority": [
+          {
+            "id": "A6",
+            "kind": "pinned_source",
+            "content": "config.toml: retry_limit = 3"
+          }
+        ],
+        "execution": {
+          "valid": true
+        },
+        "arms": {
+          "control": {
+            "later": {
+              "trace_complete": true,
+              "events": [],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          },
+          "treatment": {
+            "later": {
+              "trace_complete": true,
+              "events": [],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          }
+        },
+        "server_later_delivery": {
+          "snapshot_complete": true,
+          "transmitted_items": [],
+          "selected_without_transmission": [
+            {
+              "record_id": "R6",
+              "canonical_claim": "The retry limit is three."
+            }
+          ]
+        }
+      },
+      "expected": {
+        "completion": {
+          "control": "yes",
+          "treatment": "yes"
+        },
+        "useful_application": null,
+        "delivery": {
+          "complete": true,
+          "claim_count": 0,
+          "claims": []
+        },
+        "harm": {
+          "high_impact": "no",
+          "lower_impact": false
+        },
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      }
+    },
+    {
+      "id": "delivered-rejected-and-irrelevant-unsupported-included",
+      "judge_input": {
+        "case": {
+          "id": "cal-c87bd673",
+          "lane": "calibration_non_natural",
+          "expected": "State the retry limit as three."
+        },
+        "authority": [
+          {
+            "id": "A7",
+            "kind": "pinned_source",
+            "content": "config.toml: retry_limit = 3"
+          },
+          {
+            "id": "A8",
+            "kind": "contrary_source",
+            "content": "limits.md: Unlimited retries are forbidden."
+          },
+          {
+            "id": "A9",
+            "kind": "absence_notice",
+            "content": "No supplied authority addresses coffee-machine maintenance."
+          }
+        ],
+        "execution": {
+          "valid": true
+        },
+        "arms": {
+          "control": {
+            "later": {
+              "trace_complete": true,
+              "events": [],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three."
+            }
+          },
+          "treatment": {
+            "later": {
+              "trace_complete": true,
+              "events": [
+                {
+                  "tool": "cairn_search",
+                  "response": {
+                    "records": [
+                      {
+                        "record_id": "R7",
+                        "canonical_claim": "Set retries to unlimited."
+                      },
+                      {
+                        "record_id": "R8",
+                        "canonical_claim": "The office coffee machine needs descaling."
+                      }
+                    ]
+                  }
+                }
+              ],
+              "hooks": [],
+              "delivered_context": null,
+              "stderr": "",
+              "final": "The retry limit is three. I reject the unlimited-retry record because it conflicts with the supplied limit."
+            }
+          }
+        },
+        "server_later_delivery": {
+          "snapshot_complete": true,
+          "transmitted_items": [
+            {
+              "record_id": "R7"
+            },
+            {
+              "record_id": "R8"
+            }
+          ],
+          "selected_without_transmission": []
+        }
+      },
+      "expected": {
+        "completion": {
+          "control": "yes",
+          "treatment": "yes"
+        },
+        "useful_application": null,
+        "delivery": {
+          "complete": true,
+          "claim_count": 2,
+          "claims": [
+            {
+              "record_id": "R7",
+              "canonical_claim": "Set retries to unlimited.",
+              "relevant": "yes",
+              "supported": "no"
+            },
+            {
+              "record_id": "R8",
+              "canonical_claim": "The office coffee machine needs descaling.",
+              "relevant": "no",
+              "supported": "no"
+            }
+          ]
+        },
+        "harm": {
+          "high_impact": "no",
+          "lower_impact": false
+        },
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      }
+    }
+  ]
+}

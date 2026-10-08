@@ -2,7 +2,16 @@
 
 use cairn_core::wire::ContextPayload;
 
-const CAPTURE_HINT: &str = "Before your final answer, if the user supplied a new durable decision or failed approach absent from source, call cairn_remember. Never store secrets or raw transcripts.\n\n";
+fn capture_hint() -> String {
+    let mut out = String::new();
+    for rule in cairn_integrate::render::Contract::canonical().rules {
+        if matches!(rule.id.as_str(), "record" | "secrets") {
+            out.push_str(&rule.block);
+            out.push_str("\n\n");
+        }
+    }
+    out
+}
 
 /// Render the canonical server envelope without inventing local history.
 /// Unknown populated sections fail closed so transmission cannot overclaim.
@@ -28,7 +37,7 @@ pub fn context(value: &serde_json::Value) -> Result<String, String> {
         }
     }
     let mut out = String::from("# Cairn context\n\n");
-    out.push_str(CAPTURE_HINT);
+    out.push_str(&capture_hint());
     if value["served_from_cache"] == true {
         let age = value["cache_age_seconds"].as_u64().ok_or_else(invalid)?;
         out.push_str(&format!(
@@ -78,7 +87,7 @@ pub fn context(value: &serde_json::Value) -> Result<String, String> {
 pub fn briefing(payload: &ContextPayload) -> String {
     let briefing = &payload.briefing;
     let mut out = String::from("# Cairn context\n\n");
-    out.push_str(CAPTURE_HINT);
+    out.push_str(&capture_hint());
 
     if briefing.no_prior_history {
         out.push_str("Cairn has no prior history for this project yet.\n\n");
@@ -269,6 +278,23 @@ fn short(sha: &str) -> String {
 mod context_tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn capture_guidance_agrees_with_the_managed_contract() {
+        let contract = cairn_integrate::render::Contract::canonical();
+        let payload = json!({
+            "budget": {"tokens": 3000, "spent": 0}, "degradation_level": "full",
+            "sections": {}
+        });
+        let text = context(&payload).unwrap();
+        for id in ["record", "secrets"] {
+            let rule = contract.rules.iter().find(|rule| rule.id == id).unwrap();
+            assert!(
+                text.contains(&rule.block),
+                "context contradicts the {id} rule"
+            );
+        }
+    }
 
     #[test]
     fn canonical_context_renders_all_selected_sections_and_honest_fallback() {
