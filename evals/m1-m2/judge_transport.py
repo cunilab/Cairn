@@ -30,7 +30,7 @@ def check_event(event):
             'userMessage', 'agentMessage', 'reasoning'), 'tool or compaction observed'
 
 
-def run(prompt, work, chunk_size=400000):
+def run(prompt, work, chunk_size=400000, output_schema=None):
     assert subprocess.check_output(['codex', '--version'], text=True).strip() == 'codex-cli 0.160.0'
     work = Path(work).resolve()
     work.mkdir(mode=0o700)
@@ -46,6 +46,8 @@ def run(prompt, work, chunk_size=400000):
                 'final_instruction': FINAL, 'final_instruction_sha256': sha(FINAL),
                 'local_reconstruction_exact': True, 'provider_input_readback_verified': False,
                 'provider_model_attested': False, 'valid': False}
+    if output_schema is not None:
+        manifest['output_schema_sha256'] = sha(json.dumps(output_schema, sort_keys=True))
     command = ['codex', 'app-server', '--listen', 'stdio://', '--disable', 'shell_tool',
                '--disable', 'plugins', '--disable', 'apps', '--disable', 'multi_agent',
                '-c', 'web_search="disabled"', '-c', 'project_doc_max_bytes=0',
@@ -108,8 +110,11 @@ def run(prompt, work, chunk_size=400000):
             rpc('thread/inject_items', {'threadId': tid, 'items': [
                 {'type': 'message', 'role': 'user', 'content': [{'type': 'input_text', 'text': text}]}]})
         manifest['injected_parts_acknowledged'] = len(chunks)
-        turn = rpc('turn/start', {'threadId': tid, 'input': [{'type': 'text', 'text': FINAL}],
-                                 'model': 'gpt-6.1-sol'})
+        turn_params = {'threadId': tid, 'input': [{'type': 'text', 'text': FINAL}],
+                       'model': 'gpt-6.1-sol'}
+        if output_schema is not None:
+            turn_params['outputSchema'] = output_schema
+        turn = rpc('turn/start', turn_params)
         messages = []
         while True:
             event = receive()

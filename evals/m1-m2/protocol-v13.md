@@ -60,3 +60,23 @@ F1 supplies shared M1/M2 evidence once: actual browser project/token provisionin
 and ordinary setup, accepted prior user-choice capture with eligible user_report
 support, persisted ownership, later transmission and independently judged useful
 application are all required. A later source finding alone cannot pass M1.
+
+## Serialization correction before actors
+
+Two private predicate calls are preserved as procedure-invalid: their wrapper
+omitted the frozen explicit JSON response instructions, producing a Boolean
+ID map instead of the required judgments array. Neither is converted into a
+valid calibration result. No delivery fixtures or actors ran in those attempts.
+
+Restore the exact complete V12 predicate input, including boundary-padding
+serialization, and verify its SHA against the retained V12 input manifest.
+Freeze an optional `turn/start.outputSchema` transport parameter before one
+new complete screen. The schema requires exactly 30 opaque-ID judgments with
+`yes`, `no` or `unknown` labels; it includes no expected labels. Deterministic
+checks still reject duplicate, missing or unexpected IDs and wrong/unknown
+labels. Exercise schema support with a non-scoring synthetic check first.
+This constrains serialization only. Product source/artifacts stay frozen;
+record the separate predicate helper hash and unchanged delivery helper hash.
+Full-input injection, isolation, model, semantic instructions and gates remain
+unchanged. Structured output does not establish label correctness or provider
+input readback. A valid semantic failure stops the screen without replacement.

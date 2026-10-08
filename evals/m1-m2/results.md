@@ -30,7 +30,12 @@ This strategy is consistent with primary-source guidance on
 and [evaluating both agent harness and final state](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents).
 Those sources inform the design; they do not establish Cairn's gate results.
 The full V13 calibration, candidate workflow, deployment and semantic results
-are pending. **PR #66 remains draft.**
+are pending. [Two invalid predicate calls](invalid-v13-calibration-metadata.json)
+are preserved: a new private wrapper omitted the frozen response instructions.
+No semantic calibration pass, delivery fixture or actor run is counted from
+those attempts. The prospective correction restores the exact original input
+and uses the pinned CLI's output-schema support to require the declared shape;
+labels and gates remain unchanged. **PR #66 remains draft.**
 
 ## Preserved v12 candidate — useful recall and quality failed
 
