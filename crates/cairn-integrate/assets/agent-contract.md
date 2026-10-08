@@ -1,7 +1,7 @@
 schema = 1
 heading = Cairn — persistent project memory
-lede = Cairn is durable, project-scoped memory for this repository, shared by its agents.
-mcp_lede = Cairn is durable, project-scoped memory for this repository, shared by its agents.
+lede = Cairn is durable, project-scoped memory for this repository, shared by agents.
+mcp_lede = Cairn is durable, project-scoped memory for this repository, shared by agents.
 
 [rule context]
 block = Read the Cairn context you were given before re-deriving the project.
@@ -12,8 +12,8 @@ block = Search Cairn memory before repeating an investigation you may already ha
 mcp = Call `cairn_search` before repeating an investigation you may already have done.
 
 [rule record]
-block = Before finishing, call cairn_remember for durable user choices/failures even if code agrees. Keep supplied IDs and report status; add user_report capture_attestation. Skip source summaries and routine calls.
-mcp = Before finishing, call cairn_remember for durable user choices/failures even if code agrees. Keep supplied IDs and report status; add user_report capture_attestation. Skip source summaries and routine calls.
+block = Before finishing, call cairn_remember for durable user choices/failures even if code agrees. Keep requirements, counts, qualifiers, IDs; add user_report capture_attestation. Skip source summaries/routine calls.
+mcp = Before finishing, call cairn_remember for durable user choices/failures even if code agrees. Keep requirements, counts, qualifiers, IDs; add user_report capture_attestation. Skip source summaries/routine calls.
 
 [rule scope]
 block = Use project scope for decisions valid across branches, branch for branch-specific facts, and session only for scratch state.

@@ -13,6 +13,7 @@ PROTOCOL = "\n".join((HERE / ("protocol-" + version + ".md")).read_text()
                      for version in ("v4", "v8", "v9", "v10"))
 # Historical case outcomes stay in the report, outside the judge's packet.
 PROTOCOL += "\n## Delivery boundary" + (HERE / "protocol-v11.md").read_text().split("## Delivery boundary", 1)[1]
+PROTOCOL += "\n## Delivery boundary" + (HERE / "protocol-v12.md").read_text().split("## Delivery boundary", 1)[1]
 
 def grade(packet, out, injected_input=False):
     identity = packet.stem

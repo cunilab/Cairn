@@ -1063,14 +1063,15 @@ fn ambiguous_session(active: &[Session]) -> WireError {
         .iter()
         .map(|s| {
             let quiet_for = (now - s.last_event_at).num_minutes().max(0);
-            format!("{} ({}, silent {quiet_for}m)", s.id, s.agent)
+            format!("session_id: {} ({}, silent {quiet_for}m)", s.id, s.agent)
         })
         .collect();
     WireError::new(
         codes::AMBIGUOUS_SESSION,
         format!(
-            "{} sessions are active in this worktree; pass --session or \
-             agent_session_key: {}",
+            "{} sessions are active in this worktree; choose your own session using \
+             --session <UUID> (CLI) or session_id (MCP). Candidates: {}. \
+             agent_session_key is your agent's own key, not a listed Cairn UUID",
             described.len(),
             described.join(", ")
         ),
@@ -1591,6 +1592,48 @@ async fn memory_search(
 
 #[cfg(test)]
 mod tests {
+    #[tokio::test]
+    async fn ambiguous_recovery_names_the_cairn_id_parameter() {
+        let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
+        let mut ids = Vec::new();
+        for key in ["vendor-one", "vendor-two"] {
+            let session = repo::start_session(
+                &repo.daemon.store,
+                repo::StartSession {
+                    project_id: resolved.project.id,
+                    user_id: repo.daemon.user_id,
+                    agent: "codex",
+                    agent_session_key: key,
+                    branch: "main",
+                    commit_sha: None,
+                    worktree_path: &resolved.worktree(),
+                    daemon_run_id: repo.daemon.run_id,
+                },
+            )
+            .await
+            .unwrap();
+            ids.push(session.id);
+        }
+        let error = resolve_session(&repo.daemon, &resolved, None, None)
+            .await
+            .unwrap_err();
+        assert_eq!(error.code, codes::AMBIGUOUS_SESSION);
+        for id in ids {
+            assert!(error.message.contains(&format!("session_id: {id}")));
+            assert_eq!(
+                resolve_session(&repo.daemon, &resolved, Some(id), None)
+                    .await
+                    .unwrap()
+                    .id,
+                id
+            );
+        }
+        assert!(error
+            .message
+            .contains("agent_session_key is your agent's own key"));
+    }
+
     #[tokio::test]
     async fn project_reuse_refuses_other_operations_and_nesting_before_dispatch() {
         let daemon = crate::testsupport::daemon().await;

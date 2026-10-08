@@ -131,8 +131,8 @@ fn tool_definitions() -> Vec<Value> {
                     "include_patterns": { "type": "boolean", "description": "Signal-matched patterns from other projects, always labelled unverified here" },
                     "explain": { "type": "boolean", "description": "Return the selection diagnostics. Costs no budget when false." },
                     "token_budget": { "type": "integer", "description": "Cairn-estimated tokens" },
-                    "agent_session_key": { "type": "string", "description": "Your own session identifier. Required when more than one session is open in this worktree." },
-                    "session_id": { "type": "string", "description": "Cairn session id, as an alternative to agent_session_key" }
+                    "agent_session_key": { "type": "string", "description": "Your agent's own session key, not a Cairn session UUID. Required when more than one session is open unless session_id is supplied." },
+                    "session_id": { "type": "string", "description": "Cairn session UUID, including candidates labelled session_id in a recovery error; distinct from agent_session_key" }
                 },
                 "required": ["cwd"]
             }
@@ -151,7 +151,7 @@ fn tool_definitions() -> Vec<Value> {
                     "query": { "type": "string" },
                     "memory_id": { "type": "string", "description": "Required for `graph`; seed memory id." },
                     "hops": { "type": "integer", "description": "Graph depth, capped at two." },
-                    "purpose": { "type": "string", "enum": ["reuse", "inspect"], "description": "`reuse` returns only currently eligible working knowledge (default). `inspect` is an intentional archival lookup and reports why records are ineligible." },
+                    "purpose": { "type": "string", "enum": ["reuse", "inspect"], "description": "`reuse` returns currently eligible working knowledge (default). `inspect` is only for deliberate memory auditing, verification or correction and reports why records are ineligible. Never use inspection as an empty-recall fallback; inspected records are not working knowledge." },
                     "scope": { "type": "string", "enum": ["project", "branch", "session"] },
                     "scope_key": { "type": "string" },
                     "type": { "type": "string", "enum": ["fact", "decision", "convention", "failure", "procedure"] },
@@ -171,8 +171,8 @@ fn tool_definitions() -> Vec<Value> {
                     // own corpus and returned in its own array; there is no
                     // comparator across them (FR-471, FR-472).
                     "domains": { "type": "array", "items": { "type": "string", "enum": ["project", "personal", "team"] }, "description": "Which knowledge domains to search. Omit for all three; personal and team return sibling arrays, never merged into results" },
-                    "agent_session_key": { "type": "string", "description": "Your own session identifier, so scope precedence uses your session" },
-                    "session_id": { "type": "string", "description": "Cairn session id, as an alternative to agent_session_key" }
+                    "agent_session_key": { "type": "string", "description": "Your agent's own session key, not a Cairn session UUID, so scope precedence uses your session" },
+                    "session_id": { "type": "string", "description": "Cairn session UUID, including candidates labelled session_id in a recovery error; distinct from agent_session_key" }
                 },
                 "required": ["cwd"]
             }
@@ -181,7 +181,10 @@ fn tool_definitions() -> Vec<Value> {
             "name": "cairn_remember",
             "description": "Record durable knowledge, replace it, or forget it. Preserve user \
                             choices as decisions and trials as observations, not implemented \
-                            or validated behavior. Keep those findings concise; cite bounded \
+                            or validated behavior. Preserve every requirement, count, qualifier \
+                            and identifier at its reported scope; never generalize a limited \
+                            observation. Record independently inspected findings separately \
+                            with their own source attestation. Keep those findings concise; cite bounded \
                             source locators without appending implementation summaries. Give durable \
                             project facts a `topic_key` and a `value_key` specific enough to \
                             state the whole claim. Local observation IDs cannot be attached \
