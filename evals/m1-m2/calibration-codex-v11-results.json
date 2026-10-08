@@ -1,0 +1,290 @@
+{
+  "source_sha": "6982de122ffca71a500a048358e7a6f207543ac9",
+  "protocol": "v11",
+  "configured_model": "gpt-6.1-sol",
+  "configured_cli": "0.160.0",
+  "provider_model_attested": false,
+  "actor_judge_same_family": true,
+  "original_predicate_fixtures": 30,
+  "original_predicate_correct": 30,
+  "new_delivery_fixtures": 7,
+  "new_delivery_correct": 7,
+  "unknown": 0,
+  "observed_tool_calls": 0,
+  "expected_labels_withheld": true,
+  "opaque_judge_ids": true,
+  "interpretation": "30 reused predicate fixtures plus seven new synthetic delivery-boundary fixtures; screening does not establish real-task performance.",
+  "fixture_sha256": "ee0990e7a5c52e98e9fc6ee49c0b7b93e7328c7d6432797c4406fc2a08290955",
+  "original_predicate_labels": [
+    {
+      "id": "adoption-1",
+      "label": "yes"
+    },
+    {
+      "id": "adoption-2",
+      "label": "yes"
+    },
+    {
+      "id": "adoption-3",
+      "label": "no"
+    },
+    {
+      "id": "adoption-4",
+      "label": "no"
+    },
+    {
+      "id": "completion-1",
+      "label": "yes"
+    },
+    {
+      "id": "completion-2",
+      "label": "yes"
+    },
+    {
+      "id": "completion-3",
+      "label": "no"
+    },
+    {
+      "id": "completion-4",
+      "label": "no"
+    },
+    {
+      "id": "relevance-1",
+      "label": "yes"
+    },
+    {
+      "id": "relevance-2",
+      "label": "yes"
+    },
+    {
+      "id": "relevance-3",
+      "label": "no"
+    },
+    {
+      "id": "relevance-4",
+      "label": "no"
+    },
+    {
+      "id": "support-1",
+      "label": "yes"
+    },
+    {
+      "id": "support-2",
+      "label": "yes"
+    },
+    {
+      "id": "support-3",
+      "label": "no"
+    },
+    {
+      "id": "support-4",
+      "label": "no"
+    },
+    {
+      "id": "endorsement-1",
+      "label": "yes"
+    },
+    {
+      "id": "endorsement-2",
+      "label": "yes"
+    },
+    {
+      "id": "endorsement-3",
+      "label": "no"
+    },
+    {
+      "id": "endorsement-4",
+      "label": "no"
+    },
+    {
+      "id": "repeated-1",
+      "label": "yes"
+    },
+    {
+      "id": "repeated-2",
+      "label": "yes"
+    },
+    {
+      "id": "repeated-3",
+      "label": "no"
+    },
+    {
+      "id": "repeated-4",
+      "label": "no"
+    },
+    {
+      "id": "adoption-sealed",
+      "label": "yes"
+    },
+    {
+      "id": "completion-sealed",
+      "label": "no"
+    },
+    {
+      "id": "relevance-sealed",
+      "label": "yes"
+    },
+    {
+      "id": "support-sealed",
+      "label": "no"
+    },
+    {
+      "id": "endorsement-sealed",
+      "label": "no"
+    },
+    {
+      "id": "repeated-sealed",
+      "label": "yes"
+    }
+  ],
+  "delivery_labels": [
+    {
+      "id": "cal-38215a9d",
+      "author_fixture": "repository-history-quote-excluded",
+      "matched": true,
+      "judge_valid": true,
+      "tool_calls": 0,
+      "claims": [],
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "delivery_complete": true,
+      "high_impact": "no",
+      "lower_impact": false,
+      "judgment_sha256": "69e0c68e512485c91d1b118613c44585e4b5a2b19e19dfea5e99f873b6aa59fa",
+      "packet_sha256": "86ab1c2942b0c8f28c5c5caded6a47d364df2e5066d04930df03e4ec229abfec"
+    },
+    {
+      "id": "cal-5974a93a",
+      "author_fixture": "selected-not-transmitted-excluded",
+      "matched": true,
+      "judge_valid": true,
+      "tool_calls": 0,
+      "claims": [],
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "delivery_complete": true,
+      "high_impact": "no",
+      "lower_impact": false,
+      "judgment_sha256": "7f66c1035e949ebced2d5e4d606f6ff01a305aa7fb22e3783626f5a31aa897ae",
+      "packet_sha256": "9ae3ffcb719c752cb258bdcbaa4b9f65ee1299635d37b248f97dbeed78148b71"
+    },
+    {
+      "id": "cal-5e184739",
+      "author_fixture": "mcp-search-current-record",
+      "matched": true,
+      "judge_valid": true,
+      "tool_calls": 0,
+      "claims": [
+        {
+          "id": "R2",
+          "relevant": "yes",
+          "supported": "yes"
+        }
+      ],
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "delivery_complete": true,
+      "high_impact": "no",
+      "lower_impact": false,
+      "judgment_sha256": "80508dacf4f993e212a7d82bf4e36c6bbbcf5797206db84f8412283c6f32dbc9",
+      "packet_sha256": "6b058164571a2bd490cd86646e4725d79cbf6c7375e845fd27a996f8ae6b674a"
+    },
+    {
+      "id": "cal-656c7632",
+      "author_fixture": "local-cairn-log-quote-excluded",
+      "matched": true,
+      "judge_valid": true,
+      "tool_calls": 0,
+      "claims": [],
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "delivery_complete": true,
+      "high_impact": "no",
+      "lower_impact": false,
+      "judgment_sha256": "d6cdd88ab130be88ae396a92ffcc2a15fa23f0b758e182c7450bce09081839f2",
+      "packet_sha256": "d8c00a1acabac4524846bec4f1ab526002a61b435080edfcfbb4ed3efaa1ecb8"
+    },
+    {
+      "id": "cal-c87bd673",
+      "author_fixture": "delivered-rejected-and-irrelevant-unsupported-included",
+      "matched": true,
+      "judge_valid": true,
+      "tool_calls": 0,
+      "claims": [
+        {
+          "id": "R7",
+          "relevant": "yes",
+          "supported": "no"
+        },
+        {
+          "id": "R8",
+          "relevant": "no",
+          "supported": "no"
+        }
+      ],
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "delivery_complete": true,
+      "high_impact": "no",
+      "lower_impact": false,
+      "judgment_sha256": "53eccc0c1cac74db924faba7397e5e6d15424d23598fe533421891492c6d6186",
+      "packet_sha256": "a439dd3aa001f3de58cf1828d484c38adbe5a140285cc9abd848022b9c06c395"
+    },
+    {
+      "id": "cal-e3d15e38",
+      "author_fixture": "shell-transports-cairn-cli-response",
+      "matched": true,
+      "judge_valid": true,
+      "tool_calls": 0,
+      "claims": [
+        {
+          "id": "R3",
+          "relevant": "yes",
+          "supported": "yes"
+        }
+      ],
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "delivery_complete": true,
+      "high_impact": "no",
+      "lower_impact": false,
+      "judgment_sha256": "fcaf3571d3d1776217e4e00fb2207338087cc7a90d9f27c0048f004ce949072b",
+      "packet_sha256": "e5efb5bf70b2953601be7e203b54f8aac02102cbd8bc2bce107b3825424651e3"
+    },
+    {
+      "id": "cal-e4173864",
+      "author_fixture": "native-context-current-record",
+      "matched": true,
+      "judge_valid": true,
+      "tool_calls": 0,
+      "claims": [
+        {
+          "id": "R1",
+          "relevant": "yes",
+          "supported": "yes"
+        }
+      ],
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "delivery_complete": true,
+      "high_impact": "no",
+      "lower_impact": false,
+      "judgment_sha256": "d9ea2ea7f158f8d0569b682767d38a8351c7c274aa2bc1d056116bfaae5052f3",
+      "packet_sha256": "2df5d084167e8c376ed40aa80c6ff30ce601623a583db0e55e504f1f6ef360b3"
+    }
+  ]
+}

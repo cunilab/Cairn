@@ -1,5 +1,5 @@
 """Same frozen predicates, fresh isolated calibrated Codex judge per packet."""
-import argparse, json, os, subprocess
+import argparse, hashlib, json, os, subprocess
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -14,14 +14,11 @@ PROTOCOL = "\n".join((HERE / ("protocol-" + version + ".md")).read_text()
 # Historical case outcomes stay in the report, outside the judge's packet.
 PROTOCOL += "\n## Delivery boundary" + (HERE / "protocol-v11.md").read_text().split("## Delivery boundary", 1)[1]
 
-def grade(packet, out):
+def grade(packet, out, injected_input=False):
     identity = packet.stem
     dest = out / (identity + '.json')
     if dest.exists():
         return
-    home = out / (identity + '.home')
-    home.mkdir(mode=0o700)
-    (home / 'auth.json').symlink_to(Path.home() / '.codex/auth.json')
     prompt = RULES + '\nCALIBRATED PREDICATES\n' + json.dumps(RUBRIC) + '\nFROZEN PROTOCOL\n' + PROTOCOL + '\nCOMPLETE PACKET\n' + packet.read_text()
     raw, err, labels_file = [out / (identity + suffix) for suffix in ('.private.out', '.private.err', '.labels.private.json')]
     command = ['codex', 'exec', '-C', str(out), '-m', 'gpt-6.1-sol', '--json',
@@ -34,17 +31,27 @@ def grade(packet, out):
         cli = subprocess.check_output(['codex', '--version'], text=True).strip()
         result['configured_cli'] = cli
         assert cli == 'codex-cli 0.160.0', 'calibrated CLI changed'
-        with raw.open('w') as stdout, err.open('w') as stderr:
-            process = subprocess.run(command, input=prompt, text=True, cwd=out,
-                                     env={**os.environ, 'CODEX_HOME': str(home)}, stdout=stdout,
-                                     stderr=stderr, timeout=300)
-        result['judge_status'] = process.returncode
-        if process.returncode != 0:
-            raise RuntimeError('judge process failed')
-        events = [json.loads(line) for line in raw.read_text().splitlines()]
-        assert not any(e.get('type') == 'error' for e in events)
-        assert not any(e.get('item', {}).get('type') in ('command_execution', 'mcp_tool_call', 'web_search') for e in events)
-        labels = json.loads(labels_file.read_text())
+        if injected_input:
+            from judge_transport import run
+            work = out / (identity + '.transport')
+            labels, _ = run(prompt, work)
+            result.update(judge_status=0, transport='ordered injected user messages',
+                          transport_metadata_sha256=hashlib.sha256((work / 'transport-metadata.json').read_bytes()).hexdigest())
+        else:
+            home = out / (identity + '.home')
+            home.mkdir(mode=0o700)
+            (home / 'auth.json').symlink_to(Path.home() / '.codex/auth.json')
+            with raw.open('w') as stdout, err.open('w') as stderr:
+                process = subprocess.run(command, input=prompt, text=True, cwd=out,
+                                         env={**os.environ, 'CODEX_HOME': str(home)}, stdout=stdout,
+                                         stderr=stderr, timeout=300)
+            result['judge_status'] = process.returncode
+            if process.returncode != 0:
+                raise RuntimeError('judge process failed')
+            events = [json.loads(line) for line in raw.read_text().splitlines()]
+            assert not any(e.get('type') == 'error' for e in events)
+            assert not any(e.get('item', {}).get('type') in ('command_execution', 'mcp_tool_call', 'web_search') for e in events)
+            labels = json.loads(labels_file.read_text())
         assert labels['id'] == identity
         assert set(labels['completion']) == {'control', 'treatment'}
         assert all(v in ('yes', 'no', 'unknown') for v in labels['completion'].values())
@@ -71,6 +78,8 @@ def main():
     parser.add_argument('--out', type=Path, default=ROOT / 'judgments')
     parser.add_argument('--jobs', type=int, default=1)
     parser.add_argument('--retry-failed', action='store_true')
+    parser.add_argument('--injected-input', action='store_true',
+                        help='Use calibrated ordered full-input transport for oversized packets')
     args = parser.parse_args()
     args.out.mkdir(mode=0o700, exist_ok=True)
     if args.out.stat().st_mode & 0o077:
@@ -90,7 +99,7 @@ def main():
             for path in args.out.glob(packet.stem + '.*'):
                 path.rename(preserved / path.name)
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        list(pool.map(lambda packet: grade(packet, args.out), sorted(args.packets.glob('*.json'))))
+        list(pool.map(lambda packet: grade(packet, args.out, args.injected_input), sorted(args.packets.glob('*.json'))))
 
 if __name__ == '__main__':
     main()

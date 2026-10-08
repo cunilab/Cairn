@@ -1,6 +1,76 @@
-# M1/M2 candidate evidence — through 2026-10-07
+# M1/M2 candidate evidence — through 2026-10-08
 
-## Current corrected candidate
+## Current v11 candidate — quality gate failed
+
+Frozen source `6982de122ffca71a500a048358e7a6f207543ac9` passed all six PR
+checks. Its Ubuntu workspace suite passed **1,251 tests**, with zero failures or
+ignored tests. [Candidate workflow 37708344830](https://github.com/cunilab/Cairn/actions/runs/37708344830)
+passed all 17 jobs, including all five installed archive journeys. The manifest,
+five archive checksums, SBOM, native executable identities, immutable image
+digests, and actual fresh deployment revisions were verified. See the
+[bounded candidate evidence](candidate-v11-metadata.json).
+
+A fresh HTTPS deployment, volume, account and projects completed the browser UI
+project/token journey and ordinary setup before all **15 Codex comparisons**.
+All **46 actor phases** succeeded with complete traces and verified runtime
+identities. Actors used **GPT-6-Luna / low**, unchanged corpus and repository
+pins, arm order, prompts and 300-second budgets. All eight natural cases
+captured persisted memory. F1 is counted once as shared M1/M2 evidence: accepted
+capture, two persisted eligible `user_report` records, browser token owner,
+later transmission and independently judged useful application passed. A
+pre-actor Docker health verification race was preserved separately; zero actors
+ran in that failed verification attempt.
+
+[Semantic calibration](calibration-codex-v11-results.json) passed all 30 reused
+predicate fixtures and seven delivery-boundary fixtures before actors. Expected
+labels were withheld, delivery IDs were opaque, and no unknown labels or tool
+calls occurred. After all actors, 14 judge calls completed; F1 was rejected
+before evaluation because its complete prompt was **1,235,147 characters**,
+above the CLI's 1,048,576-character limit. Lossless outer JSON compaction was
+still too large and was not invoked as a retry.
+
+The [ordered-input transport screen](calibration-codex-v11-transport-results.json)
+then passed the same 37 fixtures, including an oversized predicate prompt and
+arbitrary boundaries across delivery packets. All exact input parts were
+injected as ordered user messages before one generation: no intermediate model
+responses, tools, compaction, omitted text or scoring changes. Only F1's invalid
+judge call was retried, with the unchanged `gpt-6.1-sol` / CLI `0.160.0` profile.
+Its chunks reconstructed the source prompt exactly locally; provider input was
+not read back or independently hashed. All ten retained RPC logs were checked
+for tools and both compaction event forms, with zero observed. All 14 valid judgments remained
+byte-for-byte unchanged; the original rejection and retry hashes are preserved.
+All **15 judgments** are now valid. See [full bounded results](regression-v11-metadata.json).
+
+| Gate | V11 observation | Status |
+| --- | --- | --- |
+| Useful natural application ≥80% | 7/8 (87.5%) | PASS |
+| Delivered claims relevant and supported ≥90% | 21/29 (72.4%) | FAIL |
+| Privacy | Three complete boundary probes and trace scans, zero observed leaks | PASS for authorized bounded cases |
+| High-impact harm | Zero judged harmful endorsements/leaks | PASS |
+| Completion no worse than control | Treatment 13/15 versus control 5/15 | PASS |
+| Median repeated investigation reduction ≥20% | Six eligible pairs, median 100%; no unknown natural counts | PASS |
+
+The eight failing quality claims remain in the denominator: one supported lab
+observation and two source summaries judged irrelevant; one overbroad unsupported
+checklist assertion; two unsupported archival propositions explicitly requested
+with `purpose: inspect` and rejected by the actor; and two operational recovery
+messages judged irrelevant and unsupported. Inspection qualifiers and rejection
+do not remove substantive archival claims from the metric.
+
+Independent Astra review recommends narrow general corrections to typed session
+recovery arguments, archival inspection guidance, and capture scope. It also
+identified inconsistent applicability to operational error messages: clarify
+that boundary prospectively, calibrate both empty-memory errors and errors
+accompanying actual delivery, then rerun the complete subset. **V11 remains a
+failure; none of its valid observations will be retrospectively excluded or
+replaced.** No pass is projected from the proposed corrections.
+
+Actor and judge share a model family; provider revisions are not attested.
+Reused fixtures screen consistency and are not a fresh holdout. Claude's 15
+cases remain skipped by user instruction, so original two-agent milestone exits
+remain open. **PR #66 remains draft and is not ready to merge.**
+
+## Preserved v10 candidate
 
 The [v10 protocol](protocol-v10.md) freezes the next complete Codex-only run
 with GPT-6-Luna at low effort in both actor arms and the calibrated judge
@@ -55,13 +125,13 @@ and failing score remain preserved; v10 is not certified. Before the next run,
 clarify delivery provenance and calibrate current delivery versus historical
 quotations, shell transports, and selection without transmission.
 
-The four capture misses also exposed conflicting product guidance: native
-context restricted capture to findings absent from source, while the canonical
-skill preserves user choices even when code agrees. The next candidate derives
-native record/secrets guidance from the canonical contract and clarifies optional
-identifiers and reported support. These corrections need new artifacts and a
-complete unchanged-corpus run. Claude remains skipped; the original two-agent
-milestone exit stays open and the PR remains draft.
+The four capture misses exposed conflicting native and canonical capture
+guidance. V11 derives native record/secrets guidance from the canonical contract,
+preserves user choices when code agrees, and calibrates current delivery versus
+historical source quotations before its fresh complete run. V10's original
+judgments and failing gates remain unchanged.
+
+## Preserved v9 candidate
 
 The [v9 regression](regression-v9-metadata.json) used the verified macOS ARM
 archive at source `2f1e043d2516060a3e3d61de5c571a382ee78a1d`. All 15 Codex

@@ -30,34 +30,33 @@ This is a sequence of product outcomes, not a release schedule. Alpha.9 is the c
 **Exit:** a fresh user completes deployment → project → setup → work → return → useful recall without undocumented fixes. Alpha.9 supplied candidate and published smoke evidence for major parts of this journey; a new candidate must prove it again.
 
 [Current candidate evidence](../evals/m1-m2/results.md) records all 17 workflow
-jobs and five installed archive journeys passing for corrected source `2842751`.
-A fresh HTTPS deployment completed browser provisioning, ordinary setup, and
-the real Codex prior/return processes with independently judged useful recall. Claude journeys are skipped by user
-instruction; the original two-agent M1 exit remains open.
+jobs and five installed archive journeys passing for corrected source `6982de1`.
+A fresh HTTPS deployment completed browser provisioning, ordinary setup, authored
+capture, later transmission and independently judged useful Codex recall. Claude
+journeys are skipped by user instruction; the original two-agent M1 exit remains
+open. The single PR remains draft because M2's quality gate failed.
 
 ## M2 — Recall can be trusted
 
 **Outcome:** Cairn returns useful, supported context and handles irrelevant, stale, conflicting, and unauthorized information honestly.
 
-- [ ] Evaluate realistic work across repositories and later sessions
+- [x] Evaluate realistic work across repositories and later sessions
 - [ ] Preserve useful decisions, procedures, and failed approaches
 - [ ] Surface uncertainty and conflict without choosing unsupported truth
-- [ ] Keep project and account boundaries intact
-- [ ] Measure useful, irrelevant, and harmful recall; improve from measured failures
+- [x] Keep project and account boundaries intact
+- [x] Measure useful, irrelevant, and harmful recall; improve from measured failures
 
 **Exit:** paired evidence shows Cairn helps later work and does not create unacceptable harmful recall.
 
-The [v9 candidate](../evals/m1-m2/results.md) attempted all 15 Codex pairs across
-three repositories, preserving four quota-invalid comparisons. Useful recall
-was observed in all eight natural cases, but delivered-claim quality
-**25/31 (80.6%) failed the 90% target**. The next
-[v10 regression](../evals/m1-m2/protocol-v10.md) uses GPT-6-Luna at low effort
-in both actor arms at the user's request, with the calibrated judge unchanged.
-All 15 v10 Codex comparisons and judgments completed, but useful application
-was 4/8 (50%) and the original quality score was 13/18 (72.2%). Instruction drift
-and a judge delivery-provenance confound require a corrected candidate and fresh
-evidence. Claude's 15 cases remain explicitly skipped. Earlier results and
-unchanged thresholds are preserved; M2 is not established.
+The [complete v11 Codex run](../evals/m1-m2/regression-v11-metadata.json) has
+15 valid comparisons across three repositories and 15 valid calibrated
+judgments. Useful application is **7/8 (87.5%)**, but delivered-claim quality is
+**21/29 (72.4%), below the 90% target**. Three bounded privacy cases observed no
+leaks; high-impact harm, completion (treatment 13 versus control 5), and median
+repeated investigation reduction (100% across six eligible pairs) passed.
+Capture precision, archival inspection guidance and operational recovery require
+further work. All prior failures and thresholds remain preserved; Claude's 15
+cases remain explicitly skipped. M2's exit is not established.
 
 ## M3 — Safe and recoverable
 
