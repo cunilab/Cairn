@@ -51,3 +51,13 @@ The user's replies authorize Dokploy configuration after completion and defer
 provider details. [0004](0004-extractive-semantic-selection.md) records the
 selector contract; [candidate evidence](../../evals/m1-m2/results.md) preserves
 the current missing live validation.
+
+## Temporary testing provider
+
+The user subsequently authorized Groq for testing and plans to change models
+later. The OpenAI-compatible endpoint and `openai/gpt-oss-120b` authenticated
+successfully. The credential is retained only in a protected private test
+environment. Evidence qualifies the tested provider/model; a later model change
+requires semantic validation again. No production inference configuration has
+been changed. [0004](0004-extractive-semantic-selection.md) records the first
+live screen failure and the bounded follow-up decision.

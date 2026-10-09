@@ -58,3 +58,23 @@ because `ReaderContext` held a request-start membership snapshot. Rebinding the
 session did not refresh that snapshot. Context now performs a fresh membership
 query after inference, alongside source revision/eligibility checks. Preserve the
 paused-provider regression: source review alone missed this authorization bug.
+
+## Groq development screen
+
+The user authorized temporary Groq testing with `openai/gpt-oss-120b`, with a
+later model replacement planned. Five live synthetic server cases had valid
+source hashes and byte spans. The independently calibrated judge (42/42 reused
+fixtures) rejected one excerpt: it removed “The user requires” while retaining
+account-specific conditions. Capture basis `user_report` cannot distinguish
+reported requirements from reported implementation. The failure is preserved.
+
+Astra recommended one general clarification of the existing faithfulness rule:
+select complete, self-contained source statements, including who requires or
+reports them and whether they express requirements, proposals or implementation.
+Prefer whole sentences and adjacent statements when needed; abstain if that
+would require unrelated claims. Automatic sentence expansion was rejected because
+it could reintroduce irrelevant claims; sentence-boundary validation alone cannot
+handle cross-sentence attribution. Validate once on unseen development cases;
+if this model still fails, stop its qualification rather than tune repeatedly.
+The full workload and thresholds remain unchanged. This change needs new frozen
+source/artifact/deployment evidence; the prior workflow is cancelled.
