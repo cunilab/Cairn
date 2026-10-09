@@ -403,12 +403,7 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
             )
             .await?;
             if let Some(query) = query {
-                if value["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY
-                    || value["project_query_sha256"] != cairn_core::digest(query.trim())
-                {
-                    return Err(WireError::new(cairn_core::wire::codes::SERVER_UNAVAILABLE,
-                        "the server or daemon did not confirm this task query; upgrade them or use cairn_search with query"));
-                }
+                confirm_project_recall(&value, &cairn_core::digest(query.trim()))?;
             }
             // The agent gets the rendered briefing plus the raw envelope, so it
             // can read either.
@@ -472,6 +467,11 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                 cairn_core::reuse::validate_recall_query(query.query.as_deref())
                     .map_err(WireError::invalid)?;
             }
+            let project_recall = purpose == ReusePurpose::Reuse
+                && query.domains.as_ref().is_none_or(|domains| {
+                    domains.contains(&cairn_core::domain::KnowledgeDomain::Project)
+                });
+            let query_digest = query.query.as_deref().map(|q| cairn_core::digest(q.trim()));
             let request = Request::MemorySearch {
                 cwd,
                 agent_session_key: key,
@@ -484,6 +484,9 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                 request
             };
             let value = client::send(&request).await?;
+            if project_recall {
+                confirm_project_recall(&value, query_digest.as_deref().unwrap_or_default())?;
+            }
             Ok(pretty(&value))
         }
 
@@ -834,9 +837,42 @@ fn pretty(value: &Value) -> String {
     serde_json::to_string_pretty(value).unwrap_or_else(|_| value.to_string())
 }
 
+fn confirm_project_recall(value: &Value, query_digest: &str) -> Result<(), WireError> {
+    if value["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY
+        || value["project_query_sha256"].as_str() != Some(query_digest)
+    {
+        return Err(WireError::new(cairn_core::wire::codes::SERVER_UNAVAILABLE,
+            "task-scoped project excerpts were not confirmed; configure server inference or upgrade the server and daemon"));
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn working_recall_refuses_legacy_or_different_task_responses() {
+        let digest = cairn_core::digest("bounded parser");
+        for response in [
+            json!({}),
+            json!({"project_recall_policy":"task_keywords_v1", "project_query_sha256":digest}),
+            json!({"project_recall_policy":cairn_core::reuse::TASK_QUERY_POLICY}),
+            json!({"project_recall_policy":cairn_core::reuse::TASK_QUERY_POLICY,
+                   "project_query_sha256":cairn_core::digest("another task")}),
+        ] {
+            let error = confirm_project_recall(&response, &digest).unwrap_err();
+            assert_eq!(error.code, cairn_core::wire::codes::SERVER_UNAVAILABLE);
+        }
+        assert!(confirm_project_recall(
+            &json!({
+                "project_recall_policy":cairn_core::reuse::TASK_QUERY_POLICY,
+                "project_query_sha256":digest
+            }),
+            &digest
+        )
+        .is_ok());
+    }
 
     #[tokio::test]
     async fn working_search_without_keywords_refuses_before_ipc() {

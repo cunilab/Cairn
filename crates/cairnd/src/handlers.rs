@@ -996,7 +996,11 @@ async fn context(
             )
         })?
         .clone();
-    let deadline = std::time::Duration::from_millis(config.context_deadline_ms);
+    let deadline = if query.is_some() {
+        std::time::Duration::from_secs(20)
+    } else {
+        std::time::Duration::from_millis(config.context_deadline_ms)
+    };
     let operation = async {
         let r = d.resolve(cwd).await?;
         let budget = token_budget.unwrap_or(config.context_budget_tokens);
@@ -1535,6 +1539,7 @@ async fn memory_search(
         cairn_core::reuse::validate_recall_query(query.query.as_deref())
             .map_err(WireError::invalid)?;
     }
+    let query_digest = query.query.as_deref().map(|q| cairn_core::digest(q.trim()));
     let r = d.resolve(cwd).await?;
     let project_id = r
         .project
@@ -1575,11 +1580,13 @@ async fn memory_search(
         && query.purpose == cairn_core::reuse::ReusePurpose::Reuse
         && (project.get("purpose").and_then(|v| v.as_str()) != Some("reuse")
             || project.get("reuse_policy").and_then(|v| v.as_str())
-                != Some("project_attestation_v1"))
+                != Some("project_attestation_v1")
+            || project["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY
+            || project["project_query_sha256"].as_str() != query_digest.as_deref())
     {
         return Err(WireError::new(
             codes::SERVER_UNAVAILABLE,
-            "the server did not confirm project-memory reuse eligibility; use purpose=inspect only for intentional archival review",
+            "the server did not confirm task-scoped project excerpts; configure server inference or upgrade the server; use inspect only for intentional archival review",
         ));
     }
     let personal = if domains.contains(&KnowledgeDomain::Personal) {
@@ -1601,6 +1608,8 @@ async fn memory_search(
         "total": project.get("total").cloned().unwrap_or_else(|| json!(0)),
         "purpose": query.purpose.as_str(),
         "reuse_policy": project.get("reuse_policy").cloned().unwrap_or(Value::Null),
+        "project_recall_policy": project.get("project_recall_policy").cloned().unwrap_or(Value::Null),
+        "project_query_sha256": project.get("project_query_sha256").cloned().unwrap_or(Value::Null),
         "inspection_instruction": project.get("inspection_instruction").cloned().unwrap_or(Value::Null),
         "personal": personal,
         "team": team,

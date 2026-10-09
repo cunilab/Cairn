@@ -58,7 +58,7 @@ fn attested_commands_require_support_and_supersession_preserves_new_authority() 
         post_json_status_bearer(&pg.server.base, "/api/commands", &envelope, &pg.owner.token);
     assert_eq!(status, 200, "{retry}");
     assert!(retry.to_string().contains(replacement));
-    let reuse = memories(&pg, "reuse");
+    let reuse = memories(&pg, "reuse", "replacement captured");
     assert!(reuse["memories"].to_string().contains(replacement));
     assert!(!reuse["memories"].to_string().contains(&first.to_string()));
     for kind in ["remember_attested", "supersede_attested"] {
@@ -73,12 +73,14 @@ fn attested_commands_require_support_and_supersession_preserves_new_authority() 
     assert_eq!(pg.server.count("SELECT count(*) FROM memories"), 2);
 }
 
-fn memories(pg: &Pg, purpose: &str) -> Value {
+fn memories(pg: &Pg, purpose: &str, query: &str) -> Value {
+    let query = (purpose == "reuse").then(|| format!("&q={}", query.replace(' ', "%20")));
     let (body, status) = get_json_status_bearer(
         &pg.server.base,
         &format!(
-            "/api/projects/{}/memories?domain=project&purpose={purpose}",
-            pg.project
+            "/api/projects/{}/memories?domain=project&purpose={purpose}{}",
+            pg.project,
+            query.as_deref().unwrap_or_default(),
         ),
         &pg.owner.token,
     );
@@ -109,7 +111,7 @@ fn zero_observation_manual_attestation_is_reusable_and_legacy_stays_inspectable(
         Uuid::nil(),
     ));
 
-    let reuse = memories(&pg, "reuse");
+    let reuse = memories(&pg, "reuse", "bounded parser");
     assert_eq!(reuse["reuse_policy"], "project_attestation_v1");
     assert!(reuse["memories"]
         .to_string()
@@ -129,7 +131,7 @@ fn zero_observation_manual_attestation_is_reusable_and_legacy_stays_inspectable(
         "capture attestation manufactured verification authority"
     );
 
-    let inspect = memories(&pg, "inspect");
+    let inspect = memories(&pg, "inspect", "");
     let archived = inspect["memories"]
         .as_array()
         .unwrap()
@@ -184,17 +186,17 @@ fn dependency_revision_and_conflict_invalidate_reuse_but_not_archive() {
             "dependency_memory_id": dependency,
         }),
     );
-    assert!(memories(&pg, "reuse")["memories"]
+    assert!(memories(&pg, "reuse", "inspected dependency")["memories"]
         .to_string()
         .contains(&dependent.to_string()));
 
     pg.server.execute(&format!(
         "UPDATE memories SET updated_at = updated_at + interval '1 second' WHERE id = '{dependency}'"
     ));
-    assert!(!memories(&pg, "reuse")["memories"]
+    assert!(!memories(&pg, "reuse", "inspected dependency")["memories"]
         .to_string()
         .contains(&dependent.to_string()));
-    let inspect = memories(&pg, "inspect");
+    let inspect = memories(&pg, "inspect", "");
     let row = inspect["memories"]
         .as_array()
         .unwrap()
@@ -219,7 +221,7 @@ fn dependency_revision_and_conflict_invalidate_reuse_but_not_archive() {
         pg.project,
         Uuid::nil(),
     ));
-    assert!(!memories(&pg, "reuse")["memories"]
+    assert!(!memories(&pg, "reuse", "conflicting claim")["memories"]
         .to_string()
         .contains(&other.to_string()));
 }
@@ -244,7 +246,7 @@ fn dependency_conflict_is_transitive_and_capture_dependencies_are_one_hop() {
             "dependency_memory_id": source
         }),
     );
-    assert!(memories(&pg, "reuse")["memories"]
+    assert!(memories(&pg, "reuse", "supported dependent")["memories"]
         .to_string()
         .contains(&dependent.to_string()));
     let (body, status) = post_json_status_bearer(
@@ -273,10 +275,10 @@ fn dependency_conflict_is_transitive_and_capture_dependencies_are_one_hop() {
         pg.project,
         Uuid::nil()
     ));
-    assert!(!memories(&pg, "reuse")["memories"]
+    assert!(!memories(&pg, "reuse", "supported dependent")["memories"]
         .to_string()
         .contains(&dependent.to_string()));
-    assert!(memories(&pg, "inspect")["memories"]
+    assert!(memories(&pg, "inspect", "")["memories"]
         .to_string()
         .contains(&dependent.to_string()));
 }

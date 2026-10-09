@@ -265,7 +265,9 @@ fn snapshot_preserves_pending_work_and_import_is_idempotent() {
         VALUES ('{project}','{destination_actor}')"
     ));
     let recalled = destination.get_json(
-        &format!("/api/projects/{project}/memories?purpose=reuse"),
+        &format!(
+            "/api/projects/{project}/memories?purpose=reuse&q=transfer%20supported%20dependent"
+        ),
         &destination_token,
     );
     for id in captures {

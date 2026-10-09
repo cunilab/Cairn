@@ -63,7 +63,9 @@ pub const SERVER_SCHEMA_V4: i64 = 4;
 /// The version that gives `team_knowledge` its monotonic `revision`, and moves
 /// the team pull feed onto it (FR-456, FR-457, FR-465).
 pub const SERVER_SCHEMA_V5: i64 = 5;
-/// The current server schema after project-memory reuse accountability.
+/// The current server schema after extractive project-memory recall provenance.
+pub const SERVER_SCHEMA_V10: i64 = 10;
+/// The previous server schema, retained for staged-upgrade tests.
 pub const SERVER_SCHEMA_V9: i64 = 9;
 /// The server schema version Feature 005 upgrades *from*.
 pub const SERVER_SCHEMA_V3: i64 = 3;
@@ -115,6 +117,12 @@ impl Pg {
     /// The standard fixture: v4, one project, owner + member + outsider.
     pub fn start() -> Option<Self> {
         let server = Server::start_own_database()?;
+        Some(Self::seed(server))
+    }
+
+    /// A project fixture whose server has no configured semantic selector.
+    pub fn start_without_selector() -> Option<Self> {
+        let server = Server::start_own_database_without_selector()?;
         Some(Self::seed(server))
     }
 

@@ -21,7 +21,7 @@
 //! Every test skips, loudly, without `CAIRN_TEST_DATABASE_URL`. A vacuous pass
 //! here would be a schema nobody checked.
 
-use cairn_e2e::feature005::{Pg, SERVER_SCHEMA_V3, SERVER_SCHEMA_V9};
+use cairn_e2e::feature005::{Pg, SERVER_SCHEMA_V10, SERVER_SCHEMA_V3};
 use cairn_e2e::Server;
 
 macro_rules! pg {
@@ -111,7 +111,7 @@ fn v3_migrates_to_v4_and_keeps_what_v3_held() {
     // team revision while later migrations remove obsolete runtime state.
     assert_eq!(
         new.count("SELECT COALESCE(MAX(version), 0) FROM schema_migrations"),
-        SERVER_SCHEMA_V9
+        SERVER_SCHEMA_V10
     );
     assert!(
         new.count(

@@ -15,3 +15,10 @@ Cairn is durable, project-scoped memory for this repository, shared by every age
 11. If Cairn names a corroborating member and it is the same claim, reinforce it.
 12. Record a pattern's outcome, including when it did not apply.
 <!-- cairn:managed:end id=agent-contract -->
+
+## Architecture decisions
+
+Read [docs/adr/README.md](docs/adr/README.md) before revisiting M1/M2 architecture
+or evaluation choices. Record consequential new decisions with their alternatives
+and evidence; update implementation and validation status without erasing failed
+approaches. Accepted direction is not proof that a milestone passed.

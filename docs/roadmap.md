@@ -58,7 +58,10 @@ The latest task-query development examples passed usefulness (2/2) and delivered
 claim quality (10/10), with one incomplete control prior trace. Both captures
 were clean decisions, so they do not establish a correction for mixed records.
 Astra recommends semantic excerpt selection before working search and context
-delivery; the required server inference provider is not yet configured. The
+delivery. The candidate selector now has a configured-provider integration and
+exact-span validation; real-provider semantic evidence remains pending until
+the provider is supplied. [ADR records](adr/README.md) preserve these choices
+and rejected approaches. The
 [development report](../evals/m1-m2/results.md#task-query-development--code-verified-m2-remains-open)
 preserves this limitation and the original failure.
 
@@ -110,4 +113,4 @@ established.
 
 ## Later
 
-Additional integrations, semantic retrieval, embeddings or vector storage, richer analytics, hosted service, larger-team administration, and a broader human CLI need product evidence before entering this sequence.
+Additional integrations, embeddings or vector storage, richer analytics, hosted service, larger-team administration, and a broader human CLI need product evidence before entering this sequence.

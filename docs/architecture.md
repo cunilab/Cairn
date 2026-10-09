@@ -24,23 +24,27 @@ Retrieval considers current session, branch, then project applicability, subject
 
 Context without a task query provides continuity and authorized memory availability,
 while project findings require bounded task keywords. Native hooks send no query.
-Explicit `cairn_context(query)` uses the existing lexical matching rules; ordinary
+Explicit `cairn_context(query)` uses lexical matching to gather candidates; ordinary
 `cairn_search` working recall requires a query. Query responses carry a policy and
 normalized query digest so older components cannot silently drop the selector.
 Explicit query context bypasses the outage cache. An older unqueried response has
 project bodies withheld and its trace is never reported as transmitted.
 
-Lexical matching selects whole records. A matching decision can still include
-irrelevant appended implementation claims; this change does not establish M2's
-claim-quality gate or objective semantic verification. Archival inspection retains
-the original records and their eligibility disclosures.
+The candidate server then selects task-conditioned exact excerpts inside those
+records before working search, detail or context delivery. Byte spans and source
+and excerpt hashes bind provenance to the delivered text; context traces retain
+that provenance in schema 10. Authorization, eligibility and source revision are
+checked again after inference. Automatic pins and warnings contain references or
+status, without memory bodies. Archive inspection retains the original records
+and their eligibility disclosures.
 
-[ADR 0004](adr/0004-extractive-semantic-selection.md) records the accepted
-replacement for whole-record delivery: server-side task-conditioned exact
-excerpt selection. Its implementation and live semantic validation are pending;
-[ADR 0005](adr/0005-configured-inference-and-deployment.md) records inference
-configuration and the deployment boundary. The [ADR index](adr/README.md)
-preserves the other M1/M2 choices and rejected approaches.
+Missing inference, provider failure or invalid extraction refuses matching
+working recall without whole-record fallback. Exact quotation validation does
+not establish semantic relevance or faithful omission of qualifiers; live M2
+claim-quality evidence remains pending. [Inference configuration](inference.md)
+documents the provider data boundary. [ADR 0004](adr/0004-extractive-semantic-selection.md)
+records the selection decision; the [ADR index](adr/README.md) preserves the
+other M1/M2 choices and rejected approaches.
 
 ## Degraded behavior and recovery
 
@@ -59,7 +63,8 @@ These alpha.9 defaults are safety bounds, not throughput, capacity, or disaster-
 | Boundary | Default or limit | Consequence |
 | --- | --- | --- |
 | Context | 3,000 tokens, minimum 600 | Returned context is bounded. |
-| Capture / context deadline | 250 ms / 1,500 ms | Deadline expiry returns an honest fallback. |
+| Capture / automatic context / explicit query context deadline | 250 ms / 1,500 ms / 20 s | Deadline expiry returns an honest fallback; queried bodies are never replayed from cache. |
+| Inference | 10 s HTTP timeout, 4 concurrent requests, 72 records, 64 KiB response | Capacity saturation and invalid or unavailable output refuse working recall. |
 | Outage cache | 200 sessions, 64 KiB each, 300 s TTL | Account-bound and finite; restart loses it. |
 | Event spool | 50,000 rows or 256 MiB of payloads | Oldest ordinary capture can be dropped and counted; protected boundary rows are retained, then admission is refused. This is not a total disk limit. |
 | Delivery claim / HTTP request | 60 s / 20 s | Expired claims are recoverable; server receipts make retries idempotent. |

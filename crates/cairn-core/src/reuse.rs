@@ -12,7 +12,7 @@ pub const SUPPORT_SUMMARY_MAX_BYTES: usize = 512;
 pub const SOURCE_REFERENCE_MAX_BYTES: usize = 256;
 pub const SOURCE_REVISION_MAX_BYTES: usize = 128;
 pub const RECALL_QUERY_MAX_BYTES: usize = 256;
-pub const TASK_QUERY_POLICY: &str = "task_keywords_v1";
+pub const TASK_QUERY_POLICY: &str = "task_excerpts_v1";
 
 pub fn validate_recall_query(query: Option<&str>) -> Result<(), &'static str> {
     let Some(query) = query.filter(|q| !q.trim().is_empty()) else {

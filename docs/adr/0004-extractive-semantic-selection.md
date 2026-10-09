@@ -1,6 +1,6 @@
 # 0004 — Select exact excerpts inside matching records
 
-**Status:** Accepted; implementation in progress, semantic validation not run.
+**Status:** Accepted; candidate implemented and mechanical regressions passed; live semantic validation pending.
 **Recorded:** 2026-10-09.
 
 ## Context
@@ -50,3 +50,11 @@ corrected source and repeat the unchanged full evaluation after those checks.
 [Preserved V13 and development results](../../evals/m1-m2/results.md) document
 the failed quality gate, whole-record regression and Astra's recommendation.
 No live provider result or new full milestone pass is established by this ADR.
+
+Independent review found and corrected a pinned-body bypass, unbounded inference
+capacity waiting and mismatched search/selector limits. A subsequent PostgreSQL
+test paused inference and revoked membership; context still returned a record
+because `ReaderContext` held a request-start membership snapshot. Rebinding the
+session did not refresh that snapshot. Context now performs a fresh membership
+query after inference, alongside source revision/eligibility checks. Preserve the
+paused-provider regression: source review alone missed this authorization bug.

@@ -63,7 +63,9 @@ def collect(case, folder):
             "snapshot_complete": result["delivery_snapshot"]["complete"],
             "transmitted_items": transmitted, "selected_without_transmission": selected,
             "qualifier": "Transmission proves delivery to the host, not consumption. "
-                         "Version mismatch requires the actual delivered context/tool payload.",
+                         "current_record is source evidence, not proof that its whole content was delivered. "
+                         "An item's selection binds an excerpt to source bytes. Inventory claims from "
+                         "the actual delivered context/tool payload; version mismatch cannot reconstruct it.",
         }
     return packet
 

@@ -21,6 +21,11 @@ or transcripts. Empty working search is refused with an actionable error; delibe
 archival inspection remains available. Query context needs the server and daemon to
 confirm the selector and does not replay cached results from another query.
 
+The candidate excerpt selector also needs [server inference configuration](inference.md).
+It sends task keywords and authorized candidate contents to the configured
+provider and delivers validated exact excerpts. Provider failure refuses working
+recall without replaying original records. Live semantic validation remains pending.
+
 ## Session identity
 
 For the verified Codex CLI `0.160.0`, Cairn uses the framework's per-call

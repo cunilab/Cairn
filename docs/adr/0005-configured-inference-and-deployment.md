@@ -1,6 +1,6 @@
 # 0005 — Configure inference separately from deployment
 
-**Status:** Accepted; implementation in progress; live provider pending.
+**Status:** Accepted; candidate configuration implemented; live provider pending.
 **Recorded:** 2026-10-09.
 
 ## Context
@@ -18,6 +18,12 @@ Implement an OpenAI-compatible chat-completions connection using server-only
 (normally `/v1`); append `/chat/completions` once. Require HTTPS, except loopback
 HTTP for local tests. Reject URL credentials, queries and fragments; disable
 redirects. Do not emit credentials, provider prompts or raw provider errors.
+
+Explicit working recall sends the task query and full authorized candidate
+contents to the configured inference provider, before excerpts are selected.
+Operators must choose a provider permitted to process that project information;
+the provider's retention and processing rules apply to those inputs. Credentials
+remain server-side. Unqueried continuity and archive inspection do not invoke it.
 
 All three settings absent permits startup, archive access and unqueried
 continuity. Working recall with candidate records refuses to proceed without a

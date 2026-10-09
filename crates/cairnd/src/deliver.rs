@@ -104,6 +104,18 @@ fn withhold_project_bodies_without_query(response: &mut Value) {
                 .is_some_and(|v| v.as_array().is_none_or(|a| !a.is_empty()));
         }
     }
+    if response["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY {
+        if let Some(continuity) = response
+            .get_mut("continuity")
+            .and_then(Value::as_object_mut)
+        {
+            for field in ["pins", "warnings"] {
+                removed |= continuity
+                    .remove(field)
+                    .is_some_and(|value| value.as_array().is_none_or(|items| !items.is_empty()));
+            }
+        }
+    }
     if removed {
         if let Some(object) = response.as_object_mut() {
             // The old trace selected bodies we did not deliver; never report it transmitted.
@@ -895,10 +907,13 @@ mod tests {
             answer["sections"]["personal_notes"][0]["content"],
             "authorized personal guidance"
         );
-        assert_eq!(
-            answer["continuity"]["pins"][0]["text"],
-            "explicitly pinned constraint"
-        );
+        assert!(!answer.to_string().contains("explicitly pinned constraint"));
+        let mut current = json!({
+            "project_recall_policy": cairn_core::reuse::TASK_QUERY_POLICY,
+            "continuity": {"pins": [{"id": Uuid::nil(), "text": "Pinned project memory is available through task-scoped recall."}]}
+        });
+        withhold_project_bodies_without_query(&mut current);
+        assert_eq!(current["continuity"]["pins"].as_array().unwrap().len(), 1);
     }
 
     fn response(trace: &str, level: &str, tokens: u64, spent: u64) -> Value {
@@ -1284,8 +1299,13 @@ mod tests {
         for (status, mut answer) in [
             ("500 Internal Server Error", json!({})),
             ("200 OK", response("legacy", "full", 3000, 100)),
+            ("200 OK", response("whole-record-policy", "full", 3000, 100)),
             ("200 OK", response("other-query", "full", 3000, 100)),
         ] {
+            if answer["trace_id"] == "whole-record-policy" {
+                answer["project_recall_policy"] = json!("task_keywords_v1");
+                answer["project_query_sha256"] = json!(cairn_core::digest("bounded parser"));
+            }
             if answer["trace_id"] == "other-query" {
                 answer["project_recall_policy"] = json!(cairn_core::reuse::TASK_QUERY_POLICY);
                 answer["project_query_sha256"] = json!(cairn_core::digest("different task"));

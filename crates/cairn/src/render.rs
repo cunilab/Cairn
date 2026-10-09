@@ -16,6 +16,22 @@ fn capture_hint() -> String {
 /// Render the canonical server envelope without inventing local history.
 /// Unknown populated sections fail closed so transmission cannot overclaim.
 pub fn context(value: &serde_json::Value) -> Result<String, String> {
+    if value["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY
+        && [
+            ("continuity", "pins"),
+            ("continuity", "warnings"),
+            ("briefing", "constraints"),
+            ("briefing", "warnings"),
+        ]
+        .iter()
+        .any(|(parent, field)| {
+            value[parent][field]
+                .as_array()
+                .is_some_and(|items| !items.is_empty())
+        })
+    {
+        return Err("project pin and warning delivery needs the current recall policy; upgrade the server and daemon".into());
+    }
     let has_project_bodies = ["session_memory", "branch_memory", "project_memory"]
         .iter()
         .any(|key| {
@@ -308,6 +324,23 @@ fn short(sha: &str) -> String {
 mod context_tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn legacy_pins_and_warnings_cannot_bypass_task_scoped_delivery() {
+        for (parent, field) in [
+            ("continuity", "pins"),
+            ("continuity", "warnings"),
+            ("briefing", "constraints"),
+            ("briefing", "warnings"),
+        ] {
+            let mut value = json!({"sections":{}});
+            value[parent] = json!({});
+            value[parent][field] = json!([{"text":"legacy raw project claim"}]);
+            assert!(context(&value)
+                .unwrap_err()
+                .contains("current recall policy"));
+        }
+    }
 
     #[test]
     fn capture_guidance_agrees_with_the_managed_contract() {

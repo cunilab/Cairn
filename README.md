@@ -72,6 +72,7 @@ During an outage, bounded local capture can continue. A full spool reports loss 
 - [Architecture decisions](docs/adr/README.md): consequential choices, alternatives, evidence, and pending validation.
 - [Roadmap](docs/roadmap.md): product outcomes from foundation to stable 0.1.
 - [Integrations](docs/integrations.md): supported agent behavior and setup ownership.
+- [Recall inference](docs/inference.md): candidate server configuration and provider data boundary.
 - [Validation](docs/validation.md): tests, release proof, and acceptance evidence.
 - [M1/M2 candidate evidence](evals/m1-m2/results.md): local journeys, paired recall results, and remaining milestone gates.
 

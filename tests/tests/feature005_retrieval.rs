@@ -855,8 +855,9 @@ fn a_pin_older_than_twenty_four_newer_memories_still_reaches_level0() {
         "{resp}"
     );
     assert_eq!(
-        resp["continuity"]["pins"][0]["text"], "keep the release branch immutable",
-        "a Level 0 pin must not inherit the durable candidate window"
+        resp["continuity"]["pins"][0]["text"],
+        "Pinned project memory is available through task-scoped recall.",
+        "automatic continuity may identify an older pin, but must not deliver its source body"
     );
 }
 
@@ -955,10 +956,12 @@ fn a_tiny_budget_keeps_level0_candidates_bounded_and_leaves_durable_spend_at_zer
         7,
         "server must not impose the daemon's default cap"
     );
-    assert_eq!(
-        warnings.len(),
-        0,
-        "invalidated claims must not enter reuse warnings"
+    assert_eq!(warnings.len(), 7, "each drift warning must remain visible");
+    assert!(
+        warnings
+            .iter()
+            .all(|warning| !warning.to_string().contains("drift warning")),
+        "warning source bodies leaked: {resp}"
     );
     assert!(pins.len() <= 24 && warnings.len() <= 24, "{resp}");
 }

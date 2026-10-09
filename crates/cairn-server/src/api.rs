@@ -13,6 +13,7 @@ use axum::{Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use sqlx::Row;
+use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use uuid::Uuid;
@@ -1438,14 +1439,32 @@ async fn retrieve_context(
     Json(body): Json<crate::retrieve::RetrieveRequest>,
 ) -> ApiResult<Json<Value>> {
     crate::reuse::require_schema(state.schema_version)?;
+    if body
+        .query
+        .as_deref()
+        .is_some_and(|query| !query.trim().is_empty())
+    {
+        crate::selector::require_schema(state.schema_version)?;
+    }
     let reader = auth::ReaderContext::load(&state.pool, &user.0).await?;
     let config = cairn_core::CairnConfig::default();
+    let deadline_ms = if body
+        .query
+        .as_deref()
+        .is_some_and(|query| !query.trim().is_empty())
+    {
+        20_000
+    } else {
+        config.context_deadline_ms as u128
+    };
     let answer = crate::retrieve::retrieve(
         &state.pool,
         &reader,
         &body,
+        state.selector.as_ref(),
+        state.schema_version,
         config.context_budget_tokens,
-        config.context_deadline_ms as u128,
+        deadline_ms,
     )
     .await?;
     Ok(Json(
@@ -2444,6 +2463,8 @@ async fn project_memories(
     auth::require_member(&state.pool, id, user.id()).await?;
     if q.purpose == cairn_core::reuse::ReusePurpose::Reuse {
         crate::reuse::require_schema(state.schema_version)?;
+        crate::selector::require_schema(state.schema_version)?;
+        cairn_core::reuse::validate_recall_query(q.q.as_deref()).map_err(ApiError::invalid)?;
     }
     if let Some(domain) = q.domain.as_deref() {
         if domain != "project" {
@@ -2454,7 +2475,11 @@ async fn project_memories(
             )));
         }
     }
-    let limit = crate::global::view_page_limit(q.limit);
+    let limit = if q.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+        crate::global::view_page_limit(q.limit).min(crate::selector::MAX_RECORDS as i64)
+    } else {
+        crate::global::view_page_limit(q.limit)
+    };
     let want_state = q.state.unwrap_or_else(|| "active".to_string());
 
     // A natural-language query often adds words absent from a useful memory.
@@ -2501,7 +2526,7 @@ async fn project_memories(
     );
     let rows = sqlx::query(&memory_sql)
         .bind(id)
-        .bind(q.q.clone().unwrap_or_default())
+        .bind(q.q.as_deref().map(str::trim).unwrap_or_default())
         .bind(&want_state)
         .bind(&q.scope)
         .bind(&q.scope_key)
@@ -2510,12 +2535,86 @@ async fn project_memories(
         .fetch_all(&state.pool)
         .await?;
 
-    let memories: Vec<Value> = rows.iter().map(memory_json).collect();
+    let query =
+        q.q.as_deref()
+            .map(str::trim)
+            .filter(|query| !query.is_empty());
+    let memories: Vec<Value> = if q.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+        let query = query.expect("reuse query was validated");
+        let sources = rows
+            .iter()
+            .map(|row| crate::selector::SourceRecord {
+                id: row.get("id"),
+                content: row.get("content"),
+            })
+            .collect::<Vec<_>>();
+        let source_updates = rows
+            .iter()
+            .map(|row| {
+                (
+                    row.get::<Uuid, _>("id"),
+                    row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
+                )
+            })
+            .collect::<HashMap<_, _>>();
+        let selected = crate::selector::select(state.selector.as_ref(), query, &sources).await?;
+
+        // Membership and every selected source revision are checked again after
+        // inference, so a slow provider cannot bridge a revocation or edit.
+        auth::require_member(&state.pool, id, user.id()).await?;
+        let mut excerpts = HashMap::new();
+        for excerpt in selected {
+            let source = sources
+                .iter()
+                .find(|source| source.id == excerpt.id)
+                .expect("selector only returns supplied ids");
+            let eligible = crate::reuse::eligible("m");
+            let unchanged: bool = sqlx::query_scalar(&format!(
+                "SELECT EXISTS (SELECT 1 FROM memories m
+                  WHERE m.id = $1 AND m.project_id = $2 AND m.content = $3
+                    AND m.updated_at = $4 AND ({eligible}))"
+            ))
+            .bind(excerpt.id)
+            .bind(id)
+            .bind(&source.content)
+            .bind(source_updates[&excerpt.id])
+            .fetch_one(&state.pool)
+            .await?;
+            if !unchanged {
+                return Err(ApiError::new(
+                    StatusCode::CONFLICT,
+                    "selector_source_changed",
+                    "a selected memory changed or became ineligible during semantic selection; retry",
+                ));
+            }
+            excerpts.insert(excerpt.id, excerpt);
+        }
+        rows.iter()
+            .filter_map(|row| {
+                let excerpt = excerpts.remove(&row.get::<Uuid, _>("id"))?;
+                let mut value = memory_json(row);
+                value["content"] = json!(excerpt.content);
+                value["selection"] = serde_json::to_value(excerpt.provenance).ok()?;
+                if let Some(attestation) = value["reuse"]["attestation"].as_object_mut() {
+                    attestation.remove("support_summary");
+                }
+                Some(value)
+            })
+            .collect()
+    } else {
+        rows.iter().map(memory_json).collect()
+    };
     Ok(Json(json!({
         "memories": memories,
         "total": memories.len(),
         "purpose": q.purpose.as_str(),
         "reuse_policy": crate::reuse::POLICY_ID,
+        "project_recall_policy": if q.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+            Some(cairn_core::reuse::TASK_QUERY_POLICY)
+        } else { None },
+        "project_query_sha256": if q.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+            query.map(cairn_core::digest)
+        } else { None },
         "inspection_instruction": if q.purpose == cairn_core::reuse::ReusePurpose::Inspect {
             Some("Archived results may be ineligible for working reuse. Use their reuse status to inspect, verify, supersede, or correct them; do not treat capture attestation as objective proof.")
         } else { None },
@@ -2672,6 +2771,14 @@ fn reuse_status_json(r: &sqlx::postgres::PgRow) -> Value {
 /// is, the slower its page would load (FR-895).
 const RETRIEVAL_USAGE_LIMIT: i64 = 20;
 
+#[derive(Deserialize)]
+struct MemoryDetailParams {
+    #[serde(default)]
+    purpose: cairn_core::reuse::ReusePurpose,
+    #[serde(default)]
+    q: Option<String>,
+}
+
 /// `GET /api/memories/{id}` — everything FR-884 asks a reader to be able to
 /// determine about one record (T109).
 ///
@@ -2690,7 +2797,13 @@ async fn memory_detail(
     State(state): State<AppState>,
     user: SettledUser,
     Path(id): Path<Uuid>,
+    Query(params): Query<MemoryDetailParams>,
 ) -> ApiResult<Json<MemoryDetailResponse>> {
+    if params.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+        crate::reuse::require_schema(state.schema_version)?;
+        crate::selector::require_schema(state.schema_version)?;
+        cairn_core::reuse::validate_recall_query(params.q.as_deref()).map_err(ApiError::invalid)?;
+    }
     let reuse_projection = reuse_projection(state.schema_version, "m");
     let reuse_joins = reuse_joins(state.schema_version, "m");
     let detail_sql = format!(
@@ -2729,6 +2842,60 @@ async fn memory_detail(
     // Provenance is references; evidence content is local to the machine that
     // captured it and does not exist here (FR-055, FR-061).
     let mut value = memory_json(&row);
+    if params.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+        let query = params
+            .q
+            .as_deref()
+            .map(str::trim)
+            .filter(|query| !query.is_empty())
+            .expect("reuse query was validated");
+        if !row.get::<bool, _>("reuse_eligible") {
+            return Err(ApiError::not_found("no reusable memory"));
+        }
+        let source = crate::selector::SourceRecord {
+            id,
+            content: row.get("content"),
+        };
+        let source_updated_at = row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at");
+        let mut selected = crate::selector::select(
+            state.selector.as_ref(),
+            query,
+            std::slice::from_ref(&source),
+        )
+        .await?;
+
+        crate::commands::project_of_record(&state.pool, "memories", id, user.id()).await?;
+        let eligible = crate::reuse::eligible("m");
+        let unchanged: bool = sqlx::query_scalar(&format!(
+            "SELECT EXISTS (SELECT 1 FROM memories m
+              WHERE m.id = $1 AND m.project_id = $2 AND m.content = $3
+                AND m.updated_at = $4 AND ({eligible}))"
+        ))
+        .bind(id)
+        .bind(project_id)
+        .bind(&source.content)
+        .bind(source_updated_at)
+        .fetch_one(&state.pool)
+        .await?;
+        if !unchanged {
+            return Err(ApiError::new(
+                StatusCode::CONFLICT,
+                "selector_source_changed",
+                "the memory changed or became ineligible during semantic selection; retry",
+            ));
+        }
+        let excerpt = selected
+            .pop()
+            .ok_or_else(|| ApiError::not_found("no reusable excerpt matched the task query"))?;
+        value["content"] = json!(excerpt.content);
+        value["selection"] = serde_json::to_value(excerpt.provenance)
+            .map_err(|_| ApiError::internal("could not encode excerpt provenance"))?;
+        value["project_recall_policy"] = json!(cairn_core::reuse::TASK_QUERY_POLICY);
+        value["project_query_sha256"] = json!(cairn_core::digest(query));
+        if let Some(attestation) = value["reuse"]["attestation"].as_object_mut() {
+            attestation.remove("support_summary");
+        }
+    }
     value["provenance"]["evidence_content_available"] = json!(false);
 
     let origin_session: Uuid = row.get("origin_session_id");
