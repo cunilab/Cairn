@@ -1901,6 +1901,14 @@ impl Server {
         fixed_addr: Option<String>,
         selector_mode: TestSelectorMode,
     ) -> Result<Self, String> {
+        // Keep parallel fixtures from accepting a sibling's health response
+        // while their own child is still migrating toward the same free port.
+        static STARTUP: std::sync::Mutex<()> = std::sync::Mutex::new(());
+        let _startup = STARTUP.lock().unwrap_or_else(|error| error.into_inner());
+        let selector = match selector_mode {
+            TestSelectorMode::Echo => Some(TestSelector::start()),
+            TestSelectorMode::Disabled => None,
+        };
         let addr = match fixed_addr {
             Some(addr) => addr,
             None => {
@@ -1941,10 +1949,6 @@ impl Server {
         // its arguments all look identical from outside. Piped rather than
         // inherited so it does not interleave with the test output, and read
         // back only on the failure path below.
-        let selector = match selector_mode {
-            TestSelectorMode::Echo => Some(TestSelector::start()),
-            TestSelectorMode::Disabled => None,
-        };
         let mut command = Command::new(server_binary());
         command
             .args(&args)

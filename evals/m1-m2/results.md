@@ -21,6 +21,19 @@ rejection; the final affected journey, transfer, delivery and trace batch passed
 28 tests. The other 48 targeted checks passed earlier in this development cycle.
 Astra independently reviewed the selector and subsequent boundary fixes.
 
+The first latest-head CI attempt at `2e9babd1` passed five jobs but Linux
+failed during an ingest fixture's initial account sign-in. The exact test passed
+locally. Independent Sol review identified a harness startup race: parallel
+fixtures could probe the same free port and accept a sibling's health response
+before their own child finished startup. Account creation used the intended
+database while login reached the sibling. The harness now serializes listener
+allocation through readiness and binds its selector before probing the server
+port. The second CI attempt confirmed an endpoint mix-up: login returned the fake
+selector response. With the fix, all 30 local PostgreSQL ingest tests and
+end-to-end crate Clippy passed; Sol independently reviewed startup/restart
+locking. Production authentication is unchanged; both failed attempts remain
+preserved in [CI 37946831030](https://github.com/cunilab/Cairn/actions/runs/37946831030).
+
 These fixtures use a fake inference endpoint and establish mechanical behavior,
 not semantic quality. The collector preserves actual excerpt selection and
 warns judges not to treat the original canonical record as delivered content.
