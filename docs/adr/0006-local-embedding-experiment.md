@@ -1,6 +1,6 @@
 # 0006 — Test local embeddings before changing retrieval
 
-**Status:** Proposed; bounded development experiment authorized; no production integration.
+**Status:** Experiment completed; this sentence/top-one approach failed the advance criteria; no production integration.
 **Recorded:** 2026-10-09.
 
 ## Context
@@ -65,6 +65,23 @@ sentence boundaries. Passing this small experiment does not establish paired
 agent task completion, privacy, or deployment support.
 
 ## Evidence
+
+Frozen experiment source `73959a1206d2a3782c93a4e0db679b01cde78b74` passed
+retrieval calibration (four positive hits, no deliveries on four negatives).
+Across 24 unseen synthetic cases, embedding delivery had 20/22 relevant and
+supported claims (90.9%), but useful retrieval was only 10/20 eligible sources
+(50%) and one delivered sentence lost the preceding production-only condition.
+Keyword delivery had 21/26 qualified claims (80.8%), the same 10/20 useful
+retrieval and the same condition loss. There were no unknown judgments.
+
+The isolated judge reused the 42/42 predicate calibration and scored all 48
+actual outputs. Useful retrieval is a development proxy, not observed agent
+application or a separately calibrated application measure. The
+[experiment metadata](../../evals/m1-m2/local-embedding-development-metadata.json)
+preserves identities, denominators, transport proof and private evidence hashes.
+Stop this approach as predeclared. Ranking improved claim precision but did not
+establish faithful self-contained units. No cutoff, corpus or segmentation
+tuning followed these observations; ADR 0004 remains unsuperseded and M2 open.
 
 - [Groq development failures](../../evals/m1-m2/groq-development-metadata.json).
 - [Agentmemory local embedding source](https://github.com/rohitg00/agentmemory/blob/da91cc05b3c79c59f6c0480f728bb9c09127e000/src/providers/embedding/local.ts).

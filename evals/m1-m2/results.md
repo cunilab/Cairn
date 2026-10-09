@@ -1,5 +1,33 @@
 # M1/M2 candidate evidence — through 2026-10-09
 
+## Local embedding development — advance criteria failed
+
+The frozen experiment at `73959a1206d2a3782c93a4e0db679b01cde78b74`
+compared BM25 with q8 local MiniLM on identical automatic sentence units.
+Separate eight-case calibration passed: four positive hits and no deliveries
+on four no-match cases. All 24 development cases preserved exact UTF-8 spans.
+The isolated independent judge scored all 48 actual outputs, with no unknowns.
+
+| Arm | Relevant and supported claims | Useful retrieval / eligible sources | Condition/authority corruption |
+| --- | --- | --- | --- |
+| BM25 | 21/26 (80.8%) | 10/20 (50%) | 1 |
+| Local embeddings | 20/22 (90.9%) | 10/20 (50%) | 1 |
+
+Embeddings met the 90% claim-quality screen but failed the 80% useful-retrieval
+screen and zero-corruption requirement. Both arms selected a migration permission
+without its preceding production-only scope. Other useful-retrieval failures
+omitted needed exceptions, actor information or complementary requirements.
+The predeclared stop rule applies: no production integration or further tuning.
+
+The cached-model run took 958 ms (332 ms model startup, 256 ms batched embedding);
+these are standalone measurements, not production latency. The judge reused
+42/42 calibrated relevance/support predicates. Useful retrieval is a synthetic
+proxy, not separately calibrated agent application or full milestone evidence.
+[Metadata](local-embedding-development-metadata.json) preserves source/runtime
+identities, denominators, transport proof and private evidence hashes.
+[ADR 0006](../../docs/adr/0006-local-embedding-experiment.md) records the outcome.
+M2 remains open; Claude remains skipped.
+
 ## Groq development — model qualification stopped
 
 The temporary `openai/gpt-oss-120b` endpoint authenticated successfully and five

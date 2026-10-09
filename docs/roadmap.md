@@ -62,12 +62,12 @@ mixed-clause relevance after one general clarification; this model is not
 qualified. [Preserved development evidence](../evals/m1-m2/groq-development-metadata.json)
 records those failures.
 
-The user authorized one bounded local-embedding experiment, comparing keyword
-and embedding ranking on identical automatic source units before production
-changes. [ADR 0006](adr/0006-local-embedding-experiment.md) records the proposed
-approach and advance/stop criteria. Embeddings have entered M2 investigation;
-production integration depends on evidence. M1/M2 thresholds and full exit
-requirements remain unchanged. PR #66 remains draft.
+The authorized local-embedding experiment compared keyword and embedding ranking
+on identical automatic sentence units. Embeddings achieved 90.9% claim quality,
+but useful retrieval was 50% and one selection lost a necessary condition.
+[ADR 0006](adr/0006-local-embedding-experiment.md) preserves the failed advance
+criteria. This approach stopped before production integration. M1/M2 thresholds
+and full exit requirements remain unchanged. PR #66 remains draft.
 
 The [complete v13 Codex run](../evals/m1-m2/regression-v13-metadata.json) has
 15 valid comparisons across three repositories and 15 valid calibrated
