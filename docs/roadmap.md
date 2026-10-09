@@ -54,16 +54,20 @@ does not establish the new source's exit.
 
 **Exit:** paired evidence shows Cairn helps later work and does not create unacceptable harmful recall.
 
-The latest task-query development examples passed usefulness (2/2) and delivered
-claim quality (10/10), with one incomplete control prior trace. Both captures
-were clean decisions, so they do not establish a correction for mixed records.
-Astra recommends semantic excerpt selection before working search and context
-delivery. The candidate selector now has a configured-provider integration and
-exact-span validation; real-provider semantic evidence remains pending until
-the provider is supplied. [ADR records](adr/README.md) preserve these choices
-and rejected approaches. The
-[development report](../evals/m1-m2/results.md#task-query-development--code-verified-m2-remains-open)
-preserves this limitation and the original failure.
+Task-query development examples passed usefulness (2/2) and delivered claim
+quality (10/10), but both captures were clean and did not establish a correction
+for mixed records. The candidate's semantic selector passed mechanical checks
+and CI. Temporary Groq testing failed attribution in its initial screen and
+mixed-clause relevance after one general clarification; this model is not
+qualified. [Preserved development evidence](../evals/m1-m2/groq-development-metadata.json)
+records those failures.
+
+The user authorized one bounded local-embedding experiment, comparing keyword
+and embedding ranking on identical automatic source units before production
+changes. [ADR 0006](adr/0006-local-embedding-experiment.md) records the proposed
+approach and advance/stop criteria. Embeddings have entered M2 investigation;
+production integration depends on evidence. M1/M2 thresholds and full exit
+requirements remain unchanged. PR #66 remains draft.
 
 The [complete v13 Codex run](../evals/m1-m2/regression-v13-metadata.json) has
 15 valid comparisons across three repositories and 15 valid calibrated
@@ -113,4 +117,4 @@ established.
 
 ## Later
 
-Additional integrations, embeddings or vector storage, richer analytics, hosted service, larger-team administration, and a broader human CLI need product evidence before entering this sequence.
+Additional integrations, production vector storage, richer analytics, hosted service, larger-team administration, and a broader human CLI need product evidence before entering this sequence. The bounded local-embedding experiment above does not establish production vector support.

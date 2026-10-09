@@ -55,6 +55,25 @@ source candidate. It records local journey passes and the frozen 30-pair run, wi
 M1 deployment/platform evidence and M2 semantic gates still open. Historical release
 evidence does not close those candidate gates.
 
+## Bounded retrieval development experiments
+
+[ADR 0006](adr/0006-local-embedding-experiment.md) authorizes a local embedding
+screen before production integration. Freeze source units, independent retrieval
+calibration, development queries, selection/cutoff rules, runtime/model identities
+and evidence hashes before execution. Compare keyword and embedding ranking on
+identical automatic units. Calibrate similarity cutoffs only on the separate
+calibration examples; do not treat scores as probabilities or tune them using
+development judgments.
+
+The independent calibrated judge inventories actual delivered claims, including
+irrelevant claims in the same unit, and checks source attribution, negation,
+conditions and eligible useful recall. Record abstentions, misses, corruption,
+latency and denominators. Require the existing 90% claim quality, 80% eligible
+useful-recall targets and no qualifier/authority corruption to advance. Preserve
+failures and stop a failed approach before integration. Empty denominators do
+not pass. This synthetic experiment cannot substitute for the frozen paired
+workload, privacy/adverse evidence or fresh installed deployment journey.
+
 ## Proposed future gates
 
 These are planning thresholds inherited from the previous roadmap, not results or current support guarantees. Freeze the workload and scoring rubric before using them as release gates; record denominators and revise targets openly if product evidence warrants it.

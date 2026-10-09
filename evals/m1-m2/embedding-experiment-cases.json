@@ -1,0 +1,677 @@
+{
+  "schema": 1,
+  "title": "Frozen local embedding retrieval experiment",
+  "segmentation_policy": "en_sentence_v1",
+  "calibration": [
+    {
+      "id": "C01-retention",
+      "eligible": true,
+      "query": "How long must backups be retained?",
+      "sources": [
+        {
+          "id": "c01",
+          "metadata": {
+            "actor_user_id": "author-c01",
+            "basis": "user_report",
+            "source_reference": "calibration/C01",
+            "source_revision": "1",
+            "disclosure": "team"
+          },
+          "text": "Operators require backups to be retained for 30 days. The dashboard shows backup job history."
+        }
+      ],
+      "expected_unit_ids": [
+        "c01:0"
+      ]
+    },
+    {
+      "id": "C02-receipt-paraphrase",
+      "eligible": true,
+      "query": "What compression setting should receipt photos use?",
+      "sources": [
+        {
+          "id": "c02",
+          "metadata": {
+            "actor_user_id": "author-c02",
+            "basis": "user_report",
+            "source_reference": "calibration/C02",
+            "source_revision": "1",
+            "disclosure": "team"
+          },
+          "text": "Receipt images must use JPEG quality 0.82 before private storage. Original camera bytes may contain metadata."
+        }
+      ],
+      "expected_unit_ids": [
+        "c02:0"
+      ]
+    },
+    {
+      "id": "C03-approval-condition",
+      "eligible": true,
+      "query": "When is maintainer approval required for deployment?",
+      "sources": [
+        {
+          "id": "c03",
+          "metadata": {
+            "actor_user_id": "author-c03",
+            "basis": "user_report",
+            "source_reference": "calibration/C03",
+            "source_revision": "1",
+            "disclosure": "team"
+          },
+          "text": "A maintainer must approve production deployments. Disposable preview deployments are exempt."
+        }
+      ],
+      "expected_unit_ids": [
+        "c03:0"
+      ]
+    },
+    {
+      "id": "C04-negation",
+      "eligible": true,
+      "query": "Should authentication failures be retried automatically?",
+      "sources": [
+        {
+          "id": "c04",
+          "metadata": {
+            "actor_user_id": "author-c04",
+            "basis": "user_report",
+            "source_reference": "calibration/C04",
+            "source_revision": "1",
+            "disclosure": "team"
+          },
+          "text": "Authentication failures must not be retried automatically. Network timeouts may be retried once."
+        }
+      ],
+      "expected_unit_ids": [
+        "c04:0"
+      ]
+    },
+    {
+      "id": "C05-no-match-layout",
+      "eligible": false,
+      "query": "Which backup encryption algorithm was approved?",
+      "sources": [
+        {
+          "id": "c05",
+          "metadata": {
+            "actor_user_id": "author-c05",
+            "basis": "user_report",
+            "source_reference": "calibration/C05",
+            "source_revision": "1",
+            "disclosure": "team"
+          },
+          "text": "The settings sidebar contains five tabs. The mobile sheet closes after navigation."
+        }
+      ],
+      "expected_unit_ids": []
+    },
+    {
+      "id": "C06-no-match-office",
+      "eligible": false,
+      "query": "Who owns the incident response rotation?",
+      "sources": [
+        {
+          "id": "c06",
+          "metadata": {
+            "actor_user_id": "author-c06",
+            "basis": "user_report",
+            "source_reference": "calibration/C06",
+            "source_revision": "1",
+            "disclosure": "team"
+          },
+          "text": "The office coffee machine is serviced on Fridays. Visitors receive temporary badges."
+        }
+      ],
+      "expected_unit_ids": []
+    },
+    {
+      "id": "C07-no-match-metric",
+      "eligible": false,
+      "query": "What database failover region is configured?",
+      "sources": [
+        {
+          "id": "c07",
+          "metadata": {
+            "actor_user_id": "author-c07",
+            "basis": "user_report",
+            "source_reference": "calibration/C07",
+            "source_revision": "1",
+            "disclosure": "team"
+          },
+          "text": "The weekly report shows 2,400 active users. The chart uses a seven-day rolling average."
+        }
+      ],
+      "expected_unit_ids": []
+    },
+    {
+      "id": "C08-no-match-legal",
+      "eligible": false,
+      "query": "What is the approved invoice currency?",
+      "sources": [
+        {
+          "id": "c08",
+          "metadata": {
+            "actor_user_id": "author-c08",
+            "basis": "user_report",
+            "source_reference": "calibration/C08",
+            "source_revision": "1",
+            "disclosure": "team"
+          },
+          "text": "Contract drafts need legal review before signature. The legal intake form is stored in the portal."
+        }
+      ],
+      "expected_unit_ids": []
+    }
+  ],
+  "evaluation": [
+    {
+      "id": "E01-mixed-same-sentence",
+      "query": "How must backup uploads be protected?",
+      "sources": [
+        {
+          "id": "e01",
+          "metadata": {
+            "actor_user_id": "author-e01",
+            "basis": "user_report",
+            "source_reference": "evaluation/E01",
+            "source_revision": "7",
+            "disclosure": "project"
+          },
+          "text": "Backups must be encrypted before upload, and the settings sidebar has five tabs."
+        }
+      ],
+      "expected_unit_ids": [
+        "e01:0"
+      ]
+    },
+    {
+      "id": "E02-cross-sentence-attribution",
+      "query": "Who required the archive retention rule and what is it?",
+      "sources": [
+        {
+          "id": "e02",
+          "metadata": {
+            "actor_user_id": "author-e02",
+            "basis": "user_report",
+            "source_reference": "evaluation/E02",
+            "source_revision": "2",
+            "disclosure": "project"
+          },
+          "text": "Maya, the product owner, made the retention decision during review. Archives must be retained for 30 days."
+        }
+      ],
+      "expected_unit_ids": [
+        "e02:0",
+        "e02:1"
+      ]
+    },
+    {
+      "id": "E03-cross-sentence-condition",
+      "query": "When may a production migration run?",
+      "sources": [
+        {
+          "id": "e03",
+          "metadata": {
+            "actor_user_id": "author-e03",
+            "basis": "user_report",
+            "source_reference": "evaluation/E03",
+            "source_revision": "3",
+            "disclosure": "project"
+          },
+          "text": "The condition applies only to production databases. A migration may run after two maintainers approve it."
+        }
+      ],
+      "expected_unit_ids": [
+        "e03:0",
+        "e03:1"
+      ]
+    },
+    {
+      "id": "E04-negation",
+      "query": "Can the service retry expired API tokens?",
+      "sources": [
+        {
+          "id": "e04",
+          "metadata": {
+            "actor_user_id": "author-e04",
+            "basis": "user_report",
+            "source_reference": "evaluation/E04",
+            "source_revision": "1",
+            "disclosure": "project"
+          },
+          "text": "Expired API tokens must never be retried. Operators should issue a replacement token."
+        }
+      ],
+      "expected_unit_ids": [
+        "e04:0"
+      ]
+    },
+    {
+      "id": "E05-conditional-exception",
+      "query": "Is review required before deployment?",
+      "sources": [
+        {
+          "id": "e05",
+          "metadata": {
+            "actor_user_id": "author-e05",
+            "basis": "user_report",
+            "source_reference": "evaluation/E05",
+            "source_revision": "5",
+            "disclosure": "project"
+          },
+          "text": "Production deployments require maintainer review. Disposable preview deployments may proceed without that review."
+        }
+      ],
+      "expected_unit_ids": [
+        "e05:0",
+        "e05:1"
+      ]
+    },
+    {
+      "id": "E06-requirement-versus-implementation",
+      "query": "Does the current export use the requested ISO date format?",
+      "sources": [
+        {
+          "id": "e06",
+          "metadata": {
+            "actor_user_id": "author-e06",
+            "basis": "user_report",
+            "source_reference": "evaluation/E06",
+            "source_revision": "4",
+            "disclosure": "project"
+          },
+          "text": "Customers require invoice exports in ISO date format. Current exports still use the locale-specific format."
+        }
+      ],
+      "expected_unit_ids": [
+        "e06:0",
+        "e06:1"
+      ]
+    },
+    {
+      "id": "E07-paraphrase",
+      "query": "What size should uploaded receipt pictures be reduced to?",
+      "sources": [
+        {
+          "id": "e07",
+          "metadata": {
+            "actor_user_id": "author-e07",
+            "basis": "user_report",
+            "source_reference": "evaluation/E07",
+            "source_revision": "6",
+            "disclosure": "project"
+          },
+          "text": "Receipt uploads must have a longest edge of 1600 pixels. The service then stores the re-encoded image privately."
+        }
+      ],
+      "expected_unit_ids": [
+        "e07:0"
+      ]
+    },
+    {
+      "id": "E08-no-match",
+      "query": "Which encryption algorithm protects production backups?",
+      "sources": [
+        {
+          "id": "e08",
+          "metadata": {
+            "actor_user_id": "author-e08",
+            "basis": "user_report",
+            "source_reference": "evaluation/E08",
+            "source_revision": "2",
+            "disclosure": "project"
+          },
+          "text": "The navigation drawer has five tabs. Keyboard focus returns to the trigger after it closes."
+        }
+      ],
+      "expected_unit_ids": []
+    },
+    {
+      "id": "E09-failure-evidence",
+      "query": "What failed in the CSV import trial and what guard remains?",
+      "sources": [
+        {
+          "id": "e09",
+          "metadata": {
+            "actor_user_id": "author-e09",
+            "basis": "user_report",
+            "source_reference": "evaluation/E09",
+            "source_revision": "9",
+            "disclosure": "project"
+          },
+          "text": "Skipping the preview reversed amounts in two CSV import trials. Imports must show the preview mapping before save."
+        }
+      ],
+      "expected_unit_ids": [
+        "e09:0",
+        "e09:1"
+      ]
+    },
+    {
+      "id": "E10-user-preference",
+      "query": "What did the user ask for in the report layout?",
+      "sources": [
+        {
+          "id": "e10",
+          "metadata": {
+            "actor_user_id": "author-e10",
+            "basis": "user_report",
+            "source_reference": "evaluation/E10",
+            "source_revision": "1",
+            "disclosure": "private"
+          },
+          "text": "The user prefers a compact table for monthly reports. This is a preference, not an implemented screen."
+        }
+      ],
+      "expected_unit_ids": [
+        "e10:0",
+        "e10:1"
+      ]
+    },
+    {
+      "id": "E11-status-versus-plan",
+      "query": "Has offline editing been implemented?",
+      "sources": [
+        {
+          "id": "e11",
+          "metadata": {
+            "actor_user_id": "author-e11",
+            "basis": "user_report",
+            "source_reference": "evaluation/E11",
+            "source_revision": "3",
+            "disclosure": "project"
+          },
+          "text": "The team plans offline memo editing after sync design is complete. Offline Save is currently disabled."
+        }
+      ],
+      "expected_unit_ids": [
+        "e11:0",
+        "e11:1"
+      ]
+    },
+    {
+      "id": "E12-exception",
+      "query": "When is the retention cleanup job allowed to delete data?",
+      "sources": [
+        {
+          "id": "e12",
+          "metadata": {
+            "actor_user_id": "author-e12",
+            "basis": "user_report",
+            "source_reference": "evaluation/E12",
+            "source_revision": "8",
+            "disclosure": "project"
+          },
+          "text": "The cleanup job may delete expired records after the legal hold check passes. Records under legal hold are an exception."
+        }
+      ],
+      "expected_unit_ids": [
+        "e12:0",
+        "e12:1"
+      ]
+    },
+    {
+      "id": "E13-provenance",
+      "query": "Which team observed the encoder regression?",
+      "sources": [
+        {
+          "id": "e13",
+          "metadata": {
+            "actor_user_id": "author-e13",
+            "basis": "user_report",
+            "source_reference": "evaluation/E13",
+            "source_revision": "2",
+            "disclosure": "team"
+          },
+          "text": "Hardware QA observed duplicate encoder detents with a 10 ms filter. A 25 ms physical test remains open."
+        }
+      ],
+      "expected_unit_ids": [
+        "e13:0"
+      ]
+    },
+    {
+      "id": "E14-multiple-records",
+      "query": "What protects existing credentials when project lookup fails?",
+      "sources": [
+        {
+          "id": "e14a",
+          "metadata": {
+            "actor_user_id": "author-e14a",
+            "basis": "user_report",
+            "source_reference": "evaluation/E14a",
+            "source_revision": "1",
+            "disclosure": "project"
+          },
+          "text": "Project lookup must finish before a new token is saved. Existing credentials stay untouched when lookup fails."
+        },
+        {
+          "id": "e14b",
+          "metadata": {
+            "actor_user_id": "author-e14b",
+            "basis": "user_report",
+            "source_reference": "evaluation/E14b",
+            "source_revision": "1",
+            "disclosure": "project"
+          },
+          "text": "The setup wizard uses a three-step progress display."
+        }
+      ],
+      "expected_unit_ids": [
+        "e14a:0",
+        "e14a:1"
+      ]
+    },
+    {
+      "id": "E15-no-match",
+      "query": "What timezone must audit timestamps use?",
+      "sources": [
+        {
+          "id": "e15",
+          "metadata": {
+            "actor_user_id": "author-e15",
+            "basis": "user_report",
+            "source_reference": "evaluation/E15",
+            "source_revision": "1",
+            "disclosure": "project"
+          },
+          "text": "The dashboard refreshes its summary every five minutes. The active user count excludes deactivated accounts."
+        }
+      ],
+      "expected_unit_ids": []
+    },
+    {
+      "id": "E16-negated-implementation",
+      "query": "Does release automation publish directly to production?",
+      "sources": [
+        {
+          "id": "e16",
+          "metadata": {
+            "actor_user_id": "author-e16",
+            "basis": "user_report",
+            "source_reference": "evaluation/E16",
+            "source_revision": "4",
+            "disclosure": "project"
+          },
+          "text": "Release automation does not publish directly to production. A maintainer promotes the signed artifact."
+        }
+      ],
+      "expected_unit_ids": [
+        "e16:0",
+        "e16:1"
+      ]
+    },
+    {
+      "id": "E17-conditional-rollback",
+      "query": "When should the service roll back a deployment?",
+      "sources": [
+        {
+          "id": "e17",
+          "metadata": {
+            "actor_user_id": "author-e17",
+            "basis": "user_report",
+            "source_reference": "evaluation/E17",
+            "source_revision": "2",
+            "disclosure": "project"
+          },
+          "text": "Roll back when the error budget alert fires during production rollout. Do not roll back for a staging-only alert."
+        }
+      ],
+      "expected_unit_ids": [
+        "e17:0",
+        "e17:1"
+      ]
+    },
+    {
+      "id": "E18-ambiguous-topic",
+      "query": "What is the approved recovery procedure for a missing API token?",
+      "sources": [
+        {
+          "id": "e18",
+          "metadata": {
+            "actor_user_id": "author-e18",
+            "basis": "user_report",
+            "source_reference": "evaluation/E18",
+            "source_revision": "5",
+            "disclosure": "project"
+          },
+          "text": "A missing-token error must name Settings > API tokens and CAIRN_SERVER_TOKEN. Existing credentials must remain intact."
+        }
+      ],
+      "expected_unit_ids": [
+        "e18:0",
+        "e18:1"
+      ]
+    },
+    {
+      "id": "E19-paraphrase-failure",
+      "query": "Why can we not use the latest release endpoint for the prerelease?",
+      "sources": [
+        {
+          "id": "e19",
+          "metadata": {
+            "actor_user_id": "author-e19",
+            "basis": "user_report",
+            "source_reference": "evaluation/E19",
+            "source_revision": "3",
+            "disclosure": "project"
+          },
+          "text": "The latest release endpoint returned 404 twice for the alpha prerelease. Use the exact prerelease tag to find its artifact."
+        }
+      ],
+      "expected_unit_ids": [
+        "e19:0",
+        "e19:1"
+      ]
+    },
+    {
+      "id": "E20-same-topic-irrelevant-record",
+      "query": "What requirement applies to encrypted backup uploads?",
+      "sources": [
+        {
+          "id": "e20a",
+          "metadata": {
+            "actor_user_id": "author-e20a",
+            "basis": "user_report",
+            "source_reference": "evaluation/E20a",
+            "source_revision": "1",
+            "disclosure": "project"
+          },
+          "text": "Backup uploads require encryption before leaving the device."
+        },
+        {
+          "id": "e20b",
+          "metadata": {
+            "actor_user_id": "author-e20b",
+            "basis": "user_report",
+            "source_reference": "evaluation/E20b",
+            "source_revision": "1",
+            "disclosure": "project"
+          },
+          "text": "The backup screen shows the last successful upload time."
+        }
+      ],
+      "expected_unit_ids": [
+        "e20a:0"
+      ]
+    },
+    {
+      "id": "E21-no-match",
+      "query": "Who approves legal contracts in the EU?",
+      "sources": [
+        {
+          "id": "e21",
+          "metadata": {
+            "actor_user_id": "author-e21",
+            "basis": "user_report",
+            "source_reference": "evaluation/E21",
+            "source_revision": "1",
+            "disclosure": "project"
+          },
+          "text": "Support triage occurs every weekday morning. The queue labels are blue and orange."
+        }
+      ],
+      "expected_unit_ids": []
+    },
+    {
+      "id": "E22-qualified-numeric",
+      "query": "What token rotation interval is required?",
+      "sources": [
+        {
+          "id": "e22",
+          "metadata": {
+            "actor_user_id": "author-e22",
+            "basis": "user_report",
+            "source_reference": "evaluation/E22",
+            "source_revision": "2",
+            "disclosure": "project"
+          },
+          "text": "New projects need a 30-day API-token rotation reminder. The reminder follows membership and token issuance."
+        }
+      ],
+      "expected_unit_ids": [
+        "e22:0"
+      ]
+    },
+    {
+      "id": "E23-cross-sentence-actor",
+      "query": "What did the finance lead decide about transfer regressions?",
+      "sources": [
+        {
+          "id": "e23",
+          "metadata": {
+            "actor_user_id": "author-e23",
+            "basis": "user_report",
+            "source_reference": "evaluation/E23",
+            "source_revision": "4",
+            "disclosure": "project"
+          },
+          "text": "The finance lead made the regression decision. A bank-to-card transfer must leave net worth unchanged and add zero income or expense."
+        }
+      ],
+      "expected_unit_ids": [
+        "e23:0",
+        "e23:1"
+      ]
+    },
+    {
+      "id": "E24-no-match",
+      "query": "Which mobile operating system version is required?",
+      "sources": [
+        {
+          "id": "e24",
+          "metadata": {
+            "actor_user_id": "author-e24",
+            "basis": "user_report",
+            "source_reference": "evaluation/E24",
+            "source_revision": "1",
+            "disclosure": "project"
+          },
+          "text": "The mobile navigation drawer closes after selection. The title remains visible during scrolling."
+        }
+      ],
+      "expected_unit_ids": []
+    }
+  ]
+}

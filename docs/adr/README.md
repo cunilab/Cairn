@@ -12,8 +12,9 @@ has passed. [Architecture](../architecture.md) describes current behavior;
 | [0001](0001-native-session-identity.md) | Bind verified native calls to framework session identity | Accepted; implemented in V13 |
 | [0002](0002-milestone-evidence.md) | Preserve full milestone gates and failed evidence | Accepted; exits remain open |
 | [0003](0003-task-bound-project-recall.md) | Require a task query before project findings leave Cairn | Accepted; implemented at `f44448eb` |
-| [0004](0004-extractive-semantic-selection.md) | Select exact excerpts inside records before working recall | Accepted; mechanical checks passed, live validation pending |
-| [0005](0005-configured-inference-and-deployment.md) | Configure inference separately from deployment | Accepted; candidate configuration implemented, live provider pending |
+| [0004](0004-extractive-semantic-selection.md) | Select exact excerpts inside records before working recall | Accepted; mechanical checks passed, Groq qualification failed |
+| [0005](0005-configured-inference-and-deployment.md) | Configure inference separately from deployment | Accepted; temporary Groq tested, no production provider selected |
+| [0006](0006-local-embedding-experiment.md) | Test local statement retrieval before replacing the selector | Proposed; bounded experiment authorized |
 
 ## Maintaining the records
 
