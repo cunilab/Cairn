@@ -30,11 +30,12 @@ This is a sequence of product outcomes, not a release schedule. Alpha.9 is the c
 **Exit:** a fresh user completes deployment → project → setup → work → return → useful recall without undocumented fixes. Alpha.9 supplied candidate and published smoke evidence for major parts of this journey; a new candidate must prove it again.
 
 [Current candidate evidence](../evals/m1-m2/results.md) records all 17 workflow
-jobs and five installed archive journeys passing for source `9e48676`.
-A fresh HTTPS deployment completed browser provisioning and ordinary setup,
-but the shared Codex return journey failed prior user-choice capture and useful
-recall. Claude journeys remain skipped by user instruction; the original
-two-agent M1 exit remains open. The single PR remains draft.
+jobs, five installed archive journeys and a fresh HTTPS deployment passing for
+source `58107d9`. The shared Codex first-use and return journey passed browser
+provisioning, ordinary setup, prior capture, persisted ownership, actual later
+delivery and independently judged useful application. Claude remains skipped
+by user instruction; the original two-agent M1 exit remains open. The single PR
+remains draft because M2's claim-quality gate failed.
 
 ## M2 — Recall can be trusted
 
@@ -48,14 +49,16 @@ two-agent M1 exit remains open. The single PR remains draft.
 
 **Exit:** paired evidence shows Cairn helps later work and does not create unacceptable harmful recall.
 
-The [complete v12 Codex run](../evals/m1-m2/regression-v12-metadata.json) has
+The [complete v13 Codex run](../evals/m1-m2/regression-v13-metadata.json) has
 15 valid comparisons across three repositories and 15 valid calibrated
-judgments. Useful application is **5/8 (62.5%), below the 80% target** and
-claim quality is **26/30 (86.7%), below the 90% target**. Three bounded privacy
-cases observed no leaks; high-impact harm, completion (treatment 11 versus
-control 7), and median repeated investigation reduction (100% across six
-eligible pairs) passed. Session recovery, durable capture scope and recall
-fidelity require further work. All prior failures and thresholds remain
+judgments. Useful application passed at **8/8 (100%)**, but delivered claim
+quality failed at **31/42 (73.8%), below the 90% target**. All 11 failed claims
+are supported but irrelevant implementation details bundled with useful user
+decisions. Three bounded privacy cases observed no leaks; high-impact harm,
+completion (treatment 14 versus control 5), and median repeated-investigation
+reduction (100% across seven eligible pairs) passed. Findings need separately
+attributable capture and independent selection; another wording iteration is
+not established as a solution. All prior failures and thresholds remain
 preserved; Claude's 15 cases remain explicitly skipped. M2's exit is not
 established.
 

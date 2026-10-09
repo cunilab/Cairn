@@ -80,3 +80,36 @@ record the separate predicate helper hash and unchanged delivery helper hash.
 Full-input injection, isolation, model, semantic instructions and gates remain
 unchanged. Structured output does not establish label correctness or provider
 input readback. A valid semantic failure stops the screen without replacement.
+
+## Prospective M1 evidence correlation before actors
+
+The checker correlates successful prior Cairn `create` receipts with the
+resulting record IDs in the authenticated server's applied-command ledger.
+Only owned, eligible `user_report` findings can establish the prior choice.
+A later inspected-source finding neither satisfies nor invalidates this proof.
+
+For later delivery, require a transmitted selected trace whose source revision
+matches the current record and an actual Cairn host payload containing that
+record. Structured tool responses match record ID and full content together.
+Native rendered hooks omit IDs, so require a unique full-content project-memory
+bullet in an identified Cairn developer injection, with the corresponding hook
+budget and delivery point. This is conservative hook correlation, not an
+exact trace-ID receipt. User/assistant echoes, generic instructions, failed
+calls, missing attestations, empty content, ambiguous duplicate content and
+revision mismatches cannot establish the proof. Require complete, nonunknown
+judge delivery inventory and independently judged useful application.
+
+Freeze the checker hash before actors. Preserve the earlier stricter checker
+and all earlier outcomes. This clarifies M1 identity/delivery evidence only;
+M2 semantic labels, delivery inventory, thresholds and valid-retry policy stay
+frozen.
+
+## Judge quota interruption
+
+All 15 comparisons and 46 actor phases are valid. Two valid judgments remain
+unchanged; 13 calls returned `usageLimitExceeded` before a valid judgment.
+Preserve those original attempts. After the reported reset or user-reported quota recovery, and a non-corpus
+readiness check, resume only those invalid calls using the same frozen complete
+packets, transport, model, instructions and gates. Hash all actor results,
+packets and both valid judgments before resuming; verify the hashes afterward.
+No actors or valid judgments are replaced. Stop on another invalid result.

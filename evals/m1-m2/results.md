@@ -1,41 +1,103 @@
 # M1/M2 candidate evidence — through 2026-10-08
 
-## Final v13 candidate — validation pending
+## Final v13 candidate — M1 passed; M2 claim quality failed
 
-Astra's root-cause review separates infrastructure session identity, optional
-model-owned capture and model-owned answer fidelity. V13 binds the observed
-Codex CLI `0.160.0` profile to its actual per-call framework thread identity,
-which overrides invented model session keys. Explicit Cairn UUIDs remain
-validated against that key, project and worktree. Missing or malformed native
-metadata is refused; other client profiles retain explicit selection. MCP
-cannot start a native lifecycle session by claiming a different agent label.
-Local-client metadata is not authentication.
+Product source is frozen at `58107d941ce6b161542d8651ab4efc395ada8e3e`.
+Astra challenged repeated instruction tuning and identified native session
+identity as infrastructure. V13 binds the observed Codex CLI `0.160.0` profile
+to actual per-call framework thread metadata, overriding invented model keys.
+Explicit Cairn UUIDs remain validated against that key, project and worktree;
+missing or malformed native metadata is refused. Other client profiles retain
+explicit selection. MCP cannot spoof a native agent to start lifecycle sessions.
+Local-client metadata establishes provenance, not authentication.
 
-A non-corpus actual pinned CLI → Cairn stdio → mock-daemon check passed with
-an invented model key overridden by the actual thread identity. Read-only
-inspection confirmed that this identity matches both real native hook sessions
-in the preserved deployment. Independent review passed after the lifecycle
-bypass was closed. The durable capture and recall guidance corrections remain
-scoped to project findings, lasting policies and relevant detail fidelity.
+An [upstream identity report](https://github.com/openai/codex/issues/19937)
+describes the same MCP/hook correlation problem. The fix uses the
+[pinned implementation](https://github.com/openai/codex/blob/rust-v0.160.0/codex-rs/core/src/mcp_tool_call.rs),
+confirmed by actual local calls. A non-corpus pinned CLI → development Cairn
+stdio → mock-daemon check overrode an invented key with the actual thread;
+subsequent UUID validation and lifecycle refusal were tested separately.
+Independent review passed after closing the lifecycle bypass. Local checks
+passed 358 affected-package tests, 14 runner checks, formatting and Clippy.
 
-The final [V13 protocol](protocol-v13.md) keeps the corpus, prompts, profiles,
-budgets, calibration and thresholds fixed. Freeze once and execute one fresh
-complete run. Do not start another wording-tuning cycle after that run. Passing
-requires actual persisted capture and useful application, not a capture
-acknowledgement or the presence of memory alone.
+[Candidate workflow 37772527397](https://github.com/cunilab/Cairn/actions/runs/37772527397)
+passed **all 17 jobs**, both images and five installed archive journeys.
+Its exact-source workspace suite passed **1,256 tests**, zero failed or ignored.
+Checksums, SBOM, native identities and actual fresh HTTPS deployment image
+revisions were verified. All six checks passed on the evaluation-helper commit
+`2d4c4f0`; its product tree matches the candidate. Reporting commits do not
+change the frozen product or artifact identity.
 
-This strategy is consistent with primary-source guidance on
-[unambiguous agent tools and actionable errors](https://www.anthropic.com/engineering/writing-tools-for-agents),
+The [final protocol](protocol-v13.md) preserves the corpus, prompts, profiles,
+budgets and thresholds. Both actor arms used **GPT-6-Luna / low**, CLI `0.160.0`.
+The isolated `gpt-6.1-sol` judge passed [42/42 reused calibration fixtures](calibration-codex-v13-results.json)
+with zero unknown labels and all 13 transport proofs verified. Two earlier
+[procedure-invalid predicate calls](invalid-v13-calibration-metadata.json)
+remain preserved: a private wrapper omitted frozen response instructions.
+Restoring the exact original input and constraining the response schema corrected
+serialization prospectively; neither invalid call counts as a calibration pass.
+Delivery judging uses the unchanged frozen helper.
+
+The fresh browser project/token journey and ordinary setup passed, including
+nine absolute native hooks, account/membership ownership and empty personal/team
+domains. The complete run produced **15 valid comparisons, 46 successful phases
+and 15 valid judgments**, with complete traces and verified runtime identities.
+Two judgments completed before quota blocked the remaining
+[13 calls](invalid-v13-judge-quota-metadata.json). After the user reported quota
+recovery, a non-corpus availability check passed and only those invalid calls
+resumed. All 15 actor results, 15 complete packets and both valid judgments
+remained byte-for-byte unchanged; original quota calls are preserved.
+An earlier readiness process ended before completion with nearly full host disk;
+its cause remains unestablished and its original logs remain preserved. Generated
+build/package caches were cleaned; private evidence was retained.
+All 15 final judge RPC/config logs passed isolation, input and compaction checks.
+
+| Gate | V13 observation | Status |
+| --- | --- | --- |
+| M1 prior capture → persisted ownership → later useful delivery | One accepted prior creation correlated to one owned eligible user-report record, actual later delivery and useful application | PASS for Codex journey |
+| Useful natural application ≥80% | 8/8 (100%) | PASS |
+| Delivered claims relevant and supported ≥90% | 31/42 (73.8%) | **FAIL** |
+| Privacy | Three complete bounded probes and trace scans, zero observed leaks | PASS for bounded cases |
+| High-impact harm | Zero judged harmful endorsements/leaks | PASS |
+| Completion no worse than control | Treatment 14/15 versus control 5/15 | PASS |
+| Median repeated investigation reduction ≥20% | Seven eligible pairs, median 100%; no unresolved natural counts | PASS |
+
+The [candidate proof](candidate-v13-metadata.json) correlates F1's accepted prior
+receipt with its authenticated server result ID. The owned eligible `user_report`
+record appears in actual later Cairn context with matching selected revision and
+independently judged useful application. Rendered-hook matching is conservative
+content/budget/delivery-point correlation, not an exact trace-ID receipt.
+Astra reviewed this proof before actors. F1 is counted once as shared M1/M2
+evidence; unrelated later source records neither satisfy nor invalidate it.
+
+The [complete gate results](regression-v13-metadata.json) contain no unresolved
+labels or inventories. All **11 failed quality claims are supported but
+irrelevant** implementation propositions bundled with useful user decisions:
+D2 has three token/setup claims, D4 two recurrence-UI claims, R3 four release
+workflow claims, and R5 two offline-editor claims. Astra inspected the prior
+capture arguments and actual later developer payloads and confirmed these are
+persisted memory claims, not operation-generated metadata or an inventory error.
+Capture and selection operate on a whole record, so selecting its useful decision
+also delivers all appended implementation commentary. Five failed Cairn MCP calls
+across four case phases remain reported as operational evidence, including
+intentional refusals; no added severity gate or silent exclusion is applied.
+
+Primary guidance on [unambiguous agent tools](https://www.anthropic.com/engineering/writing-tools-for-agents),
 [small, high-signal context](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents),
-and [evaluating both agent harness and final state](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents).
-Those sources inform the design; they do not establish Cairn's gate results.
-The full V13 calibration, candidate workflow, deployment and semantic results
-are pending. [Two invalid predicate calls](invalid-v13-calibration-metadata.json)
-are preserved: a new private wrapper omitted the frozen response instructions.
-No semantic calibration pass, delivery fixture or actor run is counted from
-those attempts. The prospective correction restores the exact original input
-and uses the pinned CLI's output-schema support to require the declared shape;
-labels and gates remain unchanged. **PR #66 remains draft.**
+and [evaluating actual agent outcomes](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
+informed the investigation. Those sources do not establish Cairn's gates.
+A structural next step is separately attributable and independently selectable
+reported decisions and inspected implementation findings, with validated capture
+boundaries. No further wording-tuning cycle or retrospective rescore follows this
+frozen run; no valid observation is relabelled or replaced.
+
+**PR #66 remains draft and is not ready to merge under the requested M1/M2 gates.**
+M1's Codex journey passed; M2's quality gate failed. Claude remains skipped by
+user instruction, so original two-agent exits remain open. Calibration is a
+reused consistency screen; the corpus is developmental rather than a fresh
+holdout. Actor and judge share a model family. Provider revisions and input
+readback remain unattested; exact local reconstruction and acknowledged injection
+do not establish either. No production tag is promoted.
 
 ## Preserved v12 candidate — useful recall and quality failed
 
