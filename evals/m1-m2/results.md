@@ -1,5 +1,27 @@
 # M1/M2 candidate evidence — through 2026-10-09
 
+## Groq development — model qualification stopped
+
+The temporary `openai/gpt-oss-120b` endpoint authenticated successfully and five
+synthetic cases passed the actual server's source-hash/span checks. The isolated
+`gpt-6.1-sol` judge passed all 42 reused calibration fixtures, zero unknown
+labels, with all 13 transport/isolation proofs verified. It rejected one output
+for removing requirement attribution. Astra recommended one general instruction
+clarification: choose complete self-contained source statements preserving who
+requires/reports them and intent versus implementation.
+
+At product source `5bb16df196d262c9def78115ed8d193ad7130b08`, six unseen
+synthetic cases passed provenance checks. The judge found all six faithful but
+only five relevant: the mixed-clause case also delivered an unrelated sidebar
+claim. A harness-only incomplete attempt mishandled the valid empty result and
+is preserved; the full screen repeated after correcting serialization only.
+The [development metadata](groq-development-metadata.json) preserves both valid
+screens and private evidence hashes. These are development cases, not milestone
+comparisons or a new holdout. The model is **not qualified**; no further prompt
+tuning or full actor batch ran. Candidate workflow 37951958706 was cancelled
+after the source changed. A different model must qualify before full M1/M2
+evidence. No production provider configuration has changed; Claude is skipped.
+
 ## Extractive selector — mechanical checks passed; live evidence pending
 
 Product source `4c77bc5dcfe5676c73d1f17fb8f3a42e2c4b1e7d` implements the

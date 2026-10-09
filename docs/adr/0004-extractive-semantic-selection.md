@@ -78,3 +78,10 @@ handle cross-sentence attribution. Validate once on unseen development cases;
 if this model still fails, stop its qualification rather than tune repeatedly.
 The full workload and thresholds remain unchanged. This change needs new frozen
 source/artifact/deployment evidence; the prior workflow is cancelled.
+
+The unseen six-case follow-up retained all required qualifiers, but the independent
+judge found an irrelevant sidebar claim delivered alongside the backup requirement.
+All six cases passed mechanical provenance; five passed relevance. The temporary
+Groq model is not qualified. Stop its qualification as planned; require another
+model to pass development checks before full milestone evidence. Both screens
+and the harness-only invalid attempt remain in [development evidence](../../evals/m1-m2/groq-development-metadata.json).
