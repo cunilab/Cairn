@@ -61,7 +61,7 @@ fn retrieve(pg: &Pg, who: &Account, session: Uuid, trigger: &str) -> (Value, u16
     post_json_status_bearer(
         &pg.server.base,
         "/api/retrieve",
-        &json!({ "session_id": session, "trigger": trigger }),
+        &json!({ "session_id": session, "trigger": trigger, "query": "project fact" }),
         &who.token,
     )
 }

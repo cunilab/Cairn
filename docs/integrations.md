@@ -13,6 +13,14 @@ The current human command is `cairn setup` in an authorized Git repository. It i
 
 The five tools are `cairn_context`, `cairn_search`, `cairn_remember`, `cairn_session`, and `cairn_handoff`. Session and handoff calls are manual recovery controls for native integrations and the manual path for generic MCP. A tool's presence does not mean every lifecycle action is automatic. The running integration's reported capability and health are the source for its actual observed state.
 
+Native context supplies continuity and reports whether eligible project memory is
+available. Recall findings with task keywords in `cairn_search.query`, or an explicit
+`cairn_context.query`; omit the latter for continuity only. Queries are limited to
+256 bytes and reject credential-shaped content. Send keywords, never raw prompts
+or transcripts. Empty working search is refused with an actionable error; deliberate
+archival inspection remains available. Query context needs the server and daemon to
+confirm the selector and does not replay cached results from another query.
+
 ## Session identity
 
 For the verified Codex CLI `0.160.0`, Cairn uses the framework's per-call

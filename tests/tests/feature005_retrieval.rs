@@ -57,6 +57,20 @@ fn retrieve(pg: &Pg, who: &Account, session: Uuid, trigger: &str) -> (Value, u16
     )
 }
 
+fn retrieve_for_task(
+    pg: &Pg,
+    who: &Account,
+    session: Uuid,
+    trigger: &str,
+    query: &str,
+) -> (Value, u16) {
+    retrieve_with(
+        pg,
+        who,
+        json!({"session_id": session, "trigger": trigger, "query": query}),
+    )
+}
+
 fn retrieve_with(pg: &Pg, who: &Account, body: Value) -> (Value, u16) {
     post_json_status_bearer(&pg.server.base, "/api/retrieve", &body, &who.token)
 }
@@ -80,7 +94,7 @@ fn escape(s: &str) -> String {
 }
 
 /// A row in `memories`, scoped `project` — the scope `gather()` reads under
-/// `project_memory` when the session names no task and no branch match.
+/// `project_memory` for a matching task query and no branch match.
 fn seed_project_memory(pg: &Pg, session: Uuid, content: &str) -> Uuid {
     let id = Uuid::now_v7();
     let content = escape(content);
@@ -264,7 +278,7 @@ fn all_items(resp: &Value) -> Vec<Value> {
 /// this file uses — no rounding to drift against.
 fn content_with_cost(tag: &str, tokens: usize) -> String {
     let want_chars = (tokens as f64 * cairn_core::budget::CHARS_PER_TOKEN).ceil() as usize;
-    let mut s = tag.to_string();
+    let mut s = format!("{tag} ");
     while s.len() < want_chars {
         s.push('x');
     }
@@ -286,7 +300,8 @@ fn project_sections_are_ranked_ahead_of_patterns_personal_notes_and_team_guidanc
     let personal_id = seed_personal(&pg, &pg.owner, "a personal note about local setup");
     let team_id = seed_team_authoritative(&pg, &pg.owner, "team guidance about release tags");
 
-    let (resp, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    let (resp, status) =
+        retrieve_for_task(&pg, &pg.owner, session, "session_open", "sync boundary");
     assert_eq!(status, 200, "{resp}");
 
     let project_key = format!("knowledge:project:{project_id}");
@@ -357,7 +372,7 @@ fn sc_710_project_knowledge_that_alone_fills_the_general_pool_leaves_personal_an
     let personal_id = seed_personal(&pg, &pg.owner, &content_with_cost("pn", 20));
     let team_id = seed_team_authoritative(&pg, &pg.owner, &content_with_cost("tm", 20));
 
-    let (resp, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    let (resp, status) = retrieve_for_task(&pg, &pg.owner, session, "session_open", "proj");
     assert_eq!(status, 200, "{resp}");
 
     let tokens = resp["budget"]["tokens"].as_u64().expect("tokens");
@@ -417,7 +432,7 @@ fn sc_709_a_mixed_domain_briefing_never_exceeds_its_stated_budget_and_costs_sum_
     seed_team_authoritative(&pg, &pg.owner, "always run the full suite before merging");
     pg.seed_pattern_with_id(&pg.owner, Uuid::now_v7(), "a recurring deployment pattern");
 
-    let (resp, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    let (resp, status) = retrieve_for_task(&pg, &pg.owner, session, "session_open", "project note");
     assert_eq!(status, 200, "{resp}");
 
     let tokens = resp["budget"]["tokens"].as_u64().expect("tokens");
@@ -462,7 +477,7 @@ fn sc_711_replaying_selected_costs_in_rank_order_reproduces_the_reported_spend_e
         "a pattern with problem and approach text",
     );
 
-    let (resp, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    let (resp, status) = retrieve_for_task(&pg, &pg.owner, session, "session_open", "project note");
     assert_eq!(status, 200, "{resp}");
 
     let tokens = resp["budget"]["tokens"].as_u64().expect("tokens") as i64;
@@ -546,7 +561,7 @@ fn an_unchanged_delivered_item_does_not_reappear_on_the_next_prompt_submit() {
     let id = seed_project_memory(&pg, session, "an item that will be delivered once");
     let key = format!("knowledge:project:{id}");
 
-    let (opened, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    let (opened, status) = retrieve_for_task(&pg, &pg.owner, session, "session_open", "item");
     assert_eq!(status, 200, "{opened}");
     assert!(
         find_item(&opened, &key).is_some(),
@@ -558,7 +573,7 @@ fn an_unchanged_delivered_item_does_not_reappear_on_the_next_prompt_submit() {
     assert_eq!(status, 200, "{report}");
     assert_eq!(report["status"], json!("recorded"), "{report}");
 
-    let (prompt, status) = retrieve(&pg, &pg.owner, session, "prompt_submit");
+    let (prompt, status) = retrieve_for_task(&pg, &pg.owner, session, "prompt_submit", "item");
     assert_eq!(status, 200, "{prompt}");
     assert!(
         find_item(&prompt, &key).is_none(),
@@ -592,7 +607,7 @@ fn an_item_edited_after_delivery_re_enters_on_the_next_retrieval() {
     let id = seed_project_memory(&pg, session, "an item that will be edited after delivery");
     let key = format!("knowledge:project:{id}");
 
-    let (opened, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    let (opened, status) = retrieve_for_task(&pg, &pg.owner, session, "session_open", "item");
     assert_eq!(status, 200, "{opened}");
     assert!(find_item(&opened, &key).is_some(), "{opened}");
     let trace_id = opened["trace_id"].as_str().expect("trace_id");
@@ -600,7 +615,7 @@ fn an_item_edited_after_delivery_re_enters_on_the_next_retrieval() {
     assert_eq!(status, 200, "{report}");
 
     // Confirm dedup first: without the edit, it stays withheld.
-    let (deduped, status) = retrieve(&pg, &pg.owner, session, "prompt_submit");
+    let (deduped, status) = retrieve_for_task(&pg, &pg.owner, session, "prompt_submit", "item");
     assert_eq!(status, 200, "{deduped}");
     assert!(find_item(&deduped, &key).is_none(), "{deduped}");
 
@@ -611,7 +626,7 @@ fn an_item_edited_after_delivery_re_enters_on_the_next_retrieval() {
         "UPDATE memories SET updated_at = now() WHERE id = '{id}'"
     ));
 
-    let (again, status) = retrieve(&pg, &pg.owner, session, "prompt_submit");
+    let (again, status) = retrieve_for_task(&pg, &pg.owner, session, "prompt_submit", "item");
     assert_eq!(status, 200, "{again}");
     assert!(
         find_item(&again, &key).is_some(),
@@ -626,20 +641,20 @@ fn trigger_explicit_is_exempt_from_dedup_and_returns_an_already_delivered_item()
     let id = seed_project_memory(&pg, session, "an item requested again explicitly");
     let key = format!("knowledge:project:{id}");
 
-    let (opened, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    let (opened, status) = retrieve_for_task(&pg, &pg.owner, session, "session_open", "item");
     assert_eq!(status, 200, "{opened}");
     let trace_id = opened["trace_id"].as_str().expect("trace_id");
     let (report, status) = report_transmitted(&pg, &pg.owner, trace_id);
     assert_eq!(status, 200, "{report}");
 
     // Confirm the ordinary dedup rule applies to prompt_submit first.
-    let (deduped, status) = retrieve(&pg, &pg.owner, session, "prompt_submit");
+    let (deduped, status) = retrieve_for_task(&pg, &pg.owner, session, "prompt_submit", "item");
     assert_eq!(status, 200, "{deduped}");
     assert!(find_item(&deduped, &key).is_none(), "{deduped}");
 
     // `explicit` is what `cairn_context`/`cairn_search` produce: a request to
     // be told again, so it is exempt (§3, §4).
-    let (explicit, status) = retrieve(&pg, &pg.owner, session, "explicit");
+    let (explicit, status) = retrieve_for_task(&pg, &pg.owner, session, "explicit", "item");
     assert_eq!(status, 200, "{explicit}");
     assert_eq!(explicit["trigger"], json!("explicit"), "{explicit}");
     assert_eq!(explicit["delivery_point"], json!("explicit"), "{explicit}");
@@ -675,7 +690,7 @@ fn sc_767_identical_uuids_across_domains_coexist_and_personal_delivery_does_not_
     ));
 
     let session = pg.session_for(&pg.owner);
-    let (resp, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    let (resp, status) = retrieve_for_task(&pg, &pg.owner, session, "session_open", "project");
     assert_eq!(status, 200, "{resp}");
 
     let [project_key, personal_key, team_key, pattern_key] = ids.reference_keys();

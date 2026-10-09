@@ -11,6 +11,18 @@ use uuid::Uuid;
 pub const SUPPORT_SUMMARY_MAX_BYTES: usize = 512;
 pub const SOURCE_REFERENCE_MAX_BYTES: usize = 256;
 pub const SOURCE_REVISION_MAX_BYTES: usize = 128;
+pub const RECALL_QUERY_MAX_BYTES: usize = 256;
+pub const TASK_QUERY_POLICY: &str = "task_keywords_v1";
+
+pub fn validate_recall_query(query: Option<&str>) -> Result<(), &'static str> {
+    let Some(query) = query.filter(|q| !q.trim().is_empty()) else {
+        return Err("working recall requires task keywords in query; use inspect only for deliberate archival review");
+    };
+    if query.len() > RECALL_QUERY_MAX_BYTES || crate::redact::contains_secret(query) {
+        return Err("query must contain at most 256 bytes of task keywords without credentials");
+    }
+    Ok(())
+}
 
 /// Why a caller is reading memory.
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -151,6 +163,20 @@ fn validate_text(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn recall_keywords_are_required_bounded_and_credential_free() {
+        for query in [None, Some(""), Some(" \n\t ")] {
+            assert!(validate_recall_query(query).is_err());
+        }
+        assert!(validate_recall_query(Some("bounded parser")).is_ok());
+        assert!(validate_recall_query(Some(&"x".repeat(256))).is_ok());
+        assert!(validate_recall_query(Some(&"x".repeat(257))).is_err());
+        assert!(
+            validate_recall_query(Some("OPENAI_API_KEY=sk-abcdefghijklmnopqrstuvwxyz0123"))
+                .is_err()
+        );
+    }
 
     #[test]
     fn inspected_source_requires_a_named_revision() {

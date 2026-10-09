@@ -16,9 +16,38 @@ fn capture_hint() -> String {
 /// Render the canonical server envelope without inventing local history.
 /// Unknown populated sections fail closed so transmission cannot overclaim.
 pub fn context(value: &serde_json::Value) -> Result<String, String> {
+    let has_project_bodies = ["session_memory", "branch_memory", "project_memory"]
+        .iter()
+        .any(|key| {
+            value["sections"][key]
+                .as_array()
+                .is_some_and(|a| !a.is_empty())
+        })
+        || ["session", "branch", "project"].iter().any(|key| {
+            value["briefing"]["memory"][key]
+                .as_array()
+                .is_some_and(|a| !a.is_empty())
+        });
+    if has_project_bodies
+        && (value["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY
+            || value["project_query_sha256"].as_str().is_none()
+            || value["served_from_cache"] == true)
+    {
+        return Err("project findings need a confirmed task query; use cairn_search with query or upgrade the server and daemon".into());
+    }
+    let memory_hint = if value["project_memory_available"] == true {
+        "Project memory is available. Use cairn_search with task keywords to recall findings.\n\n"
+    } else {
+        ""
+    };
     if value.get("briefing").is_some() {
         let payload = serde_json::from_value(value.clone()).map_err(|e| format!("{e}"))?;
-        return Ok(format!("{}{}", continuity(value), briefing(&payload)));
+        return Ok(format!(
+            "{}{}{}",
+            continuity(value),
+            briefing(&payload),
+            memory_hint
+        ));
     }
     let invalid = || "invalid server context; retry with cairn_context".to_string();
     let sections = value["sections"].as_object().ok_or_else(invalid)?;
@@ -38,6 +67,7 @@ pub fn context(value: &serde_json::Value) -> Result<String, String> {
     }
     let mut out = String::from("# Cairn context\n\n");
     out.push_str(&capture_hint());
+    out.push_str(memory_hint);
     if value["served_from_cache"] == true {
         let age = value["cache_age_seconds"].as_u64().ok_or_else(invalid)?;
         out.push_str(&format!(
@@ -299,6 +329,8 @@ mod context_tests {
     #[test]
     fn canonical_context_renders_all_selected_sections_and_honest_fallback() {
         let mut payload = json!({
+            "project_recall_policy": cairn_core::reuse::TASK_QUERY_POLICY,
+            "project_query_sha256": cairn_core::digest("caller procedure"),
             "budget": {"tokens": 3000, "spent": 12}, "degradation_level": "full",
             "sections": {
                 "session_memory": [{"content": "caller decision"}],
@@ -317,7 +349,11 @@ mod context_tests {
         }
         payload["served_from_cache"] = json!(true);
         payload["cache_age_seconds"] = json!(24);
-        assert!(context(&payload).unwrap().contains("24s old"));
+        assert!(
+            context(&payload).is_err(),
+            "cached project findings must be withheld"
+        );
+        payload["served_from_cache"] = json!(false);
         payload["sections"]["unknown"] = json!([{"content": "unrendered claim"}]);
         assert!(context(&payload).is_err());
         payload["sections"] = json!({"project_memory": [{"content": 7}]});

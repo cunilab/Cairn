@@ -388,6 +388,7 @@ async fn dispatch(
             let delivered = crate::handlers::handle(
                 d,
                 cairn_core::wire::Request::Context {
+                    query: None,
                     cwd,
                     agent_session_key: key,
                     session_id: None,

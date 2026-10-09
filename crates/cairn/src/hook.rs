@@ -431,6 +431,7 @@ fn deliver_prompt_time(
     let deadline = context_deadline(config);
     let started = Instant::now();
     let request = Request::Context {
+        query: None,
         cwd: cwd.to_string(),
         agent_session_key: (!key.is_empty()).then(|| key.to_string()),
         session_id: None,

@@ -55,7 +55,7 @@ fn retrieve(pg: &Pg, who: &Account, session: Uuid) -> Value {
     let (body, status) = post_json_status_bearer(
         &pg.server.base,
         "/api/retrieve",
-        &json!({ "session_id": session, "trigger": "session_open" }),
+        &json!({ "session_id": session, "trigger": "session_open", "query": "durable project" }),
         &who.token,
     );
     assert_eq!(status, 200, "retrieve: {body}");

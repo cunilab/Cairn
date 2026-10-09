@@ -123,12 +123,13 @@ fn tool_definitions() -> Vec<Value> {
             "name": "cairn_context",
             "description": "Build the bounded briefing for the current repository: project, \
                             branch, commit, working tree, previous handoff, and \
-                            relevant scoped memory — plus the minimum safe continuity, drift \
+                            memory availability — plus the minimum safe continuity, drift \
                             and conflict warnings, and whether your checkpoint diverged.",
             "inputSchema": {
                 "type": "object",
                 "properties": {
                     "cwd": cwd_property(),
+                    "query": { "type": "string", "description": "Optional task keywords (at most 256 bytes) to retrieve project findings. Omit for continuity only; never send a raw prompt or transcript." },
                     // `post_compaction` is how an agent whose adapter has no
                     // post-compaction event restores continuity itself. An
                     // unknown value still falls back to `refresh` (D57, FR-426).
@@ -154,7 +155,7 @@ fn tool_definitions() -> Vec<Value> {
                 "properties": {
                     "cwd": cwd_property(),
                     "action": { "type": "string", "enum": ["search", "graph"], "description": "`search` is lexical retrieval. `graph` is a typed, capped related-result request; unavailable servers refuse it explicitly." },
-                    "query": { "type": "string" },
+                    "query": { "type": "string", "description": "Task keywords required for working recall; at most 256 bytes. Context supplies continuity; this query selects relevant findings." },
                     "memory_id": { "type": "string", "description": "Required for `graph`; seed memory id." },
                     "hops": { "type": "integer", "description": "Graph depth, capped at two." },
                     "purpose": { "type": "string", "enum": ["reuse", "inspect"], "description": "`reuse` returns currently eligible working knowledge (default). `inspect` is only for deliberate memory auditing, verification or correction and reports why records are ineligible. Never use inspection as an empty-recall fallback; inspected records are not working knowledge." },
@@ -362,9 +363,15 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
 
     match name {
         "cairn_context" => {
+            let query = str_arg(args, "query").filter(|q| !q.trim().is_empty());
+            if query.is_some() {
+                cairn_core::reuse::validate_recall_query(query.as_deref())
+                    .map_err(WireError::invalid)?;
+            }
             let value = client::send(
                 &Request::Context {
                     cwd,
+                    query: query.clone(),
                     agent_session_key: key,
                     session_id: uuid_arg(args, "session_id").ok(),
                     reason: args
@@ -395,6 +402,14 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                 .for_project_reuse(),
             )
             .await?;
+            if let Some(query) = query {
+                if value["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY
+                    || value["project_query_sha256"] != cairn_core::digest(query.trim())
+                {
+                    return Err(WireError::new(cairn_core::wire::codes::SERVER_UNAVAILABLE,
+                        "the server or daemon did not confirm this task query; upgrade them or use cairn_search with query"));
+                }
+            }
             // The agent gets the rendered briefing plus the raw envelope, so it
             // can read either.
             let context = render::context(&value).map_err(WireError::invalid)?;
@@ -453,6 +468,10 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                 // (FR-472).
                 domains: enum_list(args, "domains"),
             };
+            if purpose == ReusePurpose::Reuse {
+                cairn_core::reuse::validate_recall_query(query.query.as_deref())
+                    .map_err(WireError::invalid)?;
+            }
             let request = Request::MemorySearch {
                 cwd,
                 agent_session_key: key,
@@ -818,6 +837,19 @@ fn pretty(value: &Value) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn working_search_without_keywords_refuses_before_ipc() {
+        for query in [Value::Null, json!(""), json!("   ")] {
+            let error = dispatch("cairn_search", &json!({"cwd": "/unused", "query": query}))
+                .await
+                .unwrap_err();
+            assert!(
+                error.message.contains("requires task keywords"),
+                "{error:?}"
+            );
+        }
+    }
 
     #[test]
     fn exposes_exactly_five_tools() {

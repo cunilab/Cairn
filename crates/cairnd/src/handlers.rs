@@ -133,6 +133,7 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
         }
         Request::Context {
             cwd,
+            query,
             agent_session_key,
             session_id,
             reason,
@@ -145,6 +146,7 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
             context(
                 d,
                 &cwd,
+                query,
                 agent_session_key,
                 session_id,
                 reason,
@@ -950,7 +952,7 @@ pub(crate) async fn observe(
 // Context
 // ---------------------------------------------------------------------------
 
-/// Ten arguments, three past the lint's limit, and each one is read.
+/// Eleven arguments, four past the lint's limit, and each one is read.
 ///
 /// `reason` decides the post-compaction path; `depth` decides whether the global
 /// sections are assembled at all (FR-477); `trigger`/`open_trigger` decide
@@ -964,6 +966,7 @@ pub(crate) async fn observe(
 async fn context(
     d: &Daemon,
     cwd: &str,
+    query: Option<String>,
     agent_session_key: Option<String>,
     session_id: Option<Uuid>,
     _reason: Option<ContextReason>,
@@ -973,6 +976,15 @@ async fn context(
     trigger: Option<String>,
     open_trigger: Option<String>,
 ) -> Reply {
+    let query = query.as_deref().map(str::trim).filter(|q| !q.is_empty());
+    if let Some(query) = query {
+        cairn_core::reuse::validate_recall_query(Some(query)).map_err(WireError::invalid)?;
+        if trigger.as_deref().is_some_and(|t| t != "explicit") {
+            return Err(WireError::invalid(
+                "task queries belong to explicit recall, not native hook delivery",
+            ));
+        }
+    }
     let started = std::time::Instant::now();
     let config = d
         .config
@@ -1009,6 +1021,7 @@ async fn context(
             open_trigger.as_deref(),
             budget,
             deadline.saturating_sub(started.elapsed()),
+            query,
         )
         .await
         .payload)
@@ -1518,6 +1531,10 @@ async fn memory_search(
     _session_id: Option<Uuid>,
     query: MemoryQuery,
 ) -> Reply {
+    if query.purpose == cairn_core::reuse::ReusePurpose::Reuse {
+        cairn_core::reuse::validate_recall_query(query.query.as_deref())
+            .map_err(WireError::invalid)?;
+    }
     let r = d.resolve(cwd).await?;
     let project_id = r
         .project
@@ -1747,7 +1764,8 @@ mod tests {
                 cwd: crate::testsupport::NOWHERE.into(),
                 agent_session_key: None,
                 session_id: None,
-                query: serde_json::from_value(json!({"purpose":"reuse"})).unwrap(),
+                query: serde_json::from_value(json!({"purpose":"reuse", "query":"bounded parser"}))
+                    .unwrap(),
             },
             Request::Graph {
                 cwd: crate::testsupport::NOWHERE.into(),

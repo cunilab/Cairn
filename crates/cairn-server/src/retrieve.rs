@@ -188,6 +188,10 @@ impl Trigger {
 pub struct RetrieveRequest {
     pub session_id: Uuid,
     pub trigger: Trigger,
+    /// Bounded task keywords, never a transcript. Without a query this is a
+    /// continuity request, not permission to deliver arbitrary project facts.
+    #[serde(default)]
+    pub query: Option<String>,
     /// A **smaller** budget than the deployment's, where the caller wants one.
     ///
     /// Not authority: a caller may ask for less and never for more, and the
@@ -257,6 +261,9 @@ pub struct RetrieveResponse {
     /// Lets the daemon reject or sanitize answers from a server that did not
     /// enforce project-memory reuse eligibility.
     pub project_reuse_policy: &'static str,
+    pub project_memory_available: bool,
+    pub project_recall_policy: &'static str,
+    pub project_query_sha256: Option<String>,
     pub trace_id: Uuid,
     pub trigger: &'static str,
     pub delivery_point: &'static str,
@@ -357,6 +364,10 @@ pub async fn retrieve(
     deadline_ms: u128,
 ) -> ApiResult<RetrieveResponse> {
     let started = std::time::Instant::now();
+
+    if let Some(query) = request.query.as_deref().filter(|q| !q.trim().is_empty()) {
+        cairn_core::reuse::validate_recall_query(Some(query)).map_err(ApiError::invalid)?;
+    }
 
     let binding = match auth::bind_session(pool, reader, request.session_id).await? {
         Ok(binding) => binding,
@@ -480,7 +491,13 @@ async fn generate(
     open_trigger: Option<cairn_core::event::OpenTrigger>,
     started: std::time::Instant,
 ) -> ApiResult<RetrieveResponse> {
-    let candidates = gather(pool, reader, binding, request.session_id).await?;
+    let query = request
+        .query
+        .as_deref()
+        .map(str::trim)
+        .filter(|q| !q.is_empty());
+    let (candidates, project_memory_available) =
+        gather(pool, reader, binding, request.session_id, query).await?;
     let continuity = gather_continuity(
         pool,
         reader,
@@ -610,6 +627,9 @@ async fn generate(
 
     Ok(RetrieveResponse {
         project_reuse_policy: crate::reuse::POLICY_ID,
+        project_memory_available,
+        project_recall_policy: cairn_core::reuse::TASK_QUERY_POLICY,
+        project_query_sha256: query.map(cairn_core::digest),
         trace_id,
         trigger: request.trigger.as_str(),
         delivery_point: request.trigger.delivery_point(),
@@ -1003,7 +1023,8 @@ async fn gather(
     reader: &ReaderContext,
     binding: &auth::SessionBinding,
     session_id: Uuid,
-) -> ApiResult<Vec<Candidate>> {
+    query: Option<&str>,
+) -> ApiResult<(Vec<Candidate>, bool)> {
     let mut out = Vec::new();
 
     let session: Option<(String,)> = sqlx::query_as("SELECT branch FROM sessions WHERE id = $1")
@@ -1012,32 +1033,59 @@ async fn gather(
         .await?;
     let (branch,) = session.unwrap_or((String::new(),));
 
-    // Project knowledge, most specific scope first: session, branch, project.
-    out.extend(
-        project_memory(
-            pool,
-            binding.project_id,
-            "session",
-            &session_id.to_string(),
-            "session_memory",
-        )
-        .await?,
+    let availability_sql = format!(
+        "SELECT EXISTS (SELECT 1 FROM memories
+          WHERE project_id = $1
+            AND (scope = 'project' OR (scope = 'branch' AND $2 <> '' AND scope_key = $2)
+                 OR (scope = 'session' AND scope_key = $3))
+            AND origin_kind IS DISTINCT FROM 'corroboration' AND ({}))",
+        crate::reuse::eligible("memories")
     );
-    if !branch.is_empty() {
+    let project_memory_available: bool = sqlx::query_scalar(&availability_sql)
+        .bind(binding.project_id)
+        .bind(&branch)
+        .bind(session_id.to_string())
+        .fetch_one(pool)
+        .await?;
+
+    // Only task-scoped retrieval selects bodies; continuity advertises availability.
+    if let Some(query) = query {
         out.extend(
-            project_memory(pool, binding.project_id, "branch", &branch, "branch_memory").await?,
+            project_memory(
+                pool,
+                binding.project_id,
+                "session",
+                &session_id.to_string(),
+                "session_memory",
+                query,
+            )
+            .await?,
+        );
+        if !branch.is_empty() {
+            out.extend(
+                project_memory(
+                    pool,
+                    binding.project_id,
+                    "branch",
+                    &branch,
+                    "branch_memory",
+                    query,
+                )
+                .await?,
+            );
+        }
+        out.extend(
+            project_memory(
+                pool,
+                binding.project_id,
+                "project",
+                &binding.project_id.to_string(),
+                "project_memory",
+                query,
+            )
+            .await?,
         );
     }
-    out.extend(
-        project_memory(
-            pool,
-            binding.project_id,
-            "project",
-            &binding.project_id.to_string(),
-            "project_memory",
-        )
-        .await?,
-    );
 
     // Patterns are owner-only. `shared_patterns` describes where a pattern is
     // stored, not who may see it (data-model.md §6.2).
@@ -1136,7 +1184,7 @@ async fn gather(
         });
     }
 
-    Ok(out)
+    Ok((out, project_memory_available))
 }
 
 async fn project_memory(
@@ -1145,16 +1193,27 @@ async fn project_memory(
     scope: &str,
     scope_key: &str,
     section: &'static str,
+    query: &str,
 ) -> ApiResult<Vec<Candidate>> {
+    // shortcut: A lexical match still delivers a whole record; add semantic admission if separated capture fails relevance gates.
     let project_sql = format!(
         "SELECT id, content, updated_at
            FROM memories
+           CROSS JOIN LATERAL (
+               SELECT cardinality(ARRAY(
+                   SELECT unnest(tsvector_to_array(to_tsvector('english', content)))
+                   INTERSECT SELECT unnest(tsvector_to_array(to_tsvector('english', $5)))
+               )) AS term_overlap
+           ) lex
           WHERE project_id = $1 AND scope = $2
             AND (scope = 'project' OR scope_key = $3)
             AND state = 'active' AND deleted_at IS NULL
             AND origin_kind IS DISTINCT FROM 'corroboration'
             AND ({})
-          ORDER BY updated_at DESC, id
+            AND to_tsvector('english', content) @@
+                replace(plainto_tsquery('english', $5)::text, ' & ', ' | ')::tsquery
+            AND lex.term_overlap >= LEAST(2, cardinality(tsvector_to_array(to_tsvector('english', $5))))
+          ORDER BY lex.term_overlap DESC, updated_at DESC, id
           LIMIT $4",
         crate::reuse::eligible("memories")
     );
@@ -1163,6 +1222,7 @@ async fn project_memory(
         .bind(scope)
         .bind(scope_key)
         .bind(CANDIDATES_PER_SECTION)
+        .bind(query)
         .fetch_all(pool)
         .await?;
     Ok(rows

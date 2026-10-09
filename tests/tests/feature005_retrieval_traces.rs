@@ -66,7 +66,7 @@ fn retrieve(pg: &Pg, who: &Account, session: Uuid, trigger: &str) -> (Value, u16
     post_json_status_bearer(
         &pg.server.base,
         "/api/retrieve",
-        &json!({ "session_id": session, "trigger": trigger }),
+        &json!({ "session_id": session, "trigger": trigger, "query": "project" }),
         &who.token,
     )
 }
@@ -275,7 +275,12 @@ fn a_reported_transmission_failure_becomes_failed_with_a_reason_and_writes_no_de
     let pg = pg!();
     let session = pg.session_for(&pg.owner);
     let item_id = seed_project_memory(&pg, session, "an item whose transmission will fail");
-    let (opened, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    let (opened, status) = post_json_status_bearer(
+        &pg.server.base,
+        "/api/retrieve",
+        &json!({"session_id": session, "trigger": "session_open", "query": "transmission fail"}),
+        &pg.owner.token,
+    );
     assert_eq!(status, 200, "{opened}");
     assert!(opened["sections"]["project_memory"].is_array(), "{opened}");
     let trace_id = opened["trace_id"].as_str().expect("trace_id");

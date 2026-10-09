@@ -594,6 +594,9 @@ pub enum Request {
     },
     Context {
         cwd: String,
+        /// Task keywords for explicit project recall. Hooks leave this absent.
+        #[serde(default)]
+        query: Option<String>,
         #[serde(default)]
         agent_session_key: Option<String>,
         #[serde(default)]

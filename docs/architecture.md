@@ -22,6 +22,19 @@ An admitted payload is immutable and has stable operation identity. The daemon c
 
 Retrieval considers current session, branch, then project applicability, subject to account and project authorization. Evidence, authority, verification, conflict, supersession, and pinning affect selection; recency alone does not decide truth. Decay changes ranking and is explainable. Returned context is bounded and can be absent without implying an outage.
 
+Context without a task query provides continuity and authorized memory availability,
+while project findings require bounded task keywords. Native hooks send no query.
+Explicit `cairn_context(query)` uses the existing lexical matching rules; ordinary
+`cairn_search` working recall requires a query. Query responses carry a policy and
+normalized query digest so older components cannot silently drop the selector.
+Explicit query context bypasses the outage cache. An older unqueried response has
+project bodies withheld and its trace is never reported as transmitted.
+
+Lexical matching selects whole records. A matching decision can still include
+irrelevant appended implementation claims; this change does not establish M2's
+claim-quality gate or objective semantic verification. Archival inspection retains
+the original records and their eligibility disclosures.
+
 ## Degraded behavior and recovery
 
 During a network outage, bounded local capture can continue. Saturation is visible; protected boundary events are not silently discarded. Eligible cached context is finite-age and labelled with age and identity. Fresh search reports server unavailability. An observed authorization denial invalidates matching cache immediately; a disconnected client cannot know about unseen revocation.

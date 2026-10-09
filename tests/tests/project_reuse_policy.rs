@@ -147,7 +147,7 @@ fn zero_observation_manual_attestation_is_reusable_and_legacy_stays_inspectable(
     let (context, status) = post_json_status_bearer(
         &pg.server.base,
         "/api/retrieve",
-        &json!({ "session_id": session, "trigger": "explicit" }),
+        &json!({ "session_id": session, "trigger": "explicit", "query": "bounded parser" }),
         &pg.owner.token,
     );
     assert_eq!(status, 200, "{context}");

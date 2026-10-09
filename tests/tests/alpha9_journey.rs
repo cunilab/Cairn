@@ -153,13 +153,10 @@ fn installed_setup_remembers_and_recalls_across_callers() {
         json!({"session_id": "alpha9-claude-return", "source": "startup"}),
     );
     assert_eq!(claude_return.code, 0, "{}", claude_return.stderr);
-    assert!(
-        claude_return
-            .stdout
-            .contains("the alpha9 journey remembers this durable fact"),
-        "a fresh native SessionStart must deliver the remembered fact: {}",
-        claude_return.stdout
-    );
+    assert!(!claude_return
+        .stdout
+        .contains("the alpha9 journey remembers this durable fact"));
+    assert!(claude_return.stdout.contains("Project memory is available"));
     let returned_context = mcp.tool(
         "cairn_context",
         json!({"agent_session_key": "alpha9-claude-return", "reason": "session_start"}),
@@ -167,6 +164,19 @@ fn installed_setup_remembers_and_recalls_across_callers() {
     );
     assert!(returned_context.contains("Cairn context"));
     assert!(returned_context.contains("cairn_remember"));
+    assert!(!returned_context.contains("the alpha9 journey remembers this durable fact"));
+    let queried_context = mcp.tool(
+        "cairn_context",
+        json!({"agent_session_key": "alpha9-claude-return", "query": "alpha9 journey durable fact"}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert!(queried_context.contains("the alpha9 journey remembers this durable fact"));
+    let empty_recall = mcp.tool_result(
+        "cairn_search",
+        json!({"agent_session_key": "alpha9-claude-return"}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert_eq!(empty_recall["isError"], true, "{empty_recall}");
     let returned_search = mcp.tool(
         "cairn_search",
         json!({"agent_session_key": "alpha9-claude-return", "query": "alpha9 journey remembered durable fact"}),
