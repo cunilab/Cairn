@@ -1,5 +1,39 @@
 # M1/M2 candidate evidence — through 2026-10-09
 
+## Extractive selector — mechanical checks passed; live evidence pending
+
+Product source `4c77bc5dcfe5676c73d1f17fb8f3a42e2c4b1e7d` implements the
+server-owned selector recommended by Astra. Context, working search and reuse
+detail share exact-source excerpt selection; archive originals remain intact.
+Schema 10 records source and excerpt hashes with byte spans. Automatic pins and
+warnings contain references/status only. Clients require `task_excerpts_v1`
+and the matching task-query digest; legacy unconfirmed bodies are withheld.
+Membership and source eligibility are checked again after inference, using a
+fresh membership query rather than the cached reader context. Provider errors,
+invalid output and capacity exhaustion refuse recall without whole-record fallback.
+
+Local verification passed **465 affected unit tests**, **14 evaluation-runner
+tests**, workspace Clippy with warnings denied, formatting, diff whitespace and
+Compose configuration validation. Targeted PostgreSQL checks passed 81 tests
+across eight groups during development. The final server passed all five
+`task_recall` tests, including source/membership races and provenance constraint
+rejection; the final affected journey, transfer, delivery and trace batch passed
+28 tests. The other 48 targeted checks passed earlier in this development cycle.
+Astra independently reviewed the selector and subsequent boundary fixes.
+
+These fixtures use a fake inference endpoint and establish mechanical behavior,
+not semantic quality. The collector preserves actual excerpt selection and
+warns judges not to treat the original canonical record as delivered content.
+No frozen evaluation result, rubric or threshold has been changed.
+
+The [ADRs](../../docs/adr/README.md) record architecture and evaluation decisions;
+the [inference guide](../../docs/inference.md) documents configuration and data
+sent to the provider. The user will supply the real endpoint, model and private
+credential later. No live selector evaluation, fresh full 15-case comparison,
+or fresh installed release/HTTPS deployment has run for this source. Claude
+remains skipped. **PR #66 remains draft and is not ready to merge.** Historical
+M1 success and M2 failure below remain tied to their original revisions.
+
 ## Task-query development — code verified; M2 remains open
 
 Source `f44448eb7a09f88b6ff829052c3661dd52fea1f3` separates automatic
