@@ -37,6 +37,11 @@ delivery and independently judged useful application. Claude remains skipped
 by user instruction; the original two-agent M1 exit remains open. The single PR
 remains draft because M2's claim-quality gate failed.
 
+The subsequent task-query change at `f44448eb` passed all six CI jobs and the
+installed local recall regression. Its fresh release/HTTPS journey and full
+milestone evaluation have not been repeated; the `58107d9` artifact evidence
+does not establish the new source's exit.
+
 ## M2 — Recall can be trusted
 
 **Outcome:** Cairn returns useful, supported context and handles irrelevant, stale, conflicting, and unauthorized information honestly.
@@ -48,6 +53,14 @@ remains draft because M2's claim-quality gate failed.
 - [x] Measure useful, irrelevant, and harmful recall; improve from measured failures
 
 **Exit:** paired evidence shows Cairn helps later work and does not create unacceptable harmful recall.
+
+The latest task-query development examples passed usefulness (2/2) and delivered
+claim quality (10/10), with one incomplete control prior trace. Both captures
+were clean decisions, so they do not establish a correction for mixed records.
+Astra recommends semantic excerpt selection before working search and context
+delivery; the required server inference provider is not yet configured. The
+[development report](../evals/m1-m2/results.md#task-query-development--code-verified-m2-remains-open)
+preserves this limitation and the original failure.
 
 The [complete v13 Codex run](../evals/m1-m2/regression-v13-metadata.json) has
 15 valid comparisons across three repositories and 15 valid calibrated

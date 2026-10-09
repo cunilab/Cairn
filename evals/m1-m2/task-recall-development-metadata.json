@@ -1,0 +1,149 @@
+{
+  "source_sha": "f44448eb7a09f88b6ff829052c3661dd52fea1f3",
+  "qualification": "Prospective development evidence only. Two authored cases use clean captures, not the known mixed-record defect. Not a full milestone evaluation, fresh holdout, installed release archive or HTTPS deployment. No failed attempt or prior V13 claim was relabelled or excluded.",
+  "status": "NOT_READY_TO_MERGE",
+  "claude": "SKIP by user instruction",
+  "actor": {
+    "configured_model": "gpt-6-luna",
+    "effort": "low",
+    "cli": "0.160.0",
+    "provider_model_revision_attested": false
+  },
+  "judge": {
+    "configured_model": "gpt-6.1-sol",
+    "cli": "0.160.0",
+    "reused_calibration_correct": 42,
+    "reused_calibration_unknown": 0,
+    "calibration_metadata_sha256": "208eba0e7264c23a4837bd6237ff3081e8e228ceac6a4179581c7f5dab01f205",
+    "transport_helper_sha256": "b6f63020165ee8526cb95e2d35f1a023f273ac8b5b8cd361598d11be445722d6",
+    "helper_difference_from_v13_delivery": "Optional output_schema added in 2d4c4f0; development delivery calls leave it unset, producing the same turn/start parameters. Prompt instructions and predicates unchanged.",
+    "transport_calls_verified": 2,
+    "observed_tools_and_compactions": 0,
+    "local_input_reconstruction_verified": true,
+    "provider_input_readback_verified": false
+  },
+  "native_binary_sha256": {
+    "cairn": "ffe0bf39ded5185218c2ae1f2883dd6c30297645f5379caddfb549f6dbd36838",
+    "cairnd": "b50e099b83b0164cf93b57653e1354d7f238e91d13c32429609782dc17272145",
+    "cairn-server": "70e60f9200752547d5bdc7d2b572e95ac2edd68962ec29c9d3bec6301b3f33bb"
+  },
+  "cases_sha256": "de12892b7a7ba53e5e4e3b751d7a2bcd8ace6894e2e9c4b13778a98af42a8ebd",
+  "phase_process_successes": 8,
+  "complete_phase_traces": 7,
+  "failed_cairn_mcp_calls_preserved": 3,
+  "cases": [
+    {
+      "id": "N1",
+      "runner_reported_valid": true,
+      "all_phase_traces_complete": false,
+      "incomplete_phase_traces": [
+        "control.prior"
+      ],
+      "persisted_memory_count": 2,
+      "useful_application": "yes",
+      "completion": {
+        "control": "no",
+        "treatment": "yes"
+      },
+      "delivered_claims": 4,
+      "relevant_and_supported": 4,
+      "delivery_inventory_complete": true,
+      "high_impact_harm": "no",
+      "lower_impact_reported": false,
+      "repeated_investigation": {
+        "control": null,
+        "treatment": 0
+      },
+      "packet_sha256": "d62662cf8b944d2fda8806c5c0dc3dbab26ada7ad619e9952c299b41c0750339",
+      "result_sha256": "1ef3bc1177d4ba9b54afeed760b04f409c7ff6888c2ebb819088d20a83f9b52d",
+      "judgment_sha256": "540d564995334539e5e688f1340aab4124c7c1f8db4d9df7fe8dd3fef97c7862",
+      "transport_sha256": "ea05b817b0bfef24df59d7e6f15486f33873b22bc0e7d8c584bf564c47565514",
+      "seconds": {
+        "control": 56.17,
+        "treatment": 53.99
+      },
+      "reported_usage": {
+        "control": {
+          "cached_input_tokens": 438016,
+          "reasoning_output_tokens": 0,
+          "input_tokens": 494899,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1835
+        },
+        "treatment": {
+          "cached_input_tokens": 348160,
+          "reasoning_output_tokens": 0,
+          "input_tokens": 395545,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 2510
+        }
+      }
+    },
+    {
+      "id": "N2",
+      "runner_reported_valid": true,
+      "all_phase_traces_complete": true,
+      "incomplete_phase_traces": [],
+      "persisted_memory_count": 1,
+      "useful_application": "yes",
+      "completion": {
+        "control": "no",
+        "treatment": "yes"
+      },
+      "delivered_claims": 6,
+      "relevant_and_supported": 6,
+      "delivery_inventory_complete": true,
+      "high_impact_harm": "no",
+      "lower_impact_reported": true,
+      "repeated_investigation": {
+        "control": 3,
+        "treatment": 0
+      },
+      "packet_sha256": "f3ec0b2a979a01283fe5c4028cf47f224804b676a868b6555ef5daf000a0d83f",
+      "result_sha256": "fa165719581fa799d40eeb4772307365a0684bf06b9d21d9ad14ddb108539240",
+      "judgment_sha256": "8664ae626b1979d514ad92021eba804bde679964228f42f3be03dfd7acd726d5",
+      "transport_sha256": "9209e8c8160cb62698f0e7ceb37715863604ef19a4d9cf86956499c69630d5ba",
+      "seconds": {
+        "control": 36.4,
+        "treatment": 60.46
+      },
+      "reported_usage": {
+        "control": {
+          "cached_input_tokens": 122624,
+          "reasoning_output_tokens": 0,
+          "input_tokens": 148168,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1464
+        },
+        "treatment": {
+          "cached_input_tokens": 260352,
+          "reasoning_output_tokens": 0,
+          "input_tokens": 310051,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1850
+        }
+      }
+    }
+  ],
+  "local_verification": {
+    "affected_unit_tests_passed": 390,
+    "affected_postgres_tests_passed": 56,
+    "formatting_and_clippy_passed": true,
+    "independent_sol_review": "PASS after relevance-order and stale-availability corrections",
+    "mixed_record_regression": "Matching a mixed record retains the appended implementation proposition; unresolved semantic selection defect."
+  },
+  "ci": {
+    "source_sha": "f44448eb7a09f88b6ff829052c3661dd52fea1f3",
+    "run_id": 37884859306,
+    "jobs_passed": 6,
+    "linux_job_id": 113672463286,
+    "rust_test_groups": 60,
+    "rust_tests_passed": 1262,
+    "rust_tests_failed": 0,
+    "rust_tests_ignored": 0,
+    "log_sha256": "08e4a5facde2fa2b09fcdac388c8dc7e0210d2969d8771a79e6be36874b8b518"
+  },
+  "remaining_dependency": "Astra recommends a server-owned task-conditioned extractive selector before both search and context delivery. Need a usable inference endpoint, model and server credential arrangement; none configured. Preserve original records and provenance, qualifiers, excerpt-specific transmission traces, and abstain on timeout/error. Test prospective mixed/interleaved/qualified/no-match/outage cases before another full frozen15 run.",
+  "private_evidence_root": "/Users/andresholivin/.codex/evals/md14",
+  "development_server": "Isolated local HTTP server and database; no current installed-release/HTTPS claim."
+}

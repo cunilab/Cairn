@@ -1,4 +1,54 @@
-# M1/M2 candidate evidence — through 2026-10-08
+# M1/M2 candidate evidence — through 2026-10-09
+
+## Task-query development — code verified; M2 remains open
+
+Source `f44448eb7a09f88b6ff829052c3661dd52fea1f3` separates automatic
+continuity from project-finding delivery. Startup advertises eligible memory
+availability; explicit bounded task keywords select whole eligible records.
+The query travels through MCP, wire, daemon and server, with a policy and query
+digest checked before delivery. Queried context bypasses the outage cache;
+older unqueried project bodies and stale availability are withheld. Lexical
+overlap ranks ahead of recency and the candidate limit. Archive inspection
+remains available.
+
+Independent Sol review passed after correcting relevance ordering and cached
+availability. Local verification passed **390 affected unit tests and 56
+PostgreSQL tests**, including the installed MCP → daemon → server path,
+legacy/query-digest refusal and cache isolation. Formatting and Clippy passed.
+[CI 37884859306](https://github.com/cunilab/Cairn/actions/runs/37884859306)
+passed **all six jobs**; its exact-source Linux workspace run passed **1,262
+tests in 60 groups**, with zero failures or ignored tests.
+
+Two prospective development examples in separate repositories used unchanged
+capture guidance, ordinary setup and the pinned GPT-6-Luna / low actor. The
+isolated calibrated `gpt-6.1-sol` judge counted all actual later memory claims:
+useful application **2/2**, relevant and supported claims **10/10**, completion
+treatment **2/2** versus control **0/2**, and no high-impact harm. N2's
+lower-impact misdirection occurred in control. All eight processes succeeded,
+but only **seven phase traces were complete**: N1's control prior context
+capture was incomplete, so its repeated-investigation control count is unknown.
+N2 repeated investigation was control three versus treatment zero. Three failed
+Cairn MCP calls remain preserved. Reused calibration, transport-helper identity,
+input reconstruction, runtime identities, timings, usage and private evidence
+hashes are recorded in the [development metadata](task-recall-development-metadata.json).
+This is development evidence, not a full milestone evaluation or fresh holdout.
+
+Astra inspected both judged examples and persisted captures. Both captured clean
+decisions; neither exercised V13's mixed-record failure. A PostgreSQL regression
+explicitly demonstrates that a matching record still delivers an appended
+implementation proposition. The original V13 failure remains unchanged below.
+Astra therefore advised against another full batch before correcting selection
+within records. Its recommended next step is a server-owned, task-conditioned
+semantic selector that returns existing relevant spans, preserves attribution
+and necessary qualifiers, keeps originals intact, records actual excerpt
+transmission, and abstains on failure. Both working search and context need the
+same boundary. A usable inference endpoint, model and server credential
+arrangement are pending; none is configured in this environment.
+
+**PR #66 remains draft and is not ready to merge.** The full 15-case evaluation
+and fresh release/HTTPS deployment have not been rerun for `f44448eb`. Claude
+remains skipped by user instruction. V13's installed-artifact M1 pass is
+historical evidence for `58107d9`, not proof of the new source's full journey.
 
 ## Final v13 candidate — M1 passed; M2 claim quality failed
 
