@@ -1,0 +1,52 @@
+# 0004 — Select exact excerpts inside matching records
+
+**Status:** Accepted; implementation in progress, semantic validation not run.
+**Recorded:** 2026-10-09.
+
+## Context
+
+V13 delivered useful decisions together with 11 irrelevant implementation claims
+in four mixed records. The claims were supported; their task relevance failed.
+Task queries select matching records but leave this failure mechanism intact.
+Astra reviewed the captures and advised correcting selection before another full
+15-case run.
+
+## Decision
+
+Use a server-owned, task-conditioned semantic selector on authorized, eligible
+candidate records. The provider returns record IDs and exact source quotations.
+Cairn resolves unique UTF-8 byte spans, rejects unknown IDs, invented text,
+ambiguous matches, overlapping spans and malformed responses, and returns only
+validated excerpts in source order. Omitted records are abstentions. Preserve
+original records for archive inspection.
+
+Apply the same gate to working search, context and detail access; an alternate
+working route must not return the original body. Keep source attribution and
+record revision, but exclude unselected free-text support summaries. Recheck
+authorization, eligibility and revision after inference. Bound inputs, outputs,
+concurrency and request time. Provider failures or invalid selections produce an
+actionable refusal with no whole-record fallback.
+
+Bind delivery to policy `task_excerpts_v1` and the normalized task-query digest.
+Record source and selected-content hashes and byte spans in provenance, including
+context transmission traces. Schema 10 provides that trace representation;
+older schemas must refuse excerpt working recall rather than omit provenance.
+
+## Alternatives and consequences
+
+Further capture wording changes and cleaner development captures do not prove
+that mixed-record delivery is fixed. Batch capture or author-written summaries
+alone cannot independently select relevant claims. Keyword sentence filtering
+does not establish semantic relevance or preserve necessary qualifiers.
+
+Exact quotation checks prevent invented text; they do not prove that omitting a
+qualifier, negation or attribution is harmless. A real calibrated judge must
+evaluate mixed, interleaved, qualified, no-match and outage cases. Mechanical mock
+tests establish extraction, authorization and failure behavior only. Freeze the
+corrected source and repeat the unchanged full evaluation after those checks.
+
+## Evidence
+
+[Preserved V13 and development results](../../evals/m1-m2/results.md) document
+the failed quality gate, whole-record regression and Astra's recommendation.
+No live provider result or new full milestone pass is established by this ADR.

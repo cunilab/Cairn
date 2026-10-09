@@ -35,6 +35,13 @@ irrelevant appended implementation claims; this change does not establish M2's
 claim-quality gate or objective semantic verification. Archival inspection retains
 the original records and their eligibility disclosures.
 
+[ADR 0004](adr/0004-extractive-semantic-selection.md) records the accepted
+replacement for whole-record delivery: server-side task-conditioned exact
+excerpt selection. Its implementation and live semantic validation are pending;
+[ADR 0005](adr/0005-configured-inference-and-deployment.md) records inference
+configuration and the deployment boundary. The [ADR index](adr/README.md)
+preserves the other M1/M2 choices and rejected approaches.
+
 ## Degraded behavior and recovery
 
 During a network outage, bounded local capture can continue. Saturation is visible; protected boundary events are not silently discarded. Eligible cached context is finite-age and labelled with age and identity. Fresh search reports server unavailability. An observed authorization denial invalidates matching cache immediately; a disconnected client cannot know about unseen revocation.

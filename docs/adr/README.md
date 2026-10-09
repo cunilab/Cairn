@@ -1,0 +1,24 @@
+# Architecture decision records
+
+These records explain consequential M1/M2 decisions and the evidence that led
+to them. They are reconstructed on 2026-10-09 from the implementation, preserved
+evaluation reports, independent reviews and user instructions. An accepted
+decision is a direction, not a claim that implementation or milestone evidence
+has passed. [Architecture](../architecture.md) describes current behavior;
+[candidate evidence](../../evals/m1-m2/results.md) owns measured results.
+
+| Record | Decision | Status |
+| --- | --- | --- |
+| [0001](0001-native-session-identity.md) | Bind verified native calls to framework session identity | Accepted; implemented in V13 |
+| [0002](0002-milestone-evidence.md) | Preserve full milestone gates and failed evidence | Accepted; exits remain open |
+| [0003](0003-task-bound-project-recall.md) | Require a task query before project findings leave Cairn | Accepted; implemented at `f44448eb` |
+| [0004](0004-extractive-semantic-selection.md) | Select exact excerpts inside records before working recall | Accepted; implementation in progress |
+| [0005](0005-configured-inference-and-deployment.md) | Configure inference separately from deployment | Accepted; live provider pending |
+
+## Maintaining the records
+
+Record a consequential decision when it is made: context, decision, alternatives,
+consequences and evidence. Link existing results instead of copying raw logs or
+secrets. Update implementation and validation status when supported by evidence.
+If a decision changes, add a successor and mark the original superseded;
+preserve failed approaches and their measured outcomes.

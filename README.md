@@ -69,6 +69,7 @@ During an outage, bounded local capture can continue. A full spool reports loss 
 
 - [Product](docs/product.md): promise, users, workflow, requirements, and non-goals.
 - [Architecture](docs/architecture.md): current components, authority, privacy, recovery, and limits.
+- [Architecture decisions](docs/adr/README.md): consequential choices, alternatives, evidence, and pending validation.
 - [Roadmap](docs/roadmap.md): product outcomes from foundation to stable 0.1.
 - [Integrations](docs/integrations.md): supported agent behavior and setup ownership.
 - [Validation](docs/validation.md): tests, release proof, and acceptance evidence.
