@@ -54,7 +54,12 @@ pub(crate) async fn client(d: &Daemon) -> Result<Client, WireError> {
 impl Client {
     fn new(url: Option<&str>, token: Option<&str>) -> Result<Self, WireError> {
         let base = url.ok_or_else(|| WireError::new(codes::NOT_LINKED, "no server configured"))?;
-        let token = token.ok_or_else(|| WireError::new(codes::UNAUTHORIZED, "no API token"))?;
+        let token = token.ok_or_else(|| {
+            WireError::new(
+                codes::UNAUTHORIZED,
+                "no API token; create one in web Settings and rerun `cairn setup` with CAIRN_SERVER_URL and CAIRN_SERVER_TOKEN",
+            )
+        })?;
         Ok(Self {
             base: base.trim_end_matches('/').to_owned(),
             token: token.to_owned(),

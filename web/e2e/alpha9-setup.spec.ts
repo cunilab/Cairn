@@ -32,8 +32,16 @@ test("browser creates setup-ready remote and reports invalid input without losin
   await expect(page.getByRole("status").filter({ hasText: "Project created" })).toBeVisible();
   await expect(page.getByTestId("project-members")).toContainText("Fresh repository");
   await expect(page.getByTestId("project-members")).toContainText("Alpha9 developer");
+  await page.getByTestId("new-token").click();
+  await page.getByTestId("token-name").fill("Fresh checkout");
+  await page.getByTestId("create-token").click();
+  const credential = JSON.parse(await page.getByTestId("token-plaintext").innerText());
+  expect(credential.server_url).toBeTruthy();
+  expect(credential.server_token).toBeTruthy();
   await page.reload();
   await expect(page.getByTestId("settings-projects")).toContainText("Fresh repository");
+  await expect(page.getByTestId("token-row")).toContainText("Fresh checkout");
+  await expect(page.getByTestId("revealed-token")).toHaveCount(0);
 });
 
 test("pending project submission cannot duplicate and outage retains input", async ({ page }) => {

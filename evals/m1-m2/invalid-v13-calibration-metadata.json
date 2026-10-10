@@ -1,0 +1,38 @@
+{
+  "product_source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+  "configured_model": "gpt-6.1-sol",
+  "configured_cli": "0.160.0",
+  "attempts": [
+    {
+      "attempt": "malformed-predicate-response",
+      "status": "INVALID",
+      "reason": "Private wrapper omitted frozen response-format instructions; required judgments array absent. No accepted semantic calibration result.",
+      "response_is_bool_id_map": true,
+      "response_entries": 30,
+      "transport_valid": true,
+      "prompt_sha256": "5d5287a37199007b6f6a9189165335f5cd095b3edcab74f49412495b9ae56b3a",
+      "response_sha256": "b89f6f5782814c3ac856dd78627c22a37864c0ffb4314802f62c0c8ea5aa5cb7",
+      "raw_rpc_sha256": "ac94c7a201ce40dbf55cbe1cdd5e81ba1dff381c6ba8f23e018047b76204a438",
+      "observed_tool_calls": 0,
+      "observed_compactions": 0
+    },
+    {
+      "attempt": "malformed-predicate-retry",
+      "status": "INVALID",
+      "reason": "Private wrapper omitted frozen response-format instructions; required judgments array absent. No accepted semantic calibration result.",
+      "response_is_bool_id_map": true,
+      "response_entries": 30,
+      "transport_valid": true,
+      "prompt_sha256": "5d5287a37199007b6f6a9189165335f5cd095b3edcab74f49412495b9ae56b3a",
+      "response_sha256": "b89f6f5782814c3ac856dd78627c22a37864c0ffb4314802f62c0c8ea5aa5cb7",
+      "raw_rpc_sha256": "b7d37a0037337ad009d365bfe83da489efe4bf758acbb7c0b39584746c1759e6",
+      "observed_tool_calls": 0,
+      "observed_compactions": 0
+    }
+  ],
+  "actors_started": 0,
+  "delivery_fixtures_started": 0,
+  "accepted_calibration_labels": 0,
+  "zero_request_cli_path_preflight_preserved": true,
+  "qualification": "Both calls remain invalid; no retrospective coercion or semantic pass. Prospective correction restores exact V12 input SHA and constrains response structure using the verified CLI outputSchema API."
+}

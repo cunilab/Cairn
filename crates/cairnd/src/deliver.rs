@@ -88,6 +88,69 @@ impl Trigger {
 const CACHE_MAX_SESSIONS: usize = 200;
 const CACHE_MAX_BYTES: usize = 64 * 1024;
 const CACHE_TTL: Duration = Duration::from_secs(300);
+const PROJECT_REUSE_POLICY: &str = "project_attestation_v1";
+
+fn project_reuse_confirmed(response: &Value) -> bool {
+    response.get("project_reuse_policy").and_then(Value::as_str) == Some(PROJECT_REUSE_POLICY)
+}
+
+/// Context carries no task query, including when talking to an older server.
+fn withhold_project_bodies_without_query(response: &mut Value) {
+    let mut removed = false;
+    if let Some(sections) = response.get_mut("sections").and_then(Value::as_object_mut) {
+        for section in ["session_memory", "branch_memory", "project_memory"] {
+            removed |= sections
+                .remove(section)
+                .is_some_and(|v| v.as_array().is_none_or(|a| !a.is_empty()));
+        }
+    }
+    if response["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY {
+        if let Some(continuity) = response
+            .get_mut("continuity")
+            .and_then(Value::as_object_mut)
+        {
+            for field in ["pins", "warnings"] {
+                removed |= continuity
+                    .remove(field)
+                    .is_some_and(|value| value.as_array().is_none_or(|items| !items.is_empty()));
+            }
+        }
+    }
+    if removed {
+        if let Some(object) = response.as_object_mut() {
+            // The old trace selected bodies we did not deliver; never report it transmitted.
+            object.remove("trace_id");
+            object.insert("project_memory_withheld".into(), json!(true));
+            object.insert(
+                "project_memory_withheld_reason".into(),
+                json!("task_query_required"),
+            );
+        }
+    }
+}
+
+/// Remove server project-memory claims when their current eligibility cannot
+/// be established. Other domains and the prior handoff keep their existing
+/// authority contracts.
+fn withhold_unconfirmed_project_memory(response: &mut Value, reason: &'static str) {
+    if let Some(sections) = response.get_mut("sections").and_then(Value::as_object_mut) {
+        for section in ["session_memory", "branch_memory", "project_memory"] {
+            sections.remove(section);
+        }
+    }
+    if let Some(continuity) = response
+        .get_mut("continuity")
+        .and_then(Value::as_object_mut)
+    {
+        continuity.insert("warnings".into(), json!([]));
+        continuity.insert("pins".into(), json!([]));
+    }
+    if let Some(object) = response.as_object_mut() {
+        object.remove("project_memory_available");
+        object.insert("project_memory_withheld".into(), json!(true));
+        object.insert("project_memory_withheld_reason".into(), json!(reason));
+    }
+}
 
 struct CachedResponse {
     account_id: Uuid,
@@ -198,6 +261,9 @@ impl OutageCache {
             );
             object.insert("cache_account_id".into(), json!(account_id));
         }
+        // A cache hit cannot prove that a server-side supersession, conflict,
+        // or dependency revision did not happen after this answer was stored.
+        withhold_unconfirmed_project_memory(&mut response, "outage_cache_cannot_revalidate");
         self.touch(session_id);
         Some(response)
     }
@@ -234,6 +300,7 @@ pub struct Delivered {
 /// (`contracts/retrieval-delivery.md` §1–§6, §12.3). `deadline` is the
 /// existing `context_deadline_ms` — this module introduces no deadline
 /// constant of its own.
+#[allow(clippy::too_many_arguments)]
 pub async fn deliver(
     d: &Daemon,
     resolved: &Resolved,
@@ -246,6 +313,7 @@ pub async fn deliver(
     // here would already have exceeded it.
     budget_tokens: usize,
     deadline: Duration,
+    query: Option<&str>,
 ) -> Delivered {
     let started = std::time::Instant::now();
     let account_id = d.account_identity().await;
@@ -262,17 +330,34 @@ pub async fn deliver(
     // A timeout is silence, exactly as a transport failure is.
     let remote = tokio::time::timeout(
         remaining_deadline(deadline, started),
-        retrieve_remote(d, session_id, trigger, open_trigger, budget_tokens),
+        retrieve_remote(d, session_id, trigger, open_trigger, budget_tokens, query),
     )
     .await
     .unwrap_or(Answer::Unreachable);
 
     let (response, served_from_cache) = match remote {
-        Answer::Answered(response) => {
+        Answer::Answered(mut response) => {
             if !response_budget_is_valid(&response, budget_tokens) {
                 return unavailable_delivery(d, resolved, budget_tokens, deadline, started).await;
             }
-            if let Some(account_id) = account_id {
+            if let Some(query) = query {
+                if response["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY
+                    || response["project_query_sha256"] != cairn_core::digest(query)
+                {
+                    return unavailable_delivery(d, resolved, budget_tokens, deadline, started)
+                        .await;
+                }
+            }
+            if query.is_none() {
+                withhold_project_bodies_without_query(&mut response);
+            }
+            if !project_reuse_confirmed(&response) {
+                withhold_unconfirmed_project_memory(
+                    &mut response,
+                    "server_did_not_confirm_reuse_policy",
+                );
+            }
+            if let Some(account_id) = account_id.filter(|_| query.is_none()) {
                 d.outage_cache.lock().await.put(
                     session_id,
                     account_id,
@@ -297,7 +382,8 @@ pub async fn deliver(
         }
         Answer::Rejected => (None, false),
         Answer::Unreachable => {
-            let cached = match account_id {
+            // Explicit query results never borrow another query's cached selection.
+            let cached = match account_id.filter(|_| query.is_none()) {
                 Some(account_id) => d.outage_cache.lock().await.get(
                     session_id,
                     account_id,
@@ -484,6 +570,7 @@ async fn retrieve_remote(
     trigger: Trigger,
     open_trigger: Option<&str>,
     budget_tokens: usize,
+    query: Option<&str>,
 ) -> Answer {
     let creds = d.server.read().await.clone();
     let (Some(base), Some(token)) = (creds.url, creds.token) else {
@@ -500,6 +587,9 @@ async fn retrieve_remote(
         // and never widens anything.
         "budget_tokens": budget_tokens,
     });
+    if let Some(query) = query {
+        body["query"] = json!(query);
+    }
     // `open_trigger` belongs to a `session_open` retrieval and to no other
     // (the server refuses it otherwise) — never sent for the other two.
     if trigger == Trigger::SessionOpen {
@@ -759,6 +849,12 @@ fn copy_response_envelope(response: Option<&Value>, payload: &mut Value) {
         "restored_after_compaction",
         "cache_age_seconds",
         "cache_account_id",
+        "project_reuse_policy",
+        "project_memory_available",
+        "project_recall_policy",
+        "project_query_sha256",
+        "project_memory_withheld",
+        "project_memory_withheld_reason",
     ] {
         if let Some(value) = source.get(key) {
             target.insert(key.into(), value.clone());
@@ -788,9 +884,42 @@ mod tests {
     use crate::testsupport as fx;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
+    #[test]
+    fn older_context_cannot_restore_unqueried_project_bodies_or_claim_transmission() {
+        let mut answer = json!({
+            "trace_id": Uuid::now_v7(),
+            "sections": {
+                "session_memory": [{"content": "unqueried scratch finding"}],
+                "branch_memory": [{"content": "unqueried branch finding"}],
+                "project_memory": [{"content": "unqueried project finding"}],
+                "personal_notes": [{"content": "authorized personal guidance"}]
+            },
+            "continuity": {"pins": [{"text": "explicitly pinned constraint"}]}
+        });
+        withhold_project_bodies_without_query(&mut answer);
+        assert!(!answer.to_string().contains("unqueried"));
+        assert!(answer.get("trace_id").is_none());
+        assert_eq!(
+            answer["project_memory_withheld_reason"],
+            "task_query_required"
+        );
+        assert_eq!(
+            answer["sections"]["personal_notes"][0]["content"],
+            "authorized personal guidance"
+        );
+        assert!(!answer.to_string().contains("explicitly pinned constraint"));
+        let mut current = json!({
+            "project_recall_policy": cairn_core::reuse::TASK_QUERY_POLICY,
+            "continuity": {"pins": [{"id": Uuid::nil(), "text": "Pinned project memory is available through task-scoped recall."}]}
+        });
+        withhold_project_bodies_without_query(&mut current);
+        assert_eq!(current["continuity"]["pins"].as_array().unwrap().len(), 1);
+    }
+
     fn response(trace: &str, level: &str, tokens: u64, spent: u64) -> Value {
         json!({
             "trace_id": trace,
+            "project_reuse_policy": PROJECT_REUSE_POLICY,
             "degradation_level": level,
             "budget": { "tokens": tokens, "spent": spent, "reserved_for_level0": tokens * 4 / 10 },
             "sections": {
@@ -1061,6 +1190,7 @@ mod tests {
             None,
             3000,
             Duration::from_secs(1),
+            None,
         )
         .await;
         assert_eq!(delivered.payload["served_from_cache"], true);
@@ -1070,9 +1200,31 @@ mod tests {
             delivered.payload["briefing"]["previous_handoff"]["next_step"],
             "publish release"
         );
+        assert!(delivered.payload["briefing"]["constraints"].is_null());
+        assert_eq!(delivered.payload["project_memory_withheld"], true);
         assert_eq!(
-            delivered.payload["briefing"]["constraints"][0]["text"],
-            "never publish untested artifacts"
+            delivered.payload["project_memory_withheld_reason"],
+            "outage_cache_cannot_revalidate"
+        );
+    }
+
+    #[test]
+    fn cached_replay_keeps_other_domains_but_removes_project_claims() {
+        let mut cached = response("cached", "full", 3000, 100);
+        cached["continuity"] = continuity();
+        cached["project_memory_available"] = json!(true);
+
+        withhold_unconfirmed_project_memory(&mut cached, "outage_cache_cannot_revalidate");
+
+        assert!(cached["sections"].get("session_memory").is_none());
+        assert!(cached.get("project_memory_available").is_none());
+        assert_eq!(cached["sections"]["personal_notes"][0]["content"], "p1");
+        assert_eq!(cached["sections"]["team_guidance"][0]["content"], "g1");
+        assert_eq!(cached["continuity"]["warnings"], json!([]));
+        assert_eq!(cached["continuity"]["pins"], json!([]));
+        assert_eq!(
+            cached["continuity"]["previous_handoff"]["next_step"],
+            "publish release"
         );
     }
 
@@ -1107,6 +1259,7 @@ mod tests {
             None,
             3000,
             Duration::from_secs(1),
+            None,
         )
         .await;
 
@@ -1128,6 +1281,62 @@ mod tests {
     /// The daemon must spend the budget the server left for Level 0 and then
     /// merge the selected durable sections into that locally assembled frame.
     #[tokio::test]
+    async fn queried_context_never_replays_a_cache_or_accepts_an_unbound_answer() {
+        let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
+        let session = fx::session(&repo.daemon, &resolved.project, "query-binding").await;
+        let account = Uuid::now_v7();
+        let mut cached = response("cached", "full", 3000, 100);
+        cached["continuity"] = continuity();
+        repo.daemon.outage_cache.lock().await.put(
+            session.id,
+            account,
+            Trigger::Explicit,
+            None,
+            3000,
+            &cached,
+        );
+        for (status, mut answer) in [
+            ("500 Internal Server Error", json!({})),
+            ("200 OK", response("legacy", "full", 3000, 100)),
+            ("200 OK", response("whole-record-policy", "full", 3000, 100)),
+            ("200 OK", response("other-query", "full", 3000, 100)),
+        ] {
+            if answer["trace_id"] == "whole-record-policy" {
+                answer["project_recall_policy"] = json!("task_keywords_v1");
+                answer["project_query_sha256"] = json!(cairn_core::digest("bounded parser"));
+            }
+            if answer["trace_id"] == "other-query" {
+                answer["project_recall_policy"] = json!(cairn_core::reuse::TASK_QUERY_POLICY);
+                answer["project_query_sha256"] = json!(cairn_core::digest("different task"));
+            }
+            let url = serve_once(status, answer).await;
+            *repo.daemon.server.write().await = ServerCredentials {
+                url: Some(url),
+                token: Some("token".into()),
+                account_id: Some(account),
+            };
+            let delivered = deliver(
+                &repo.daemon,
+                &resolved,
+                session.id,
+                Trigger::Explicit,
+                None,
+                3000,
+                Duration::from_secs(1),
+                Some("bounded parser"),
+            )
+            .await;
+            assert_ne!(delivered.payload["served_from_cache"], true);
+            assert!(delivered.payload["trace_id"].is_null());
+            assert!(delivered.payload["briefing"]["memory"]["session"]
+                .as_array()
+                .is_none_or(|items| items.is_empty()));
+            assert!(delivered.payload["briefing"]["previous_handoff"].is_null());
+        }
+    }
+
+    #[tokio::test]
     async fn a_fresh_server_answer_keeps_level0_and_merges_durable_sections() {
         let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;
         let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
@@ -1135,6 +1344,8 @@ mod tests {
         let account = Uuid::now_v7();
         let mut answer = response("0199b6d0-d228-7b91-a420-2f935a95473b", "full", 3000, 100);
         answer["continuity"] = continuity();
+        answer["project_recall_policy"] = json!(cairn_core::reuse::TASK_QUERY_POLICY);
+        answer["project_query_sha256"] = json!(cairn_core::digest("session finding"));
         let url = serve_once("200 OK", answer).await;
         *repo.daemon.server.write().await = ServerCredentials {
             url: Some(url),
@@ -1150,6 +1361,7 @@ mod tests {
             None,
             3000,
             Duration::from_secs(1),
+            Some("session finding"),
         )
         .await;
 
@@ -1193,6 +1405,8 @@ mod tests {
         let account = Uuid::now_v7();
         let mut answer = response("0199b6d0-d228-7b91-a420-2f935a95473c", "full", 3000, 100);
         answer["continuity"] = json!({ "pins": "not-an-array" });
+        answer["project_recall_policy"] = json!(cairn_core::reuse::TASK_QUERY_POLICY);
+        answer["project_query_sha256"] = json!(cairn_core::digest("session finding"));
         let url = serve_once("200 OK", answer).await;
         *repo.daemon.server.write().await = ServerCredentials {
             url: Some(url),
@@ -1208,6 +1422,7 @@ mod tests {
             None,
             3000,
             Duration::from_secs(1),
+            Some("session finding"),
         )
         .await;
 
@@ -1225,7 +1440,9 @@ mod tests {
         let resolved = repo.daemon.resolve(&repo.cwd).await.unwrap();
         let session = fx::session(&repo.daemon, &resolved.project, "missing-level0").await;
         let account = Uuid::now_v7();
-        let answer = response("0199b6d0-d228-7b91-a420-2f935a95473d", "full", 3000, 100);
+        let mut answer = response("0199b6d0-d228-7b91-a420-2f935a95473d", "full", 3000, 100);
+        answer["project_recall_policy"] = json!(cairn_core::reuse::TASK_QUERY_POLICY);
+        answer["project_query_sha256"] = json!(cairn_core::digest("session finding"));
         let url = serve_once("200 OK", answer).await;
         *repo.daemon.server.write().await = ServerCredentials {
             url: Some(url),
@@ -1241,6 +1458,7 @@ mod tests {
             None,
             3000,
             Duration::from_secs(1),
+            Some("session finding"),
         )
         .await;
 
@@ -1287,6 +1505,7 @@ mod tests {
             None,
             100,
             Duration::from_secs(1),
+            None,
         )
         .await;
 
@@ -1311,6 +1530,7 @@ mod tests {
             None,
             3000,
             Duration::ZERO,
+            None,
         )
         .await;
 

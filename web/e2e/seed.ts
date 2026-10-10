@@ -507,7 +507,7 @@ export async function seedControlPlane(): Promise<ControlPlaneFixture> {
   // A closed session, so consolidation elects it at once rather than waiting
   // out the ten-minute age threshold a still-open session is held to.
   const sessionId = uuid();
-  // The four events, in the order the vocabulary rule requires.
+  // The five events, in the order the vocabulary and extraction rules require.
   //
   // A `decision_signal`'s tokens must be *justified* by events the server
   // already holds with a lower `session_seq` (`extraction.md` §13.3) — a token
@@ -515,7 +515,9 @@ export async function seedControlPlane(): Promise<ControlPlaneFixture> {
   // and supplies `ledger` (a directory: a module token) and `marmoset` (the
   // file), which the decision at seq 3 then cites. Get this order wrong and
   // ingest answers `token_not_in_vocabulary`, which `ingest` above turns into a
-  // failure here rather than into an empty activity feed later.
+  // failure here rather than into an empty activity feed later. A second file
+  // change after the signal supports the decision proposal; discussion alone
+  // must not produce durable project knowledge.
   const evidenceCommand = "cargo bench --bench crimson_pillar_probe";
   const ingestBody = await apiAs(owner.token, "/api/events/batch", {
     method: "POST",
@@ -546,14 +548,22 @@ export async function seedControlPlane(): Promise<ControlPlaneFixture> {
         lexicon_version: 1,
       },
         }),
-        event(sessionId, 4, "session_closed", {
+        event(sessionId, 4, "file_changed", {
+      File: {
+        repo_file: "ledger/marmoset.rs",
+        repo_file_from: null,
+        change_kind: "modified",
+        file_identity: "present",
+      },
+        }),
+        event(sessionId, 5, "session_closed", {
       SessionClose: { close_reason: "clear" },
         }),
       ],
     }),
   });
   const statuses = (ingestBody.results ?? []) as { status: string }[];
-  if (statuses.length !== 4 || statuses.some((result) => result.status !== "accepted")) {
+  if (statuses.length !== 5 || statuses.some((result) => result.status !== "accepted")) {
     throw new Error(`not every safe event was accepted: ${JSON.stringify(ingestBody)}`);
   }
 

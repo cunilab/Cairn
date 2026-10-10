@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-10",
+  "status": "mechanical_pass_only",
+  "source_sha": "043a6c2a4d7a54d4268938760b93a523a95a6499",
+  "runtime_identity_passed": true,
+  "actor": "codex-cli 0.160.0 / gpt-6-luna / low",
+  "protocol": "One attempt each: ordinary OK reply and authored integration-account isolation decision. No prompt/provider/model iteration. No semantic qualification advancement.",
+  "outcomes": [
+    {
+      "intervened": 1,
+      "disposition": "no_durable_finding",
+      "quiesced_event_count": 2
+    },
+    {
+      "intervened": 0,
+      "disposition": "capture_admitted",
+      "quiesced_event_count": 1
+    }
+  ],
+  "checkpoint_keys_match_native_turn_context": true,
+  "persisted_memories": 1,
+  "actor_exit_codes": {
+    "prior": 0,
+    "later": 0
+  },
+  "evidence_sha256": {
+    "protocol.json": "1adf69f5fdcd83cda141b2c30a3c1885b76b9fc5d006188c70a778469da27957",
+    "summary.json": "7fdd6c6e4edc12c41e19a9dcd5c858b23aac3c7953334075cc0f64b17d77ec15",
+    "identity-summary.json": "e1302f0344ed56a669b90302bd8d94703f77cd7d77f7901303549f1749bbfbb2",
+    "memories.private.json": "c509adfb55e40b54f8d291e544296ee0d1893221e848ee0b41073805e0d6819b",
+    "actor/prior.out": "86f3fa4592917d30c6509055b09c9df64c9a66f073e1f460f3b5b8a4aa0f201c",
+    "actor/later.out": "d03a85608e64da422d8203bfe34d4ae03c29d1d4914ac0539b0c56e5cec7a9a0"
+  },
+  "limits": [
+    "Mechanical exact-turn admission and bounded continuation only; no complete-intent or useful-return claim.",
+    "Frozen F1 semantic failure remains unchanged and stops qualification.",
+    "Full milestone workload, fresh HTTPS/release journeys and production deployment remain open; Claude skipped."
+  ]
+}

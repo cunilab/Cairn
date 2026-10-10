@@ -7,6 +7,7 @@
 mod arrival;
 mod briefing;
 mod capture;
+mod capture_review;
 mod deliver;
 mod handlers;
 mod integrations;
@@ -86,6 +87,7 @@ fn one_line(e: &anyhow::Error) -> String {
 /// everything this spawned) exits immediately after.
 async fn setup() -> anyhow::Result<Arc<Daemon>> {
     let (store, user_id, legacy_migration) = open_store().await?;
+    cairn_store::capture_review::prune_expired(&store).await?;
     let config = CairnConfig::load();
     let server = ServerCredentials::load(&config);
 
@@ -104,6 +106,7 @@ async fn setup() -> anyhow::Result<Arc<Daemon>> {
         in_flight_captures: Arc::new(std::sync::atomic::AtomicUsize::new(0)),
         event_drain: Arc::new(tokio::sync::Mutex::new(())),
         command_drain: Arc::new(tokio::sync::Mutex::new(())),
+        integration_setup: Arc::new(tokio::sync::Mutex::new(())),
         outage_cache: Arc::new(tokio::sync::Mutex::new(deliver::OutageCache::default())),
         legacy_migration,
     });
@@ -111,6 +114,18 @@ async fn setup() -> anyhow::Result<Arc<Daemon>> {
     // Automatic delivery. Queued work reaches the server without anyone typing
     // an agent process remaining alive (FR-056, C1).
     tokio::spawn(sync::run_worker(Arc::clone(&daemon)));
+    let maintenance = Arc::clone(&daemon);
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+            if cairn_store::capture_review::prune_expired(&maintenance.store)
+                .await
+                .is_err()
+            {
+                tracing::warn!("local capture-review retention cleanup unavailable");
+            }
+        }
+    });
 
     Ok(daemon)
 }
@@ -470,7 +485,7 @@ async fn supervise(
 /// `session_closed` bracket the stream rather than sitting inside the patterns
 /// R1–R8 match.
 fn orders_by_arrival(request: &Request) -> bool {
-    match request {
+    match request.inner_operation() {
         Request::CaptureEvents { .. } => true,
         Request::CanonicalEvent { event, capture, .. } => {
             capture.is_some() && !event.event.is_boundary_class()
@@ -504,7 +519,7 @@ where
                 // A capture now usually arrives as a canonical event rather
                 // than a bare `Observe`, and one that is not counted is one a
                 // boundary will not wait for (D22 phase two).
-                let is_capture = match &request {
+                let is_capture = match request.inner_operation() {
                     Request::CanonicalEvent { event, .. } => !event.event.is_boundary_class(),
                     _ => false,
                 };
@@ -679,6 +694,71 @@ mod serve_tests {
             .expect("the gate did not open when the earlier capture retired")
             .expect("join");
         assert!(reply.is_some(), "the connection closed without a reply");
+    }
+
+    #[tokio::test]
+    async fn wrapped_canonical_capture_keeps_arrival_order_and_in_flight_guard() {
+        use cairn_core::lifecycle::{CanonicalEvent, CanonicalLifecycleEvent};
+        use std::sync::atomic::Ordering;
+        let r = repo().await;
+        let request = Request::CanonicalEvent {
+            event: CanonicalLifecycleEvent::new(
+                CanonicalEvent::ToolSucceeded,
+                "opencode",
+                "arrival",
+                &r.cwd,
+            )
+            .with_observation(
+                serde_json::from_value(serde_json::json!({
+                    "kind":"file_read", "summary":"Read the synthetic transport fixture"
+                }))
+                .unwrap(),
+            ),
+            wait_for_handoff: false,
+            token_budget: None,
+            capture: Some(CaptureOutput::default()),
+        }
+        .for_project_reuse();
+        assert!(orders_by_arrival(&request));
+        let boundary = Request::CanonicalEvent {
+            event: CanonicalLifecycleEvent::new(
+                CanonicalEvent::SessionClosed,
+                "opencode",
+                "arrival",
+                &r.cwd,
+            ),
+            wait_for_handoff: false,
+            token_budget: None,
+            capture: Some(CaptureOutput::default()),
+        }
+        .for_project_reuse();
+        assert!(!orders_by_arrival(&boundary));
+        let daemon = Arc::new(r.daemon);
+        let arrivals = arrival::Arrivals::new();
+        let mut ahead = arrivals.take();
+        let held = daemon.repos.write().await;
+        let mut behind = connection(Arc::clone(&daemon), arrivals.take(), &request);
+        assert!(
+            tokio::time::timeout(Duration::from_millis(250), &mut behind)
+                .await
+                .is_err()
+        );
+        assert_eq!(daemon.in_flight_captures.load(Ordering::SeqCst), 0);
+        ahead.retire();
+        tokio::time::timeout(Duration::from_secs(2), async {
+            while daemon.in_flight_captures.load(Ordering::SeqCst) != 1 {
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .expect("wrapped capture was not counted before dispatch");
+        drop(held);
+        assert!(tokio::time::timeout(Duration::from_secs(5), behind)
+            .await
+            .unwrap()
+            .unwrap()
+            .is_some());
+        assert_eq!(daemon.in_flight_captures.load(Ordering::SeqCst), 0);
     }
 
     /// The gate is for capture and for nothing else.

@@ -32,24 +32,30 @@ macro_rules! pg {
 }
 
 fn seed(pg: &Pg, session: Uuid, content: &str) {
+    let id = Uuid::now_v7();
     pg.server.execute(&format!(
         "INSERT INTO memories
             (id, project_id, type, scope, scope_key, content, state, origin_session_id,
              topic_key, value_key, origin_kind)
          VALUES ('{}', '{}', 'fact', 'project', '{}', '{content}', 'active', '{session}',
                  'topic.{}', 'settled', 'explicit')",
-        Uuid::now_v7(),
+        id,
         pg.project,
         pg.project,
         Uuid::now_v7().simple()
     ));
+    pg.attest_project_memory(
+        id,
+        &pg.owner,
+        "Fixture author reports this delivered project fact.",
+    );
 }
 
 fn retrieve(pg: &Pg, who: &Account, session: Uuid) -> Value {
     let (body, status) = post_json_status_bearer(
         &pg.server.base,
         "/api/retrieve",
-        &json!({ "session_id": session, "trigger": "session_open" }),
+        &json!({ "session_id": session, "trigger": "session_open", "query": "durable project" }),
         &who.token,
     );
     assert_eq!(status, 200, "retrieve: {body}");

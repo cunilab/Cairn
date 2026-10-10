@@ -83,6 +83,21 @@ pub const MIGRATIONS: &[(i64, &str, &str)] = &[
         "handoff_commands",
         include_str!("../migrations/0015_handoff_commands.sql"),
     ),
+    (
+        16,
+        "attested_memory_commands",
+        include_str!("../migrations/0016_attested_memory_commands.sql"),
+    ),
+    (
+        17,
+        "capture_checkpoints",
+        include_str!("../migrations/0017_capture_checkpoints.sql"),
+    ),
+    (
+        18,
+        "capture_review",
+        include_str!("../migrations/0018_capture_review.sql"),
+    ),
 ];
 
 /// The schema version this build knows how to use.
@@ -435,4 +450,71 @@ fn split_statements(sql: &str) -> Vec<String> {
         out.push(tail.to_string());
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn attested_command_migration_preserves_queued_work_and_admits_every_kind() {
+        let pool = sqlx::sqlite::SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect("sqlite::memory:")
+            .await
+            .unwrap();
+        run_to(&pool, 15).await.unwrap();
+        sqlx::query(
+            "INSERT INTO command_spool
+            (command_id,scope_kind,scope_key,account_id,command_seq,kind,payload,state,created_at)
+            VALUES ('completed','store','writer','account',2,'remember',
+                    '{\"content\":\"discard delivered body\"}','delivered','timestamp')",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        sqlx::query(
+            "INSERT INTO command_spool
+            (command_id, scope_kind, scope_key, account_id, command_seq, kind,
+             payload, state, attempts, last_error_kind, created_at, server_instance_id)
+            VALUES ('previous', 'store', 'writer', 'account', 1, 'remember',
+                    '{\"content\":\"preserve\"}', 'failed', 3, 'network', 'timestamp', 'server')",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        let before: String = sqlx::query_scalar(
+            "SELECT json_object(
+            'kind',kind,'payload',payload,'state',state,'attempts',attempts,
+            'error',last_error_kind,'created',created_at,'server',server_instance_id)
+            FROM command_spool WHERE command_id='previous'",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        run(&pool).await.unwrap();
+        let after: String = sqlx::query_scalar(
+            "SELECT json_object(
+            'kind',kind,'payload',payload,'state',state,'attempts',attempts,
+            'error',last_error_kind,'created',created_at,'server',server_instance_id)
+            FROM command_spool WHERE command_id='previous'",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        assert_eq!(before, after);
+        let scrubbed: String =
+            sqlx::query_scalar("SELECT payload FROM command_spool WHERE command_id='completed'")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+        assert_eq!(scrubbed, "{}");
+        for (index, kind) in crate::spool::CommandKind::ALL.iter().enumerate() {
+            sqlx::query("INSERT INTO command_spool
+                (command_id,scope_kind,scope_key,account_id,command_seq,kind,payload,state,created_at)
+                VALUES (?1,'store','new-writer','account',?2,?3,'{}','pending','timestamp')")
+                .bind(kind.as_str()).bind(index as i64).bind(kind.as_str())
+                .execute(&pool).await.unwrap();
+        }
+    }
 }

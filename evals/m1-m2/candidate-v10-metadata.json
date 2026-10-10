@@ -1,0 +1,384 @@
+{
+  "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+  "candidate_workflow_run": 37606436010,
+  "qualification": "Source and packaged checks passed. Runtime and semantic gates remain pending. Claude skipped by user; original two-agent milestone is not certified.",
+  "workflow": {
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "verify",
+        "conclusion": "success"
+      },
+      {
+        "name": "candidate gates",
+        "conclusion": "success"
+      },
+      {
+        "name": "compute the Skill ref",
+        "conclusion": "success"
+      },
+      {
+        "name": "aarch64-unknown-linux-gnu",
+        "conclusion": "success"
+      },
+      {
+        "name": "aarch64-apple-darwin",
+        "conclusion": "success"
+      },
+      {
+        "name": "x86_64-pc-windows-msvc",
+        "conclusion": "success"
+      },
+      {
+        "name": "image (web)",
+        "conclusion": "success"
+      },
+      {
+        "name": "image (server)",
+        "conclusion": "success"
+      },
+      {
+        "name": "x86_64-unknown-linux-gnu",
+        "conclusion": "success"
+      },
+      {
+        "name": "x86_64-apple-darwin",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (aarch64-apple-darwin)",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (x86_64-unknown-linux-gnu, ubuntu-latest)",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (aarch64-unknown-linux-gnu, ubuntu-24.04-arm)",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (x86_64-apple-darwin)",
+        "conclusion": "success"
+      },
+      {
+        "name": "checksums and SBOM",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (x86_64-pc-windows-msvc)",
+        "conclusion": "success"
+      },
+      {
+        "name": "candidate manifest",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "artifacts": {
+    "source_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+    "workflow_run": 37606436010,
+    "workflow_jobs_passed": 17,
+    "manifest_sha256": "94efd5f9f7fd7ec76313b7bdb112b9c7707a49f0c0eafa054098379e516672a6",
+    "manifest_verified": true,
+    "skill_revision": "a461f9348841",
+    "images": {
+      "server": "ghcr.io/cunilab/cairn-server@sha256:6be93d165b6e1a6f2c093d8d3afb97d0494ff0a5b74a32cab9459279300701e1",
+      "web": "ghcr.io/cunilab/cairn-web@sha256:8a17ee9bd6c522acf0021b7555e56235e942fd8fa8d45bbbdeb2285b2fd60702"
+    },
+    "archives_verified": 5
+  },
+  "archives": {
+    "archive_checksums_verified": [
+      {
+        "name": "cairn-v0.1.0-alpha.9-aarch64-apple-darwin.tar.gz",
+        "sha256": "38344cf3bd6bd80e6dcb6a15a8c652999bc846ae40c259cfafefbe1a85b34f3e"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-aarch64-unknown-linux-gnu.tar.gz",
+        "sha256": "82aa0008118381269a0d4ef14cd7621dcb6d781544700a5a5795ffcda8f51c1e"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-x86_64-apple-darwin.tar.gz",
+        "sha256": "5bd408f743907d30d7f68831cbc10aef62d4d7c2366770f4b2676fba8b133820"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-x86_64-unknown-linux-gnu.tar.gz",
+        "sha256": "a409272a0ea587810b2459f799852cff14edb4e2ed186a311182b7944f2e1d1a"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-x86_64-pc-windows-msvc.zip",
+        "sha256": "89eee2aef107048d79fe0c737f5cdd959d3198aeb1df434e39492e5a8938eef8"
+      }
+    ],
+    "checksum_file_sha256": "b1a98f916bd093eada14e68c32144fe83c9797ecf0f060b495cd37b666ca5518",
+    "sbom_sha256": "3cec8e8812aa52276b3daf80b9feed65b15ed1bc127ab913709cc53f728745e4",
+    "sbom_version": "SPDX-2.3",
+    "sbom_packages": 760
+  },
+  "local": {
+    "source_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+    "rust_toolchain": "1.97.1-aarch64-apple-darwin",
+    "qualification": "Local source checks; packaged deployment and agent exit gates remain separate.",
+    "checks": {
+      "workspace_build": {
+        "exit_status": 0,
+        "log_sha256": "dfbd6f42fc2416e8b267667b4ecf3a704fa696a1c1fce0921f63a72ea5e36a94"
+      },
+      "workspace_tests": {
+        "exit_status": 0,
+        "groups": 59,
+        "passed": 1250,
+        "failed": 0,
+        "ignored": 0,
+        "postgresql_configured": true,
+        "log_sha256": "b0baa9f39ba45086f65e945dc58f6694b175dd7689bc1314fd4333e8458a6f0b"
+      },
+      "clippy_all_targets_deny_warnings": {
+        "exit_status": 0,
+        "log_sha256": "c7992633a186b18548324beb20f20b9f65841e6bf167d194b34e1c6ae07ace95"
+      },
+      "format": {
+        "exit_status": 0
+      },
+      "python_runner": {
+        "exit_status": 0,
+        "passed": 14
+      },
+      "web_contract": {
+        "exit_status": 0
+      },
+      "web_typecheck": {
+        "exit_status": 0
+      },
+      "web_lint": {
+        "exit_status": 0
+      },
+      "independent_correctness_review": {
+        "result": "PASS"
+      }
+    },
+    "debug_binary_sha256": {
+      "cairn": "f81c579402510940872c0ee8e5537ac8f5014c3565c073f7887aa2686cbf037d",
+      "cairnd": "bce3beb1bb46cd452b7f15deea8fadb179f7f5a84aa97fc762974e987038e90e",
+      "cairn-server": "dae8b6987609538af9489d08f79a4bcc3ec4e2756c8b5718ab922ea344233d8a"
+    }
+  },
+  "packaged_compatibility": {
+    "setup": {
+      "status": "pass",
+      "old_daemon_refused_without_writes": true,
+      "confirmed_old_process_exit": true,
+      "retry_after_exit": true,
+      "ordinary_setup_pinned": true,
+      "idempotent": true,
+      "ownership_count_preserved": true,
+      "new_cairn_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+      "new_cairnd_sha256": "513f9422a41e12328ff0af244336cf84c90aa0507b69f96cc41e890f8764c76f"
+    },
+    "capture_reuse": {
+      "status": "pass",
+      "older_server_capture_commands_refused": true,
+      "older_server_capture_routes_refused": true,
+      "older_server_memory_unchanged": true,
+      "older_daemon_capture_and_supersession_refused": true,
+      "actual_new_mcp_capture_and_supersession_refused": true,
+      "older_daemon_queue_unchanged": true,
+      "all_four_reuse_operations_refused_by_older_daemon": true,
+      "actual_new_mcp_context_search_graph_refused": true,
+      "actual_new_native_hook_failed_soft_without_capture_or_legacy_context": true,
+      "cairn_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+      "older_cairnd_sha256": "c8b905ed5fdce61c9c7628e945bd9da723c474a068639e429426de22beeb1bce"
+    }
+  },
+  "provisioning_protocol": {
+    "source_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+    "workflow_run": 37606436010,
+    "first_case": "F1",
+    "shared_m1_m2_evidence": true,
+    "procedural_change": "Browser UI project and token provisioning for F1; same server endpoints, membership, actor settings, prompts, case order, budgets and scoring. F1 counted exactly once.",
+    "preconditions": [
+      "Entire candidate workflow and manifest verified before actors",
+      "New deployment volume/account, first project, empty personal/team baseline",
+      "Ordinary setup with absolute candidate MCP/native hooks; preserve setup result",
+      "All 15 Codex pairs run once before unchanged calibrated judges",
+      "All earlier evidence and failures preserved; Claude skipped by user"
+    ],
+    "review": "Independent Astra approved short output root and full fresh 15-case batch",
+    "harness_sha256": {
+      "m1-browser-project-v10.cjs": "24b4f347b57d3122381ddc349c6c313aa9053c978652876c249f80d49e6058a9",
+      "m1-journey-v10.py": "f704e4fa101e9f30f781938024e22dc4fc324537c98dd4c7dc93cc0b2edf0976"
+    },
+    "packaged_checks": {
+      "setup": {
+        "status": "pass",
+        "old_daemon_refused_without_writes": true,
+        "confirmed_old_process_exit": true,
+        "retry_after_exit": true,
+        "ordinary_setup_pinned": true,
+        "idempotent": true,
+        "ownership_count_preserved": true,
+        "new_cairn_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+        "new_cairnd_sha256": "513f9422a41e12328ff0af244336cf84c90aa0507b69f96cc41e890f8764c76f"
+      },
+      "capture_reuse": {
+        "status": "pass",
+        "older_server_capture_commands_refused": true,
+        "older_server_capture_routes_refused": true,
+        "older_server_memory_unchanged": true,
+        "older_daemon_capture_and_supersession_refused": true,
+        "actual_new_mcp_capture_and_supersession_refused": true,
+        "older_daemon_queue_unchanged": true,
+        "all_four_reuse_operations_refused_by_older_daemon": true,
+        "actual_new_mcp_context_search_graph_refused": true,
+        "actual_new_native_hook_failed_soft_without_capture_or_legacy_context": true,
+        "cairn_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+        "older_cairnd_sha256": "c8b905ed5fdce61c9c7628e945bd9da723c474a068639e429426de22beeb1bce"
+      }
+    },
+    "maximum_socket_path_bytes": 73,
+    "earlier_setup_attempt_preserved": true,
+    "earlier_attempt_actor_count": 0,
+    "setup_failure_guard_check": "PASS: original response preserved before missing hook access",
+    "fresh_deployment": "cairn-m1m2-v10c-b70d",
+    "path_constraint": "macOS Unix socket path must be shorter than SUN_LEN; custom CAIRN_HOME has this limit"
+  },
+  "pre_execution_failure": {
+    "category": "infrastructure_invalid",
+    "actors_executed": 0,
+    "reason": "Artificially long private CAIRN_HOME exceeded macOS Unix socket SUN_LEN; setup failed before actors.",
+    "ordinary_setup_response_sha256": "c8af79d2de8a7e4e5820069ff665f3ff1ff07bf225526a40637ea71b294682f2",
+    "records": [
+      {
+        "id": "D2",
+        "failure": {
+          "stage": "setup",
+          "kind": "RuntimeError"
+        },
+        "sha256": "a4ba3a3e7cab2ead534e3223dc9dc994937e62de2796acc0b6e4a97d077d0258"
+      },
+      {
+        "id": "D4",
+        "failure": {
+          "stage": "setup",
+          "kind": "RuntimeError"
+        },
+        "sha256": "3adbb0f54861e31d350fd01c44c5853eeaa6d89fda64cfeb5cdffa418df7f4c1"
+      },
+      {
+        "id": "F1",
+        "failure": {
+          "stage": "setup",
+          "kind": "FileNotFoundError"
+        },
+        "sha256": "53893185950db329f52e022c45fd8377a2cfc9a3919ba99a3ff0c1b64240a8c3"
+      },
+      {
+        "id": "F3",
+        "failure": {
+          "stage": "setup",
+          "kind": "RuntimeError"
+        },
+        "sha256": "9236be9f0a7d2b2e41ddad52f413f281d8f7cc6886b3780f73cf5866f37cc6d2"
+      },
+      {
+        "id": "F5",
+        "failure": {
+          "stage": "setup",
+          "kind": "RuntimeError"
+        },
+        "sha256": "a0427b32f13418dff24ce07f42ab003168c1fc4d4fcf3074f607384806f93c9b"
+      },
+      {
+        "id": "R1",
+        "failure": {
+          "stage": "setup",
+          "kind": "RuntimeError"
+        },
+        "sha256": "57c94bce063134b12a33b2c8be1d83bac7ccf263b3483f95fe623734ac2e954d"
+      }
+    ]
+  },
+  "new_runtime_status": "15 valid Codex comparisons and judgments complete; useful4/8 FAIL; original quality13/18 FAIL preserved; judge delivery-provenance confound identified independently; no retroactive exclusion.",
+  "m1_codex_journey": {
+    "source_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+    "workflow_run": 37606436010,
+    "https_origin": "https://requested-reservoir-desire-encounter.trycloudflare.com",
+    "case": "F1",
+    "qualification": "F1 is the first case of the unchanged 15-case Codex subset; browser provisioning replaces only project creation. Prompts, arm order, budgets, and scoring remain unchanged.",
+    "browser_provisioned": true,
+    "preflight": {
+      "fresh_project": true,
+      "membership_matches_token_owner": true,
+      "personal_empty": true,
+      "team_empty": true,
+      "actor_role": "admin",
+      "actor_status": "active",
+      "setup_status": 0,
+      "setup_project_linked": true,
+      "native_hook_commands": 9,
+      "native_hooks_absolute_candidate": true
+    },
+    "runtime_identity": {
+      "control": {
+        "shell": "zsh",
+        "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+        "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+        "login_resolution_matches": true,
+        "binary_sha256_matches": true,
+        "mcp_absolute_candidate": true,
+        "passed": true
+      },
+      "treatment": {
+        "shell": "zsh",
+        "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+        "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+        "login_resolution_matches": true,
+        "binary_sha256_matches": true,
+        "mcp_absolute_candidate": true,
+        "passed": true
+      }
+    },
+    "valid_comparison": true,
+    "memory_count": 1,
+    "persistence": {
+      "case": "F1",
+      "server_memory_count": 1,
+      "server_snapshot_sha256": "2e5d8f6a3067172a78fd6299a88731a2f019a9933ed4bf38dfdcd6a536693370",
+      "reuse_eligible": true,
+      "reuse_status": "eligible",
+      "capture_attestation_present": true,
+      "capture_basis": "user_report",
+      "transmitted_server_traces": 4,
+      "qualification": "Server persistence and transmission are separate observations from useful application, which is scored by the frozen judge.",
+      "capture_accepted": true,
+      "accepted_command_count": 1,
+      "attestation_actor_matches_browser_token_owner": true,
+      "useful_application": "yes"
+    },
+    "judgment_sha256": "a830a680bb7d7c3c2121b19b5b908080ae3f3d827661da4b50874bb3f4d1c843"
+  },
+  "quality_provenance_review": {
+    "result": "Five R3 claims came from ordinary repository rg output quoting historical release evidence, while current Cairn context/search were empty.",
+    "action": "Original labels/counts retained. Next protocol will clarify delivery channels and calibrate quotation/transport/transmission distinctions before new judging.",
+    "reviewer": "independent Astra",
+    "original_score_preserved": true
+  },
+  "next_guidance_source_checks": {
+    "scope": "post-v10 correction; frozen v10 artifacts remain source2842751",
+    "red": {
+      "observed_expected_failure": true,
+      "reason": "native context contradicted canonical record rule",
+      "log_sha256": "34b8882c2620d3c89f2fd8698132949237ff81f8d8930004e572765739ee218a"
+    },
+    "green": {
+      "cli_tests_passed": 32,
+      "integration_tests_passed": 220,
+      "failures": 0,
+      "clippy_changed_packages_all_targets": true,
+      "format": true,
+      "runner_tests_passed": 14
+    },
+    "new_candidate_full_source_and_runtime_evidence": "pending"
+  }
+}

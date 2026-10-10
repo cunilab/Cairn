@@ -27,6 +27,7 @@ pub mod patterns;
 pub mod promotion;
 pub mod redact;
 pub mod release;
+pub mod reuse;
 pub mod startup;
 pub mod tools;
 pub mod validate;

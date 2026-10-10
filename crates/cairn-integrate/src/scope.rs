@@ -145,6 +145,9 @@ pub struct Env {
     pub worktree: PathBuf,
     /// `$XDG_CONFIG_HOME`, where OpenCode looks.
     pub config_home: PathBuf,
+    /// Absolute CLI path for direct setup-owned commands. Portable exports
+    /// and older clients leave this unset.
+    pub cairn_executable: Option<PathBuf>,
 }
 
 impl Env {
@@ -154,7 +157,13 @@ impl Env {
             config_home: home.join(".config"),
             home,
             worktree: worktree.into(),
+            cairn_executable: None,
         }
+    }
+
+    pub fn with_cairn_executable(mut self, executable: Option<PathBuf>) -> Env {
+        self.cairn_executable = executable;
+        self
     }
 
     /// The real environment.
@@ -180,6 +189,7 @@ impl Env {
             home,
             config_home,
             worktree: worktree.into(),
+            cairn_executable: None,
         }
     }
 }

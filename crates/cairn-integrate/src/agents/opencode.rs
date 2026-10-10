@@ -188,7 +188,7 @@ impl AgentAdapter for OpenCode {
                 &["mcp", crate::MCP_SERVER_NAME],
                 mcp_scope,
                 find(ResourceKind::Mcp),
-                crate::mcp_entry_opencode(),
+                crate::mcp_entry_opencode_for_executable(env.cairn_executable.as_deref()),
             );
             // A `.jsonc` sibling merges *after* the `.json` and would shadow
             // Cairn's entry. It is detected and reported, never edited (D37,

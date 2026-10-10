@@ -1,0 +1,412 @@
+{
+  "candidate_sha": "6982de122ffca71a500a048358e7a6f207543ac9",
+  "candidate_workflow_run": 37708344830,
+  "qualification": "Exact source, artifacts, fresh deployment and 15 valid Codex comparisons and judgments verified. Useful, bounded privacy, high-impact harm, completion and repeated-investigation gates pass; delivered-claim quality 21/29 fails 90% gate. Claude skipped by user; original two-agent milestone not certified; PR remains draft.",
+  "workflow": {
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "verify",
+        "conclusion": "success"
+      },
+      {
+        "name": "compute the Skill ref",
+        "conclusion": "success"
+      },
+      {
+        "name": "candidate gates",
+        "conclusion": "success"
+      },
+      {
+        "name": "aarch64-apple-darwin",
+        "conclusion": "success"
+      },
+      {
+        "name": "x86_64-unknown-linux-gnu",
+        "conclusion": "success"
+      },
+      {
+        "name": "image (server)",
+        "conclusion": "success"
+      },
+      {
+        "name": "aarch64-unknown-linux-gnu",
+        "conclusion": "success"
+      },
+      {
+        "name": "image (web)",
+        "conclusion": "success"
+      },
+      {
+        "name": "x86_64-pc-windows-msvc",
+        "conclusion": "success"
+      },
+      {
+        "name": "x86_64-apple-darwin",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (aarch64-unknown-linux-gnu, ubuntu-24.04-arm)",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (x86_64-pc-windows-msvc)",
+        "conclusion": "success"
+      },
+      {
+        "name": "checksums and SBOM",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (aarch64-apple-darwin)",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (x86_64-unknown-linux-gnu, ubuntu-latest)",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (x86_64-apple-darwin)",
+        "conclusion": "success"
+      },
+      {
+        "name": "candidate manifest",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "artifacts": {
+    "source_sha": "6982de122ffca71a500a048358e7a6f207543ac9",
+    "workflow_run": 37708344830,
+    "workflow_jobs_passed": 17,
+    "manifest_sha256": "ea52da97b6af7dee9ead5c9ab8d1b48d125c09d3c26c7e7319580ab951833198",
+    "manifest_verified": true,
+    "version": "cairn 0.1.0-alpha.9",
+    "skill_revision": "a461f9348841",
+    "images": {
+      "server": "ghcr.io/cunilab/cairn-server@sha256:252338c7dd9166a6d72f4007d671e8c22dcd39a31daaeb12095724d5a0fea629",
+      "web": "ghcr.io/cunilab/cairn-web@sha256:4c4f2b10a7c9a3ad64223d94dd9359195bf7fcfed51e553d8c3ec0be49fba76e"
+    },
+    "archives": [
+      {
+        "name": "cairn-v0.1.0-alpha.9-aarch64-apple-darwin.tar.gz",
+        "sha256": "ac4df093e4c04d1afc6ea31045615ab67e47341532c6140032e8f9fb18493e7a"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-aarch64-unknown-linux-gnu.tar.gz",
+        "sha256": "d2ba753759d90c60b3120b5f9ba6e9823a9f67b90038f8c3d98240934d7aecb2"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-x86_64-apple-darwin.tar.gz",
+        "sha256": "10ec4a1a93cec1d7ccf77fe1f5e0de63dc548b9547d775eda606a01af4ec2582"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-x86_64-unknown-linux-gnu.tar.gz",
+        "sha256": "2d1629c79890979459a479917d9538673119f9d605b331fabd439fe3b6d919ac"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-x86_64-pc-windows-msvc.zip",
+        "sha256": "519f446cdce499ceaf3300ad75f0c1dd3637d1f1a9b8cb22e43e6cd7ff8472be"
+      }
+    ],
+    "sbom_sha256": "25501ea08510cbf43b29a9b97ec7d1c5d86e8edba0bc33933e43250107f0b729",
+    "sbom_packages": 760,
+    "native_binary_sha256": {
+      "cairn": "fb858ea1945a28751aa38e6212aa6153084d03f49d31a1c600824d25d63b567f",
+      "cairnd": "e070216703e393d63d32dfe123c3733565f2c2c9711d15838ba2f61327ddcad7",
+      "cairn-server": "51f587a054aefd092461650031c418c9d9fa627abd229a7f1fc8c6a37b6b38b0"
+    }
+  },
+  "ci_tests": {
+    "source_sha": "6982de122ffca71a500a048358e7a6f207543ac9",
+    "ci_run": 37708274768,
+    "job": 113087907252,
+    "groups": 59,
+    "passed": 1251,
+    "failed": 0,
+    "ignored": 0,
+    "log_sha256": "eca7da7d7f5089af119e6741052eaf7fb949fc431a79be071f13a54c24621bb3"
+  },
+  "calibration": {
+    "metadata_sha256": "479db1ae372cce8fcb345500035be0d7534ee3ff8b8632c297a3e09424197987",
+    "reused_predicate_correct": 30,
+    "new_delivery_correct": 7,
+    "unknown": 0,
+    "tool_calls": 0,
+    "expected_labels_withheld": true,
+    "opaque_ids": true,
+    "provider_model_attested": false
+  },
+  "deployment": {
+    "source_sha": "6982de122ffca71a500a048358e7a6f207543ac9",
+    "workflow_run": 37708344830,
+    "compose_project": "cairn-m1m2-v11-b70d",
+    "loopback_port": 18146,
+    "https_origin": "https://ruling-properties-poor-screenshot.trycloudflare.com",
+    "https_health_verified": true,
+    "deployed_image_revisions_verified": true,
+    "deployed_images": {
+      "server": {
+        "image": "ghcr.io/cunilab/cairn-server@sha256:252338c7dd9166a6d72f4007d671e8c22dcd39a31daaeb12095724d5a0fea629",
+        "id": "sha256:252338c7dd9166a6d72f4007d671e8c22dcd39a31daaeb12095724d5a0fea629",
+        "architecture": "arm64",
+        "source_sha": "6982de122ffca71a500a048358e7a6f207543ac9"
+      },
+      "web": {
+        "image": "ghcr.io/cunilab/cairn-web@sha256:4c4f2b10a7c9a3ad64223d94dd9359195bf7fcfed51e553d8c3ec0be49fba76e",
+        "id": "sha256:4c4f2b10a7c9a3ad64223d94dd9359195bf7fcfed51e553d8c3ec0be49fba76e",
+        "architecture": "arm64",
+        "source_sha": "6982de122ffca71a500a048358e7a6f207543ac9"
+      }
+    },
+    "fresh_volume_verified_before_start": true,
+    "initial_verification_race_preserved": true
+  },
+  "provisioning_protocol": {
+    "source_sha": "6982de122ffca71a500a048358e7a6f207543ac9",
+    "workflow_run": 37708344830,
+    "first_case": "F1",
+    "shared_m1_m2_evidence": true,
+    "procedural_change": "F1 browser UI project/token only; ordinary setup and unchanged prior/return prompts, order, budgets and scoring. F1 counted once.",
+    "all_earlier_attempts_preserved": true,
+    "claude_skipped": true,
+    "calibration_metadata_sha256": "479db1ae372cce8fcb345500035be0d7534ee3ff8b8632c297a3e09424197987",
+    "harness_sha256": {
+      "m1-journey-v11.py": "a44339bcfc4bc7949bf665b1f87014d3a4b79c3364933cd085ab1a1a7e7d3c09",
+      "m1-browser-project-v10.cjs": "24b4f347b57d3122381ddc349c6c313aa9053c978652876c249f80d49e6058a9"
+    }
+  },
+  "path_preflight": {
+    "maximum_socket_path_bytes": 73,
+    "macos_sun_len": 104,
+    "checked_paths": 30
+  },
+  "pre_actor_verification_failure": {
+    "category": "deployment_verification_race",
+    "actors_executed": 0,
+    "browser_project_created": false,
+    "https_health_succeeded_before_docker_health_status_check": true,
+    "failure": "Initial Docker health status assert ran before first scheduled check; original script/log retained.",
+    "initial_helper_sha256": "c1d4a8ae45f8e3ee2b62965792450dd4c749fe07efc38d35a1b14ea9db8f7eba",
+    "recorded_at_unix": 1791424778.76737
+  },
+  "m1_codex_journey": {
+    "source_sha": "6982de122ffca71a500a048358e7a6f207543ac9",
+    "workflow_run": 37708344830,
+    "https_origin": "https://ruling-properties-poor-screenshot.trycloudflare.com",
+    "case": "F1",
+    "qualification": "F1 is the first case of the unchanged 15-case Codex subset; browser provisioning replaces only project creation. Prompts, arm order, budgets, and scoring remain unchanged.",
+    "browser_provisioned": true,
+    "preflight": {
+      "fresh_project": true,
+      "membership_matches_token_owner": true,
+      "personal_empty": true,
+      "team_empty": true,
+      "actor_role": "admin",
+      "actor_status": "active",
+      "setup_status": 0,
+      "setup_project_linked": true,
+      "native_hook_commands": 9,
+      "native_hooks_absolute_candidate": true
+    },
+    "runtime_identity": {
+      "control": {
+        "shell": "zsh",
+        "candidate_sha256": "fb858ea1945a28751aa38e6212aa6153084d03f49d31a1c600824d25d63b567f",
+        "selected_sha256": "fb858ea1945a28751aa38e6212aa6153084d03f49d31a1c600824d25d63b567f",
+        "login_resolution_matches": true,
+        "binary_sha256_matches": true,
+        "mcp_absolute_candidate": true,
+        "passed": true
+      },
+      "treatment": {
+        "shell": "zsh",
+        "candidate_sha256": "fb858ea1945a28751aa38e6212aa6153084d03f49d31a1c600824d25d63b567f",
+        "selected_sha256": "fb858ea1945a28751aa38e6212aa6153084d03f49d31a1c600824d25d63b567f",
+        "login_resolution_matches": true,
+        "binary_sha256_matches": true,
+        "mcp_absolute_candidate": true,
+        "passed": true
+      }
+    },
+    "valid_comparison": true,
+    "memory_count": 2
+  },
+  "full_execution": {
+    "valid_comparisons": 15,
+    "successful_phases": 46,
+    "complete_traces": 46,
+    "runtime_identity_verified": true,
+    "delivery_snapshots_complete": true
+  },
+  "semantic_gates": {
+    "useful": "PASS",
+    "delivered_quality": "FAIL",
+    "privacy": "PASS for authorized bounded cases",
+    "high_impact_harm": "PASS",
+    "completion": "PASS",
+    "repeated": "PASS"
+  },
+  "semantic_observations": {
+    "useful": {
+      "yes": 7,
+      "denominator": 8
+    },
+    "delivered_quality": {
+      "both_yes": 21,
+      "denominator": 29
+    },
+    "completion": {
+      "control": 5,
+      "treatment": 13
+    },
+    "repeated_known_eligible": 6,
+    "repeated_unknown_natural": [],
+    "median_repeated_savings_known_pairs": 1.0,
+    "high_impact_harm_yes": 0
+  },
+  "judge_transport_retry": {
+    "only_invalid_F1_retried": true,
+    "original_failure_preserved": true,
+    "valid_judgments_unchanged": true,
+    "unchanged_judgment_sha256": {
+      "F3": "70a09995434a42ab15cf822a51ecfc8eedd6383a1a68a97b9afc2968df8bf2b8",
+      "F5": "c956c3250ec06cdd32b05f113bdea7e418c18ecffa89aead5a7d7d708ee13efd",
+      "D2": "9eaef80ea2679680827e8a8bf4cfe553ce57230766e0ae90ec3f8584d0f1e29f",
+      "D4": "838679770c3a2cb02f26ca5bf8df6bb2777aa164e5e23d6c605a8fd424b92a8e",
+      "R1": "4b37f4c14b22d90ffcb334a3c42ffc12c0ee98e189a8a0861556c9bfb8f76220",
+      "R3": "8ee699993a25d2f9c508083a552efe535a167862df59c028560ca1590cde66fd",
+      "R5": "69d247b93013ebba8dae68c9a36a2c77fe984715c3c729bf038eabac3c1735ea",
+      "S2": "b9b489cd5acdb131e827ac51ebd21292fed817ea132cccef8bf9dab27df97758",
+      "S4": "148e4970cca86eb92dd2f680a3a8cf65f1f9fca562155f4413ee77c128e4dc58",
+      "P1": "ed445669c2bd58a53dfe81b593af6419d7b808a249aac6c2aca942dfd5d12c5c",
+      "P3": "b2c4870f71dfa953d4e747f66a162493ca3085379a803f050fa7448d32720891",
+      "P5": "cc47e16dbd9af4d801a4515281e4f3106f0eeea019822a7d49a78fbcb300f006",
+      "B2": "b82fc765d9320b6ce76042741e743d4bfe389105da9b23c6119bbfe905c5dd80",
+      "B4": "505a01b69116ddf836758e1645a60685b3d13a16d741d27151874ee566406d63"
+    },
+    "original_packet_sha256": "66de5f49347c9eb5116230bf0a951827e04c3a149dc607d5dc87a43c0bddb61a",
+    "complete_prompt_sha256": "2a5f069d4df45814f0e82f9de5631ebd2ccb7edc3e3a9b7a5cf6be3d45507bf9",
+    "complete_prompt_chars": 1235147,
+    "calibration_metadata_sha256": "0dab280e9d44822f498aabd822f4eac0860cc1a01304145b7d5eab4f0dc75805",
+    "transport_helper_sha256": "0b9c6b361c7ff95ea6f67035b4e52f4b0299c37f2f15298bf28f215e30f6d2c9",
+    "transport_metadata_sha256": "063d41635993b75bc8e78011efc353ae119654070a2332099d1ddb21c93e283a",
+    "no_actor_replacement": true,
+    "rubric_unchanged": true,
+    "valid": true,
+    "proof": {
+      "id": "F1.transport",
+      "valid": true,
+      "full_prompt_chars": 1235147,
+      "prompt_sha256": "2a5f069d4df45814f0e82f9de5631ebd2ccb7edc3e3a9b7a5cf6be3d45507bf9",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 400000,
+          "sha256": "1fefbe33c973cb35ef966367eb8a9200410bb00f038e1798c4bd726f90ed7b06"
+        },
+        {
+          "index": 2,
+          "chars": 400000,
+          "sha256": "61d98f9ea26d7866fbffeec11584b812c5f2c6ae89148f3e859f9697634c155d"
+        },
+        {
+          "index": 3,
+          "chars": 400000,
+          "sha256": "fad5f8796fa97613740ad364ff104cd5613322e609c6e8603dd5c1c9eb7674d0"
+        },
+        {
+          "index": 4,
+          "chars": 35147,
+          "sha256": "8f93c774214d9616175bd57ff53bdcedeb610a35b08561483b2cfc5c2f5b2948"
+        }
+      ],
+      "injected_parts_acknowledged": 4,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "configured_model": "gpt-6.1-sol",
+      "effective_reasoning_effort": null,
+      "instruction_sources": [],
+      "effective_isolation_verified": true,
+      "metadata_sha256": "063d41635993b75bc8e78011efc353ae119654070a2332099d1ddb21c93e283a",
+      "raw_sha256": "d7bbbd17a70b351b522db2bc0ae3ec61e727d054d4d722fe22d71d8fe54b9797",
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false
+    },
+    "calibration": "calibration-codex-v11-transport-results.json",
+    "retained_rpc_log_verification": {
+      "check": "Reparse every retained RPC event with current check_event: rejects server requests, tool/compaction items and thread/compacted; also rejects RPC errors.",
+      "passed": true,
+      "logs": 10,
+      "observed_tools_or_compactions": 0,
+      "validator_sha256": "24c549fef1bc3061d7efc46abe0822d1273d9d5f73eaab32e5f89bd3d206c2eb",
+      "records": [
+        {
+          "log_sha256": "56f10b8b1ac5dc30029b86562e30069439f80c60344de579662ce94ca7a3e024",
+          "events": 249,
+          "observed_tools_or_compactions": 0
+        },
+        {
+          "log_sha256": "4ca681104cc6f3096f1429a09d47878978cf4637de625046ae9313ba809284c8",
+          "events": 252,
+          "observed_tools_or_compactions": 0
+        },
+        {
+          "log_sha256": "811857f829062d8238a6e1c662344b45c5f0f836dcdb979ccb258fcdfa489ac7",
+          "events": 314,
+          "observed_tools_or_compactions": 0
+        },
+        {
+          "log_sha256": "b9e11e61e2c7d5db597058acf3ad6727f3962d59ec570d85537a0666979f3a64",
+          "events": 268,
+          "observed_tools_or_compactions": 0
+        },
+        {
+          "log_sha256": "6b7ad6a3e42d7a97c3b3fea2e2e8f5a5971d848a890a43e9e482c0b6bf7d47e6",
+          "events": 407,
+          "observed_tools_or_compactions": 0
+        },
+        {
+          "log_sha256": "1f1f228ba1fa66cc817ec77edb2d34710c959e2f7ebba4d1bb943f5b1278e8d3",
+          "events": 336,
+          "observed_tools_or_compactions": 0
+        },
+        {
+          "log_sha256": "052b78472b43f40b3aa598c78ba341dbc3604dd901232b4beb9eae270a4ce859",
+          "events": 327,
+          "observed_tools_or_compactions": 0
+        },
+        {
+          "log_sha256": "c4054be5f3d3e005288a28b4bb13e13faf376f9fc9ca3dd2707825d77fc7ba5f",
+          "events": 506,
+          "observed_tools_or_compactions": 0
+        },
+        {
+          "log_sha256": "d7bbbd17a70b351b522db2bc0ae3ec61e727d054d4d722fe22d71d8fe54b9797",
+          "events": 655,
+          "observed_tools_or_compactions": 0
+        },
+        {
+          "log_sha256": "6704bb2fb23a116cafd1650a9794749fac197a21494a6329e1755a6ac70ef708",
+          "events": 405,
+          "observed_tools_or_compactions": 0
+        }
+      ]
+    },
+    "transport_qualification": "Exact local/source chunk reassembly and accepted ordered injections; model-visible provider input was not read back or independently hashed. Calibration establishes observed behavior, not byte-exact provider ingestion."
+  },
+  "m1_persistence": {
+    "case": "F1",
+    "server_memory_count": 2,
+    "server_snapshot_sha256": "69f96dbb489cf15caffb26a7965233412daa86fec44f6f37b1d039fd8f5e613b",
+    "reuse_eligible": true,
+    "capture_attestation_present": true,
+    "capture_basis": "user_report",
+    "capture_accepted": true,
+    "accepted_command_count": 1,
+    "attestation_actor_matches_browser_token_owner": true,
+    "transmitted_server_traces": 1,
+    "useful_application": "yes",
+    "qualification": "Acceptance, server persistence and later transmission are separate observations from calibrated useful-application scoring."
+  }
+}

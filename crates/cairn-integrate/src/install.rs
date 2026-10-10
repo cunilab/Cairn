@@ -86,6 +86,19 @@ pub fn materialize_install(
     kind: ResourceKind,
     scope: InstallationScope,
 ) -> Result<Materialized, EditError> {
+    materialize_install_with_record(env, agent, kind, scope, None)
+}
+
+/// Materialize a direct install with its prior ownership record. The record
+/// lets executable-path upgrades replace exactly the registrations Cairn
+/// previously wrote while preserving unrelated and edited entries.
+pub fn materialize_install_with_record(
+    env: &Env,
+    agent: AgentId,
+    kind: ResourceKind,
+    scope: InstallationScope,
+    recorded: Option<&RecordedInstall>,
+) -> Result<Materialized, EditError> {
     // `scope::location` is a fixed table. The OpenCode Skill is the one
     // resource whose location is a decision rather than a lookup: where Claude
     // Code's copy exists, OpenCode binds to that one instead of writing a
@@ -116,7 +129,7 @@ pub fn materialize_install(
 
     match (agent, kind) {
         (_, ResourceKind::Mcp) if agent == AgentId::Codex => {
-            let entry = crate::mcp_entry();
+            let entry = crate::mcp_entry_for_executable(env.cairn_executable.as_deref());
             m.content_hash = Some(canonical_hash(&entry.to_string()));
             m.created_container = toml::get(&display, &current, &["mcp_servers"])?.is_none();
             m.op = write_or_unchanged(toml::upsert(
@@ -128,7 +141,8 @@ pub fn materialize_install(
         }
         (_, ResourceKind::Mcp) => {
             let keys = mcp_keys(agent);
-            let entry = crate::mcp_entry_for(agent);
+            let entry =
+                crate::mcp_entry_for_agent_executable(agent, env.cairn_executable.as_deref());
             m.content_hash = Some(canonical_hash(&entry.to_string()));
             m.container_single_line = json::container_is_single_line(&display, &current, keys);
             m.created_container = json::get(&display, &current, &keys[..keys.len() - 1])?.is_none();
@@ -138,12 +152,23 @@ pub fn materialize_install(
         (AgentId::ClaudeCode, ResourceKind::Lifecycle) => {
             let mut text = current.clone();
             let mut changed = false;
-            for ev in claude_code::EVENTS {
+            let old_entries = json::read(&display, &current)
+                .ok()
+                .and_then(|value| claude_code::recorded_hook_entries(&value, recorded));
+            for (index, ev) in claude_code::EVENTS.iter().enumerate() {
                 m.created_container |= json::get(&display, &current, &["hooks", ev])?.is_none();
                 m.container_single_line |=
                     json::value_is_single_line(&display, &current, &["hooks", ev]);
-                let entry = claude_code::hook_entry(ev);
-                let is_ours = |v: &serde_json::Value| claude_code::is_cairn_hook_entry(v, ev);
+                let entry =
+                    claude_code::hook_entry_for_executable(ev, env.cairn_executable.as_deref());
+                let is_ours = |v: &serde_json::Value| {
+                    claude_code::is_cairn_hook_entry_for_executable(
+                        v,
+                        ev,
+                        env.cairn_executable.as_deref(),
+                    ) || claude_code::is_cairn_hook_entry(v, ev)
+                        || old_entries.as_ref().and_then(|entries| entries.get(index)) == Some(v)
+                };
                 if let Change::Written(s) =
                     json::upsert_array_entry(&display, &text, &["hooks", ev], &is_ours, &entry)?
                 {
@@ -153,7 +178,9 @@ pub fn materialize_install(
             }
             m.content_hash = Some(canonical_hash(&registration_digest_source(
                 claude_code::EVENTS,
-                claude_code::hook_entry,
+                |event| {
+                    claude_code::hook_entry_for_executable(event, env.cairn_executable.as_deref())
+                },
             )));
             m.op = if changed {
                 Op::File { contents: text }
@@ -169,12 +196,22 @@ pub fn materialize_install(
         (AgentId::Codex, ResourceKind::Lifecycle) => {
             let mut text = current.clone();
             let mut changed = false;
-            for ev in codex::EVENTS {
+            let old_entries = json::read(&display, &current)
+                .ok()
+                .and_then(|value| codex::recorded_hook_entries(&value, recorded));
+            for (index, ev) in codex::EVENTS.iter().enumerate() {
                 m.created_container |= json::get(&display, &current, &["hooks", ev])?.is_none();
                 m.container_single_line |=
                     json::value_is_single_line(&display, &current, &["hooks", ev]);
-                let entry = codex::hook_entry(ev);
-                let is_ours = |v: &serde_json::Value| codex::is_cairn_hook_entry(v, ev);
+                let entry = codex::hook_entry_for_executable(ev, env.cairn_executable.as_deref());
+                let is_ours = |v: &serde_json::Value| {
+                    codex::is_cairn_hook_entry_for_executable(
+                        v,
+                        ev,
+                        env.cairn_executable.as_deref(),
+                    ) || codex::is_cairn_hook_entry(v, ev)
+                        || old_entries.as_ref().and_then(|entries| entries.get(index)) == Some(v)
+                };
                 if let Change::Written(s) =
                     json::upsert_array_entry(&display, &text, &["hooks", ev], &is_ours, &entry)?
                 {
@@ -184,7 +221,7 @@ pub fn materialize_install(
             }
             m.content_hash = Some(canonical_hash(&registration_digest_source(
                 codex::EVENTS,
-                codex::hook_entry,
+                |event| codex::hook_entry_for_executable(event, env.cairn_executable.as_deref()),
             )));
             m.op = if changed {
                 Op::File { contents: text }
@@ -250,6 +287,10 @@ pub fn materialize_install(
             })
         }
     }
+    if let Some(previous) = recorded.filter(|previous| previous.location == m.location) {
+        m.container_single_line |= previous.container_single_line;
+        m.created_container |= previous.created_container;
+    }
     Ok(m)
 }
 
@@ -311,8 +352,14 @@ pub fn materialize_removal(
         (AgentId::ClaudeCode, ResourceKind::Lifecycle) => {
             let mut text = current.clone();
             let mut changed = false;
-            for ev in claude_code::EVENTS {
-                let is_ours = |v: &serde_json::Value| claude_code::is_cairn_hook_entry(v, ev);
+            let entries = json::read(&display, &current)
+                .ok()
+                .and_then(|value| claude_code::recorded_hook_entries(&value, recorded));
+            for (index, ev) in claude_code::EVENTS.iter().enumerate() {
+                let is_ours = |v: &serde_json::Value| {
+                    entries.as_ref().and_then(|entries| entries.get(index)) == Some(v)
+                        || claude_code::is_cairn_hook_entry(v, ev)
+                };
                 if let Change::Written(s) =
                     json::remove_array_entries(&display, &text, &["hooks", ev], &is_ours, created)?
                 {
@@ -334,8 +381,14 @@ pub fn materialize_removal(
         (AgentId::Codex, ResourceKind::Lifecycle) => {
             let mut text = current.clone();
             let mut changed = false;
-            for ev in codex::EVENTS {
-                let is_ours = |v: &serde_json::Value| codex::is_cairn_hook_entry(v, ev);
+            let entries = json::read(&display, &current)
+                .ok()
+                .and_then(|value| codex::recorded_hook_entries(&value, recorded));
+            for (index, ev) in codex::EVENTS.iter().enumerate() {
+                let is_ours = |v: &serde_json::Value| {
+                    entries.as_ref().and_then(|entries| entries.get(index)) == Some(v)
+                        || codex::is_cairn_hook_entry(v, ev)
+                };
                 if let Change::Written(s) =
                     json::remove_array_entries(&display, &text, &["hooks", ev], &is_ours, created)?
                 {
@@ -480,7 +533,10 @@ fn write_or_unchanged(change: Change) -> Op {
 
 /// A stable digest source for a set of registrations, so the record can tell
 /// "behind this build" from "edited by hand".
-fn registration_digest_source(events: &[&str], entry: fn(&str) -> serde_json::Value) -> String {
+fn registration_digest_source(
+    events: &[&str],
+    entry: impl Fn(&str) -> serde_json::Value,
+) -> String {
     events
         .iter()
         .map(|ev| entry(ev).to_string())
@@ -572,6 +628,49 @@ mod tests {
         .unwrap();
         commit(&removal).unwrap();
         assert_eq!(std::fs::read_to_string(&path).unwrap(), original);
+    }
+
+    #[test]
+    fn pinned_hooks_relocate_and_remove_without_losing_original_containers() {
+        for agent in [AgentId::ClaudeCode, AgentId::Codex] {
+            for original in ["{}\n", "{\"hooks\":{\"SessionStart\":[{\"hooks\":[{\"type\":\"command\",\"command\":\"user-hook\"}]}]},\"user\":true}\n"] {
+                let (_dir, env) = env();
+                let scope = scope::resolve_scope(agent, ResourceKind::Lifecycle, false, None).unwrap();
+                let path = scope::location(&env, agent, ResourceKind::Lifecycle, scope).unwrap();
+                std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+                std::fs::write(&path, original).unwrap();
+                let old = env.clone().with_cairn_executable(Some(env.home.join("old release/cairn")));
+                let new = env.clone().with_cairn_executable(Some(env.home.join("new 'release/cairn")));
+                let first = materialize_install(&old, agent, ResourceKind::Lifecycle, scope).unwrap();
+                commit(&first).unwrap();
+                let mut recorded = RecordedInstall {
+                    agent, kind: ResourceKind::Lifecycle,
+                    owner: crate::model::ResourceOwner::Direct, scope, location: path.clone(),
+                    content_hash: first.content_hash.clone(), artifact_schema: None,
+                    artifact_revision: None, activation: crate::model::ActivationState::NotApplicable,
+                    serves: vec![agent], container_single_line: first.container_single_line,
+                    created_container: first.created_container,
+                };
+                let second = materialize_install_with_record(&new, agent, ResourceKind::Lifecycle, scope, Some(&recorded)).unwrap();
+                commit(&second).unwrap();
+                assert_eq!(second.created_container, first.created_container);
+                assert_eq!(second.container_single_line, first.container_single_line);
+                let installed = std::fs::read_to_string(&path).unwrap();
+                assert!(!installed.contains("old release"));
+                assert!(installed.contains("new "));
+                recorded.content_hash = second.content_hash;
+                recorded.created_container = second.created_container;
+                recorded.container_single_line = second.container_single_line;
+                let removal = materialize_removal(&new, agent, ResourceKind::Lifecycle, scope, Some(&recorded)).unwrap();
+                commit(&removal).unwrap();
+                let restored = std::fs::read_to_string(&path).unwrap();
+                assert_eq!(serde_json::from_str::<serde_json::Value>(&restored).unwrap(),
+                    serde_json::from_str::<serde_json::Value>(original).unwrap(), "{agent}");
+                if agent == AgentId::ClaudeCode || original == "{}\n" {
+                    assert_eq!(restored, original, "{agent}");
+                }
+            }
+        }
     }
 
     #[test]

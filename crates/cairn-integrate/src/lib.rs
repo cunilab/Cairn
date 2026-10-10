@@ -45,13 +45,23 @@ pub use model::{
     AgentId, ArtifactVersion, HealthCondition, InstallationScope, IntegrationLevel, ManagerId,
     ResourceKind, ResourceOwner,
 };
+use std::path::Path;
 
 /// The MCP entry Cairn installs, in every agent's format.
 ///
 /// Secret-free by construction: only the local storage path may be passed to
 /// an agent that otherwise filters the setup process environment.
 pub fn mcp_entry() -> serde_json::Value {
-    let mut entry = serde_json::json!({ "command": "cairn", "args": ["mcp"] });
+    mcp_entry_for_executable(None)
+}
+
+/// Cairn's direct-install MCP entry, pinned where setup supplied its own
+/// executable identity. Portable exports call [`mcp_entry`] instead.
+pub fn mcp_entry_for_executable(executable: Option<&Path>) -> serde_json::Value {
+    let command = executable
+        .map(|path| path.display().to_string())
+        .unwrap_or_else(|| "cairn".into());
+    let mut entry = serde_json::json!({ "command": command, "args": ["mcp"] });
     if let Ok(home) = std::env::var("CAIRN_HOME") {
         if !home.is_empty() {
             entry["env"] = serde_json::json!({ "CAIRN_HOME": home });
@@ -71,19 +81,54 @@ pub fn mcp_entry() -> serde_json::Value {
 /// `Missing key mcp.cairn.enabled`. An integration must never be able to break
 /// the tool it integrates with.
 pub fn mcp_entry_opencode() -> serde_json::Value {
+    mcp_entry_opencode_for_executable(None)
+}
+
+/// OpenCode's direct-install MCP entry with optional executable identity.
+pub fn mcp_entry_opencode_for_executable(executable: Option<&Path>) -> serde_json::Value {
+    let command = executable
+        .map(|path| path.display().to_string())
+        .unwrap_or_else(|| "cairn".into());
     serde_json::json!({
         "type": "local",
-        "command": ["cairn", "mcp"],
+        "command": [command, "mcp"],
         "enabled": true,
     })
 }
 
 /// Cairn's canonical MCP entry for `agent`.
 pub fn mcp_entry_for(agent: model::AgentId) -> serde_json::Value {
+    mcp_entry_for_agent_executable(agent, None)
+}
+
+/// Direct-install MCP entry for `agent`, pinned to `executable` when known.
+pub fn mcp_entry_for_agent_executable(
+    agent: model::AgentId,
+    executable: Option<&Path>,
+) -> serde_json::Value {
     if agent == model::AgentId::Opencode {
-        mcp_entry_opencode()
+        mcp_entry_opencode_for_executable(executable)
     } else {
-        mcp_entry()
+        mcp_entry_for_executable(executable)
+    }
+}
+
+/// Shell command word for a directly installed lifecycle hook.
+///
+/// Vendor hook fields are shell command strings, unlike MCP command fields.
+/// Quote the executable as one word and leave the adapter arguments outside.
+pub(crate) fn hook_executable(executable: Option<&Path>) -> String {
+    let Some(path) = executable else {
+        return "cairn".into();
+    };
+    let path = path.display().to_string();
+    #[cfg(windows)]
+    {
+        format!("\"{}\"", path.replace('"', "\"\""))
+    }
+    #[cfg(not(windows))]
+    {
+        format!("'{}'", path.replace('\'', "'\"'\"'"))
     }
 }
 
@@ -203,6 +248,24 @@ mod tests {
         for word in ["token", "key", "secret", "password"] {
             assert!(!text.to_lowercase().contains(word));
         }
+    }
+
+    #[test]
+    fn direct_entries_pin_one_executable_word_even_when_the_path_has_spaces() {
+        let executable = std::path::Path::new("/opt/Cairn Candidate/cairn");
+        assert_eq!(
+            mcp_entry_for_executable(Some(executable))["command"],
+            executable.display().to_string()
+        );
+        assert_eq!(
+            mcp_entry_opencode_for_executable(Some(executable))["command"][0],
+            executable.display().to_string()
+        );
+        #[cfg(not(windows))]
+        assert_eq!(
+            hook_executable(Some(executable)),
+            "'/opt/Cairn Candidate/cairn'"
+        );
     }
 
     #[test]

@@ -90,6 +90,7 @@ const CREDENTIAL_BOUND_FIELDS: &[&str] = &[
     "account_id",
     "writer_id",
     "writer_seq",
+    "actor_user_id",
 ];
 
 /// Refuse a body that carries anything the server owns.
@@ -98,6 +99,15 @@ const CREDENTIAL_BOUND_FIELDS: &[&str] = &[
 /// assertion made one level down, and a check that only looked at the top level
 /// would be defeated by wrapping.
 fn reject_server_owned(body: &Value) -> ApiResult<()> {
+    for field in ["evidence_observation_ids", "observation_ids"] {
+        if let Some(value) = body.get(field) {
+            if !value.is_null() && value.as_array().is_none_or(|ids| !ids.is_empty()) {
+                return Err(ApiError::invalid(
+                    "local observation IDs cannot be attached to server-owned knowledge",
+                ));
+            }
+        }
+    }
     fn walk(value: &Value) -> Option<&'static str> {
         match value {
             Value::Object(map) => {
@@ -170,6 +180,72 @@ fn memory_scope(body: &Value) -> ApiResult<String> {
     }
 }
 
+fn capture_attestation(body: &Value) -> ApiResult<Option<cairn_core::reuse::CaptureAttestation>> {
+    let Some(value) = body.get("capture_attestation") else {
+        return Ok(None);
+    };
+    if value.is_null() {
+        return Ok(None);
+    }
+    let attestation: cairn_core::reuse::CaptureAttestation = serde_json::from_value(value.clone())
+        .map_err(|e| ApiError::invalid(format!("invalid `capture_attestation`: {e}")))?;
+    attestation.validate().map_err(ApiError::invalid)?;
+    Ok(Some(attestation))
+}
+
+async fn insert_capture_attestation(
+    tx: &mut sqlx::PgConnection,
+    project_id: Uuid,
+    memory_id: Uuid,
+    actor_user_id: Uuid,
+    attestation: Option<&cairn_core::reuse::CaptureAttestation>,
+) -> ApiResult<()> {
+    let Some(attestation) = attestation else {
+        return Ok(());
+    };
+    let dependency_updated_at: Option<chrono::DateTime<chrono::Utc>> =
+        match attestation.dependency_memory_id {
+            Some(dependency_id) => Some(
+                sqlx::query_scalar(&format!(
+                    "SELECT m.updated_at FROM memories m
+                     JOIN project_memory_attestations a ON a.memory_id = m.id
+                     WHERE m.id = $1 AND m.project_id = $2
+                       AND a.dependency_memory_id IS NULL AND ({})
+                     FOR SHARE OF m",
+                    crate::reuse::eligible("m"),
+                ))
+                .bind(dependency_id)
+                .bind(project_id)
+                .fetch_optional(&mut *tx)
+                .await?
+                .ok_or_else(|| {
+                    ApiError::invalid(
+                        "capture_attestation dependency must be eligible memory in this project with no dependency of its own (one hop maximum)",
+                    )
+                })?,
+            ),
+            None => None,
+        };
+    sqlx::query(
+        "INSERT INTO project_memory_attestations
+             (memory_id, actor_user_id, basis, support_summary,
+              source_reference, source_revision, dependency_memory_id,
+              dependency_updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+    )
+    .bind(memory_id)
+    .bind(actor_user_id)
+    .bind(attestation.basis.as_str())
+    .bind(attestation.support_summary.trim())
+    .bind(attestation.source_reference.as_deref().map(str::trim))
+    .bind(attestation.source_revision.as_deref().map(str::trim))
+    .bind(attestation.dependency_memory_id)
+    .bind(dependency_updated_at)
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
 /// Resolve the session a project command is attributed to.
 ///
 /// Optional, and verified when given. A command issued outside any session is a
@@ -199,6 +275,54 @@ async fn attributed_session(
             Err(ApiError::forbidden("no session you can write to was named"))
         }
     }
+}
+
+async fn memory_scope_key(
+    pool: &PgPool,
+    project_id: Uuid,
+    scope: &str,
+    session: Uuid,
+    body: &Value,
+) -> ApiResult<String> {
+    // Older daemons sent their local project UUID here. Project membership is
+    // bound by the route, so normalize the redundant key at this boundary.
+    if scope == "project" {
+        return Ok(project_id.to_string());
+    }
+    let supplied = match body.get("scope_key") {
+        None | Some(Value::Null) => None,
+        Some(value) => Some(
+            value
+                .as_str()
+                .filter(|key| !key.trim().is_empty())
+                .ok_or_else(|| ApiError::invalid("`scope_key` must be a nonempty string"))?,
+        ),
+    };
+    if scope == "branch" {
+        if let Some(key) = supplied {
+            return Ok(key.to_string());
+        }
+        if session != UNATTRIBUTED_OWNER {
+            return Ok(sqlx::query_scalar(
+                "SELECT branch FROM sessions WHERE id = $1 AND project_id = $2",
+            )
+            .bind(session)
+            .bind(project_id)
+            .fetch_one(pool)
+            .await?);
+        }
+    } else if session != UNATTRIBUTED_OWNER {
+        let canonical = session.to_string();
+        if supplied.is_some_and(|key| key != canonical) {
+            return Err(ApiError::invalid(
+                "`scope_key` must match the attributed session",
+            ));
+        }
+        return Ok(canonical);
+    }
+    Err(ApiError::invalid(
+        "this scope requires an attributed session",
+    ))
 }
 
 /// Resolve a handoff command's session from its envelope, never its identity.
@@ -390,7 +514,58 @@ pub(crate) async fn project_of_record(
 // Project memory
 // ---------------------------------------------------------------------------
 
+/// The distinct capture route fails visibly against a server without this
+/// policy instead of dropping unknown support fields in a legacy write.
+pub async fn create_attested_memory(
+    state: State<AppState>,
+    user: CurrentUser,
+    project: Path<Uuid>,
+    body: Json<Value>,
+) -> ApiResult<Json<Value>> {
+    require_capture_attestation(&body.0)?;
+    create_memory_impl(state, user, project, body).await
+}
+
+pub async fn supersede_attested_memory(
+    state: State<AppState>,
+    user: CurrentUser,
+    memory: Path<Uuid>,
+    body: Json<Value>,
+) -> ApiResult<Json<Value>> {
+    require_capture_attestation(&body.0)?;
+    supersede_memory_impl(state, user, memory, body).await
+}
+
+fn require_capture_attestation(body: &Value) -> ApiResult<()> {
+    if capture_attestation(body)?.is_none() {
+        return Err(ApiError::invalid("capture requires capture_attestation"));
+    }
+    Ok(())
+}
+
 pub async fn create_memory(
+    state: State<AppState>,
+    user: CurrentUser,
+    project: Path<Uuid>,
+    body: Json<Value>,
+) -> ApiResult<Json<Value>> {
+    reject_legacy_capture(&body.0)?;
+    create_memory_impl(state, user, project, body).await
+}
+
+fn reject_legacy_capture(body: &Value) -> ApiResult<()> {
+    if body
+        .get("capture_attestation")
+        .is_some_and(|value| !value.is_null())
+    {
+        return Err(ApiError::invalid(
+            "use the captures route or an attested command for capture_attestation",
+        ));
+    }
+    Ok(())
+}
+
+async fn create_memory_impl(
     State(state): State<AppState>,
     user: CurrentUser,
     Path(project_id): Path<Uuid>,
@@ -406,12 +581,12 @@ pub async fn create_memory(
     let content = text(&body, "content")?;
     let topic_key = body.get("topic_key").and_then(Value::as_str);
     let value_key = body.get("value_key").and_then(Value::as_str);
+    let capture_attestation = capture_attestation(&body)?;
+    if capture_attestation.is_some() {
+        crate::reuse::require_schema(state.schema_version)?;
+    }
     let session = attributed_session(&state.pool, &reader, project_id, &body).await?;
-    let scope_key = body
-        .get("scope_key")
-        .and_then(Value::as_str)
-        .map(str::to_string)
-        .unwrap_or_else(|| project_id.to_string());
+    let scope_key = memory_scope_key(&state.pool, project_id, &scope, session, &body).await?;
 
     let id = Uuid::now_v7();
     let mut tx = state.pool.begin().await?;
@@ -439,12 +614,30 @@ pub async fn create_memory(
     .bind(value_key)
     .execute(&mut *tx)
     .await?;
+    insert_capture_attestation(
+        &mut tx,
+        project_id,
+        id,
+        user.id,
+        capture_attestation.as_ref(),
+    )
+    .await?;
     tx.commit().await?;
 
     Ok(Json(json!({ "id": id, "applied": "accepted" })))
 }
 
 pub async fn supersede_memory(
+    state: State<AppState>,
+    user: CurrentUser,
+    memory: Path<Uuid>,
+    body: Json<Value>,
+) -> ApiResult<Json<Value>> {
+    reject_legacy_capture(&body.0)?;
+    supersede_memory_impl(state, user, memory, body).await
+}
+
+async fn supersede_memory_impl(
     State(state): State<AppState>,
     user: CurrentUser,
     Path(id): Path<Uuid>,
@@ -460,7 +653,14 @@ pub async fn supersede_memory(
     let scope = memory_scope(&body)?;
     let content = text(&body, "content")?;
     let session = attributed_session(&state.pool, &reader, project_id, &body).await?;
+    let scope_key = memory_scope_key(&state.pool, project_id, &scope, session, &body).await?;
     let replacement = Uuid::now_v7();
+    let topic_key = body.get("topic_key").and_then(Value::as_str);
+    let value_key = body.get("value_key").and_then(Value::as_str);
+    let capture_attestation = capture_attestation(&body)?;
+    if capture_attestation.is_some() {
+        crate::reuse::require_schema(state.schema_version)?;
+    }
 
     // The replacement and the supersession commit together. A crash between
     // them would leave either a superseded record pointing at nothing, or a
@@ -473,17 +673,28 @@ pub async fn supersede_memory(
     }
     sqlx::query(
         "INSERT INTO memories
-             (id, project_id, type, scope, scope_key, content, origin_session_id, origin_kind)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'explicit')",
+             (id, project_id, type, scope, scope_key, content, origin_session_id,
+              topic_key, value_key, origin_kind)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'explicit')",
     )
     .bind(replacement)
     .bind(project_id)
     .bind(&kind)
     .bind(&scope)
-    .bind(project_id.to_string())
+    .bind(scope_key)
     .bind(&content)
     .bind(session)
+    .bind(topic_key)
+    .bind(value_key)
     .execute(&mut *tx)
+    .await?;
+    insert_capture_attestation(
+        &mut tx,
+        project_id,
+        replacement,
+        user.id,
+        capture_attestation.as_ref(),
+    )
     .await?;
 
     // The superseded row's `content` is untouched, and there is no clause here
@@ -499,6 +710,16 @@ pub async fn supersede_memory(
     .await?;
     if updated.rows_affected() == 0 {
         return Err(ApiError::invalid("that memory is already superseded"));
+    }
+    if state.schema_version >= crate::reuse::REQUIRED_SCHEMA {
+        sqlx::query(
+            "UPDATE project_memory_attestations
+                SET invalidated_at = now(), invalidation_reason = 'superseded'
+              WHERE memory_id = $1 AND invalidated_at IS NULL",
+        )
+        .bind(id)
+        .execute(&mut *tx)
+        .await?;
     }
     tx.commit().await?;
 
@@ -653,6 +874,17 @@ pub async fn record_relation(
     .bind(session)
     .execute(&mut *tx)
     .await?;
+    if kind == RelationKind::ConflictsWith && state.schema_version >= crate::reuse::REQUIRED_SCHEMA
+    {
+        sqlx::query(
+            "UPDATE project_memory_attestations
+                SET invalidated_at = now(), invalidation_reason = 'conflicted'
+              WHERE memory_id = ANY($1) AND invalidated_at IS NULL",
+        )
+        .bind(vec![from, to])
+        .execute(&mut *tx)
+        .await?;
+    }
     tx.commit().await?;
     Ok(Json(
         json!({ "from": from, "to": to, "kind": kind.as_str() }),
@@ -690,6 +922,12 @@ pub async fn forget_memory(
     .bind(id)
     .execute(&mut *tx)
     .await?;
+    if state.schema_version >= crate::reuse::REQUIRED_SCHEMA {
+        sqlx::query("DELETE FROM project_memory_attestations WHERE memory_id = $1")
+            .bind(id)
+            .execute(&mut *tx)
+            .await?;
+    }
     tx.commit().await?;
     Ok(Json(json!({ "id": id, "forgotten": true })))
 }
@@ -1501,6 +1739,13 @@ pub async fn command_envelope(
     };
 
     match kind.as_str() {
+        "remember_attested" | "supersede_attested" => {
+            if kind == "remember_attested" {
+                create_attested_memory(state, user, Path(needs_project()?), Json(body)).await
+            } else {
+                supersede_attested_memory(state, user, Path(needs_target()?), Json(body)).await
+            }
+        }
         "remember" => create_memory(state, user, Path(needs_project()?), Json(body)).await,
         "supersede" => supersede_memory(state, user, Path(needs_target()?), Json(body)).await,
         "reinforce" => reinforce_memory(state, user, Path(needs_target()?), Json(body)).await,
@@ -1590,5 +1835,44 @@ mod tests {
             !rendered.contains("ghp_"),
             "a refusal echoed the value it refused"
         );
+    }
+
+    #[test]
+    fn capture_attestation_refuses_forged_identity_and_authority() {
+        for field in ["actor_user_id", "verification_authority", "eligible"] {
+            let mut body = json!({
+                "capture_attestation": {
+                    "basis": "user_report",
+                    "support_summary": "The user chose the server-owned design."
+                }
+            });
+            body["capture_attestation"][field] = json!("attested");
+            assert!(capture_attestation(&body).is_err(), "accepted {field}");
+        }
+    }
+
+    #[test]
+    fn null_capture_attestation_is_the_same_as_omission() {
+        assert!(capture_attestation(&json!({})).unwrap().is_none());
+        assert!(capture_attestation(&json!({ "capture_attestation": null }))
+            .unwrap()
+            .is_none());
+    }
+
+    #[test]
+    fn capture_attestation_does_not_set_verification_authority() {
+        let body = json!({
+            "capture_attestation": {
+                "basis": "user_report",
+                "support_summary": "The user chose the server-owned design."
+            }
+        });
+        let parsed = capture_attestation(&body).unwrap().expect("attestation");
+        assert_eq!(parsed.basis, cairn_core::reuse::CaptureBasis::UserReport);
+        assert!(!serde_json::to_value(parsed)
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .contains_key("verification_authority"));
     }
 }

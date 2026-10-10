@@ -24,14 +24,20 @@ type Reply = Result<serde_json::Value, WireError>;
 
 /// Install or refresh detected integrations during explicit setup.
 ///
-/// Instructions stay user-owned: setup never edits `AGENTS.md`, `CLAUDE.md`,
-/// or committed `.claude/settings.json`. Existing Cairn-owned resources are
-/// updated only when inspection still matches their recorded ownership.
-pub async fn setup(d: &Daemon, cwd: &str) -> serde_json::Value {
-    setup_at(d, &cairn_integrate::scope::Env::discover(cwd)).await
+/// Setup inserts a managed instruction block without replacing surrounding
+/// user text. Existing Cairn-owned resources are updated only when inspection
+/// still matches their recorded ownership.
+pub async fn setup(d: &Daemon, cwd: &str, cairn_executable: Option<&str>) -> serde_json::Value {
+    let executable = cairn_executable.map(std::path::PathBuf::from);
+    setup_at(
+        d,
+        &cairn_integrate::scope::Env::discover(cwd).with_cairn_executable(executable),
+    )
+    .await
 }
 
 async fn setup_at(d: &Daemon, env: &cairn_integrate::scope::Env) -> serde_json::Value {
+    let _setup = d.integration_setup.lock().await;
     use cairn_integrate::desired::{Choices, DesiredIntegrationState, RecordedResource};
     use cairn_integrate::model::{
         ActivationState, AgentId, ArtifactVersion, InstallationScope, ResourceKind, ResourceOwner,
@@ -98,6 +104,7 @@ async fn setup_at(d: &Daemon, env: &cairn_integrate::scope::Env) -> serde_json::
                 only: vec![
                     ResourceKind::Mcp,
                     ResourceKind::Lifecycle,
+                    ResourceKind::Instructions,
                     ResourceKind::Skill,
                 ],
                 ..Default::default()
@@ -139,16 +146,40 @@ async fn setup_at(d: &Daemon, env: &cairn_integrate::scope::Env) -> serde_json::
         )
         .await;
 
+        for change in &plan.changes {
+            if change.kind == ResourceKind::Instructions
+                && change.action == ChangeAction::Unchanged
+                && !records
+                    .iter()
+                    .any(|row| row.kind == ResourceKind::Instructions)
+            {
+                if let Some(target) = &change.target {
+                    if let Err(error) =
+                        rec::bind_existing(&d.store, agent.as_str(), change.kind.as_str(), target)
+                            .await
+                    {
+                        warnings.push(json!({
+                            "agent": agent.as_str(),
+                            "kind": change.kind.as_str(),
+                            "detail": format!("could not bind shared instructions: {error}"),
+                        }));
+                    }
+                }
+            }
+        }
+
         for change in plan
             .changes
             .into_iter()
             .filter(|change| matches!(change.action, ChangeAction::Add | ChangeAction::Update))
         {
-            let materialized = match cairn_integrate::install::materialize_install(
+            let recorded = records.iter().find(|record| record.kind == change.kind);
+            let materialized = match cairn_integrate::install::materialize_install_with_record(
                 env,
                 agent,
                 change.kind,
                 change.scope,
+                recorded,
             ) {
                 Ok(value) => value,
                 Err(error) => {
@@ -357,6 +388,7 @@ async fn dispatch(
             let delivered = crate::handlers::handle(
                 d,
                 cairn_core::wire::Request::Context {
+                    query: None,
                     cwd,
                     agent_session_key: key,
                     session_id: None,
@@ -484,14 +516,39 @@ mod tests {
         let repo = root.path().join("repo");
         std::fs::create_dir_all(home.join(".claude")).unwrap();
         std::fs::create_dir_all(&repo).unwrap();
-        let env = cairn_integrate::scope::Env::new(&home, &repo);
+        std::fs::write(repo.join("CLAUDE.md"), "# Team notes\nKeep this text.\n").unwrap();
+        let old_executable = root.path().join("old release/Cairn Candidate");
+        std::fs::create_dir_all(old_executable.parent().unwrap()).unwrap();
+        std::fs::write(&old_executable, "old").unwrap();
+        let env = cairn_integrate::scope::Env::new(&home, &repo)
+            .with_cairn_executable(Some(old_executable.clone()));
 
         let first = setup_at(&d, &env).await;
         assert_eq!(first["warnings"], json!([]));
-        assert_eq!(first["applied"].as_array().unwrap().len(), 3);
+        assert_eq!(first["applied"].as_array().unwrap().len(), 4);
         assert!(home.join(".claude.json").exists());
         assert!(repo.join(".claude/settings.local.json").exists());
-        assert!(!repo.join("CLAUDE.md").exists());
+        let mcp: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(home.join(".claude.json")).unwrap())
+                .unwrap();
+        assert_eq!(
+            mcp["mcpServers"]["cairn"]["command"],
+            old_executable.display().to_string()
+        );
+        let hooks: serde_json::Value = serde_json::from_str(
+            &std::fs::read_to_string(repo.join(".claude/settings.local.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            hooks["hooks"]["SessionStart"][0],
+            cairn_integrate::agents::claude_code::hook_entry_for_executable(
+                "SessionStart",
+                Some(&old_executable),
+            )
+        );
+        let instructions = std::fs::read_to_string(repo.join("CLAUDE.md")).unwrap();
+        assert!(instructions.starts_with("# Team notes\nKeep this text.\n"));
+        assert!(instructions.contains("cairn:managed:begin"));
         assert!(!repo.join("AGENTS.md").exists());
         assert!(!repo.join(".claude/settings.json").exists());
 
@@ -499,14 +556,170 @@ mod tests {
         assert_eq!(second["warnings"], json!([]));
         assert_eq!(second["applied"], json!([]));
 
+        let new_executable = root.path().join("new release/Cairn Candidate");
+        std::fs::create_dir_all(new_executable.parent().unwrap()).unwrap();
+        std::fs::write(&new_executable, "new").unwrap();
+        let relocated = cairn_integrate::scope::Env::new(&home, &repo)
+            .with_cairn_executable(Some(new_executable.clone()));
+        let update = setup_at(&d, &relocated).await;
+        assert_eq!(update["warnings"], json!([]));
+        assert_eq!(update["applied"].as_array().unwrap().len(), 2);
+        let mcp: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(home.join(".claude.json")).unwrap())
+                .unwrap();
+        assert_eq!(
+            mcp["mcpServers"]["cairn"]["command"],
+            new_executable.display().to_string()
+        );
+
         let edited = r#"{"mcpServers":{"cairn":{"command":"user-edit"}}}"#;
         std::fs::write(home.join(".claude.json"), edited).unwrap();
-        let conflict = setup_at(&d, &env).await;
+        let conflict = setup_at(&d, &relocated).await;
         assert_eq!(conflict["applied"], json!([]));
         assert_eq!(conflict["warnings"].as_array().unwrap().len(), 1);
         assert_eq!(
             std::fs::read_to_string(home.join(".claude.json")).unwrap(),
             edited
         );
+    }
+
+    #[tokio::test]
+    async fn setup_refreshes_ownership_and_serializes_executable_relocations() {
+        let d = crate::testsupport::daemon().await;
+        let root = tempfile::tempdir().unwrap();
+        let home = root.path().join("home");
+        let repo = root.path().join("repo");
+        std::fs::create_dir_all(home.join(".claude")).unwrap();
+        std::fs::create_dir_all(&repo).unwrap();
+        let first = cairn_integrate::scope::Env::new(&home, &repo)
+            .with_cairn_executable(Some(root.path().join("first/cairn")));
+        let second = cairn_integrate::scope::Env::new(&home, &repo)
+            .with_cairn_executable(Some(root.path().join("second/cairn")));
+        assert_eq!(setup_at(&d, &first).await["warnings"], json!([]));
+        sqlx::query("UPDATE installed_resources SET content_hash = 'stale' WHERE kind IN ('mcp', 'lifecycle')")
+            .execute(d.store.pool()).await.unwrap();
+        let refreshed = setup_at(&d, &first).await;
+        assert_eq!(refreshed["warnings"], json!([]));
+        assert_eq!(refreshed["applied"].as_array().unwrap().len(), 2);
+        let (a, b) = tokio::join!(setup_at(&d, &second), setup_at(&d, &first));
+        assert_eq!(a["warnings"], json!([]));
+        assert_eq!(b["warnings"], json!([]));
+        let installed: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(home.join(".claude.json")).unwrap())
+                .unwrap();
+        let selected = installed["mcpServers"]["cairn"]["command"]
+            .as_str()
+            .unwrap();
+        let env = cairn_integrate::scope::Env::new(&home, &repo)
+            .with_cairn_executable(Some(selected.into()));
+        let stable = setup_at(&d, &env).await;
+        assert_eq!(stable["warnings"], json!([]));
+        assert_eq!(stable["applied"], json!([]));
+    }
+
+    #[tokio::test]
+    async fn setup_binds_codex_and_opencode_to_one_instruction_block() {
+        let d = crate::testsupport::daemon().await;
+        let root = tempfile::tempdir().unwrap();
+        let home = root.path().join("home");
+        let repo = root.path().join("repo");
+        std::fs::create_dir_all(home.join(".codex")).unwrap();
+        std::fs::create_dir_all(home.join(".config/opencode")).unwrap();
+        std::fs::create_dir_all(&repo).unwrap();
+        let executable = root.path().join("installed archive/cairn");
+        std::fs::create_dir_all(executable.parent().unwrap()).unwrap();
+        std::fs::write(&executable, "candidate").unwrap();
+        let env = cairn_integrate::scope::Env::new(&home, &repo)
+            .with_cairn_executable(Some(executable.clone()));
+
+        let result = setup_at(&d, &env).await;
+        assert_eq!(result["warnings"], json!([]));
+        let codex = rec::bound_resources(&d.store, "codex").await.unwrap();
+        let opencode = rec::bound_resources(&d.store, "opencode").await.unwrap();
+        let codex_block = codex
+            .iter()
+            .find(|row| row.resource.kind == "instructions")
+            .unwrap();
+        let opencode_block = opencode
+            .iter()
+            .find(|row| row.resource.kind == "instructions")
+            .unwrap();
+        assert_eq!(codex_block.resource.id, opencode_block.resource.id);
+        assert_eq!(codex_block.serves, ["codex", "opencode"]);
+        assert!(codex_block.resource.created_container);
+        let config = std::fs::read_to_string(home.join(".codex/config.toml")).unwrap();
+        let command = cairn_integrate::edit::toml::get(
+            "config.toml",
+            &config,
+            &["mcp_servers", "cairn", "command"],
+        )
+        .unwrap();
+        assert_eq!(command, Some(json!(executable.display().to_string())));
+        let hooks: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(home.join(".codex/hooks.json")).unwrap())
+                .unwrap();
+        assert_eq!(
+            hooks["hooks"]["SessionStart"][0],
+            cairn_integrate::agents::codex::hook_entry_for_executable(
+                "SessionStart",
+                Some(&executable),
+            )
+        );
+        let opencode: serde_json::Value = serde_json::from_str(
+            &std::fs::read_to_string(home.join(".config/opencode/opencode.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            opencode["mcp"]["cairn"]["command"][0],
+            executable.display().to_string()
+        );
+        assert_eq!(setup_at(&d, &env).await["warnings"], json!([]));
+    }
+
+    #[tokio::test]
+    async fn setup_adopts_portable_codex_entries_and_pins_the_current_executable() {
+        use cairn_integrate::model::{AgentId, InstallationScope, ResourceKind};
+
+        let d = crate::testsupport::daemon().await;
+        let root = tempfile::tempdir().unwrap();
+        let home = root.path().join("home");
+        let repo = root.path().join("repo");
+        std::fs::create_dir_all(home.join(".codex")).unwrap();
+        std::fs::create_dir_all(&repo).unwrap();
+        let portable = cairn_integrate::scope::Env::new(&home, &repo);
+        for kind in [ResourceKind::Mcp, ResourceKind::Lifecycle] {
+            let materialized = cairn_integrate::install::materialize_install(
+                &portable,
+                AgentId::Codex,
+                kind,
+                InstallationScope::User,
+            )
+            .unwrap();
+            cairn_integrate::install::commit(&materialized).unwrap();
+        }
+
+        let executable = root.path().join("new archive/cairn");
+        std::fs::create_dir_all(executable.parent().unwrap()).unwrap();
+        std::fs::write(&executable, "candidate").unwrap();
+        let direct = portable.with_cairn_executable(Some(executable.clone()));
+        let result = setup_at(&d, &direct).await;
+        assert_eq!(result["warnings"], json!([]));
+
+        let config = std::fs::read_to_string(home.join(".codex/config.toml")).unwrap();
+        assert_eq!(
+            cairn_integrate::edit::toml::get(
+                "config.toml",
+                &config,
+                &["mcp_servers", "cairn", "command"],
+            )
+            .unwrap(),
+            Some(json!(executable.display().to_string()))
+        );
+        let hooks: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(home.join(".codex/hooks.json")).unwrap())
+                .unwrap();
+        for event in cairn_integrate::agents::codex::EVENTS {
+            assert_eq!(hooks["hooks"][event].as_array().unwrap().len(), 1);
+        }
     }
 }

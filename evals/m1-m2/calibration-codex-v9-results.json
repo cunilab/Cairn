@@ -1,0 +1,137 @@
+{
+  "protocol": "v9",
+  "configured_model": "gpt-6.1-sol",
+  "configured_cli": "0.160.0",
+  "provider_model_attested": false,
+  "fixtures": 30,
+  "development_correct": 24,
+  "sealed_correct": 6,
+  "unknown": 0,
+  "observed_tool_calls": 0,
+  "process_status": 0,
+  "actor_judge_same_family": true,
+  "expected_labels_withheld": true,
+  "interpretation": "Reused fixture screening; not a fresh accuracy estimate.",
+  "labels": [
+    {
+      "id": "adoption-1",
+      "label": "yes"
+    },
+    {
+      "id": "adoption-2",
+      "label": "yes"
+    },
+    {
+      "id": "adoption-3",
+      "label": "no"
+    },
+    {
+      "id": "adoption-4",
+      "label": "no"
+    },
+    {
+      "id": "completion-1",
+      "label": "yes"
+    },
+    {
+      "id": "completion-2",
+      "label": "yes"
+    },
+    {
+      "id": "completion-3",
+      "label": "no"
+    },
+    {
+      "id": "completion-4",
+      "label": "no"
+    },
+    {
+      "id": "relevance-1",
+      "label": "yes"
+    },
+    {
+      "id": "relevance-2",
+      "label": "yes"
+    },
+    {
+      "id": "relevance-3",
+      "label": "no"
+    },
+    {
+      "id": "relevance-4",
+      "label": "no"
+    },
+    {
+      "id": "support-1",
+      "label": "yes"
+    },
+    {
+      "id": "support-2",
+      "label": "yes"
+    },
+    {
+      "id": "support-3",
+      "label": "no"
+    },
+    {
+      "id": "support-4",
+      "label": "no"
+    },
+    {
+      "id": "endorsement-1",
+      "label": "yes"
+    },
+    {
+      "id": "endorsement-2",
+      "label": "yes"
+    },
+    {
+      "id": "endorsement-3",
+      "label": "no"
+    },
+    {
+      "id": "endorsement-4",
+      "label": "no"
+    },
+    {
+      "id": "repeated-1",
+      "label": "yes"
+    },
+    {
+      "id": "repeated-2",
+      "label": "yes"
+    },
+    {
+      "id": "repeated-3",
+      "label": "no"
+    },
+    {
+      "id": "repeated-4",
+      "label": "no"
+    },
+    {
+      "id": "adoption-sealed",
+      "label": "yes"
+    },
+    {
+      "id": "completion-sealed",
+      "label": "no"
+    },
+    {
+      "id": "relevance-sealed",
+      "label": "yes"
+    },
+    {
+      "id": "support-sealed",
+      "label": "no"
+    },
+    {
+      "id": "endorsement-sealed",
+      "label": "no"
+    },
+    {
+      "id": "repeated-sealed",
+      "label": "yes"
+    }
+  ]
+}

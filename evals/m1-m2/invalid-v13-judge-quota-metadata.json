@@ -1,0 +1,104 @@
+{
+  "candidate_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+  "valid_actor_comparisons": 15,
+  "successful_actor_phases": 46,
+  "valid_judgments_preserved": 2,
+  "invalid_quota_judgments": 13,
+  "reported_reset_local": "2026-10-08 23:33 Asia/Jakarta",
+  "actor_replacements": 0,
+  "valid_judgment_replacements": 0,
+  "failures": [
+    {
+      "id": "D2",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "2aff9efdde71a5eda9961b724b96ecf4b8f01ac23567ada23c319936e308607e",
+      "rpc_sha256": "2c58c75cfeac5dd941d587054bb4348d4a184ea638967258bdd1328300475f17"
+    },
+    {
+      "id": "D4",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "e8758d39fa9354bfd97ca3b5e3a258b1a4341099488eb408de580c88d4a00530",
+      "rpc_sha256": "c41ee60d20cd32a0843f16b01931eef0559a6047f34087e6500d594270e9bf84"
+    },
+    {
+      "id": "F1",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "52c65063aa9bd48ad5e9583677f5c0b3708642a8eccc7aaa781a6f4b64c1c35a",
+      "rpc_sha256": "7ec824fabf76866189038984266626f72421fba1dcd8164b2770c73cb5b4b001"
+    },
+    {
+      "id": "F3",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "c5d30b57504b006cadaef758d13dd6a3f02f65ae3d06e8d76ceec707a91e17bf",
+      "rpc_sha256": "5e6d8c240544073436708971d004def9be60f206e6fb388ec030961e684b16bd"
+    },
+    {
+      "id": "F5",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "26b7b09e262ad7264d861f451390ca85e2cc5c13ce973a45514a3639fd22915d",
+      "rpc_sha256": "ec5437920c0361306a43e3b17c1759a9a4b4a39f851cc5f073efe1dc585dab71"
+    },
+    {
+      "id": "P1",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "e54db7e40db2d11bcc825f4651bd52783567157886963d79e9626beac85d1458",
+      "rpc_sha256": "fff049a7a28113c9904df32b9a43152382b433dc484b6c63c83916e2236bfbae"
+    },
+    {
+      "id": "P3",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "56118d5642a4605da5a72461a0c42bdfe3c4ed8d1d434fc5bb9c835c6167d0bc",
+      "rpc_sha256": "b4c7f0f2132dfa4fa889485ec45117847c22dab249e39a2eed0d88f120e67f56"
+    },
+    {
+      "id": "P5",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "6447c00aea5a72b917095f80e3e2f1173571608e779a7372121d0225516f99b8",
+      "rpc_sha256": "cee1f3b3132dd292ae74e22f3a8782e22a97338313426510bf0dcd7844282167"
+    },
+    {
+      "id": "R1",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "242fa77568ba142ac126dc6160e07db701511c935b9020b0f8cbf83fc6493f6f",
+      "rpc_sha256": "8383fb6dcc0bf0b14c49257ddc759641a6fab3bc4d79991827501951f1c6846a"
+    },
+    {
+      "id": "R3",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "e4312ebc7ed61fcd51344f70362bca8064e2b681e09d9be7bb153f81fb410e3d",
+      "rpc_sha256": "12487c5150a7097696389659aa09efc99ca83c886deec4ce972945304832e038"
+    },
+    {
+      "id": "R5",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "d16257d79010d42914f19746193cf6097b7f9c8d42b40dd338d6780a85f76954",
+      "rpc_sha256": "39ef815e4f11781fc6a5438ea2c8adbbf2ba52a0001c577e5b02db0d8b83f78a"
+    },
+    {
+      "id": "S2",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "882529c406844b9c21a0776f72e9c285b2900182938798773ba683c73602524f",
+      "rpc_sha256": "daed072502bb106fb5a2daa3ace862812375fa7035940c00911ec9fd74354582"
+    },
+    {
+      "id": "S4",
+      "failure": "usageLimitExceeded",
+      "valid_judgment": false,
+      "result_sha256": "6476c9da72b3252b3ef821f493ff7df65672cc1d828f511dc18420e7377f166e",
+      "rpc_sha256": "34f77585b65516215a9f350471aef72d7ea1c3e2e5bca92804c6356e84e536e5"
+    }
+  ],
+  "qualification": "Account usage limit interrupted judge generation after two valid judgments. Invalid attempts and complete actor evidence preserved. No semantic gate established from incomplete grading."
+}

@@ -188,6 +188,10 @@ impl Trigger {
 pub struct RetrieveRequest {
     pub session_id: Uuid,
     pub trigger: Trigger,
+    /// Bounded task keywords, never a transcript. Without a query this is a
+    /// continuity request, not permission to deliver arbitrary project facts.
+    #[serde(default)]
+    pub query: Option<String>,
     /// A **smaller** budget than the deployment's, where the caller wants one.
     ///
     /// Not authority: a caller may ask for less and never for more, and the
@@ -235,6 +239,10 @@ pub struct SectionItem {
     pub domain: Option<&'static str>,
     pub knowledge_id: Uuid,
     pub content: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub selection: Option<crate::selector::ExcerptProvenance>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attribution: Option<ProjectAttribution>,
     /// The canonical record's own fields, for the sections whose rendered
     /// shape is more than a line of text.
     ///
@@ -253,7 +261,24 @@ pub struct SectionItem {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct ProjectAttribution {
+    pub actor_user_id: Uuid,
+    pub basis: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_reference: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_revision: Option<String>,
+    pub disclosure: &'static str,
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct RetrieveResponse {
+    /// Lets the daemon reject or sanitize answers from a server that did not
+    /// enforce project-memory reuse eligibility.
+    pub project_reuse_policy: &'static str,
+    pub project_memory_available: bool,
+    pub project_recall_policy: &'static str,
+    pub project_query_sha256: Option<String>,
     pub trace_id: Uuid,
     pub trigger: &'static str,
     pub delivery_point: &'static str,
@@ -301,6 +326,8 @@ struct Candidate {
     reference: Reference,
     section: &'static str,
     content: String,
+    selection: Option<crate::selector::ExcerptProvenance>,
+    attribution: Option<ProjectAttribution>,
     source_updated_at: DateTime<Utc>,
     /// Set for `patterns` only. Carried from the candidate read all the way to
     /// the section item, so the record that was budgeted is the record that is
@@ -347,6 +374,8 @@ pub async fn retrieve(
     pool: &PgPool,
     reader: &ReaderContext,
     request: &RetrieveRequest,
+    selector: Option<&crate::selector::Selector>,
+    schema_version: i64,
     budget_tokens: usize,
     // The hook's own context deadline. Passed in rather than defined here,
     // because a second deadline constant would drift against the one the hook
@@ -354,6 +383,10 @@ pub async fn retrieve(
     deadline_ms: u128,
 ) -> ApiResult<RetrieveResponse> {
     let started = std::time::Instant::now();
+
+    if let Some(query) = request.query.as_deref().filter(|q| !q.trim().is_empty()) {
+        cairn_core::reuse::validate_recall_query(Some(query)).map_err(ApiError::invalid)?;
+    }
 
     let binding = match auth::bind_session(pool, reader, request.session_id).await? {
         Ok(binding) => binding,
@@ -425,6 +458,8 @@ pub async fn retrieve(
         reader,
         request,
         &binding,
+        selector,
+        schema_version,
         trace_id,
         tokens,
         deadline_ms,
@@ -460,6 +495,9 @@ pub async fn retrieve(
 /// count as two failures.
 fn failure_reason(e: &ApiError) -> &'static str {
     match e.code {
+        "selector_unavailable" => "selector_unavailable",
+        "selector_invalid_response" => "selector_invalid_response",
+        "selector_source_changed" => "selector_source_changed",
         "store_unreachable" => "store_unreachable",
         _ => "store_unreachable",
     }
@@ -471,13 +509,87 @@ async fn generate(
     reader: &ReaderContext,
     request: &RetrieveRequest,
     binding: &auth::SessionBinding,
+    selector: Option<&crate::selector::Selector>,
+    schema_version: i64,
     trace_id: Uuid,
     tokens: usize,
     deadline_ms: u128,
     open_trigger: Option<cairn_core::event::OpenTrigger>,
     started: std::time::Instant,
 ) -> ApiResult<RetrieveResponse> {
-    let candidates = gather(pool, reader, binding, request.session_id).await?;
+    let query = request
+        .query
+        .as_deref()
+        .map(str::trim)
+        .filter(|q| !q.is_empty());
+    let (mut candidates, project_memory_available) =
+        gather(pool, reader, binding, request.session_id, query).await?;
+    if let Some(query) = query {
+        let sources = candidates
+            .iter()
+            .filter(|candidate| candidate.reference.domain_slot() == Some(KnowledgeDomain::Project))
+            .map(|candidate| crate::selector::SourceRecord {
+                id: candidate.reference.record_id(),
+                content: candidate.content.clone(),
+            })
+            .collect::<Vec<_>>();
+        let source_updates = candidates
+            .iter()
+            .filter(|candidate| candidate.reference.domain_slot() == Some(KnowledgeDomain::Project))
+            .map(|candidate| (candidate.reference.record_id(), candidate.source_updated_at))
+            .collect::<BTreeMap<_, _>>();
+        let selected = crate::selector::select(selector, query, &sources).await?;
+
+        // ReaderContext is a request-start snapshot; inference can outlive membership.
+        auth::require_member(pool, binding.project_id, reader.user_id()).await?;
+        let rebound = auth::bind_session(pool, reader, request.session_id).await?;
+        if rebound != Ok(*binding) {
+            return Err(ApiError::new(
+                StatusCode::CONFLICT,
+                "selector_source_changed",
+                "session access changed during semantic selection; retry",
+            ));
+        }
+        let mut excerpts = selected
+            .into_iter()
+            .map(|excerpt| (excerpt.id, excerpt))
+            .collect::<BTreeMap<_, _>>();
+        for source in &sources {
+            if !excerpts.contains_key(&source.id) {
+                continue;
+            }
+            let eligible = crate::reuse::eligible("m");
+            let unchanged: bool = sqlx::query_scalar(&format!(
+                "SELECT EXISTS (SELECT 1 FROM memories m
+                  WHERE m.id = $1 AND m.project_id = $2 AND m.content = $3
+                    AND m.updated_at = $4 AND ({eligible}))"
+            ))
+            .bind(source.id)
+            .bind(binding.project_id)
+            .bind(&source.content)
+            .bind(source_updates[&source.id])
+            .fetch_one(pool)
+            .await?;
+            if !unchanged {
+                return Err(ApiError::new(
+                    StatusCode::CONFLICT,
+                    "selector_source_changed",
+                    "a selected memory changed or became ineligible during semantic selection; retry",
+                ));
+            }
+        }
+        candidates.retain_mut(|candidate| {
+            if candidate.reference.domain_slot() != Some(KnowledgeDomain::Project) {
+                return true;
+            }
+            let Some(excerpt) = excerpts.remove(&candidate.reference.record_id()) else {
+                return false;
+            };
+            candidate.content = excerpt.content;
+            candidate.selection = Some(excerpt.provenance);
+            true
+        });
+    }
     let continuity = gather_continuity(
         pool,
         reader,
@@ -577,6 +689,8 @@ async fn generate(
                     domain: candidate.domain(),
                     knowledge_id: candidate.reference.record_id(),
                     content: candidate.content.clone(),
+                    selection: candidate.selection.clone(),
+                    attribution: candidate.attribution.clone(),
                     pattern: candidate.pattern.clone(),
                     selection_rule: rule,
                     rank,
@@ -586,7 +700,7 @@ async fn generate(
         }
     }
 
-    persist_items(pool, trace_id, &items).await?;
+    persist_items(pool, trace_id, &items, schema_version).await?;
 
     let elapsed = started.elapsed().as_millis();
     let level = degradation(elapsed, request.trigger, deadline_ms);
@@ -606,6 +720,10 @@ async fn generate(
     .await?;
 
     Ok(RetrieveResponse {
+        project_reuse_policy: crate::reuse::POLICY_ID,
+        project_memory_available,
+        project_recall_policy: cairn_core::reuse::TASK_QUERY_POLICY,
+        project_query_sha256: query.map(cairn_core::digest),
         trace_id,
         trigger: request.trigger.as_str(),
         delivery_point: request.trigger.delivery_point(),
@@ -664,60 +782,45 @@ async fn gather_continuity(
         None => None,
     };
 
-    let warning_rows = sqlx::query(
-        "SELECT topic_key, content, verification
+    let warning_sql = "SELECT id, verification
            FROM memories
           WHERE project_id = $1 AND deleted_at IS NULL AND state != 'superseded'
             AND verification IN ('conflicted', 'drifted', 'needs_recheck')
             AND (
-                (scope = 'project' AND scope_key = $2)
-                OR (scope = 'branch' AND scope_key = $3)
-                OR (scope = 'session' AND scope_key = $4)
+                scope = 'project'
+                OR (scope = 'branch' AND scope_key = $2)
+                OR (scope = 'session' AND scope_key = $3)
             )
           ORDER BY CASE verification WHEN 'conflicted' THEN 0 ELSE 1 END,
                    CASE scope WHEN 'session' THEN 0 WHEN 'branch' THEN 1 ELSE 2 END,
                    pinned DESC, updated_at DESC, id
-          LIMIT $5",
-    )
-    .bind(binding.project_id)
-    .bind(binding.project_id.to_string())
-    .bind(&branch)
-    .bind(session_id.to_string())
-    .bind(LEVEL0_CANDIDATES_PER_KIND)
-    .fetch_all(pool)
-    .await?;
+          LIMIT $4";
+    let warning_rows = sqlx::query(warning_sql)
+        .bind(binding.project_id)
+        .bind(&branch)
+        .bind(session_id.to_string())
+        .bind(LEVEL0_CANDIDATES_PER_KIND)
+        .fetch_all(pool)
+        .await?;
     let warnings = warning_rows
         .into_iter()
         .map(|row| {
-            let content = level0_text(&row.get::<String, _>("content"));
-            let subject = row
-                .get::<Option<String>, _>("topic_key")
-                .map(|subject| level0_text(&subject))
-                .unwrap_or_else(|| level0_text(&content));
+            let id = row.get::<Uuid, _>("id");
             let verification = row.get::<String, _>("verification");
-            let claim = level0_text(&content);
             let (kind, detail) = if verification == "conflicted" {
-                (
-                    "conflict",
-                    format!("remembered \"{claim}\" — its verification is conflicted"),
-                )
+                ("conflict", "project memory verification is conflicted")
             } else if verification == "drifted" {
-                (
-                    "drift",
-                    format!("remembered \"{claim}\" — its evidence moved"),
-                )
+                ("drift", "project memory evidence moved")
             } else {
                 (
                     "drift",
-                    format!(
-                        "remembered \"{claim}\" — its evidence changed, no verifier has run since"
-                    ),
+                    "project memory evidence changed; no verifier has run since",
                 )
             };
             ContextWarning {
                 kind: kind.into(),
-                subject,
-                detail: level0_text(&detail),
+                subject: format!("project-memory:{id}"),
+                detail: level0_text(detail),
             }
         })
         .collect();
@@ -726,33 +829,35 @@ async fn gather_continuity(
     // the durable candidate query: an older pin must survive any number of
     // newer ordinary memories because Level 0, not recency, gives it
     // precedence. The daemon applies its configured admission cap afterward.
-    let pin_rows = sqlx::query(
-        "SELECT id, content, verification
+    let pin_sql = format!(
+        "SELECT id, verification
            FROM memories
           WHERE project_id = $1 AND pinned = true AND deleted_at IS NULL
             AND state != 'superseded'
+            AND ({})
             AND (
-                (scope = 'project' AND scope_key = $2)
-                OR (scope = 'branch' AND scope_key = $3)
-                OR (scope = 'session' AND scope_key = $4)
+                scope = 'project'
+                OR (scope = 'branch' AND scope_key = $2)
+                OR (scope = 'session' AND scope_key = $3)
             )
           ORDER BY CASE scope WHEN 'session' THEN 0 WHEN 'branch' THEN 1 ELSE 2 END,
                    CASE importance WHEN 'critical' THEN 0 WHEN 'high' THEN 1 ELSE 2 END,
                    updated_at DESC, id
-          LIMIT $5",
-    )
-    .bind(binding.project_id)
-    .bind(binding.project_id.to_string())
-    .bind(&branch)
-    .bind(session_id.to_string())
-    .bind(LEVEL0_CANDIDATES_PER_KIND)
-    .fetch_all(pool)
-    .await?;
+          LIMIT $4",
+        crate::reuse::eligible("memories")
+    );
+    let pin_rows = sqlx::query(&pin_sql)
+        .bind(binding.project_id)
+        .bind(&branch)
+        .bind(session_id.to_string())
+        .bind(LEVEL0_CANDIDATES_PER_KIND)
+        .fetch_all(pool)
+        .await?;
     let pins = pin_rows
         .into_iter()
         .map(|row| PinnedConstraint {
             id: row.get::<Uuid, _>("id"),
-            text: level0_text(&row.get::<String, _>("content")),
+            text: "Pinned project memory is available through task-scoped recall.".into(),
             drifted: row.get::<Option<String>, _>("verification").as_deref() == Some("drifted"),
         })
         .collect();
@@ -928,6 +1033,7 @@ struct TraceItem {
     selection_rule: &'static str,
     rank: Option<i32>,
     source_updated_at: DateTime<Utc>,
+    selection_provenance: Option<Value>,
 }
 
 impl TraceItem {
@@ -940,6 +1046,7 @@ impl TraceItem {
             selection_rule: rule,
             rank: None,
             source_updated_at: candidate.source_updated_at,
+            selection_provenance: None,
         }
     }
 
@@ -952,29 +1059,47 @@ impl TraceItem {
             selection_rule: rule,
             rank: Some(rank),
             source_updated_at: candidate.source_updated_at,
+            selection_provenance: candidate
+                .selection
+                .as_ref()
+                .and_then(|selection| serde_json::to_value(selection).ok()),
         }
     }
 }
 
-async fn persist_items(pool: &PgPool, trace_id: Uuid, items: &[TraceItem]) -> ApiResult<()> {
+async fn persist_items(
+    pool: &PgPool,
+    trace_id: Uuid,
+    items: &[TraceItem],
+    schema_version: i64,
+) -> ApiResult<()> {
     for item in items {
-        sqlx::query(
+        let sql = if schema_version >= crate::selector::REQUIRED_SCHEMA {
+            "INSERT INTO retrieval_trace_items
+                (trace_id, ref_kind, domain, knowledge_id, status, selection_rule, rank,
+                 source_updated_at, selection_provenance)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+             ON CONFLICT (trace_id, reference_key) DO NOTHING"
+        } else {
             "INSERT INTO retrieval_trace_items
                 (trace_id, ref_kind, domain, knowledge_id, status, selection_rule, rank,
                  source_updated_at)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-             ON CONFLICT (trace_id, reference_key) DO NOTHING",
-        )
-        .bind(trace_id)
-        .bind(item.ref_kind)
-        .bind(item.domain)
-        .bind(item.knowledge_id)
-        .bind(item.status)
-        .bind(item.selection_rule)
-        .bind(item.rank)
-        .bind(item.source_updated_at)
-        .execute(pool)
-        .await?;
+             ON CONFLICT (trace_id, reference_key) DO NOTHING"
+        };
+        let mut query = sqlx::query(sql)
+            .bind(trace_id)
+            .bind(item.ref_kind)
+            .bind(item.domain)
+            .bind(item.knowledge_id)
+            .bind(item.status)
+            .bind(item.selection_rule)
+            .bind(item.rank)
+            .bind(item.source_updated_at);
+        if schema_version >= crate::selector::REQUIRED_SCHEMA {
+            query = query.bind(&item.selection_provenance);
+        }
+        query.execute(pool).await?;
     }
     Ok(())
 }
@@ -995,7 +1120,8 @@ async fn gather(
     reader: &ReaderContext,
     binding: &auth::SessionBinding,
     session_id: Uuid,
-) -> ApiResult<Vec<Candidate>> {
+    query: Option<&str>,
+) -> ApiResult<(Vec<Candidate>, bool)> {
     let mut out = Vec::new();
 
     let session: Option<(String,)> = sqlx::query_as("SELECT branch FROM sessions WHERE id = $1")
@@ -1004,32 +1130,59 @@ async fn gather(
         .await?;
     let (branch,) = session.unwrap_or((String::new(),));
 
-    // Project knowledge, most specific scope first: session, branch, project.
-    out.extend(
-        project_memory(
-            pool,
-            binding.project_id,
-            "session",
-            &session_id.to_string(),
-            "session_memory",
-        )
-        .await?,
+    let availability_sql = format!(
+        "SELECT EXISTS (SELECT 1 FROM memories
+          WHERE project_id = $1
+            AND (scope = 'project' OR (scope = 'branch' AND $2 <> '' AND scope_key = $2)
+                 OR (scope = 'session' AND scope_key = $3))
+            AND origin_kind IS DISTINCT FROM 'corroboration' AND ({}))",
+        crate::reuse::eligible("memories")
     );
-    if !branch.is_empty() {
+    let project_memory_available: bool = sqlx::query_scalar(&availability_sql)
+        .bind(binding.project_id)
+        .bind(&branch)
+        .bind(session_id.to_string())
+        .fetch_one(pool)
+        .await?;
+
+    // Only task-scoped retrieval selects bodies; continuity advertises availability.
+    if let Some(query) = query {
         out.extend(
-            project_memory(pool, binding.project_id, "branch", &branch, "branch_memory").await?,
+            project_memory(
+                pool,
+                binding.project_id,
+                "session",
+                &session_id.to_string(),
+                "session_memory",
+                query,
+            )
+            .await?,
+        );
+        if !branch.is_empty() {
+            out.extend(
+                project_memory(
+                    pool,
+                    binding.project_id,
+                    "branch",
+                    &branch,
+                    "branch_memory",
+                    query,
+                )
+                .await?,
+            );
+        }
+        out.extend(
+            project_memory(
+                pool,
+                binding.project_id,
+                "project",
+                &binding.project_id.to_string(),
+                "project_memory",
+                query,
+            )
+            .await?,
         );
     }
-    out.extend(
-        project_memory(
-            pool,
-            binding.project_id,
-            "project",
-            &binding.project_id.to_string(),
-            "project_memory",
-        )
-        .await?,
-    );
 
     // Patterns are owner-only. `shared_patterns` describes where a pattern is
     // stored, not who may see it (data-model.md §6.2).
@@ -1070,6 +1223,8 @@ async fn gather(
             // over-charging rather than leaking, but still an accounting that
             // did not describe the answer.
             content: format!("{} — Approach: {}", pattern.title, pattern.approach),
+            selection: None,
+            attribution: None,
             // Index 3, because the select list changed when the canonical
             // fields were added. It stayed at 4 through one build and cost a
             // whole suite: `row.get` panics on a decode mismatch, the panic
@@ -1101,6 +1256,8 @@ async fn gather(
             reference: Reference::Knowledge(KnowledgeRef::personal(row.get::<Uuid, _>(0))),
             section: "personal_notes",
             content: row.get::<String, _>(1),
+            selection: None,
+            attribution: None,
             source_updated_at: row.get::<DateTime<Utc>, _>(2),
             pattern: None,
         });
@@ -1123,12 +1280,14 @@ async fn gather(
             reference: Reference::Knowledge(KnowledgeRef::team(row.get::<Uuid, _>(0))),
             section: "team_guidance",
             content: row.get::<String, _>(1),
+            selection: None,
+            attribution: None,
             source_updated_at: row.get::<DateTime<Utc>, _>(2),
             pattern: None,
         });
     }
 
-    Ok(out)
+    Ok((out, project_memory_available))
 }
 
 async fn project_memory(
@@ -1137,28 +1296,53 @@ async fn project_memory(
     scope: &str,
     scope_key: &str,
     section: &'static str,
+    query: &str,
 ) -> ApiResult<Vec<Candidate>> {
-    let rows = sqlx::query(
-        "SELECT id, content, updated_at
+    let project_sql = format!(
+        "SELECT memories.id, memories.content, memories.updated_at,
+                att.actor_user_id, att.basis, att.source_reference, att.source_revision
            FROM memories
-          WHERE project_id = $1 AND scope = $2 AND scope_key = $3
+           JOIN project_memory_attestations att ON att.memory_id = memories.id
+           CROSS JOIN LATERAL (
+               SELECT cardinality(ARRAY(
+                   SELECT unnest(tsvector_to_array(to_tsvector('english', content)))
+                   INTERSECT SELECT unnest(tsvector_to_array(to_tsvector('english', $5)))
+               )) AS term_overlap
+           ) lex
+          WHERE project_id = $1 AND scope = $2
+            AND (scope = 'project' OR scope_key = $3)
             AND state = 'active' AND deleted_at IS NULL
             AND origin_kind IS DISTINCT FROM 'corroboration'
-          ORDER BY updated_at DESC, id
+            AND ({})
+            AND to_tsvector('english', content) @@
+                replace(plainto_tsquery('english', $5)::text, ' & ', ' | ')::tsquery
+            AND lex.term_overlap >= LEAST(2, cardinality(tsvector_to_array(to_tsvector('english', $5))))
+          ORDER BY lex.term_overlap DESC, updated_at DESC, id
           LIMIT $4",
-    )
-    .bind(project_id)
-    .bind(scope)
-    .bind(scope_key)
-    .bind(CANDIDATES_PER_SECTION)
-    .fetch_all(pool)
-    .await?;
+        crate::reuse::eligible("memories")
+    );
+    let rows = sqlx::query(&project_sql)
+        .bind(project_id)
+        .bind(scope)
+        .bind(scope_key)
+        .bind(CANDIDATES_PER_SECTION)
+        .bind(query)
+        .fetch_all(pool)
+        .await?;
     Ok(rows
         .into_iter()
         .map(|row| Candidate {
             reference: Reference::Knowledge(KnowledgeRef::project(row.get::<Uuid, _>(0))),
             section,
             content: row.get::<String, _>(1),
+            selection: None,
+            attribution: Some(ProjectAttribution {
+                actor_user_id: row.get::<Uuid, _>(3),
+                basis: row.get::<String, _>(4),
+                source_reference: row.get::<Option<String>, _>(5),
+                source_revision: row.get::<Option<String>, _>(6),
+                disclosure: crate::reuse::ACCOUNTABILITY_DISCLOSURE,
+            }),
             source_updated_at: row.get::<DateTime<Utc>, _>(2),
             pattern: None,
         })
@@ -1416,7 +1600,7 @@ pub async fn trace_detail(
 
     let items = sqlx::query(
         "SELECT ref_kind, domain, knowledge_id, reference_key, status, selection_rule,
-                source_updated_at
+                source_updated_at, to_jsonb(retrieval_trace_items)->'selection_provenance'
            FROM retrieval_trace_items
           WHERE trace_id = $1
           ORDER BY status DESC, rank NULLS LAST, reference_key",
@@ -1447,6 +1631,7 @@ pub async fn trace_detail(
             "selection_rule": item.get::<Option<String>, _>(5),
             "rank": dense,
             "source_updated_at": item.get::<DateTime<Utc>, _>(6),
+            "selection": item.get::<Option<Value>, _>(7),
         }));
     }
 

@@ -53,6 +53,12 @@ const TABLES: &[TableSpec] = &[
         omit: &[],
     },
     TableSpec {
+        kind: "project_memory_attestation",
+        table: "project_memory_attestations",
+        id: "t.memory_id::text",
+        omit: &[],
+    },
+    TableSpec {
         kind: "handoff",
         table: "handoffs",
         id: "t.id::text",
@@ -270,6 +276,11 @@ pub(crate) async fn logical_export(
     drop(accounts);
 
     for spec in TABLES {
+        if spec.kind == "project_memory_attestation"
+            && state.schema_version < crate::reuse::REQUIRED_SCHEMA
+        {
+            continue;
+        }
         let sql = format!(
             "SELECT ({}) AS source_id,
                     CASE WHEN octet_length((to_jsonb(t){})::text) > $1
@@ -523,6 +534,14 @@ pub(crate) async fn logical_import(
     Json(body): Json<LogicalImportBody>,
 ) -> ApiResult<Json<LogicalImportReport>> {
     let mut records = logical_records(&body.bundle, body.import_id)?;
+    // Refuse before reserving the import: an operator must be able to upgrade
+    // and retry this same bundle without losing capture accountability.
+    if records
+        .iter()
+        .any(|record| record.kind == "project_memory_attestation")
+    {
+        crate::reuse::require_schema(state.schema_version)?;
+    }
     let mut keys = BTreeSet::new();
     if records
         .iter()

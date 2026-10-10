@@ -5,8 +5,15 @@
 //! the boundary between Git, storage and the agent, where a mock proves
 //! nothing (D13).
 
+use std::io::Read;
+use std::net::{Shutdown, TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
+use std::thread::JoinHandle;
 use tempfile::TempDir;
 
 /// Feature 005 fixtures: PostgreSQL at server schema v4, SQLite at local
@@ -164,13 +171,13 @@ impl Sandbox {
     /// `cairn`, with extra environment for a test that needs to change how the
     /// CLI or the daemon it starts is configured.
     pub fn cairn_with_env(&self, args: &[&str], env: &[(&str, &str)]) -> CliResult {
-        let mut command = Command::new(binary("cairn"));
+        let mut command = Command::new(cairn_binary());
         command
             .args(args)
             .current_dir(self.repo.path())
             .env("CAIRN_HOME", self.home.path())
             .env("CAIRN_SOCKET", &self.socket)
-            .env("CAIRND_BIN", binary("cairnd"))
+            .env("CAIRND_BIN", cairnd_binary())
             // Feature 002 writes per-user agent configuration. The sandbox
             // gives it a home of its own so a test can never reach the
             // developer's real `~/.claude` or `~/.codex`.
@@ -382,13 +389,13 @@ impl Sandbox {
             args.push("--agent".into());
             args.push(agent.into());
         }
-        let mut command = Command::new(binary("cairn"));
+        let mut command = Command::new(cairn_binary());
         command
             .args(&args)
             .current_dir(dir)
             .env("CAIRN_HOME", self.home.path())
             .env("CAIRN_SOCKET", &self.socket)
-            .env("CAIRND_BIN", binary("cairnd"))
+            .env("CAIRND_BIN", cairnd_binary())
             .env("HOME", self.fake_home())
             .env("XDG_CONFIG_HOME", self.fake_home().join(".config"));
         for (key, value) in env {
@@ -641,7 +648,7 @@ impl Drop for Sandbox {
         if !self.owns_daemon {
             return;
         }
-        if let Some(exe) = try_binary("cairn") {
+        if let Some(exe) = try_cairn_binary() {
             let _ = Command::new(exe)
                 .args(["daemon", "stop"])
                 .current_dir(self.repo.path())
@@ -705,37 +712,80 @@ pub fn binary(name: &str) -> PathBuf {
     candidate
 }
 
-/// The `cairn-server` executable the end-to-end suite spawns.
-///
-/// **`CAIRN_SERVER_BIN` wins, and CI sets it to the release build.**
-///
-/// Everything else here is resolved next to the test executable, which under
-/// `cargo test` means `target/debug/` — so the suite drove an *unoptimized*
-/// server. That matters for one reason above all others: a sign-in is an
-/// argon2 verify, and creating an account is an argon2 hash. The workflow
-/// already records the cost (`~0.7s` unoptimized against `~0.03s` released)
-/// and already builds a release server for the web end-to-end job for exactly
-/// this reason; the Rust suite signs in far more often and was not given the
-/// same treatment.
-///
-/// Only this binary is overridable, deliberately. `cairn` and `cairnd` are
-/// resolved as before: their cost is not argon2, and `CAIRND_BIN` already
-/// means something else here — it is how the CLI is *told* where the daemon
-/// is, so reading it back as an override would conflate two directions.
-///
-/// The fallback is the previous behaviour exactly, so a developer running
-/// `cargo test` with nothing set gets the debug server they always got.
-pub fn server_binary() -> PathBuf {
-    if let Some(path) = std::env::var_os("CAIRN_SERVER_BIN") {
-        let path = PathBuf::from(path);
+/// Resolve an installed archive binary when an end-to-end journey supplies
+/// one; ordinary test runs keep resolving the workspace build.
+fn binary_override(name: &str, variable: &str) -> PathBuf {
+    binary_override_path(
+        name,
+        variable,
+        std::env::var_os(variable).map(PathBuf::from),
+    )
+}
+
+fn binary_override_path(name: &str, variable: &str, override_path: Option<PathBuf>) -> PathBuf {
+    if let Some(path) = override_path {
         assert!(
             path.exists(),
-            "CAIRN_SERVER_BIN points at {}, which does not exist; build it first",
+            "{variable} points at {}, which does not exist; build it first",
             path.display()
         );
         return path;
     }
-    binary("cairn-server")
+    binary(name)
+}
+
+#[cfg(test)]
+mod binary_override_tests {
+    use super::*;
+
+    #[test]
+    fn uses_existing_override_path() {
+        let file = tempfile::NamedTempFile::new().expect("artifact");
+        assert_eq!(
+            binary_override_path("cairn", "CAIRN_BIN", Some(file.path().to_path_buf())),
+            file.path()
+        );
+    }
+
+    #[test]
+    fn optional_database_url_allows_a_skip() {
+        assert_eq!(configured_test_database_url(None, false), None);
+    }
+
+    #[test]
+    #[should_panic(expected = "CAIRN_REQUIRE_DATABASE_TESTS=1")]
+    fn required_database_url_cannot_skip() {
+        configured_test_database_url(None, true);
+    }
+}
+
+fn try_binary_override(name: &str, variable: &str) -> Option<PathBuf> {
+    std::env::var_os(variable)
+        .map(PathBuf::from)
+        .or_else(|| try_binary(name))
+        .filter(|path| path.exists())
+}
+
+/// The CLI used by every harness entry point.
+pub fn cairn_binary() -> PathBuf {
+    binary_override("cairn", "CAIRN_BIN")
+}
+
+/// The daemon the harness tells the CLI to start.
+pub fn cairnd_binary() -> PathBuf {
+    binary_override("cairnd", "CAIRND_BIN")
+}
+
+fn try_cairn_binary() -> Option<PathBuf> {
+    try_binary_override("cairn", "CAIRN_BIN")
+}
+
+/// The `cairn-server` executable the end-to-end suite spawns.
+///
+/// `CAIRN_SERVER_BIN` selects an installed artifact; the workspace binary is
+/// the default for ordinary test runs.
+pub fn server_binary() -> PathBuf {
+    binary_override("cairn-server", "CAIRN_SERVER_BIN")
 }
 
 fn binary_file_name(name: &str) -> String {
@@ -812,7 +862,7 @@ impl Drop for DaemonSocket {
         // Best effort, and never a panic: this runs during unwinding when a
         // test has already failed, and a panic here would replace that failure
         // with a SIGABRT.
-        if let Some(exe) = try_binary("cairn") {
+        if let Some(exe) = try_cairn_binary() {
             let _ = Command::new(exe)
                 .args(["daemon", "stop"])
                 .env("CAIRN_SOCKET", &self.path)
@@ -890,12 +940,12 @@ pub struct Mcp {
 
 impl Mcp {
     pub fn start(s: &Sandbox) -> Self {
-        let mut child = Command::new(binary("cairn"))
+        let mut child = Command::new(cairn_binary())
             .arg("mcp")
             .current_dir(s.repo_path())
             .env("CAIRN_HOME", s.home.path())
             .env("CAIRN_SOCKET", &s.socket)
-            .env("CAIRND_BIN", binary("cairnd"))
+            .env("CAIRND_BIN", cairnd_binary())
             // Same fake home as every other entry point: the MCP server is a
             // way into the same daemon, and inheriting the developer's real
             // home would make one process in the sandbox able to escape it.
@@ -970,6 +1020,222 @@ impl Drop for Mcp {
 // Server fixture (US6, US7)
 // ---------------------------------------------------------------------------
 
+fn configured_test_database_url(url: Option<String>, required: bool) -> Option<String> {
+    let url = url.filter(|url| !url.is_empty());
+    if required && url.is_none() {
+        panic!("CAIRN_REQUIRE_DATABASE_TESTS=1 requires CAIRN_TEST_DATABASE_URL")
+    }
+    url
+}
+
+fn test_database_url() -> Option<String> {
+    configured_test_database_url(
+        std::env::var("CAIRN_TEST_DATABASE_URL").ok(),
+        std::env::var("CAIRN_REQUIRE_DATABASE_TESTS").as_deref() == Ok("1"),
+    )
+}
+
+#[derive(Clone, Copy)]
+enum TestSelectorMode {
+    Echo,
+    Disabled,
+}
+
+/// A local OpenAI-compatible selector used only by spawned test servers.
+///
+/// It returns each submitted source exactly as a quote. Tests that need a
+/// narrower, malformed, empty, or unavailable answer select that behavior with
+/// a private marker in the task query; production never sees those markers.
+struct TestSelector {
+    base_url: String,
+    stop: Arc<AtomicBool>,
+    gate: Arc<SelectorGate>,
+    thread: Option<JoinHandle<()>>,
+}
+
+struct SelectorGate {
+    entered: AtomicBool,
+    release: AtomicBool,
+}
+
+impl TestSelector {
+    fn start() -> Self {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("test selector binds");
+        listener
+            .set_nonblocking(true)
+            .expect("test selector is nonblocking");
+        let base_url = format!(
+            "http://{}/v1",
+            listener.local_addr().expect("selector address")
+        );
+        let stop = Arc::new(AtomicBool::new(false));
+        let thread_stop = Arc::clone(&stop);
+        let gate = Arc::new(SelectorGate {
+            entered: AtomicBool::new(false),
+            release: AtomicBool::new(false),
+        });
+        let thread_gate = Arc::clone(&gate);
+        let thread = std::thread::spawn(move || {
+            while !thread_stop.load(Ordering::Relaxed) {
+                match listener.accept() {
+                    Ok((stream, _)) => test_selector_response(stream, &thread_gate),
+                    Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                        std::thread::sleep(std::time::Duration::from_millis(5));
+                    }
+                    Err(_) => break,
+                }
+            }
+        });
+        Self {
+            base_url,
+            stop,
+            gate,
+            thread: Some(thread),
+        }
+    }
+}
+
+impl Drop for TestSelector {
+    fn drop(&mut self) {
+        self.stop.store(true, Ordering::Relaxed);
+        if let Some(thread) = self.thread.take() {
+            let _ = thread.join();
+        }
+    }
+}
+
+fn test_selector_response(mut stream: TcpStream, gate: &SelectorGate) {
+    stream
+        .set_nonblocking(false)
+        .expect("accepted selector stream is blocking");
+    let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(1)));
+    let _ = stream.set_write_timeout(Some(std::time::Duration::from_secs(1)));
+    let mut request = Vec::new();
+    let mut buffer = [0_u8; 4096];
+    loop {
+        match stream.read(&mut buffer) {
+            Ok(0) => return,
+            Err(error) => {
+                eprintln!(
+                    "test selector read error={} bytes={}",
+                    error.kind(),
+                    request.len()
+                );
+                return;
+            }
+            Ok(read) => {
+                request.extend_from_slice(&buffer[..read]);
+                if request.len() > 1024 * 1024 {
+                    return;
+                }
+                let Some(headers_end) = request.windows(4).position(|window| window == b"\r\n\r\n")
+                else {
+                    continue;
+                };
+                let headers = String::from_utf8_lossy(&request[..headers_end]);
+                let content_length = headers
+                    .lines()
+                    .find_map(|line| {
+                        let (name, value) = line.split_once(':')?;
+                        name.eq_ignore_ascii_case("content-length")
+                            .then(|| value.trim().parse::<usize>().ok())
+                            .flatten()
+                    })
+                    .unwrap_or(0);
+                if request.len() >= headers_end + 4 + content_length {
+                    break;
+                }
+            }
+        }
+    }
+    let body = request
+        .windows(4)
+        .position(|window| window == b"\r\n\r\n")
+        .and_then(|headers_end| {
+            serde_json::from_slice::<serde_json::Value>(&request[headers_end + 4..]).ok()
+        })
+        .unwrap_or(serde_json::Value::Null);
+    let task = body["messages"]
+        .as_array()
+        .and_then(|messages| messages.last())
+        .and_then(|message| message["content"].as_str())
+        .and_then(|content| serde_json::from_str::<serde_json::Value>(content).ok())
+        .unwrap_or(serde_json::Value::Null);
+    let query = task["query"].as_str().unwrap_or_default();
+    if query.contains("[[selector:pause]]") {
+        gate.entered.store(true, Ordering::Release);
+        let mut released = false;
+        for _ in 0..1000 {
+            if gate.release.load(Ordering::Acquire) {
+                released = true;
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(5));
+        }
+        if !released {
+            eprintln!("test selector pause timed out");
+            return;
+        }
+    }
+    let response = if query.contains("[[selector:outage]]") {
+        (503, serde_json::json!({"error":"test outage"}))
+    } else if query.contains("[[selector:invalid]]") {
+        let id = task["records"]
+            .as_array()
+            .and_then(|records| records.first())
+            .and_then(|record| record["id"].as_str())
+            .unwrap_or_default();
+        let content = serde_json::json!({"selections":[{"id":id,"quotes":["not an exact source substring"]}]}).to_string();
+        (
+            200,
+            serde_json::json!({"choices":[{"message":{"content":content}}]}),
+        )
+    } else {
+        let selections =
+            if query.contains("[[selector:empty]]") {
+                Vec::new()
+            } else {
+                task["records"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter_map(|record| Some(serde_json::json!({
+                    "id": record["id"].as_str()?,
+                    "quotes": [if query.contains("[[selector:first-sentence]]") {
+                        let source = record["content"].as_str()?;
+                        &source[..source.find('.').map(|end| end + 1).unwrap_or(source.len())]
+                    } else {
+                        record["content"].as_str()?
+                    }],
+                })))
+                .collect::<Vec<_>>()
+            };
+        let content = serde_json::json!({"selections": selections}).to_string();
+        (
+            200,
+            serde_json::json!({"choices":[{"message":{"content":content}}]}),
+        )
+    };
+    let encoded = response.1.to_string();
+    let status = if response.0 == 200 {
+        "200 OK"
+    } else {
+        "503 Service Unavailable"
+    };
+    if let Err(error) = write!(
+        stream,
+        "HTTP/1.1 {status}\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{encoded}",
+        encoded.len()
+    ) {
+        eprintln!(
+            "test selector write error={} bytes={}",
+            error.kind(),
+            encoded.len()
+        );
+    }
+    let _ = stream.shutdown(Shutdown::Both);
+}
+
 /// A running `cairn-server` against a real PostgreSQL.
 ///
 /// Requires `CAIRN_TEST_DATABASE_URL`. Tests that need it report a clear skip
@@ -994,6 +1260,7 @@ pub struct Server {
     /// depends on the distinction.
     max_schema_version: i64,
     child: std::process::Child,
+    selector: Option<TestSelector>,
 }
 
 impl Server {
@@ -1007,9 +1274,7 @@ impl Server {
     ///
     /// Call [`Server::upgraded`] to run the migration against the same data.
     pub fn start_at_schema(max_version: i64) -> Option<Self> {
-        let admin = std::env::var("CAIRN_TEST_DATABASE_URL")
-            .ok()
-            .filter(|u| !u.is_empty())?;
+        let admin = test_database_url()?;
         let name = format!("cairn_schema_{}", unique());
         create_database(&admin, &name);
         let url = replace_database(&admin, &name);
@@ -1117,22 +1382,55 @@ impl Server {
     /// server is up, by which time the migrations are done and the race is
     /// over.
     pub fn fresh_database() -> Option<String> {
-        let admin = std::env::var("CAIRN_TEST_DATABASE_URL")
-            .ok()
-            .filter(|u| !u.is_empty())?;
+        let admin = test_database_url()?;
         let name = format!("cairn_own_{}", unique());
         create_database(&admin, &name);
         Some(replace_database(&admin, &name))
     }
 
     pub fn start_own_database() -> Option<Self> {
-        let admin = std::env::var("CAIRN_TEST_DATABASE_URL")
-            .ok()
-            .filter(|u| !u.is_empty())?;
+        let admin = test_database_url()?;
         let name = format!("cairn_own_{}", unique());
         create_database(&admin, &name);
         let url = replace_database(&admin, &name);
         Some(Self::spawn_as(&url, i64::MAX, true, None))
+    }
+
+    /// A server with no selector configuration, for refusal-path tests.
+    pub fn start_own_database_without_selector() -> Option<Self> {
+        let admin = test_database_url()?;
+        let name = format!("cairn_own_{}", unique());
+        create_database(&admin, &name);
+        let url = replace_database(&admin, &name);
+        Some(Self::spawn_as_with_selector(
+            &url,
+            i64::MAX,
+            true,
+            None,
+            TestSelectorMode::Disabled,
+        ))
+    }
+
+    /// Wait until the test selector has accepted a paused request.
+    pub fn wait_for_selector(&self) {
+        let selector = self.selector.as_ref().expect("configured test selector");
+        for _ in 0..1600 {
+            if selector.gate.entered.load(Ordering::Acquire) {
+                return;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(5));
+        }
+        panic!("test selector did not receive the paused request");
+    }
+
+    /// Let the test selector finish one paused request.
+    pub fn release_selector(&self) {
+        self.selector
+            .as_ref()
+            .expect("configured test selector")
+            .gate
+            .release
+            .store(true, Ordering::Release);
     }
 
     /// A server whose environment names one administrator account.
@@ -1140,9 +1438,7 @@ impl Server {
     /// The break-glass identity: `ensure_admin` upserts it on every start, and
     /// several guarantees are only observable against a server that has one.
     pub fn start_with_admin(email: &str, password: &str) -> Option<Self> {
-        let admin = std::env::var("CAIRN_TEST_DATABASE_URL")
-            .ok()
-            .filter(|u| !u.is_empty())?;
+        let admin = test_database_url()?;
         // Its own database: the environment account is global to a server, so
         // two tests sharing one database would fight over its standing.
         let name = format!("cairn_admin_{}", unique());
@@ -1191,7 +1487,7 @@ impl Server {
     pub fn cookie_for_password(&self, email: &str, password: &str) -> String {
         self.sign_in(email, password).unwrap_or_else(|why| {
             let rows = self.query_column(&format!(
-                "SELECT email || ' disabled=' || COALESCE(disabled::text, '?')
+                "SELECT email || ' status=' || COALESCE(to_jsonb(users)->>'status', 'legacy-active')
                    FROM users WHERE email = '{}'",
                 email.replace('\'', "''")
             ));
@@ -1386,9 +1682,7 @@ impl Server {
     // `start`, which is exactly what clippy's lint cannot see.
     #[allow(clippy::zombie_processes)]
     pub fn start() -> Option<Self> {
-        let url = std::env::var("CAIRN_TEST_DATABASE_URL")
-            .ok()
-            .filter(|u| !u.is_empty())?;
+        let url = test_database_url()?;
 
         // A free port found by probing is only free until someone else takes
         // it. These tests run in parallel and each wants its own server, so two
@@ -1416,9 +1710,31 @@ impl Server {
         owns_database: bool,
         admin: Option<(&str, &str)>,
     ) -> Self {
+        Self::spawn_as_with_selector(
+            url,
+            max_version,
+            owns_database,
+            admin,
+            TestSelectorMode::Echo,
+        )
+    }
+
+    fn spawn_as_with_selector(
+        url: &str,
+        max_version: i64,
+        owns_database: bool,
+        admin: Option<(&str, &str)>,
+        selector_mode: TestSelectorMode,
+    ) -> Self {
         let mut last = String::new();
         for _ in 0..4 {
-            match Self::try_start(url, max_version, owns_database, admin) {
+            match Self::try_start_with_selector(
+                url,
+                max_version,
+                owns_database,
+                admin,
+                selector_mode,
+            ) {
                 Ok(server) => return server,
                 Err(e) => last = e,
             }
@@ -1524,9 +1840,34 @@ impl Server {
         admin: Option<(&str, &str)>,
         addr: Option<String>,
     ) -> Self {
+        Self::spawn_at_with_selector(
+            url,
+            max_version,
+            owns_database,
+            admin,
+            addr,
+            TestSelectorMode::Echo,
+        )
+    }
+
+    fn spawn_at_with_selector(
+        url: &str,
+        max_version: i64,
+        owns_database: bool,
+        admin: Option<(&str, &str)>,
+        addr: Option<String>,
+        selector_mode: TestSelectorMode,
+    ) -> Self {
         let mut last = String::new();
         for _ in 0..8 {
-            match Self::try_start_at(url, max_version, owns_database, admin, addr.clone()) {
+            match Self::try_start_at_with_selector(
+                url,
+                max_version,
+                owns_database,
+                admin,
+                addr.clone(),
+                selector_mode,
+            ) {
                 Ok(server) => return server,
                 Err(e) => last = e,
             }
@@ -1535,22 +1876,39 @@ impl Server {
         panic!("cairn-server would not start: {last}");
     }
 
-    fn try_start(
+    fn try_start_with_selector(
         url: &str,
         max_version: i64,
         owns_database: bool,
         admin: Option<(&str, &str)>,
+        selector_mode: TestSelectorMode,
     ) -> Result<Self, String> {
-        Self::try_start_at(url, max_version, owns_database, admin, None)
+        Self::try_start_at_with_selector(
+            url,
+            max_version,
+            owns_database,
+            admin,
+            None,
+            selector_mode,
+        )
     }
 
-    fn try_start_at(
+    fn try_start_at_with_selector(
         url: &str,
         max_version: i64,
         owns_database: bool,
         admin: Option<(&str, &str)>,
         fixed_addr: Option<String>,
+        selector_mode: TestSelectorMode,
     ) -> Result<Self, String> {
+        // Keep parallel fixtures from accepting a sibling's health response
+        // while their own child is still migrating toward the same free port.
+        static STARTUP: std::sync::Mutex<()> = std::sync::Mutex::new(());
+        let _startup = STARTUP.lock().unwrap_or_else(|error| error.into_inner());
+        let selector = match selector_mode {
+            TestSelectorMode::Echo => Some(TestSelector::start()),
+            TestSelectorMode::Disabled => None,
+        };
         let addr = match fixed_addr {
             Some(addr) => addr,
             None => {
@@ -1591,12 +1949,21 @@ impl Server {
         // its arguments all look identical from outside. Piped rather than
         // inherited so it does not interleave with the test output, and read
         // back only on the failure path below.
-        let mut child = Command::new(server_binary())
+        let mut command = Command::new(server_binary());
+        command
             .args(&args)
+            .env_remove("CAIRN_INFERENCE_BASE_URL")
+            .env_remove("CAIRN_INFERENCE_MODEL")
+            .env_remove("CAIRN_INFERENCE_API_KEY")
             .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::piped())
-            .spawn()
-            .expect("cairn-server runs");
+            .stderr(std::process::Stdio::piped());
+        if let Some(selector) = selector.as_ref() {
+            command
+                .env("CAIRN_INFERENCE_BASE_URL", &selector.base_url)
+                .env("CAIRN_INFERENCE_MODEL", "test-extractive-selector")
+                .env("CAIRN_INFERENCE_API_KEY", "test-key");
+        }
+        let mut child = command.spawn().expect("cairn-server runs");
 
         let base = format!("http://{addr}");
         for _ in 0..250 {
@@ -1620,6 +1987,7 @@ impl Server {
                     owns_database,
                     max_schema_version: max_version,
                     child,
+                    selector,
                 });
             }
             std::thread::sleep(std::time::Duration::from_millis(40));

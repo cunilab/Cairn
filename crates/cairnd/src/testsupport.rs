@@ -93,6 +93,7 @@ pub async fn daemon_with(config: CairnConfig, server: ServerCredentials) -> Daem
         in_flight_captures: Arc::new(AtomicUsize::new(0)),
         event_drain: Arc::new(tokio::sync::Mutex::new(())),
         command_drain: Arc::new(tokio::sync::Mutex::new(())),
+        integration_setup: Arc::new(tokio::sync::Mutex::new(())),
         outage_cache: Arc::new(tokio::sync::Mutex::new(
             crate::deliver::OutageCache::default(),
         )),

@@ -41,6 +41,11 @@ fn installed_setup_remembers_and_recalls_across_callers() {
     assert!(setup.ok(), "setup failed: {}", setup.stderr);
     let setup_json: serde_json::Value = serde_json::from_str(&setup.stdout).expect("setup JSON");
     assert_eq!(setup_json["data"]["project"]["linked"], true);
+    for name in ["AGENTS.md", "CLAUDE.md"] {
+        let instructions = std::fs::read_to_string(sandbox.repo_dir().join(name))
+            .expect("setup installs the project memory contract");
+        assert!(instructions.contains("cairn_remember"));
+    }
     let codex_path = sandbox.fake_home().join(".codex/config.toml");
     let codex = std::fs::read_to_string(&codex_path).expect("installed Codex MCP config");
     let codex_entry = cairn_integrate::edit::toml::get(
@@ -83,6 +88,10 @@ fn installed_setup_remembers_and_recalls_across_callers() {
             "topic_key": "alpha9.journey",
             "value_key": "remembered",
             "content": "the alpha9 journey remembers this durable fact",
+            "capture_attestation": {
+                "basis": "user_report",
+                "support_summary": "The journey explicitly supplied this durable fact."
+            },
         }),
         &sandbox.repo_dir().display().to_string(),
     );
@@ -100,6 +109,11 @@ fn installed_setup_remembers_and_recalls_across_callers() {
         );
         std::thread::sleep(std::time::Duration::from_millis(25));
     }
+    assert_eq!(
+        pg.server.text("SELECT scope_key FROM memories"),
+        project["id"].as_str().expect("server project id"),
+        "native writes must use the shared project identity"
+    );
     let recalled = mcp.tool(
         "cairn_search",
         json!({
@@ -110,5 +124,232 @@ fn installed_setup_remembers_and_recalls_across_callers() {
         &sandbox.repo_dir().display().to_string(),
     );
     assert!(recalled.contains("the alpha9 journey remembers this durable fact"));
+    let natural_query = mcp.tool(
+        "cairn_search",
+        json!({
+            "action": "search",
+            "agent_session_key": "alpha9-caller-b",
+            "query": "what does alpha9 remember after a new session",
+        }),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert!(natural_query.contains("the alpha9 journey remembers this durable fact"));
+
+    let claude_first = sandbox.hook_as(
+        "claude-code",
+        "SessionStart",
+        json!({"session_id": "alpha9-claude-first", "source": "startup"}),
+    );
+    assert_eq!(claude_first.code, 0, "{}", claude_first.stderr);
+    let claude_end = sandbox.hook_as(
+        "claude-code",
+        "SessionEnd",
+        json!({"session_id": "alpha9-claude-first", "reason": "other"}),
+    );
+    assert_eq!(claude_end.code, 0, "{}", claude_end.stderr);
+    let claude_return = sandbox.hook_as(
+        "claude-code",
+        "SessionStart",
+        json!({"session_id": "alpha9-claude-return", "source": "startup"}),
+    );
+    assert_eq!(claude_return.code, 0, "{}", claude_return.stderr);
+    assert!(!claude_return
+        .stdout
+        .contains("the alpha9 journey remembers this durable fact"));
+    assert!(claude_return.stdout.contains("Project memory is available"));
+    let returned_context = mcp.tool(
+        "cairn_context",
+        json!({"agent_session_key": "alpha9-claude-return", "reason": "session_start"}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert!(returned_context.contains("Cairn context"));
+    assert!(returned_context.contains("cairn_remember"));
+    assert!(!returned_context.contains("the alpha9 journey remembers this durable fact"));
+    let queried_context = mcp.tool(
+        "cairn_context",
+        json!({"agent_session_key": "alpha9-claude-return", "query": "alpha9 journey durable fact"}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert!(queried_context.contains("the alpha9 journey remembers this durable fact"));
+    let empty_recall = mcp.tool_result(
+        "cairn_search",
+        json!({"agent_session_key": "alpha9-claude-return"}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert_eq!(empty_recall["isError"], true, "{empty_recall}");
+    let returned_search = mcp.tool(
+        "cairn_search",
+        json!({"agent_session_key": "alpha9-claude-return", "query": "alpha9 journey remembered durable fact"}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert!(returned_search.contains("the alpha9 journey remembers this durable fact"));
     assert_eq!(pg.server.count("SELECT count(*) FROM memories"), 1);
+    let original = pg.server.text("SELECT id::text FROM memories");
+    let unsupported = mcp.tool_result(
+        "cairn_remember",
+        json!({"action":"create", "type":"fact", "content":"unattached evidence", "evidence_observation_ids":[Uuid::now_v7()]}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert_eq!(unsupported["isError"], true, "{unsupported}");
+    let malformed = mcp.tool_result(
+        "cairn_remember",
+        json!({"action":"create", "type":"fact", "content":"malformed evidence", "evidence_observation_ids":["not-an-observation"]}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert_eq!(malformed["isError"], true, "{malformed}");
+    let corrected = mcp.tool_result(
+        "cairn_remember",
+        json!({"action":"supersede", "memory_id":original, "agent_session_key":"alpha9-claude-return", "type":"fact", "content":"the alpha9 journey keeps this corrected durable fact"}),
+        &sandbox.repo_dir().display().to_string(),
+    );
+    assert_eq!(corrected["isError"], false, "{corrected}");
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    while pg.server.text(&format!(
+        "SELECT state FROM memories WHERE id = '{original}'"
+    )) != "superseded"
+    {
+        assert!(
+            std::time::Instant::now() < deadline,
+            "supersede never reached its target"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(25));
+    }
+    assert_eq!(pg.server.count("SELECT count(*) FROM memories"), 2);
+}
+
+#[test]
+fn setup_failures_explain_how_to_recover_without_installing_integrations() {
+    let Some(pg) = Pg::start() else {
+        eprintln!("skipped: CAIRN_TEST_DATABASE_URL is not set");
+        return;
+    };
+
+    let missing_token = Sandbox::new();
+    missing_token.install_agent("codex");
+    let result = missing_token.cairn_with_env(
+        &["--json", "setup"],
+        &[("CAIRN_SERVER_URL", &pg.server.base)],
+    );
+    assert!(!result.ok());
+    let body: serde_json::Value = serde_json::from_str(&result.stdout).unwrap();
+    assert!(body["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Settings"));
+    assert!(!missing_token
+        .fake_home()
+        .join(".codex/config.toml")
+        .exists());
+
+    let wrong_remote = Sandbox::new();
+    wrong_remote.install_agent("codex");
+    let result = wrong_remote.cairn_with_env(
+        &["--json", "setup"],
+        &[
+            ("CAIRN_SERVER_URL", &pg.server.base),
+            ("CAIRN_SERVER_TOKEN", &pg.owner.token),
+        ],
+    );
+    assert!(!result.ok());
+    let body: serde_json::Value = serde_json::from_str(&result.stdout).unwrap();
+    assert_eq!(body["error"]["code"], "not_linked");
+    let message = body["error"]["message"].as_str().unwrap();
+    assert!(
+        message.contains("remote") && message.contains("Settings"),
+        "{body}"
+    );
+    assert!(!wrong_remote.fake_home().join(".codex/config.toml").exists());
+    let config: serde_json::Value = serde_json::from_slice(
+        &std::fs::read(wrong_remote.cairn_home().join("config.json")).unwrap(),
+    )
+    .unwrap();
+    assert!(config["server_url"].is_null());
+    assert!(!wrong_remote.cairn_home().join("token").exists());
+
+    let nonmember = Sandbox::new();
+    nonmember.install_agent("codex");
+    nonmember.git(&[
+        "remote",
+        "set-url",
+        "origin",
+        "git@example.test:feature005.git",
+    ]);
+    let result = nonmember.cairn_with_env(
+        &["--json", "setup"],
+        &[
+            ("CAIRN_SERVER_URL", &pg.server.base),
+            ("CAIRN_SERVER_TOKEN", &pg.outsider.token),
+        ],
+    );
+    assert!(!result.ok());
+    let body: serde_json::Value = serde_json::from_str(&result.stdout).unwrap();
+    assert_eq!(body["error"]["code"], "not_linked");
+    let message = body["error"]["message"].as_str().unwrap();
+    assert!(
+        message.contains("remote") && message.contains("Settings"),
+        "{body}"
+    );
+    assert!(!nonmember.fake_home().join(".codex/config.toml").exists());
+    let config: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(nonmember.cairn_home().join("config.json")).unwrap())
+            .unwrap();
+    assert!(config["server_url"].is_null());
+    assert!(!nonmember.cairn_home().join("token").exists());
+
+    let valid_remote = format!(
+        "https://github.com/example/preflight-{}.git",
+        Uuid::now_v7()
+    );
+    let (_, status) = post_json_status_bearer(
+        &pg.server.base,
+        "/api/projects",
+        &json!({"name": "preflight", "repository_remote": valid_remote}),
+        &pg.owner.token,
+    );
+    assert_eq!(status, 200);
+    let existing = Sandbox::new();
+    existing.git(&["remote", "set-url", "origin", &valid_remote]);
+    let credentials = [
+        ("CAIRN_SERVER_URL", pg.server.base.as_str()),
+        ("CAIRN_SERVER_TOKEN", pg.owner.token.as_str()),
+    ];
+    assert!(existing
+        .cairn_with_env(&["--json", "setup"], &credentials)
+        .ok());
+    let config_path = existing.cairn_home().join("config.json");
+    let token_path = existing.cairn_home().join("token");
+    let before = (
+        std::fs::read(&config_path).unwrap(),
+        std::fs::read(&token_path).unwrap(),
+    );
+    let other_server = Pg::start().expect("second disposable server");
+    let (_, status) = post_json_status_bearer(
+        &other_server.server.base,
+        "/api/projects",
+        &json!({"name": "different project id", "repository_remote": valid_remote}),
+        &other_server.owner.token,
+    );
+    assert_eq!(status, 200);
+    assert!(!existing
+        .cairn_with_env(
+            &["--json", "setup"],
+            &[
+                ("CAIRN_SERVER_URL", &other_server.server.base),
+                ("CAIRN_SERVER_TOKEN", &other_server.owner.token),
+            ],
+        )
+        .ok());
+    assert_eq!(std::fs::read(&config_path).unwrap(), before.0);
+    assert_eq!(std::fs::read(&token_path).unwrap(), before.1);
+    existing.git(&[
+        "remote",
+        "set-url",
+        "origin",
+        "https://github.com/example/other.git",
+    ]);
+    assert!(!existing
+        .cairn_with_env(&["--json", "setup"], &credentials)
+        .ok());
+    assert_eq!(std::fs::read(config_path).unwrap(), before.0);
+    assert_eq!(std::fs::read(token_path).unwrap(), before.1);
 }

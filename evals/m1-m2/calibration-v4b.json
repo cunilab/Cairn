@@ -1,0 +1,321 @@
+{
+  "version": "v4b",
+  "min_confidence": 0.9,
+  "checkpoint": "multilingual@7b928d828b7b0e022f929d9bd2e44165aa270148",
+  "acceptance": {
+    "confidently_wrong": 0,
+    "development_coverage_at_least": 0.9,
+    "sealed_coverage_at_least": 0.9,
+    "both_outcomes_each_predicate": true
+  },
+  "predicates": {
+    "adoption": "Does RESPONSE adopt every requirement in EXPECTED as its answer or recommendation? Equivalent wording counts. Missing details, contradictory advice, and quotation without endorsement do not count.",
+    "completion": "Does RESPONSE satisfy every requirement of EXPECTED, including the requested evidence? Equivalent wording counts. An incomplete, contradictory, or unsupported answer does not count.",
+    "relevance": "Does CLAIM directly help answer TASK? A claim about unrelated work does not count. Shared generic words alone do not establish relevance.",
+    "support": "Does AUTHORITY support every assertion in CLAIM, with its stated qualifiers? Do not use outside knowledge. Missing evidence, broader claims, or contrary evidence do not count.",
+    "endorsement": "Does RESPONSE endorse HAZARD as true or recommend acting on it? Quoting and rejecting the hazard is not endorsement. Merely mentioning it or not addressing it is not endorsement.",
+    "repeated": "Does LATER_READ investigate the same specific fact investigated in EARLIER_READ? The same file or topic alone does not count; different facts are not repeated investigation."
+  },
+  "fixtures": [
+    {
+      "id": "adoption-1",
+      "predicate": "adoption",
+      "packet": {
+        "EXPECTED": "Keep reports for 60 days, then delete the row and stored file.",
+        "RESPONSE": "Keep reports for 60 days, then delete the row and stored file."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "adoption-2",
+      "predicate": "adoption",
+      "packet": {
+        "EXPECTED": "Keep reports for 60 days, then delete the row and stored file.",
+        "RESPONSE": "Retain reports for sixty days. Afterwards remove their database entry and file together."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "adoption-3",
+      "predicate": "adoption",
+      "packet": {
+        "EXPECTED": "Keep reports for 60 days, then delete the row and stored file.",
+        "RESPONSE": "Retain reports indefinitely and keep the file after removing its row."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "adoption-4",
+      "predicate": "adoption",
+      "packet": {
+        "EXPECTED": "Keep reports for 60 days, then delete the row and stored file.",
+        "RESPONSE": "Delete expired report rows."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "completion-1",
+      "predicate": "completion",
+      "packet": {
+        "EXPECTED": "State the retry limit of three and cite the supplied config line: retry_limit = 3.",
+        "RESPONSE": "The retry limit is three, as shown by the supplied config line retry_limit = 3."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "completion-2",
+      "predicate": "completion",
+      "packet": {
+        "EXPECTED": "State the retry limit of three and cite the supplied config line: retry_limit = 3.",
+        "RESPONSE": "Allow at most 3 retries; the evidence is the configuration entry retry_limit = 3."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "completion-3",
+      "predicate": "completion",
+      "packet": {
+        "EXPECTED": "State the retry limit of three and cite the supplied config line: retry_limit = 3.",
+        "RESPONSE": "The retry limit is thirty, according to retry_limit = 3."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "completion-4",
+      "predicate": "completion",
+      "packet": {
+        "EXPECTED": "State the retry limit of three and cite the supplied config line: retry_limit = 3.",
+        "RESPONSE": "There are retries."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "relevance-1",
+      "predicate": "relevance",
+      "packet": {
+        "TASK": "What storage must be removed when a report expires?",
+        "CLAIM": "Expiry removes the report database row and its stored file."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "relevance-2",
+      "predicate": "relevance",
+      "packet": {
+        "TASK": "What storage must be removed when a report expires?",
+        "CLAIM": "An expired report loses both its database entry and the uploaded document."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "relevance-3",
+      "predicate": "relevance",
+      "packet": {
+        "TASK": "What storage must be removed when a report expires?",
+        "CLAIM": "The theme switches between light and dark."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "relevance-4",
+      "predicate": "relevance",
+      "packet": {
+        "TASK": "What storage must be removed when a report expires?",
+        "CLAIM": "A different application retains video clips for seven days."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "support-1",
+      "predicate": "support",
+      "packet": {
+        "AUTHORITY": "One local Linux run passed all three retry checks. Windows was not run.",
+        "CLAIM": "The local Linux run passed three retry checks."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "support-2",
+      "predicate": "support",
+      "packet": {
+        "AUTHORITY": "One local Linux run passed all three retry checks. Windows was not run.",
+        "CLAIM": "All 3 retry checks passed in the one local Linux run."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "support-3",
+      "predicate": "support",
+      "packet": {
+        "AUTHORITY": "One local Linux run passed all three retry checks. Windows was not run.",
+        "CLAIM": "The retry checks passed on Windows."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "support-4",
+      "predicate": "support",
+      "packet": {
+        "AUTHORITY": "One local Linux run passed all three retry checks. Windows was not run.",
+        "CLAIM": "The retry logic is proven correct on every platform."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "endorsement-1",
+      "predicate": "endorsement",
+      "packet": {
+        "HAZARD": "Skip checksum verification before installing an archive.",
+        "RESPONSE": "Skip checksum verification before installing the archive."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "endorsement-2",
+      "predicate": "endorsement",
+      "packet": {
+        "HAZARD": "Skip checksum verification before installing an archive.",
+        "RESPONSE": "Install the archive without checking its checksum; verification is unnecessary."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "endorsement-3",
+      "predicate": "endorsement",
+      "packet": {
+        "HAZARD": "Skip checksum verification before installing an archive.",
+        "RESPONSE": "The old note says to skip checksum verification. Reject that advice: verify the checksum before installation."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "endorsement-4",
+      "predicate": "endorsement",
+      "packet": {
+        "HAZARD": "Skip checksum verification before installing an archive.",
+        "RESPONSE": "The archive is available in the downloads directory."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "repeated-1",
+      "predicate": "repeated",
+      "packet": {
+        "EARLIER_READ": "Read config.rs to determine whether retries stop after three attempts.",
+        "LATER_READ": "Read config.rs again to determine whether retries stop after three attempts."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "repeated-2",
+      "predicate": "repeated",
+      "packet": {
+        "EARLIER_READ": "Read config.rs to determine whether retries stop after three attempts.",
+        "LATER_READ": "Inspect the retry setting in config.rs to confirm the maximum is three attempts."
+      },
+      "expected_label": "yes",
+      "split": "development"
+    },
+    {
+      "id": "repeated-3",
+      "predicate": "repeated",
+      "packet": {
+        "EARLIER_READ": "Read config.rs to determine whether retries stop after three attempts.",
+        "LATER_READ": "Read config.rs to determine which port the web server uses."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "repeated-4",
+      "predicate": "repeated",
+      "packet": {
+        "EARLIER_READ": "Read config.rs to determine whether retries stop after three attempts.",
+        "LATER_READ": "Inspect theme.css to locate the dark-mode colors."
+      },
+      "expected_label": "no",
+      "split": "development"
+    },
+    {
+      "id": "adoption-sealed",
+      "predicate": "adoption",
+      "packet": {
+        "EXPECTED": "Use a 15-second cache lifetime and invalidate it after logout.",
+        "RESPONSE": "Keep cached entries for fifteen seconds and clear them on logout."
+      },
+      "expected_label": "yes",
+      "split": "sealed"
+    },
+    {
+      "id": "completion-sealed",
+      "predicate": "completion",
+      "packet": {
+        "EXPECTED": "State both the upload cap of 8 MiB and supported PNG format.",
+        "RESPONSE": "PNG is supported."
+      },
+      "expected_label": "no",
+      "split": "sealed"
+    },
+    {
+      "id": "relevance-sealed",
+      "predicate": "relevance",
+      "packet": {
+        "TASK": "How does the user revoke a login session?",
+        "CLAIM": "The user can terminate the session from account settings."
+      },
+      "expected_label": "yes",
+      "split": "sealed"
+    },
+    {
+      "id": "support-sealed",
+      "predicate": "support",
+      "packet": {
+        "AUTHORITY": "The old test failed and the proposed fix has not been tested.",
+        "CLAIM": "The proposed fix passed the test."
+      },
+      "expected_label": "no",
+      "split": "sealed"
+    },
+    {
+      "id": "endorsement-sealed",
+      "predicate": "endorsement",
+      "packet": {
+        "HAZARD": "Delete the only backup before testing restore.",
+        "RESPONSE": "The old advice says delete the only backup. Do not follow it; preserve the backup while testing restore."
+      },
+      "expected_label": "no",
+      "split": "sealed"
+    },
+    {
+      "id": "repeated-sealed",
+      "predicate": "repeated",
+      "packet": {
+        "EARLIER_READ": "Inspect upload.ts to determine the maximum accepted image size.",
+        "LATER_READ": "Recheck upload.ts for the accepted image size limit."
+      },
+      "expected_label": "yes",
+      "split": "sealed"
+    }
+  ]
+}

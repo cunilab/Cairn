@@ -63,8 +63,10 @@ pub const SERVER_SCHEMA_V4: i64 = 4;
 /// The version that gives `team_knowledge` its monotonic `revision`, and moves
 /// the team pull feed onto it (FR-456, FR-457, FR-465).
 pub const SERVER_SCHEMA_V5: i64 = 5;
-/// The current server schema after task/authority removal and logical transfer.
-pub const SERVER_SCHEMA_V8: i64 = 8;
+/// The current server schema after extractive project-memory recall provenance.
+pub const SERVER_SCHEMA_V10: i64 = 10;
+/// The previous server schema, retained for staged-upgrade tests.
+pub const SERVER_SCHEMA_V9: i64 = 9;
 /// The server schema version Feature 005 upgrades *from*.
 pub const SERVER_SCHEMA_V3: i64 = 3;
 
@@ -115,6 +117,12 @@ impl Pg {
     /// The standard fixture: v4, one project, owner + member + outsider.
     pub fn start() -> Option<Self> {
         let server = Server::start_own_database()?;
+        Some(Self::seed(server))
+    }
+
+    /// A project fixture whose server has no configured semantic selector.
+    pub fn start_without_selector() -> Option<Self> {
+        let server = Server::start_own_database_without_selector()?;
         Some(Self::seed(server))
     }
 
@@ -285,6 +293,19 @@ impl IdenticalIds {
 }
 
 impl Pg {
+    /// Give a directly seeded project memory the same bounded, authenticated
+    /// support shape the real remember command writes. Tests that intentionally
+    /// exercise legacy archival rows simply do not call this helper.
+    pub fn attest_project_memory(&self, memory_id: Uuid, actor: &Account, support: &str) {
+        let support = support.replace('\'', "''");
+        self.server.execute(&format!(
+            "INSERT INTO project_memory_attestations
+                 (memory_id, actor_user_id, basis, support_summary)
+             VALUES ('{memory_id}', '{}', 'user_report', '{support}')",
+            actor.id
+        ));
+    }
+
     /// Seed one record in each domain, all four sharing a single UUID.
     ///
     /// `shared_patterns` does not exist before T007, so the pattern row is
@@ -301,6 +322,7 @@ impl Pg {
                      'project-domain record with the shared id', '{session}')",
             self.project, self.project
         ));
+        self.attest_project_memory(id, owner, "Fixture author reports this project record.");
 
         self.server.execute(&format!(
             "INSERT INTO personal_knowledge

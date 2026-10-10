@@ -25,6 +25,15 @@ cd web && npm ci && npm run typecheck && npm run api-contract:check && npm run b
 
 PostgreSQL tests use `CAIRN_TEST_DATABASE_URL` pointing to a disposable database. A required server lane sets `CAIRN_REQUIRE_DATABASE_TESTS=1`; missing configuration must fail rather than silently count as a pass. Optional local runs can report `NOT RUN`. Record the database and platform versions, build/source identity, exact command and result. Web and installed-artifact checks need their own gates; source tests alone do not establish them.
 
+For a release-server journey, select the built artifact explicitly so worker tests do not
+pick up an older binary from another build directory:
+
+```bash
+cargo build --workspace --release --locked
+CAIRN_SERVER_BIN="$PWD/target/release/cairn-server" \
+CAIRN_REQUIRE_DATABASE_TESTS=1 cargo test --workspace --all-targets
+```
+
 ## Required product evidence
 
 | Claim | Positive and adverse evidence |
@@ -40,6 +49,30 @@ PostgreSQL tests use `CAIRN_TEST_DATABASE_URL` pointing to a disposable database
 For each release candidate, record `PASS`, `FAIL`, or `NOT RUN` with a reason; source SHA, archive checksums, image digests, OS/architecture, PostgreSQL version, commands, results, and artifact links. Do not include credentials or raw agent material. Required failures and missing evidence block that claim. Candidate source, release assets, OCI metadata, attestation subjects, published tags, and deployment defaults must agree on the repository and version. Publishing immutable artifacts is a separate action from preparing evidence.
 
 The [alpha.9 evidence report](../.github/release-evidence/v0.1.0-alpha.9.md) records candidate tests and limits; the [published release](https://github.com/cunilab/Cairn/releases/tag/v0.1.0-alpha.9) and [publish workflow](https://github.com/cunilab/Cairn/actions/workflows/publish-release.yml) establish subsequent publication. Its source limits in [architecture](architecture.md#current-source-limits) are not measured support guarantees. The alpha.9 report explicitly lacks native Intel macOS execution evidence; future support claims need fresh installed-artifact proof.
+
+The [M1/M2 candidate report](../evals/m1-m2/results.md) is separate evidence for the new
+source candidate. It records local journey passes and the frozen 30-pair run, with full
+M1 deployment/platform evidence and M2 semantic gates still open. Historical release
+evidence does not close those candidate gates.
+
+## Bounded retrieval development experiments
+
+[ADR 0006](adr/0006-local-embedding-experiment.md) authorizes a local embedding
+screen before production integration. Freeze source units, independent retrieval
+calibration, development queries, selection/cutoff rules, runtime/model identities
+and evidence hashes before execution. Compare keyword and embedding ranking on
+identical automatic units. Calibrate similarity cutoffs only on the separate
+calibration examples; do not treat scores as probabilities or tune them using
+development judgments.
+
+The independent calibrated judge inventories actual delivered claims, including
+irrelevant claims in the same unit, and checks source attribution, negation,
+conditions and eligible useful recall. Record abstentions, misses, corruption,
+latency and denominators. Require the existing 90% claim quality, 80% eligible
+useful-recall targets and no qualifier/authority corruption to advance. Preserve
+failures and stop a failed approach before integration. Empty denominators do
+not pass. This synthetic experiment cannot substitute for the frozen paired
+workload, privacy/adverse evidence or fresh installed deployment journey.
 
 ## Proposed future gates
 

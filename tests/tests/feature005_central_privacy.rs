@@ -28,7 +28,7 @@
 //! one adversarial payload below, turning up in any column of any table.
 
 use cairn_e2e::feature005::{Account, Pg};
-use cairn_e2e::{binary, post_json_status_bearer};
+use cairn_e2e::{post_json_status_bearer, server_binary};
 use serde_json::{json, Value};
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
@@ -64,7 +64,7 @@ impl Worker {
             let port = probe.local_addr().expect("addr").port();
             drop(probe);
             let addr = format!("127.0.0.1:{port}");
-            let mut child = Command::new(binary("cairn-server"))
+            let mut child = Command::new(server_binary())
                 .args([
                     "--addr",
                     &addr,
@@ -653,12 +653,13 @@ fn a_refused_candidates_content_is_empty_everywhere_not_only_in_its_own_column()
     let events = vec![
         file_event(session, 1, &format!("{filler}/b.rs")),
         decision_signal(session, 2, &filler, "b", Some(1)),
+        file_event(session, 3, "after/confirmation.rs"),
     ];
     let (body, status) = post(&pg, &pg.owner, events);
     assert_eq!(status, 200, "{body}");
     assert_eq!(
         statuses(&body),
-        vec!["accepted", "accepted"],
+        vec!["accepted", "accepted", "accepted"],
         "the fixture's own events must be accepted at ingest, or the refusal \
          below would be for the wrong reason: {body}"
     );
