@@ -60,3 +60,26 @@ connection or an exact quotation alone does not establish M2 claim quality.
 Record the selector's endpoint identity, model ID and policy alongside the actor,
 judge and source/artifact identities. Keep credentials and raw provider inputs
 private; disclose any provider revision or input-readback evidence that is unavailable.
+
+## Local capture-completeness comparator
+
+[ADR 0010](adr/0010-capture-completeness-boundary.md) adds a separate daemon
+comparator for bounded local task records and admitted findings. It is
+unconfigured by default and is not qualified yet. Configure these together
+in the local daemon's protected environment:
+
+| Setting | Value |
+| --- | --- |
+| `CAIRN_CAPTURE_REVIEW_BASE_URL` | OpenAI-compatible comparator base |
+| `CAIRN_CAPTURE_REVIEW_MODEL` | Exact comparator model ID |
+| `CAIRN_CAPTURE_REVIEW_API_KEY` | Private comparator credential |
+| `CAIRN_CAPTURE_REVIEW_ALLOW_EXTERNAL` | `true` only when the operator authorizes external processing of local task text; otherwise only loopback endpoints are accepted |
+
+This configuration is separate from server recall inference and Dokploy. It
+processes the entire retained task and admitted finding snapshots, including
+text not ultimately selected as durable memory. Local retention alone does
+not authorize external processing. Requests have a ten-second deadline, no
+redirects, bounded output and two concurrent slots. Missing, redacted or
+truncated input and invalid/unavailable results remain unknown coverage.
+The coding session can finish after one bounded intervention. Do not treat
+local admission, a no-finding assertion or model connectivity as qualification.

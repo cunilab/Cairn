@@ -300,7 +300,7 @@ fn tool_definitions() -> Vec<Value> {
                 "type": "object",
                 "properties": {
                     "cwd": cwd_property(),
-                    "action": { "type": "string", "enum": ["current", "start", "end", "checkpoint", "capture_disposition", "replay"] },
+                    "action": { "type": "string", "enum": ["current", "start", "end", "checkpoint", "capture_disposition", "capture_review", "replay"] },
                     "agent": { "type": "string" },
                     "agent_session_key": { "type": "string" },
                     "session_id": { "type": "string" },
@@ -772,6 +772,23 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                         cwd,
                         agent_session_key: key,
                         session_id: uuid_opt(args, "session_id"),
+                    })
+                    .await?
+                }
+                "capture_review" => {
+                    let turn = native_turn_id(args).ok_or_else(|| {
+                        WireError::invalid(
+                            "capture_review requires verified native Codex turn metadata",
+                        )
+                    })?;
+                    client::send_once(&Request::CaptureReview {
+                        cwd,
+                        agent_session_key: key.ok_or_else(|| {
+                            WireError::invalid(
+                                "capture_review requires verified native Codex identity",
+                            )
+                        })?,
+                        native_turn_id: turn,
                     })
                     .await?
                 }

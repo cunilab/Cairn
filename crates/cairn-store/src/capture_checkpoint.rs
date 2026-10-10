@@ -4,7 +4,7 @@ use crate::{tx, Result, Store};
 use sqlx::SqliteConnection;
 use uuid::Uuid;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CheckpointKey {
     pub account_id: Uuid,
     /// Digest of the configured server URL, not a credential.
@@ -37,6 +37,41 @@ pub async fn intervene(store: &Store, key: &CheckpointKey) -> Result<bool> {
     Ok(result.rows_affected() == 1)
 }
 
+/// Claim one completeness intervention unless this exact local input has a
+/// current, revision-bound positive review. Unlike legacy `intervene`, an old
+/// admission or no-finding disposition cannot stand in for that review.
+pub async fn intervene_for_coverage(
+    store: &Store,
+    key: &CheckpointKey,
+    revision: &str,
+) -> Result<bool> {
+    let mut transaction = tx::begin(store, "capture_checkpoint").await?;
+    prune(&mut transaction).await?;
+    if crate::capture_review::has_current_positive_review_in(&mut transaction, key, revision)
+        .await?
+    {
+        tx::commit(transaction, "capture_checkpoint").await?;
+        return Ok(false);
+    }
+    let result = sqlx::query(
+        "INSERT INTO capture_checkpoints
+           (account_id,server_key,session_id,turn_id,intervened,updated_at)
+         VALUES (?1,?2,?3,?4,1,?5)
+         ON CONFLICT (account_id,server_key,session_id,turn_id)
+         DO UPDATE SET intervened=1,updated_at=excluded.updated_at
+           WHERE capture_checkpoints.intervened=0",
+    )
+    .bind(key.account_id.to_string())
+    .bind(&key.server_key)
+    .bind(key.session_id.to_string())
+    .bind(key.turn_id.to_string())
+    .bind(chrono::Utc::now().timestamp())
+    .execute(&mut *transaction)
+    .await?;
+    tx::commit(transaction, "capture_checkpoint").await?;
+    Ok(result.rows_affected() == 1)
+}
+
 pub async fn no_durable_finding(store: &Store, key: &CheckpointKey) -> Result<()> {
     let mut transaction = tx::begin(store, "capture_checkpoint").await?;
     complete_in(&mut transaction, key, "no_durable_finding").await?;
@@ -48,7 +83,10 @@ pub async fn no_durable_finding(store: &Store, key: &CheckpointKey) -> Result<()
 pub(crate) async fn capture_admitted_in(
     connection: &mut SqliteConnection,
     key: &CheckpointKey,
+    command_id: Uuid,
+    payload: &serde_json::Value,
 ) -> Result<()> {
+    crate::capture_review::snapshot_finding_in(connection, key, command_id, payload).await?;
     complete_in(connection, key, "capture_admitted").await
 }
 
@@ -192,7 +230,10 @@ mod tests {
                 account_id: key.account_id,
                 server_instance_id: None,
                 kind: crate::spool::CommandKind::RememberAttested,
-                payload: &serde_json::json!({"content":"bounded supported finding"}),
+                payload: &serde_json::json!({
+                    "content":"bounded supported finding",
+                    "capture_attestation":{"basis":"user_report","support_summary":"user supplied"}
+                }),
             },
             capacity,
             Some(key),

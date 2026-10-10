@@ -11,6 +11,39 @@ use uuid::Uuid;
 
 type Reply = Result<serde_json::Value, WireError>;
 
+async fn native_checkpoint_key(
+    d: &Daemon,
+    cwd: &str,
+    caller: &str,
+    turn: Uuid,
+) -> Result<cairn_store::capture_checkpoint::CheckpointKey, WireError> {
+    if turn.is_nil() || Uuid::parse_str(caller).ok().is_none_or(|id| id.is_nil()) {
+        return Err(WireError::invalid(
+            "native capture requires valid session and turn identifiers",
+        ));
+    }
+    let resolved = d.resolve(cwd).await?;
+    let session = resolve_session(d, &resolved, None, Some(caller)).await?;
+    if session.agent != "codex" || session.status == SessionStatus::Completed {
+        return Err(WireError::invalid(
+            "native capture requires an open Codex session",
+        ));
+    }
+    let credentials = d.server.read().await;
+    let (Some(account_id), Some(url)) = (credentials.account_id, credentials.url.as_ref()) else {
+        return Err(WireError::new(
+            codes::NOT_LINKED,
+            "native capture requires a bound account and server",
+        ));
+    };
+    Ok(cairn_store::capture_checkpoint::CheckpointKey {
+        account_id,
+        server_key: cairn_core::digest(url),
+        session_id: session.id,
+        turn_id: turn,
+    })
+}
+
 pub async fn dispatch(daemon: &Daemon, request: Request) -> Envelope {
     match handle(daemon, request).await {
         Ok(value) => Envelope::ok(value),
@@ -392,53 +425,118 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
             )
             .await
         }
+        Request::NativeTaskRecord {
+            cwd,
+            agent_session_key,
+            native_turn_id,
+            text,
+            truncated,
+            redacted,
+        } => {
+            let key = native_checkpoint_key(d, &cwd, &agent_session_key, native_turn_id).await?;
+            if text.len() > 16_384 {
+                return Err(WireError::invalid(
+                    "local task record exceeds its byte limit",
+                ));
+            }
+            let safe = cairn_core::redact::redact(&text);
+            let redacted = redacted || safe != text;
+            cairn_store::capture_review::record_task(&d.store, &key, &safe, truncated, redacted)
+                .await
+                .map_err(storage_err)?;
+            let current = native_checkpoint_key(d, &cwd, &agent_session_key, native_turn_id).await;
+            if current.as_ref().ok() != Some(&key) {
+                cairn_store::capture_review::purge_lane(&d.store, key.account_id, &key.server_key)
+                    .await
+                    .map_err(storage_err)?;
+                return Err(current.err().unwrap_or_else(|| {
+                    WireError::new(
+                        codes::NOT_LINKED,
+                        "capture account or server changed during local recording",
+                    )
+                }));
+            }
+            Ok(json!({"local_task_recorded":true,"truncated":truncated,"redacted":redacted}))
+        }
+        Request::CaptureReview {
+            cwd,
+            agent_session_key,
+            native_turn_id,
+        } => {
+            let key = native_checkpoint_key(d, &cwd, &agent_session_key, native_turn_id).await?;
+            let Some(input) = cairn_store::capture_review::load_review(&d.store, &key)
+                .await
+                .map_err(storage_err)?
+            else {
+                return Ok(json!({"coverage":"unknown","reason":"local_task_record_unavailable"}));
+            };
+            if input.truncated || input.redacted {
+                return Ok(json!({"coverage":"unknown","reason":"local_task_input_incomplete"}));
+            }
+            let comparator = match crate::capture_review::Comparator::from_env() {
+                Ok(Some(value)) => value,
+                _ => {
+                    return Ok(
+                        json!({"coverage":"unknown","reason":"capture_comparator_unavailable"}),
+                    )
+                }
+            };
+            let revision = comparator.revision();
+            let assessment = comparator.assess(&input).await;
+            if native_checkpoint_key(d, &cwd, &agent_session_key, native_turn_id).await? != key {
+                return Err(WireError::new(
+                    codes::NOT_LINKED,
+                    "capture account or server changed during review",
+                ));
+            }
+            let (status, missing) = match assessment {
+                Ok(value) => (value.status, value.missing),
+                Err(()) => ("unknown", Vec::new()),
+            };
+            let current =
+                cairn_store::capture_review::save_review(&d.store, &key, &input, status, &revision)
+                    .await
+                    .map_err(storage_err)?;
+            if !current {
+                return Ok(json!({"coverage":"unknown","reason":"capture_input_changed"}));
+            }
+            Ok(
+                json!({"coverage":status,"missing_requirements":missing,"comparator_revision":revision,
+                "task_digest":input.task_digest,"findings_digest":input.findings_digest,
+                "scope":"local_current_turn","admission_is_not_server_persistence":true}),
+            )
+        }
         Request::CaptureDisposition {
             cwd,
             agent_session_key,
             native_turn_id,
             no_durable_finding,
         } => {
-            if native_turn_id.is_nil()
-                || Uuid::parse_str(&agent_session_key)
-                    .ok()
-                    .is_none_or(|id| id.is_nil())
-            {
-                return Err(WireError::invalid(
-                    "native checkpoint requires valid session and turn identifiers",
-                ));
-            }
-            let resolved = d.resolve(&cwd).await?;
-            let session = resolve_session(d, &resolved, None, Some(&agent_session_key)).await?;
-            if session.agent != "codex" || session.status == SessionStatus::Completed {
-                return Err(WireError::invalid(
-                    "native checkpoint requires an open Codex session",
-                ));
-            }
-            let credentials = d.server.read().await;
-            let (Some(account_id), Some(url)) = (credentials.account_id, credentials.url.as_ref())
-            else {
-                return Err(WireError::new(
-                    codes::NOT_LINKED,
-                    "native checkpoint requires a bound account and server",
-                ));
-            };
-            let key = cairn_store::capture_checkpoint::CheckpointKey {
-                account_id,
-                server_key: cairn_core::digest(url),
-                session_id: session.id,
-                turn_id: native_turn_id,
-            };
-            drop(credentials);
+            let key = native_checkpoint_key(d, &cwd, &agent_session_key, native_turn_id).await?;
+            let revision = crate::capture_review::Comparator::from_env()
+                .ok()
+                .flatten()
+                .map(|value| value.revision())
+                .unwrap_or_default();
             if no_durable_finding {
                 cairn_store::capture_checkpoint::no_durable_finding(&d.store, &key)
                     .await
                     .map_err(storage_err)?;
-                Ok(json!({"intervene": false, "disposition": "no_durable_finding"}))
+                Ok(
+                    json!({"intervene": false, "disposition": "no_durable_finding", "coverage":"unknown",
+                    "note":"agent disposition does not establish semantic completeness"}),
+                )
             } else {
-                let intervene = cairn_store::capture_checkpoint::intervene(&d.store, &key)
-                    .await
-                    .map_err(storage_err)?;
-                Ok(json!({"intervene": intervene}))
+                let intervene = cairn_store::capture_checkpoint::intervene_for_coverage(
+                    &d.store, &key, &revision,
+                )
+                .await
+                .map_err(storage_err)?;
+                let coverage =
+                    cairn_store::capture_review::review_status(&d.store, &key, &revision)
+                        .await
+                        .map_err(storage_err)?;
+                Ok(json!({"intervene": intervene,"coverage":coverage}))
             }
         }
         Request::MemoryReinforce {
@@ -589,7 +687,7 @@ async fn init(d: &Daemon, cwd: &str, cairn_executable: Option<&str>) -> Reply {
             ));
         }
     }
-    reload_server_credentials(d).await;
+    reload_server_credentials(d).await?;
     // `init` is the one place a checkout's identity is worth re-reading.
     d.forget_repo(cwd).await;
     let r = d.resolve(cwd).await?;
@@ -608,15 +706,27 @@ async fn init(d: &Daemon, cwd: &str, cairn_executable: Option<&str>) -> Reply {
 
 /// Setup writes credentials before sending `Init`; a daemon already serving
 /// requests must observe those files rather than keep its startup snapshot.
-async fn reload_server_credentials(d: &Daemon) {
+async fn reload_server_credentials(d: &Daemon) -> Result<(), WireError> {
     let config = cairn_core::CairnConfig::load();
     let server = ServerCredentials::load(&config);
-    let changed = *d.server.read().await != server;
+    let old = d.server.read().await.clone();
+    let changed = old != server;
+    if old.account_id != server.account_id
+        || old.url != server.url
+        || (old.token.is_some() && server.token.is_none())
+    {
+        if let (Some(account), Some(url)) = (old.account_id, old.url.as_ref()) {
+            cairn_store::capture_review::purge_lane(&d.store, account, &cairn_core::digest(url))
+                .await
+                .map_err(storage_err)?;
+        }
+    }
     *d.config.write().await = config;
     if changed {
         *d.server.write().await = server;
         *d.outage_cache.lock().await = crate::deliver::OutageCache::default();
     }
+    Ok(())
 }
 
 async fn bind_detected_project(d: &Daemon, project: &Project) -> Result<Project, WireError> {
@@ -1758,6 +1868,10 @@ mod tests {
             native_turn_id: turn_id,
             no_durable_finding: false,
         };
+        assert_eq!(
+            handle(&fixture.daemon, gate(turn)).await.unwrap()["intervene"],
+            true
+        );
         assert_eq!(
             handle(&fixture.daemon, gate(turn)).await.unwrap()["intervene"],
             false

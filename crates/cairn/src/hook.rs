@@ -251,6 +251,11 @@ pub fn run_blocking(event: &str) -> bool {
         .unwrap_or_else(|| ".".to_string());
 
     let config = CairnConfig::load();
+    if let Some(request) = native_task_record(agent, event, &raw, &cwd) {
+        if let Err(error) = client::send_oneway_blocking(&request, capture_deadline(&config)) {
+            journal_capture_drop(agent, &cwd, event, None, &error.message);
+        }
+    }
     let captured = capture_pass(agent, event, &raw, &cwd, &config);
 
     // Prompt-time delivery (T073, `contracts/retrieval-delivery.md` §1–§2):
@@ -474,12 +479,46 @@ fn emit_stop_intervention() -> bool {
     use std::io::Write;
     let out = serde_json::json!({
         "decision": "block",
-        "reason": "Record supported durable findings through cairn_remember action=capture, or call cairn_session action=capture_disposition with disposition=no_durable_finding. Preserve qualifiers; do not add routine summaries, secrets, raw prompts, or replay unconfirmed writes.",
+        "reason": "Call cairn_session action=capture_review to check this turn's locally retained task against admitted findings. If it identifies omitted durable requirements, capture those requirements separately from implementation through cairn_remember action=capture, then review again. Unknown coverage is not success; if no comparator is available, state the limitation and finish. Preserve qualifiers; do not invent findings, store raw tasks as memory, include secrets, or replay unconfirmed writes.",
     });
     let mut stdout = std::io::stdout();
     writeln!(stdout, "{out}")
         .and_then(|()| stdout.flush())
         .is_ok()
+}
+
+fn native_task_record(
+    agent: cairn_integrate::AgentId,
+    event: &str,
+    raw: &serde_json::Value,
+    cwd: &str,
+) -> Option<Request> {
+    if agent != cairn_integrate::AgentId::Codex || event != "UserPromptSubmit" {
+        return None;
+    }
+    let session = uuid::Uuid::parse_str(raw.get("session_id")?.as_str()?).ok()?;
+    let turn = uuid::Uuid::parse_str(raw.get("turn_id")?.as_str()?).ok()?;
+    if session.is_nil() || turn.is_nil() {
+        return None;
+    }
+    let prompt = raw.get("prompt")?.as_str()?;
+    // Redact before the new local IPC boundary, and never hide truncation.
+    let mut text = cairn_core::redact::redact(prompt);
+    let redacted = text != prompt;
+    let truncated = text.len() > 16_384;
+    let mut end = text.len().min(16_384);
+    while !text.is_char_boundary(end) {
+        end -= 1;
+    }
+    text.truncate(end);
+    Some(Request::NativeTaskRecord {
+        cwd: cwd.to_owned(),
+        agent_session_key: session.to_string(),
+        native_turn_id: turn,
+        text,
+        truncated,
+        redacted,
+    })
 }
 
 /// Whether this agent's `UserPromptSubmit` is a committed automatic delivery
@@ -1086,6 +1125,37 @@ mod tests {
         assert!(needs_reply(AgentId::Codex, "Stop", quiesced));
         assert!(!needs_reply(AgentId::ClaudeCode, "Stop", quiesced));
         assert!(!needs_reply(AgentId::Codex, "PostToolUse", quiesced));
+    }
+
+    #[test]
+    fn native_task_input_is_redacted_and_bounded_before_ipc() {
+        let session = uuid::Uuid::now_v7();
+        let turn = uuid::Uuid::now_v7();
+        let raw = json!({"session_id":session,"turn_id":turn,
+            "prompt":format!("Authorization: Bearer abcdefghijklmnop.qrstuvwx {}", "日".repeat(6000))});
+        let Some(Request::NativeTaskRecord {
+            text,
+            truncated,
+            redacted,
+            ..
+        }) = native_task_record(AgentId::Codex, "UserPromptSubmit", &raw, "/repo")
+        else {
+            panic!("missing record")
+        };
+        assert!(truncated && redacted);
+        assert!(text.len() <= 16_384);
+        assert!(!text.contains("abcdefghijklmnop.qrstuvwx"));
+        assert!(
+            native_task_record(AgentId::ClaudeCode, "UserPromptSubmit", &raw, "/repo").is_none()
+        );
+        assert!(native_task_record(AgentId::Codex, "Stop", &raw, "/repo").is_none());
+        assert!(native_task_record(
+            AgentId::Codex,
+            "UserPromptSubmit",
+            &json!({"session_id":session,"prompt":"OK"}),
+            "/repo"
+        )
+        .is_none());
     }
 
     #[test]

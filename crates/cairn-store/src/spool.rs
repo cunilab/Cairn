@@ -1732,6 +1732,10 @@ pub async fn spool_command_with_checkpoint(
                 new.kind,
                 CommandKind::RememberAttested | CommandKind::SupersedeAttested
             )
+            || !new
+                .payload
+                .get("capture_attestation")
+                .is_some_and(serde_json::Value::is_object)
     }) {
         return Err(StoreError::Refused {
             code: "invalid_request",
@@ -1785,7 +1789,7 @@ pub async fn spool_command_with_checkpoint(
     .execute(&mut *tx)
     .await?;
     if let Some(key) = checkpoint {
-        crate::capture_checkpoint::capture_admitted_in(&mut tx, key).await?;
+        crate::capture_checkpoint::capture_admitted_in(&mut tx, key, id, new.payload).await?;
     }
     tx::commit(tx, "spool_command").await?;
 

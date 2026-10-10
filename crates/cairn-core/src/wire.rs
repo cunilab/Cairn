@@ -784,7 +784,22 @@ pub enum Request {
         supersedes: Option<Uuid>,
         capture_attestation: crate::reuse::CaptureAttestation,
     },
-    /// Bounded local finalization gate; no prompt or assistant text crosses IPC.
+    /// Redacted bounded input retained locally, never a remote sync command.
+    NativeTaskRecord {
+        cwd: String,
+        agent_session_key: String,
+        native_turn_id: Uuid,
+        text: String,
+        truncated: bool,
+        redacted: bool,
+    },
+    /// Compare this native turn's local task record and admitted findings.
+    CaptureReview {
+        cwd: String,
+        agent_session_key: String,
+        native_turn_id: Uuid,
+    },
+    /// Bounded local finalization gate; no task text accompanies this request.
     CaptureDisposition {
         cwd: String,
         agent_session_key: String,

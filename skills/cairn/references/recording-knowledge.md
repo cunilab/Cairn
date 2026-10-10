@@ -153,3 +153,18 @@ A reusable pattern from another project is a suggestion, never an answer. Check 
 this repository. If applying it establishes a durable procedure or failed approach, record
 that finding through `cairn_remember` with the appropriate project, branch, or session scope
 and existing evidence. The current MCP interface has no `record_outcome` action.
+
+## Native completeness review
+
+At a native Codex finalization checkpoint, call `cairn_session` with
+`action: "capture_review"`. It compares this turn's bounded local task record
+with actually admitted findings. If it identifies omitted durable requirements,
+record those user choices separately from implementation facts and review again.
+Do not copy the whole local task into durable memory. Preserve conditions and
+attribution in each selected finding.
+
+Unknown coverage is not success. Missing/truncated/redacted input or an
+unconfigured comparator permits the coding session to finish after one bounded
+intervention; report the limitation. A queued finding or an agent-authored
+`no_durable_finding` assertion alone does not establish completeness or server
+persistence. Generic clients cannot claim a native turn review.

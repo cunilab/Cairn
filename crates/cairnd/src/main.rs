@@ -7,6 +7,7 @@
 mod arrival;
 mod briefing;
 mod capture;
+mod capture_review;
 mod deliver;
 mod handlers;
 mod integrations;
@@ -86,6 +87,7 @@ fn one_line(e: &anyhow::Error) -> String {
 /// everything this spawned) exits immediately after.
 async fn setup() -> anyhow::Result<Arc<Daemon>> {
     let (store, user_id, legacy_migration) = open_store().await?;
+    cairn_store::capture_review::prune_expired(&store).await?;
     let config = CairnConfig::load();
     let server = ServerCredentials::load(&config);
 
@@ -112,6 +114,18 @@ async fn setup() -> anyhow::Result<Arc<Daemon>> {
     // Automatic delivery. Queued work reaches the server without anyone typing
     // an agent process remaining alive (FR-056, C1).
     tokio::spawn(sync::run_worker(Arc::clone(&daemon)));
+    let maintenance = Arc::clone(&daemon);
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+            if cairn_store::capture_review::prune_expired(&maintenance.store)
+                .await
+                .is_err()
+            {
+                tracing::warn!("local capture-review retention cleanup unavailable");
+            }
+        }
+    });
 
     Ok(daemon)
 }

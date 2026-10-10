@@ -18,6 +18,7 @@ has passed. [Architecture](../architecture.md) describes current behavior;
 | [0007](0007-agentmemory-workflow-reassessment.md) | Reassess the Agentmemory workflow with Cairn's requested scopes | Review complete; implementation recommendations proposed |
 | [0008](0008-independent-finding-capture.md) | Capture separately supported findings through existing canonical writes | Implemented; structural checks passed, automatic-capture screen failed |
 | [0009](0009-bounded-native-finalization-checkpoint.md) | Give native turns one bounded opportunity to capture or decline | Implemented; native mechanical check passed, semantic qualification stopped |
+| [0010](0010-capture-completeness-boundary.md) | Establish authored intent coverage before claiming automatic memory | Accepted; local implementation in progress, semantic qualification pending |
 
 ## Maintaining the records
 

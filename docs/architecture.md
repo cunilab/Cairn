@@ -94,3 +94,23 @@ recursion guard and remaining hook deadline bound the interaction; errors releas
 finalization. No prompt or assistant text is stored in checkpoint rows.
 [ADR 0009](adr/0009-bounded-native-finalization-checkpoint.md) owns its evidence and
 limitations; an admitted command is not semantic or full milestone acceptance.
+
+### Local capture completeness
+
+Native Codex input stores a redacted task record locally, keyed by account,
+server, session and turn, up to 16384 UTF-8 bytes. Local records expire after
+24 hours, are capped at 128 turns per credential lane, and are removed with
+sessions or replaced credential lanes. Minute maintenance runs while the daemon
+is active; an offline store cleans expired records on its next opening. Tasks
+never enter remote delivery spools. Native admitted findings have separate
+short-lived snapshots capped at eight per turn, 2048 content bytes and 8192
+serialized payload bytes each; refusal rolls back command admission.
+
+The separately configured comparator checks authored requirements against those
+actual findings, returning exact task quotes and known command IDs. Coverage is
+bound to task/finding hashes and comparator revision; missing, redacted or
+truncated input remains unknown. Generic clients cannot assert native coverage.
+Admission and agent-authored empty dispositions are distinct from semantic
+coverage. One finalization intervention permits review and supported correction
+without forcing a coding session to wait indefinitely. Comparator qualification
+and useful recall are open. See [ADR 0010](adr/0010-capture-completeness-boundary.md).

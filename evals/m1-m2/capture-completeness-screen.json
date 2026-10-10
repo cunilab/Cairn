@@ -1,0 +1,168 @@
+[
+  {
+    "id": "omitted-intent",
+    "task": "Team policy: when setup rejects a different project UUID, restore both original credential files byte-for-byte.",
+    "findings": [
+      {
+        "content": "Current setup rejects different project UUIDs but does not restore credential files.",
+        "capture_attestation": {
+          "basis": "inspected_source",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      }
+    ],
+    "expected": "missing"
+  },
+  {
+    "id": "covered-intent",
+    "task": "Team policy: when setup rejects a different project UUID, restore both original credential files byte-for-byte.",
+    "findings": [
+      {
+        "content": "The team requires byte-for-byte restoration of both original credential files when setup rejects a different project UUID.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      }
+    ],
+    "expected": "covered"
+  },
+  {
+    "id": "lost-condition",
+    "task": "Use SQLite only for isolated integration tests; production must use PostgreSQL.",
+    "findings": [
+      {
+        "content": "The user selected SQLite for integration tests.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      },
+      {
+        "content": "The user requires PostgreSQL in production.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      }
+    ],
+    "expected": "missing"
+  },
+  {
+    "id": "covered-condition",
+    "task": "Use SQLite only for isolated integration tests; production must use PostgreSQL.",
+    "findings": [
+      {
+        "content": "The user permits SQLite only for isolated integration tests and requires PostgreSQL in production.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      }
+    ],
+    "expected": "covered"
+  },
+  {
+    "id": "negation",
+    "task": "Team policy: never upload raw task text to an external inference provider.",
+    "findings": [
+      {
+        "content": "The team permits task uploads to an external inference provider.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      }
+    ],
+    "expected": "missing"
+  },
+  {
+    "id": "paraphrase",
+    "task": "All integration test accounts must be isolated from production accounts.",
+    "findings": [
+      {
+        "content": "The user requires separation of production and integration-test accounts.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      }
+    ],
+    "expected": "covered"
+  },
+  {
+    "id": "empty",
+    "task": "Reply OK.",
+    "findings": [],
+    "expected": "no_durable_requirement"
+  },
+  {
+    "id": "routine",
+    "task": "Run the tests once and report whether they passed.",
+    "findings": [],
+    "expected": "no_durable_requirement"
+  },
+  {
+    "id": "two-requirements",
+    "task": "Lasting team decisions: use PostgreSQL in production and never merge a PR before CI passes.",
+    "findings": [
+      {
+        "content": "The team requires PostgreSQL in production.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      }
+    ],
+    "expected": "missing"
+  },
+  {
+    "id": "two-covered",
+    "task": "Lasting team decisions: use PostgreSQL in production and never merge a PR before CI passes.",
+    "findings": [
+      {
+        "content": "The team requires PostgreSQL in production.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      },
+      {
+        "content": "The team forbids merging a PR until CI passes.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      }
+    ],
+    "expected": "covered"
+  },
+  {
+    "id": "readonly-policy",
+    "task": "For future investigations, preserve a read-only policy: do not edit the inspected repository.",
+    "findings": [
+      {
+        "content": "The user requires read-only future investigations with no edits to the inspected repository.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      }
+    ],
+    "expected": "covered"
+  },
+  {
+    "id": "unrelated-implementation",
+    "task": "Team policy: branch memory must not leak across branches.",
+    "findings": [
+      {
+        "content": "The current daemon uses SQLite WAL mode.",
+        "capture_attestation": {
+          "basis": "inspected_source",
+          "support_summary": "Synthetic evaluation statement."
+        }
+      }
+    ],
+    "expected": "missing"
+  }
+]
