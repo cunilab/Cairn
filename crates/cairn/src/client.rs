@@ -773,46 +773,52 @@ mod tests {
     }
 
     #[cfg(unix)]
-    #[tokio::test(flavor = "current_thread")]
-    async fn at_most_once_does_not_repeat_a_request_after_a_lost_acknowledgement() {
+    #[test]
+    fn at_most_once_does_not_repeat_a_request_after_a_lost_acknowledgement() {
         use std::sync::atomic::{AtomicUsize, Ordering};
         use std::sync::Arc;
         use tokio::net::UnixListener;
 
         let _guard = env_lock();
-        let previous = std::env::var("CAIRN_SOCKET").ok();
-        let directory = tempfile::tempdir().unwrap();
-        let socket = directory.path().join("cairnd.sock");
-        let listener = UnixListener::bind(&socket).unwrap();
-        std::env::set_var("CAIRN_SOCKET", &socket);
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap()
+            .block_on(async {
+                let previous = std::env::var("CAIRN_SOCKET").ok();
+                let directory = tempfile::tempdir().unwrap();
+                let socket = directory.path().join("cairnd.sock");
+                let listener = UnixListener::bind(&socket).unwrap();
+                std::env::set_var("CAIRN_SOCKET", &socket);
 
-        let accepted = Arc::new(AtomicUsize::new(0));
-        let server_count = Arc::clone(&accepted);
-        let server = tokio::spawn(async move {
-            let (stream, _) = listener.accept().await.unwrap();
-            server_count.fetch_add(1, Ordering::SeqCst);
-            let mut line = String::new();
-            BufReader::new(stream).read_line(&mut line).await.unwrap();
-            assert!(line.contains("daemon_status"));
-            // Drop the connection after reading the request, before replying.
-            if tokio::time::timeout(Duration::from_millis(250), listener.accept())
-                .await
-                .is_ok()
-            {
-                server_count.fetch_add(1, Ordering::SeqCst);
-            }
-        });
+                let accepted = Arc::new(AtomicUsize::new(0));
+                let server_count = Arc::clone(&accepted);
+                let server = tokio::spawn(async move {
+                    let (stream, _) = listener.accept().await.unwrap();
+                    server_count.fetch_add(1, Ordering::SeqCst);
+                    let mut line = String::new();
+                    BufReader::new(stream).read_line(&mut line).await.unwrap();
+                    assert!(line.contains("daemon_status"));
+                    // Drop the connection after reading the request, before replying.
+                    if tokio::time::timeout(Duration::from_millis(250), listener.accept())
+                        .await
+                        .is_ok()
+                    {
+                        server_count.fetch_add(1, Ordering::SeqCst);
+                    }
+                });
 
-        let error = send_once_with_deadline(&Request::DaemonStatus, Duration::from_secs(1))
-            .await
-            .expect_err("a lost acknowledgement is unconfirmed");
-        server.await.unwrap();
+                let error = send_once_with_deadline(&Request::DaemonStatus, Duration::from_secs(1))
+                    .await
+                    .expect_err("a lost acknowledgement is unconfirmed");
+                server.await.unwrap();
 
-        match previous {
-            Some(value) => std::env::set_var("CAIRN_SOCKET", value),
-            None => std::env::remove_var("CAIRN_SOCKET"),
-        }
-        assert_eq!(error.code, codes::DAEMON_UNAVAILABLE);
-        assert_eq!(accepted.load(Ordering::SeqCst), 1);
+                match previous {
+                    Some(value) => std::env::set_var("CAIRN_SOCKET", value),
+                    None => std::env::remove_var("CAIRN_SOCKET"),
+                }
+                assert_eq!(error.code, codes::DAEMON_UNAVAILABLE);
+                assert_eq!(accepted.load(Ordering::SeqCst), 1);
+            });
     }
 }
