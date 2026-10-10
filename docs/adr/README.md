@@ -15,6 +15,7 @@ has passed. [Architecture](../architecture.md) describes current behavior;
 | [0004](0004-extractive-semantic-selection.md) | Select exact excerpts inside records before working recall | Accepted; mechanical checks passed, Groq qualification failed |
 | [0005](0005-configured-inference-and-deployment.md) | Configure inference separately from deployment | Accepted; temporary Groq tested, no production provider selected |
 | [0006](0006-local-embedding-experiment.md) | Test local statement retrieval before replacing the selector | Experiment complete; useful retrieval and condition preservation failed |
+| [0007](0007-agentmemory-workflow-reassessment.md) | Reassess the Agentmemory workflow with Cairn's requested scopes | Review complete; implementation recommendations proposed |
 
 ## Maintaining the records
 
