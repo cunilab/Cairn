@@ -72,7 +72,8 @@ async fn prune(connection: &mut SqliteConnection) -> Result<()> {
 pub async fn prune_expired(store: &Store) -> Result<()> {
     let mut transaction = tx::begin(store, "capture_review").await?;
     prune(&mut transaction).await?;
-    tx::commit(transaction, "capture_review").await
+    tx::commit(transaction, "capture_review").await?;
+    store.checkpoint().await
 }
 
 async fn prune_key(connection: &mut SqliteConnection, key: &CheckpointKey) -> Result<()> {
@@ -184,7 +185,8 @@ pub async fn purge_lane(store: &Store, account_id: Uuid, server_key: &str) -> Re
         .bind(server_key)
         .execute(&mut *transaction)
         .await?;
-    tx::commit(transaction, "capture_review").await
+    tx::commit(transaction, "capture_review").await?;
+    store.checkpoint().await
 }
 
 async fn findings_in(
@@ -492,6 +494,10 @@ mod tests {
 
     async fn fixture() -> (Store, CheckpointKey) {
         let store = Store::open_memory().await.unwrap();
+        fixture_with_store(store).await
+    }
+
+    async fn fixture_with_store(store: Store) -> (Store, CheckpointKey) {
         let project = Uuid::now_v7();
         let session = Uuid::now_v7();
         sqlx::query("INSERT INTO projects (id,name,git_common_dir,created_at,updated_at) VALUES (?1,'review','/review','now','now')")
@@ -507,6 +513,71 @@ mod tests {
                 turn_id: Uuid::now_v7(),
             },
         )
+    }
+
+    #[tokio::test]
+    async fn expiry_and_lane_purge_erase_task_bytes_from_database_and_wal() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("edge.sqlite3");
+        let (store, key) = fixture_with_store(Store::open(&path).await.unwrap()).await;
+        let marker = "private-task-marker-7c63c2ee-erase-after-retention";
+        let wal = dir.path().join("edge.sqlite3-wal");
+        for expired in [true, false] {
+            record_task(&store, &key, marker, false, false)
+                .await
+                .unwrap();
+            let bytes = std::fs::read(&wal).unwrap();
+            assert!(bytes.windows(marker.len()).any(|w| w == marker.as_bytes()));
+            if expired {
+                sqlx::query("UPDATE local_task_records SET expires_at=0")
+                    .execute(store.pool())
+                    .await
+                    .unwrap();
+                prune_expired(&store).await.unwrap();
+            } else {
+                purge_lane(&store, key.account_id, &key.server_key)
+                    .await
+                    .unwrap();
+            }
+            for file in [&path, &wal] {
+                let bytes = std::fs::read(file).unwrap_or_default();
+                assert!(
+                    !bytes.windows(marker.len()).any(|w| w == marker.as_bytes()),
+                    "deleted task remains in {}",
+                    file.display()
+                );
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn blocked_checkpoint_reports_failure_and_cleanup_can_retry() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("edge.sqlite3");
+        let store = Store::open_with_busy_timeout(&path, std::time::Duration::from_millis(20))
+            .await
+            .unwrap();
+        let (store, key) = fixture_with_store(store).await;
+        record_task(&store, &key, "private-busy-checkpoint-marker", false, false)
+            .await
+            .unwrap();
+        let mut reader = store.pool().begin().await.unwrap();
+        sqlx::query("SELECT task_text FROM local_task_records")
+            .fetch_all(&mut *reader)
+            .await
+            .unwrap();
+        let error = purge_lane(&store, key.account_id, &key.server_key)
+            .await
+            .unwrap_err();
+        assert!(matches!(error, StoreError::Io(ref error)
+            if error.kind() == std::io::ErrorKind::WouldBlock));
+        reader.commit().await.unwrap();
+        prune_expired(&store).await.unwrap();
+        let marker = b"private-busy-checkpoint-marker";
+        for file in [path, dir.path().join("edge.sqlite3-wal")] {
+            let bytes = std::fs::read(file).unwrap_or_default();
+            assert!(!bytes.windows(marker.len()).any(|w| w == marker));
+        }
     }
 
     async fn add_finding(store: &Store, key: &CheckpointKey) {

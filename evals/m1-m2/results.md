@@ -742,3 +742,13 @@ or full semantic workload advances after failure, and no further prompt/model
 iteration is claimed. This is development screening, not independent milestone
 scoring. See [metadata](capture-completeness-development-metadata.json) and
 [ADR 0010](../../docs/adr/0010-capture-completeness-boundary.md).
+
+The subsequent independent privacy review found and corrected credential-lane
+purge/admission races and deleted task bytes retained in SQLite WAL. Final
+correction checks passed: 51 store tests, 66 daemon tests (one live-provider
+test excluded), affected-package Clippy, two deterministic credential race
+regressions, and file-backed deletion/busy-checkpoint retry regressions. Sol's
+bounded independent review found no remaining mechanical integration blocker.
+All six remote CI jobs passed preceding head `df6adecc`; correction-head CI
+remains a separate gate. Semantic qualification remains failed and no full
+milestone pass is claimed.

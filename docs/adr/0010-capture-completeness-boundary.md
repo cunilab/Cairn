@@ -102,6 +102,26 @@ scoring. [Metadata](../../evals/m1-m2/capture-completeness-development-metadata.
 records all cases and private evidence hashes, including the initial zero-test
 filter mistake.
 
+## Final privacy review corrections
+
+Sol resumed the independent review and found two credential-transition races
+and retained deleted text in SQLite's WAL. Credential replacement now holds
+the server write lock across purge and publication; native finding admission
+holds its read lock through the database transaction. Native task recording
+still revalidates its lane after writing. Expiry maintenance and lane purge
+checkpoint the WAL after deletion; a busy checkpoint returns `WouldBlock`
+rather than claiming physical cleanup, and maintenance retries on its next tick.
+
+Both credential concurrency regressions pass. File-backed tests verify that
+task markers disappear from the database and WAL after expiry/purge, and that
+a held reader causes a visible failure followed by successful cleanup retry.
+The final store suite passed 51 tests, the daemon suite passed 66 with the
+live comparator test excluded, and affected-package Clippy and whitespace
+checks passed. Sol independently verified the correction and three focused
+regressions, finding no remaining mechanical blocker in the reviewed scope.
+This does not change the failed comparator screen. Remote CI passed all six
+jobs on preceding head `df6adecc`; the privacy correction needs its own CI run.
+
 The local mechanism can now expose missing authored intent, but this tested
 comparator is not qualified to establish completeness. A different explicitly
 configured comparator must qualify before native useful-return and full

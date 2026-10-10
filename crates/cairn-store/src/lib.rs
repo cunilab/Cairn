@@ -160,9 +160,16 @@ impl Store {
     /// Called after a deletion so the removed content leaves the WAL too,
     /// rather than lingering in an old frame (FR-052).
     pub async fn checkpoint(&self) -> Result<()> {
-        sqlx::query("PRAGMA wal_checkpoint(TRUNCATE)")
-            .execute(&self.pool)
+        let (busy, _, _) = sqlx::query_as::<_, (i64, i64, i64)>("PRAGMA wal_checkpoint(TRUNCATE)")
+            .fetch_one(&self.pool)
             .await?;
+        if busy != 0 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::WouldBlock,
+                "SQLite WAL checkpoint remained busy",
+            )
+            .into());
+        }
         Ok(())
     }
 }

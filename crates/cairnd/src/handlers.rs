@@ -709,8 +709,19 @@ async fn init(d: &Daemon, cwd: &str, cairn_executable: Option<&str>) -> Reply {
 async fn reload_server_credentials(d: &Daemon) -> Result<(), WireError> {
     let config = cairn_core::CairnConfig::load();
     let server = ServerCredentials::load(&config);
-    let old = d.server.read().await.clone();
-    let changed = old != server;
+    replace_server_credentials(d, server).await?;
+    *d.config.write().await = config;
+    Ok(())
+}
+
+async fn replace_server_credentials(
+    d: &Daemon,
+    server: ServerCredentials,
+) -> Result<(), WireError> {
+    // Keep readers out until the old lane is purged and its replacement published.
+    let mut credentials = d.server.write().await;
+    let old = &*credentials;
+    let changed = *old != server;
     if old.account_id != server.account_id
         || old.url != server.url
         || (old.token.is_some() && server.token.is_none())
@@ -721,9 +732,11 @@ async fn reload_server_credentials(d: &Daemon) -> Result<(), WireError> {
                 .map_err(storage_err)?;
         }
     }
-    *d.config.write().await = config;
     if changed {
-        *d.server.write().await = server;
+        *credentials = server;
+    }
+    drop(credentials);
+    if changed {
         *d.outage_cache.lock().await = crate::deliver::OutageCache::default();
     }
     Ok(())
@@ -1370,7 +1383,6 @@ async fn queue_knowledge_command_for_turn(
     let credentials = d.server.read().await;
     let account_id = credentials.account_id;
     let server_key = credentials.url.as_ref().map(|url| cairn_core::digest(url));
-    drop(credentials);
     let Some(account_id) = account_id else {
         return Err(WireError::new(
             codes::NOT_LINKED,
@@ -1425,6 +1437,7 @@ async fn queue_knowledge_command_for_turn(
     )
     .await
     .map_err(storage_err)?;
+    drop(credentials);
 
     match admission {
         cairn_store::spool::CommandAdmission::Spooled(command) => Ok(json!({
@@ -1826,6 +1839,172 @@ async fn memory_search(
 
 #[cfg(test)]
 mod tests {
+    #[tokio::test]
+    async fn credential_replacement_blocks_native_recording_until_old_lane_is_purged() {
+        let fixture = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = fixture.daemon.resolve(&fixture.cwd).await.unwrap();
+        let caller = Uuid::now_v7().to_string();
+        repo::start_session(
+            &fixture.daemon.store,
+            repo::StartSession {
+                project_id: resolved.project.id,
+                user_id: fixture.daemon.user_id,
+                agent: "codex",
+                agent_session_key: &caller,
+                branch: "main",
+                commit_sha: None,
+                worktree_path: &resolved.worktree(),
+                daemon_run_id: fixture.daemon.run_id,
+            },
+        )
+        .await
+        .unwrap();
+        let old = ServerCredentials {
+            account_id: Some(Uuid::now_v7()),
+            url: Some("http://old-lane.invalid".into()),
+            token: Some("fixture-token".into()),
+        };
+        *fixture.daemon.server.write().await = old.clone();
+        let turn = Uuid::now_v7();
+        let old_key = native_checkpoint_key(&fixture.daemon, &fixture.cwd, &caller, turn)
+            .await
+            .unwrap();
+        cairn_store::capture_review::record_task(
+            &fixture.daemon.store,
+            &old_key,
+            "Existing local task",
+            false,
+            false,
+        )
+        .await
+        .unwrap();
+        let new = ServerCredentials {
+            account_id: Some(Uuid::now_v7()),
+            url: Some("http://new-lane.invalid".into()),
+            token: Some("fixture-token".into()),
+        };
+        // The single-connection fixture pauses purge until this lease is released.
+        let lease = fixture.daemon.store.pool().acquire().await.unwrap();
+        let replacement = replace_server_credentials(&fixture.daemon, new.clone());
+        tokio::pin!(replacement);
+        assert!(
+            tokio::time::timeout(std::time::Duration::from_millis(20), &mut replacement)
+                .await
+                .is_err()
+        );
+        assert!(fixture.daemon.server.try_read().is_err());
+        let recording = handle(
+            &fixture.daemon,
+            Request::NativeTaskRecord {
+                cwd: fixture.cwd.clone(),
+                agent_session_key: caller.clone(),
+                native_turn_id: turn,
+                text: "Concurrent local task".into(),
+                truncated: false,
+                redacted: false,
+            },
+        );
+        tokio::pin!(recording);
+        assert!(
+            tokio::time::timeout(std::time::Duration::from_millis(20), &mut recording)
+                .await
+                .is_err()
+        );
+        drop(lease);
+        let (replacement, recording) =
+            tokio::time::timeout(std::time::Duration::from_secs(5), async {
+                tokio::join!(replacement, recording)
+            })
+            .await
+            .unwrap();
+        replacement.unwrap();
+        assert_eq!(recording.unwrap()["local_task_recorded"], true);
+        assert_eq!(*fixture.daemon.server.read().await, new);
+        assert!(
+            cairn_store::capture_review::load_review(&fixture.daemon.store, &old_key)
+                .await
+                .unwrap()
+                .is_none()
+        );
+        let new_key = native_checkpoint_key(&fixture.daemon, &fixture.cwd, &caller, turn)
+            .await
+            .unwrap();
+        assert_eq!(
+            cairn_store::capture_review::load_review(&fixture.daemon.store, &new_key)
+                .await
+                .unwrap()
+                .unwrap()
+                .task,
+            "Concurrent local task"
+        );
+    }
+
+    #[tokio::test]
+    async fn credential_replacement_waits_for_native_finding_admission_then_purges_it() {
+        let fixture = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = fixture.daemon.resolve(&fixture.cwd).await.unwrap();
+        let session = repo::start_session(
+            &fixture.daemon.store,
+            repo::StartSession {
+                project_id: resolved.project.id,
+                user_id: fixture.daemon.user_id,
+                agent: "codex",
+                agent_session_key: "fixture-caller",
+                branch: "main",
+                commit_sha: None,
+                worktree_path: &resolved.worktree(),
+                daemon_run_id: fixture.daemon.run_id,
+            },
+        )
+        .await
+        .unwrap();
+        let old = ServerCredentials {
+            account_id: Some(Uuid::now_v7()),
+            url: Some("http://old.invalid".into()),
+            token: Some("fixture-token".into()),
+        };
+        *fixture.daemon.server.write().await = old.clone();
+        let lease = fixture.daemon.store.pool().acquire().await.unwrap();
+        let payload =
+            json!({"content":"Native finding", "capture_attestation":{"basis":"user_report"}});
+        let admission = queue_knowledge_command_for_turn(
+            &fixture.daemon,
+            Some(resolved.project.id),
+            Some(session.id),
+            cairn_store::spool::CommandKind::RememberAttested,
+            &payload,
+            Some(Uuid::now_v7()),
+        );
+        tokio::pin!(admission);
+        assert!(
+            tokio::time::timeout(std::time::Duration::from_millis(20), &mut admission)
+                .await
+                .is_err()
+        );
+        assert!(fixture.daemon.server.try_write().is_err());
+        let replacement = replace_server_credentials(&fixture.daemon, ServerCredentials::default());
+        tokio::pin!(replacement);
+        assert!(
+            tokio::time::timeout(std::time::Duration::from_millis(20), &mut replacement)
+                .await
+                .is_err()
+        );
+        drop(lease);
+        let (admission, replacement) =
+            tokio::time::timeout(std::time::Duration::from_secs(5), async {
+                tokio::join!(admission, replacement)
+            })
+            .await
+            .unwrap();
+        assert_eq!(admission.unwrap()["accepted_for_delivery"], true);
+        replacement.unwrap();
+        let snapshots: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM local_capture_findings")
+            .fetch_one(fixture.daemon.store.pool())
+            .await
+            .unwrap();
+        assert_eq!(snapshots, 0);
+    }
+
     #[tokio::test]
     async fn native_capture_credit_is_exact_and_completed_sessions_cannot_acknowledge() {
         let fixture = fx::Repo::with(cairn_core::CairnConfig::default()).await;
