@@ -725,3 +725,20 @@ authored team-decision turn received exact-turn capture credit and persisted
 one memory. Both keys match native turn context. See
 [mechanical metadata](native-checkpoint-mechanical-metadata.json). This does
 not change the failed F1 semantic result or close full milestone evidence.
+
+### Local capture completeness — 2026-10-10
+
+Implemented at frozen `d3303b3a` after explicit user approval of bounded
+redacted local task records. Mechanical checks passed: 53 CLI tests, 49 store
+tests, 64 daemon tests, Skill revision check, formatting/whitespace and affected
+four-package Clippy. Independent review identified unbounded snapshots; the
+content/payload/turn limits and atomic refusal regression pass. Final independent
+review remains incomplete due reviewer quota.
+
+The actual Rust comparator's frozen synthetic screen matched 11/12 fixture
+predicates with zero unknowns. Groq falsely credited a finding that dropped
+the restriction to isolated integration tests. Qualification stops; no native
+or full semantic workload advances after failure, and no further prompt/model
+iteration is claimed. This is development screening, not independent milestone
+scoring. See [metadata](capture-completeness-development-metadata.json) and
+[ADR 0010](../../docs/adr/0010-capture-completeness-boundary.md).

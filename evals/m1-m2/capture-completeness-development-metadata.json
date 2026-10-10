@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-10",
+  "source_sha": "d3303b3a52cc88818f211ee81458ed44fa3112f5",
+  "status": "qualification_failed",
+  "model": "openai/gpt-oss-120b",
+  "revision": "capture-coverage-v1:d7dcb0ba9ffe9b8634f91798d22682a3257ac840c2e40ce002ce98be65a24fb2",
+  "screen": "12 frozen synthetic comparator cases through actual Rust implementation; development gate, not independently scored milestone evidence",
+  "cases": 12,
+  "correct": 11,
+  "unknown": 0,
+  "false_positive_coverage": [
+    "lost-condition"
+  ],
+  "per_case": [
+    {
+      "id": "omitted-intent",
+      "expected": "missing",
+      "observed": "missing"
+    },
+    {
+      "id": "covered-intent",
+      "expected": "covered",
+      "observed": "covered"
+    },
+    {
+      "id": "lost-condition",
+      "expected": "missing",
+      "observed": "covered"
+    },
+    {
+      "id": "covered-condition",
+      "expected": "covered",
+      "observed": "covered"
+    },
+    {
+      "id": "negation",
+      "expected": "missing",
+      "observed": "missing"
+    },
+    {
+      "id": "paraphrase",
+      "expected": "covered",
+      "observed": "covered"
+    },
+    {
+      "id": "empty",
+      "expected": "no_durable_requirement",
+      "observed": "no_durable_requirement"
+    },
+    {
+      "id": "routine",
+      "expected": "no_durable_requirement",
+      "observed": "no_durable_requirement"
+    },
+    {
+      "id": "two-requirements",
+      "expected": "missing",
+      "observed": "missing"
+    },
+    {
+      "id": "two-covered",
+      "expected": "covered",
+      "observed": "covered"
+    },
+    {
+      "id": "readonly-policy",
+      "expected": "covered",
+      "observed": "covered"
+    },
+    {
+      "id": "unrelated-implementation",
+      "expected": "missing",
+      "observed": "missing"
+    }
+  ],
+  "evidence_sha256": {
+    "protocol.json": "dc35449553cb3b699f158f106fcef8690f1f9dabeffdf70c270e169165568518",
+    "results.private.json": "f0b79aec37092dd07c3cf82987f4861f4c2b2fb6d8d6e0608f4b4b31f29f346b",
+    "test.private.log": "1ac13e2a7addda9b9325becaee06e66974b57596c219f6773ad702fe262fa183",
+    "test-corrected-filter.private.log": "29a71e3b2ad5886e7cbf7c90f25c03649cdf239a63dfbc4dca0f4456a3f3540d"
+  },
+  "invalid_attempt": "Initial --exact filter matched zero tests; no results/provider requests. Preserved separately; corrected qualified test path ran all12cases.",
+  "stop": "No prompt/model/corpus iteration or native/full qualification advance after failed gate. Prepared native completeness script remains unrun.",
+  "limits": [
+    "Independent final source review incomplete due reviewer quota.",
+    "Full paired workload and fresh deployment remain open.",
+    "External processing used synthetic fixtures only; production configuration unchanged.",
+    "Claude skipped."
+  ]
+}

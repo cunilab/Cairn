@@ -1,6 +1,6 @@
 # 0010 — Establish capture completeness before claiming automatic memory
 
-**Status:** Accepted by explicit user answer; implementation in progress; semantic qualification pending.
+**Status:** Accepted by explicit user answer; implemented; mechanical checks passed; comparator qualification failed.
 **Recorded:** 2026-10-10.
 
 ## Evidence
@@ -87,3 +87,23 @@ checks pass. Sol's independent review identified unbounded native finding
 snapshots; store-level content/payload/per-turn limits and admission/ordinal
 rollback regression checks now pass. Sol and Astra subsequently reached usage
 limits, so independent review of the final corrections is incomplete.
+
+## Frozen comparator screen — failed
+
+Frozen `d3303b3a` ran twelve synthetic cases through the actual Rust comparator
+with temporary Groq `openai/gpt-oss-120b`. Eleven matched the fixture predicates
+and zero abstained. It caught the omitted credential-restoration intent but
+falsely credited coverage when the SQLite choice lost its restriction to
+isolated integration tests. False positive completeness stops qualification.
+The prepared native completeness journey and full milestone workload were not
+run after the failed gate. No prompt, provider or corpus iteration follows
+this result. This screen is a development gate, not independent milestone
+scoring. [Metadata](../../evals/m1-m2/capture-completeness-development-metadata.json)
+records all cases and private evidence hashes, including the initial zero-test
+filter mistake.
+
+The local mechanism can now expose missing authored intent, but this tested
+comparator is not qualified to establish completeness. A different explicitly
+configured comparator must qualify before native useful-return and full
+milestone evidence can advance. Production and real-task external processing
+remain unconfigured.
