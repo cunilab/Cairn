@@ -9,7 +9,8 @@ use crate::client;
 use crate::render;
 use cairn_core::reuse::{CaptureAttestation, ReusePurpose};
 use cairn_core::wire::{ContextDepth, MemoryQuery, Request, WireError};
-use cairn_core::KnowledgeDomain;
+use cairn_core::{KnowledgeDomain, MemoryScope, MemoryType};
+use serde::Deserialize;
 use serde_json::{json, Value};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 
@@ -117,6 +118,22 @@ fn cwd_property() -> Value {
     json!({ "type": "string", "description": "Directory to resolve the repository from" })
 }
 
+fn capture_attestation_schema() -> Value {
+    json!({
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Accountable support for reusing a project-memory create or replacement. This is not objective verification. The authenticated actor is added by Cairn.",
+        "properties": {
+            "basis": { "type": "string", "enum": ["user_report", "inspected_source"], "description": "Use user_report for a user-supplied fact or choice; inspected_source only after reading the named revision." },
+            "support_summary": { "type": "string", "description": "A concise authored reason this capture is supported. Never paste prompts, transcripts, credentials, or unbounded output." },
+            "source_reference": { "type": "string", "description": "Bounded source name or repository-relative locator; required for inspected_source." },
+            "source_revision": { "type": "string", "description": "Revision actually inspected; required for inspected_source." },
+            "dependency_memory_id": { "type": "string", "description": "Optional eligible project memory with no dependency of its own (one hop maximum). Cairn records its current revision server-side." }
+        },
+        "required": ["basis", "support_summary"]
+    })
+}
+
 fn tool_definitions() -> Vec<Value> {
     vec![
         json!({
@@ -207,7 +224,7 @@ fn tool_definitions() -> Vec<Value> {
                     "cwd": cwd_property(),
                     // One discriminator, and no action takes a sub-operation (D70).
                     "action": { "type": "string", "enum": [
-                        "create", "supersede", "forget",
+                        "create", "supersede", "capture", "forget",
                         "reinforce", "attach_evidence", "verify", "pin",
                         "reconcile", "governance"
                     ] },
@@ -229,17 +246,26 @@ fn tool_definitions() -> Vec<Value> {
                     "topic_key": { "type": "string", "description": "The subject this states something about. A key that will not normalize is reported and the memory is stored free-form." },
                     "value_key": { "type": "string", "description": "The comparable value it asserts. Needs a topic_key." },
                     "importance": { "type": "string", "enum": ["low", "normal", "high"], "description": "Ranks within a bucket, and nothing more" },
-                    "capture_attestation": {
-                        "type": "object",
-                        "description": "Accountable support for reusing a project-memory create or replacement. This is not objective verification. The authenticated actor is added by Cairn.",
-                        "properties": {
-                            "basis": { "type": "string", "enum": ["user_report", "inspected_source"], "description": "Use user_report for a user-supplied fact or choice; inspected_source only after reading the named revision." },
-                            "support_summary": { "type": "string", "description": "A concise authored reason this capture is supported. Never paste prompts, transcripts, credentials, or unbounded output." },
-                            "source_reference": { "type": "string", "description": "Bounded source name or repository-relative locator; required for inspected_source." },
-                            "source_revision": { "type": "string", "description": "Revision actually inspected; required for inspected_source." },
-                            "dependency_memory_id": { "type": "string", "description": "Optional eligible project memory with no dependency of its own (one hop maximum). Cairn records its current revision server-side." }
-                        },
-                        "required": ["basis", "support_summary"]
+                    "capture_attestation": capture_attestation_schema(),
+                    "findings": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": CAPTURE_FINDINGS_MAX,
+                        "description": "For action `capture`: one to eight complete, independently reusable project findings. Keep decisions, intent, and source observations separate. Every item needs its own provenance; admission is sequential and non-transactional.",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "type": { "type": "string", "enum": ["fact", "decision", "convention", "failure", "procedure"] },
+                                "scope": { "type": "string", "enum": ["project", "branch", "session"] },
+                                "scope_key": { "type": "string" },
+                                "content": { "type": "string", "description": "One complete finding, including its qualifiers; at most 2048 UTF-8 bytes." },
+                                "topic_key": { "type": "string" },
+                                "value_key": { "type": "string" },
+                                "capture_attestation": capture_attestation_schema()
+                            },
+                            "required": ["type", "scope", "content", "topic_key", "value_key", "capture_attestation"]
+                        }
                     },
                     // attach_evidence
                     "kind": { "type": "string", "enum": ["observation", "file", "git_ref", "configuration", "test_outcome", "command_outcome", "runtime_state", "schema_version"] },
@@ -493,6 +519,7 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
         "cairn_remember" => {
             let action = required_action(args)?;
             let value = match action.as_str() {
+                "capture" => return capture_findings(cwd, key, args).await,
                 "create" | "supersede" => {
                     let kind = enum_arg(args, "type")
                         .ok_or_else(|| WireError::invalid("type is required"))?;
@@ -795,6 +822,180 @@ fn capture_attestation_arg(args: &Value) -> Result<Option<CaptureAttestation>, W
     Ok(Some(attestation))
 }
 
+const CAPTURE_FINDINGS_MAX: usize = 8;
+const CAPTURE_FINDING_CONTENT_MAX_BYTES: usize = 2048;
+
+/// A batch item deliberately has no defaults: a complete finding needs its own
+/// scope, subject, and accountable support before any daemon request is sent.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CaptureFinding {
+    #[serde(rename = "type")]
+    kind: MemoryType,
+    scope: MemoryScope,
+    #[serde(default)]
+    scope_key: Option<String>,
+    content: String,
+    topic_key: String,
+    value_key: String,
+    capture_attestation: CaptureAttestation,
+}
+
+fn prepare_capture_findings(args: &Value) -> Result<Vec<CaptureFinding>, WireError> {
+    let fields = args
+        .as_object()
+        .ok_or_else(|| WireError::invalid("tool arguments must be an object"))?;
+    for key in fields.keys() {
+        if !matches!(
+            key.as_str(),
+            "cwd" | "action" | "findings" | "agent_session_key" | "session_id"
+        ) {
+            return Err(WireError::invalid(
+                "action capture accepts only its batch envelope and findings",
+            ));
+        }
+    }
+    if let Some(key) = fields.get("agent_session_key") {
+        if key.as_str().is_none_or(|value| value.trim().is_empty()) {
+            return Err(WireError::invalid(
+                "agent_session_key must be a nonempty string",
+            ));
+        }
+    }
+    if let Some(session_id) = fields.get("session_id") {
+        if session_id
+            .as_str()
+            .and_then(|value| uuid::Uuid::parse_str(value).ok())
+            .is_none_or(|id| id.is_nil())
+        {
+            return Err(WireError::invalid(
+                "session_id must be a valid non-nil Cairn session UUID",
+            ));
+        }
+    }
+    let findings_value = fields
+        .get("findings")
+        .ok_or_else(|| WireError::invalid("findings is required for action capture"))?;
+    let array = findings_value
+        .as_array()
+        .ok_or_else(|| WireError::invalid("findings must be an array"))?;
+    if array.is_empty() || array.len() > CAPTURE_FINDINGS_MAX {
+        return Err(WireError::invalid(format!(
+            "capture requires between 1 and {CAPTURE_FINDINGS_MAX} findings"
+        )));
+    }
+    let mut findings: Vec<CaptureFinding> = serde_json::from_value(findings_value.clone())
+        .map_err(|_| WireError::invalid("capture findings must use the documented item fields"))?;
+    for (index, finding) in findings.iter_mut().enumerate() {
+        if finding.content.trim().is_empty() {
+            return Err(WireError::invalid(format!(
+                "finding {index} content must not be blank"
+            )));
+        }
+        finding.topic_key =
+            cairn_core::knowledge::normalize_topic_key_strict(&finding.topic_key)
+                .map_err(|_| WireError::invalid(format!("finding {index} topic_key is invalid")))?;
+        finding.value_key =
+            cairn_core::knowledge::normalize_value_key_strict(&finding.value_key)
+                .map_err(|_| WireError::invalid(format!("finding {index} value_key is invalid")))?;
+        if finding.content.len() > CAPTURE_FINDING_CONTENT_MAX_BYTES {
+            return Err(WireError::invalid(format!(
+                "finding {index} content exceeds {CAPTURE_FINDING_CONTENT_MAX_BYTES} UTF-8 bytes"
+            )));
+        }
+        finding.capture_attestation.validate().map_err(|error| {
+            WireError::invalid(format!(
+                "finding {index} invalid capture_attestation: {error}"
+            ))
+        })?;
+        // This is the same privacy/content gate used for server candidates.
+        // Repository identities are daemon-owned, so that contextual part is
+        // checked again by the canonical write path.
+        cairn_core::validate::validate_candidate_content(
+            &finding.content,
+            Some(&finding.topic_key),
+            Some(&finding.value_key),
+            &[],
+        )
+        .map_err(|_| WireError::invalid(format!("finding {index} is not admissible")))?;
+    }
+    Ok(findings)
+}
+
+fn bounded_error(error: &WireError) -> Value {
+    const ERROR_MAX_BYTES: usize = 512;
+    let redacted = cairn_core::redact::redact(&error.message);
+    let message = if redacted.len() <= ERROR_MAX_BYTES {
+        redacted
+    } else {
+        let mut end = ERROR_MAX_BYTES;
+        while !redacted.is_char_boundary(end) {
+            end -= 1;
+        }
+        format!("{}…", &redacted[..end])
+    };
+    json!({ "code": error.code, "message": message })
+}
+
+async fn capture_findings(
+    cwd: String,
+    agent_session_key: Option<String>,
+    args: &Value,
+) -> Result<String, WireError> {
+    // Parse and validate every item before the first request. The writes below
+    // remain deliberately non-transactional because the existing wire protocol
+    // has one capture per request.
+    let findings = prepare_capture_findings(args)?;
+    let session_id = uuid_opt(args, "session_id");
+    let mut receipts = Vec::with_capacity(findings.len());
+    let mut unconfirmed = false;
+    let mut rejected = false;
+    for (index, finding) in findings.into_iter().enumerate() {
+        match client::send_once(&Request::MemoryCapture {
+            cwd: cwd.clone(),
+            agent_session_key: agent_session_key.clone(),
+            session_id,
+            kind: finding.kind,
+            scope: Some(finding.scope),
+            scope_key: finding.scope_key,
+            content: finding.content,
+            evidence_observation_ids: Vec::new(),
+            local_only: false,
+            topic_key: Some(finding.topic_key),
+            value_key: Some(finding.value_key),
+            supersedes: None,
+            capture_attestation: finding.capture_attestation,
+        })
+        .await
+        {
+            Ok(receipt) => receipts
+                .push(json!({ "index": index, "status": "acknowledged", "receipt": receipt })),
+            Err(error) => {
+                let status = if matches!(
+                    error.code.as_str(),
+                    cairn_core::wire::codes::DAEMON_UNAVAILABLE
+                        | cairn_core::wire::codes::STORAGE_UNAVAILABLE
+                ) {
+                    unconfirmed = true;
+                    "unconfirmed"
+                } else {
+                    rejected = true;
+                    "rejected"
+                };
+                receipts.push(
+                    json!({ "index": index, "status": status, "error": bounded_error(&error) }),
+                );
+            }
+        }
+    }
+    Ok(pretty(&json!({
+        "admission": if unconfirmed { "unconfirmed" } else if rejected { "partial" } else { "complete" },
+        "retry": "none_automatic",
+        "transaction": "none",
+        "receipts": receipts,
+    })))
+}
+
 fn bool_arg(args: &Value, key: &str) -> bool {
     args.get(key).and_then(|v| v.as_bool()).unwrap_or(false)
 }
@@ -924,6 +1125,7 @@ mod tests {
         assert!(action_values("cairn_search").contains(&"graph"));
         assert!(action_values("cairn_session").contains(&"replay"));
         assert!(action_values("cairn_remember").contains(&"governance"));
+        assert!(action_values("cairn_remember").contains(&"capture"));
         assert_eq!(tools.len(), 5);
     }
 
@@ -1132,5 +1334,131 @@ mod tests {
             }
         });
         assert!(capture_attestation_arg(&args).is_err());
+    }
+
+    fn capture_args(findings: Value) -> Value {
+        json!({
+            "cwd": "/repo",
+            "action": "capture",
+            "findings": findings,
+        })
+    }
+
+    fn finding(content: &str) -> Value {
+        json!({
+            "type": "decision",
+            "scope": "project",
+            "scope_key": "project",
+            "content": content,
+            "topic_key": "capture.batch",
+            "value_key": "complete-finding",
+            "capture_attestation": {
+                "basis": "user_report",
+                "support_summary": "The user requested this durable decision."
+            }
+        })
+    }
+
+    #[test]
+    fn capture_preflights_every_item_before_any_client_request() {
+        let first = finding("The user requires one complete finding per captured record.");
+        let mut invalid_later = finding("This finding must never be sent.");
+        invalid_later["capture_attestation"]["actor_user_id"] = json!(uuid::Uuid::now_v7());
+        let error = prepare_capture_findings(&capture_args(json!([first, invalid_later])))
+            .expect_err("a later invalid item blocks the entire batch before send");
+        assert!(error.message.contains("capture findings"));
+    }
+
+    #[test]
+    fn capture_enforces_batch_bounds_and_strict_item_fields() {
+        assert!(prepare_capture_findings(&capture_args(json!([]))).is_err());
+        let nine = (0..9)
+            .map(|_| finding("A complete finding remains independently reusable."))
+            .collect::<Vec<_>>();
+        assert!(prepare_capture_findings(&capture_args(json!(nine))).is_err());
+
+        for field in [("type", json!("unknown")), ("scope", json!("unknown"))] {
+            let mut item = finding("A complete finding remains independently reusable.");
+            item[field.0] = field.1;
+            assert!(prepare_capture_findings(&capture_args(json!([item]))).is_err());
+        }
+    }
+
+    #[test]
+    fn capture_rejects_blank_fields_and_bounds_utf8_before_sending() {
+        for field in ["content", "topic_key", "value_key"] {
+            let mut item = finding("A complete finding.");
+            item[field] = json!(" \n\t");
+            assert!(prepare_capture_findings(&capture_args(json!([item]))).is_err());
+        }
+        assert!(
+            prepare_capture_findings(&capture_args(json!([finding(&"é".repeat(1025))]))).is_err()
+        );
+        assert!(
+            prepare_capture_findings(&capture_args(json!([finding(&"é".repeat(1024))]))).is_ok()
+        );
+        let mut item = finding("A complete finding.");
+        item["topic_key"] = json!("  Capture.Batch  ");
+        item["value_key"] = json!("  COMPLETE-FINDING  ");
+        let findings = prepare_capture_findings(&capture_args(json!([item]))).unwrap();
+        assert_eq!(findings[0].topic_key, "capture.batch");
+        assert_eq!(findings[0].value_key, "complete_finding");
+    }
+
+    #[test]
+    fn capture_preserves_each_findings_provenance_and_multisentence_content() {
+        let content = "The user requires a seven-day trial. The condition applies before release.";
+        let mut second = finding("The source was inspected independently.");
+        second["capture_attestation"] = json!({
+            "basis": "inspected_source",
+            "support_summary": "The named revision contains this observation.",
+            "source_reference": "docs/product.md",
+            "source_revision": "abc123"
+        });
+        let findings = prepare_capture_findings(&capture_args(json!([finding(content), second])))
+            .expect("complete independently supported findings");
+        assert_eq!(findings[0].content, content);
+        assert_ne!(
+            findings[0].capture_attestation.basis,
+            findings[1].capture_attestation.basis
+        );
+    }
+
+    #[test]
+    fn capture_requires_attestation_and_refuses_root_write_fields() {
+        let mut item = finding("A complete finding remains independently reusable.");
+        item.as_object_mut().unwrap().remove("capture_attestation");
+        assert!(prepare_capture_findings(&capture_args(json!([item]))).is_err());
+        let mut args = capture_args(json!([finding(
+            "A complete finding remains independently reusable."
+        )]));
+        args["local_only"] = json!(false);
+        assert!(prepare_capture_findings(&args).is_err());
+        args.as_object_mut().unwrap().remove("local_only");
+        args["session_id"] = json!("not-a-cairn-session");
+        assert!(prepare_capture_findings(&args).is_err());
+        args["session_id"] = json!(uuid::Uuid::nil());
+        assert!(prepare_capture_findings(&args).is_err());
+    }
+
+    #[test]
+    fn capture_leaves_scope_key_to_existing_scope_derivation() {
+        let mut item = finding("A complete finding remains independently reusable.");
+        item.as_object_mut().unwrap().remove("scope_key");
+        let findings = prepare_capture_findings(&capture_args(json!([item]))).unwrap();
+        assert!(findings[0].scope_key.is_none());
+    }
+
+    #[test]
+    fn capture_schema_requires_per_finding_provenance_but_not_scope_key() {
+        let remember = tool_definitions()
+            .into_iter()
+            .find(|tool| tool["name"] == "cairn_remember")
+            .unwrap();
+        let required = remember["inputSchema"]["properties"]["findings"]["items"]["required"]
+            .as_array()
+            .unwrap();
+        assert!(required.iter().any(|field| field == "capture_attestation"));
+        assert!(!required.iter().any(|field| field == "scope_key"));
     }
 }

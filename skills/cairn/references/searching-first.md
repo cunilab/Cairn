@@ -18,6 +18,11 @@ do not treat an inspected record as a working claim.
 
 ## What a good query looks like
 
+Working project recall requires `query`: short task keywords, at most 256 UTF-8
+bytes. `cairn_context(query)` can assemble several relevant findings within the
+context budget. Omit the query only when asking for continuity, not task memory.
+An unavailable selector is an outage/refusal, not evidence that memory is empty.
+
 - Prefer the words the project uses over the words you would use.
 - Search for the error text verbatim before searching for your interpretation of it.
 - Search for the file or module name when you are about to change it.

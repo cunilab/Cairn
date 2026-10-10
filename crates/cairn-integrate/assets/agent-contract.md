@@ -4,16 +4,16 @@ lede = Cairn is shared durable project memory.
 mcp_lede = Cairn is shared durable project memory.
 
 [rule context]
-block = Read Cairn context before re-deriving the project.
-mcp = Call `cairn_context` before re-deriving the project.
+block = Read delivered continuity; call cairn_context with short task keywords for relevant findings.
+mcp = Call cairn_context with short task keywords; an unqueried briefing provides continuity only.
 
 [rule search]
-block = Search Cairn before repeating an investigation.
-mcp = Call `cairn_search` before repeating an investigation.
+block = Search Cairn with task keywords before repeating an investigation.
+mcp = Call cairn_search with task keywords before repeating an investigation.
 
 [rule record]
-block = Before finish, call cairn_remember for durable user choices/failures even if code agrees. For project findings keep relevant counts, qualifiers, IDs, constraints, status, and lasting policies (read-only); omit temporary requests/completion reports. Separate intent from implementation; add user_report capture_attestation. Apply recall with task-relevant counts and qualifiers. Skip source summaries/routine calls.
-mcp = Before finish, call cairn_remember for durable user choices/failures even if code agrees. For project findings keep relevant counts, qualifiers, IDs, constraints, status, and lasting policies (read-only); omit temporary requests/completion reports. Separate intent from implementation; add user_report capture_attestation. Apply recall with task-relevant counts and qualifiers. Skip source summaries/routine calls.
+block = Before finish, use cairn_remember action=capture for durable project findings. Each item keeps its conditions, counts and own support. Separate user intent from inspected implementation; skip routine summaries.
+mcp = Before finish, use cairn_remember action=capture for durable project findings. Each item keeps its conditions, counts and own support. Separate user intent from inspected implementation; skip routine summaries.
 
 [rule scope]
 block = Project scope spans branches; branch is branch-specific; session is scratch.

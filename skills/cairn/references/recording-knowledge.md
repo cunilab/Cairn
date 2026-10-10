@@ -28,6 +28,28 @@ current implementation. A limited observation does not establish a broader resul
 source inspection establishes another durable finding, record it separately with its own source
 attestation; do not fold it into the user-reported decision or trial.
 
+## Capture complete findings during ordinary work
+
+Before finishing a task, capture the durable findings it established without
+asking the human to maintain memory. Use `cairn_remember` with `action: "capture"`
+and a `findings` array for up to eight project findings. Each item has its own
+`type`, `content`, scope, topic/value keys and required `capture_attestation`.
+The repository and current session identity belong to the enclosing call.
+
+One item is a complete decision, observation or procedure, not necessarily one
+sentence. Keep attribution, negation, counts, conditions, exceptions and ordered
+steps together when they are needed to understand that finding. Put independently
+useful implementation observations in separate items with `inspected_source`
+support naming the revision actually read. Do not attach those observations to a
+user decision under one `user_report` attestation. Existing single-record create
+and supersede remain available; team policy still requires governed promotion.
+
+The batch returns indexed receipts or errors for separate operations. It is not
+an all-or-nothing transaction. Inspect every outcome and retry only findings
+known not to have been admitted; do not repeat the whole batch after a partial
+result or an uncertain acknowledgement. Local admission is not server persistence.
+Bounds and separate support do not prove semantic coherence or verification.
+
 ## Not worth recording
 
 - Routine tool calls. Supported hooks capture bounded structured activity; do not duplicate it as durable knowledge.
@@ -56,8 +78,9 @@ would land in the same subject and be reported as disagreeing. `infrastructure.p
 is too fine — nothing else ever lands there, and the fact never meets the claim it
 contradicts.
 
-A key that will not normalize does not lose you the memory: it is stored free-form, exactly
-as it would have been before, and Cairn tells you it did that.
+Single-record create retains its free-form fallback for keys that do not normalize.
+The `capture` action requires nonblank content and valid topic/value keys for every
+finding; invalid keys reject the entire array before any writes.
 
 ## Attach evidence rather than asserting importance
 

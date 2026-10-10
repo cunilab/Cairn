@@ -140,6 +140,35 @@ pub async fn send(request: &Request) -> Result<serde_json::Value, WireError> {
     send_with_deadline(request, Duration::from_secs(30)).await
 }
 
+/// Send a mutating request at most once.
+///
+/// A lost reply is ambiguous: the daemon may already have committed the
+/// request. Retrying it without a caller-supplied idempotency key could apply
+/// the mutation twice, so this path reports the lost acknowledgement instead.
+pub async fn send_once(request: &Request) -> Result<serde_json::Value, WireError> {
+    send_once_with_deadline(request, Duration::from_secs(30)).await
+}
+
+async fn send_once_with_deadline(
+    request: &Request,
+    deadline: Duration,
+) -> Result<serde_json::Value, WireError> {
+    let mark = DaemonLogMark::take();
+    match tokio::time::timeout(deadline, attempt(request, &mark)).await {
+        Ok(result) => result.map_err(|error| {
+            if error.code == codes::DAEMON_UNAVAILABLE {
+                mark.diagnose(&error.message)
+            } else {
+                error
+            }
+        }),
+        Err(_) => Err(WireError::new(
+            codes::DAEMON_UNAVAILABLE,
+            format!("cairnd did not answer within {}ms", deadline.as_millis()),
+        )),
+    }
+}
+
 /// Send one request without waiting for the answer (H3).
 ///
 /// The capture class needs no reply, so it must not pay for one: the hook
@@ -741,5 +770,49 @@ mod tests {
             Some(v) => std::env::set_var("CAIRN_SOCKET", v),
             None => std::env::remove_var("CAIRN_SOCKET"),
         }
+    }
+
+    #[cfg(unix)]
+    #[tokio::test(flavor = "current_thread")]
+    async fn at_most_once_does_not_repeat_a_request_after_a_lost_acknowledgement() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        use std::sync::Arc;
+        use tokio::net::UnixListener;
+
+        let _guard = env_lock();
+        let previous = std::env::var("CAIRN_SOCKET").ok();
+        let directory = tempfile::tempdir().unwrap();
+        let socket = directory.path().join("cairnd.sock");
+        let listener = UnixListener::bind(&socket).unwrap();
+        std::env::set_var("CAIRN_SOCKET", &socket);
+
+        let accepted = Arc::new(AtomicUsize::new(0));
+        let server_count = Arc::clone(&accepted);
+        let server = tokio::spawn(async move {
+            let (stream, _) = listener.accept().await.unwrap();
+            server_count.fetch_add(1, Ordering::SeqCst);
+            let mut line = String::new();
+            BufReader::new(stream).read_line(&mut line).await.unwrap();
+            assert!(line.contains("daemon_status"));
+            // Drop the connection after reading the request, before replying.
+            if tokio::time::timeout(Duration::from_millis(250), listener.accept())
+                .await
+                .is_ok()
+            {
+                server_count.fetch_add(1, Ordering::SeqCst);
+            }
+        });
+
+        let error = send_once_with_deadline(&Request::DaemonStatus, Duration::from_secs(1))
+            .await
+            .expect_err("a lost acknowledgement is unconfirmed");
+        server.await.unwrap();
+
+        match previous {
+            Some(value) => std::env::set_var("CAIRN_SOCKET", value),
+            None => std::env::remove_var("CAIRN_SOCKET"),
+        }
+        assert_eq!(error.code, codes::DAEMON_UNAVAILABLE);
+        assert_eq!(accepted.load(Ordering::SeqCst), 1);
     }
 }

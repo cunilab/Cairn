@@ -18,6 +18,15 @@ SQLite stores binding and integration metadata, distinct capture and command spo
 
 ## Delivery and retrieval
 
+Explicit project capture supports one to eight separately supported findings in
+`cairn_remember(action: "capture")`. All items are checked before admission;
+each then uses the existing single-record durable write path and receives its
+own receipt or error. Batch admission is not transactional, and an uncertain
+acknowledgement must not cause a whole-batch replay. Separate records preserve
+independent source support; they do not establish semantic coherence or bypass
+the recall selector. [ADR 0008](adr/0008-independent-finding-capture.md) records
+the boundary and required evidence.
+
 An admitted payload is immutable and has stable operation identity. The daemon claims it and acknowledges it only after server acceptance. A lost acknowledgement causes retry with the same identity; the server returns its recorded receipt, producing one canonical effect over at-least-once transport. Capture and explicit commands retain separate spool rules. A policy change must resolve a prior operation's receipt state before replacing or suppressing that identity.
 
 Retrieval considers current session, branch, then project applicability, subject to account and project authorization. Evidence, authority, verification, conflict, supersession, and pinning affect selection; recency alone does not decide truth. Decay changes ranking and is explainable. Returned context is bounded and can be absent without implying an outage.

@@ -11,6 +11,11 @@ Generic MCP clients use explicit session and handoff calls.
 2. Check the current branch state and continue from the recorded next step when present.
    Use the handoff to avoid repeating established investigation.
 3. Where the handoff names a failure, check whether it still reproduces before assuming it does.
+4. Once the current task is known, call `cairn_context` with a short `query` naming
+   that task. An unqueried briefing supplies continuity and memory availability,
+   not project findings. Do this without asking the human to manage recall. Never
+   send the raw task prompt or transcript as the query. Use `cairn_search` for
+   narrower follow-up questions when needed; preserve the returned qualifications.
 
 ## What a handoff is not
 
