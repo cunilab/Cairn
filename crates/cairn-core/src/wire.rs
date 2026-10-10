@@ -759,6 +759,9 @@ pub enum Request {
     /// support fields while accepting a legacy archival write.
     MemoryCapture {
         cwd: String,
+        /// Native-client assertion, never an authorization credential.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        native_turn_id: Option<Uuid>,
         #[serde(default)]
         agent_session_key: Option<String>,
         #[serde(default)]
@@ -780,6 +783,13 @@ pub enum Request {
         #[serde(default)]
         supersedes: Option<Uuid>,
         capture_attestation: crate::reuse::CaptureAttestation,
+    },
+    /// Bounded local finalization gate; no prompt or assistant text crosses IPC.
+    CaptureDisposition {
+        cwd: String,
+        agent_session_key: String,
+        native_turn_id: Uuid,
+        no_durable_finding: bool,
     },
     MemoryForget {
         cwd: String,
@@ -1636,5 +1646,29 @@ mod feature_003_code_tests {
         assert_ne!(ATTESTED_NOT_SUFFICIENT, IMPORTED_NOT_SUFFICIENT);
         assert!(INTELLIGENCE_CODES.contains(&ATTESTED_NOT_SUFFICIENT));
         assert!(INTELLIGENCE_CODES.contains(&IMPORTED_NOT_SUFFICIENT));
+    }
+}
+
+#[cfg(test)]
+mod native_capture_compatibility {
+    use super::Request;
+    use serde_json::json;
+
+    #[test]
+    fn generic_attested_capture_keeps_its_wire_shape_without_native_identity() {
+        let request: Request = serde_json::from_value(json!({
+            "op":"memory_capture", "cwd":"/repo", "kind":"decision",
+            "content":"The user chose this bounded requirement.",
+            "capture_attestation":{"basis":"user_report","support_summary":"The user explicitly chose it."}
+        })).unwrap();
+        assert!(matches!(
+            &request,
+            Request::MemoryCapture {
+                native_turn_id: None,
+                ..
+            }
+        ));
+        let encoded = serde_json::to_value(request).unwrap();
+        assert!(encoded.get("native_turn_id").is_none());
     }
 }

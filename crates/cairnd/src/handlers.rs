@@ -307,6 +307,7 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
                             value_key,
                         },
                         None,
+                        None,
                     )
                     .await
                 }
@@ -350,11 +351,13 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
                     value_key,
                 },
                 None,
+                None,
             )
             .await
         }
         Request::MemoryCapture {
             cwd,
+            native_turn_id,
             agent_session_key,
             session_id,
             kind,
@@ -385,8 +388,58 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
                     value_key,
                 },
                 Some(capture_attestation),
+                native_turn_id,
             )
             .await
+        }
+        Request::CaptureDisposition {
+            cwd,
+            agent_session_key,
+            native_turn_id,
+            no_durable_finding,
+        } => {
+            if native_turn_id.is_nil()
+                || Uuid::parse_str(&agent_session_key)
+                    .ok()
+                    .is_none_or(|id| id.is_nil())
+            {
+                return Err(WireError::invalid(
+                    "native checkpoint requires valid session and turn identifiers",
+                ));
+            }
+            let resolved = d.resolve(&cwd).await?;
+            let session = resolve_session(d, &resolved, None, Some(&agent_session_key)).await?;
+            if session.agent != "codex" || session.status == SessionStatus::Completed {
+                return Err(WireError::invalid(
+                    "native checkpoint requires an open Codex session",
+                ));
+            }
+            let credentials = d.server.read().await;
+            let (Some(account_id), Some(url)) = (credentials.account_id, credentials.url.as_ref())
+            else {
+                return Err(WireError::new(
+                    codes::NOT_LINKED,
+                    "native checkpoint requires a bound account and server",
+                ));
+            };
+            let key = cairn_store::capture_checkpoint::CheckpointKey {
+                account_id,
+                server_key: cairn_core::digest(url),
+                session_id: session.id,
+                turn_id: native_turn_id,
+            };
+            drop(credentials);
+            if no_durable_finding {
+                cairn_store::capture_checkpoint::no_durable_finding(&d.store, &key)
+                    .await
+                    .map_err(storage_err)?;
+                Ok(json!({"intervene": false, "disposition": "no_durable_finding"}))
+            } else {
+                let intervene = cairn_store::capture_checkpoint::intervene(&d.store, &key)
+                    .await
+                    .map_err(storage_err)?;
+                Ok(json!({"intervene": intervene}))
+            }
         }
         Request::MemoryReinforce {
             cwd,
@@ -1189,11 +1242,26 @@ pub(crate) async fn queue_knowledge_command(
     kind: cairn_store::spool::CommandKind,
     payload: &serde_json::Value,
 ) -> Reply {
+    queue_knowledge_command_for_turn(d, project_id, session_id, kind, payload, None).await
+}
+
+async fn queue_knowledge_command_for_turn(
+    d: &Daemon,
+    project_id: Option<Uuid>,
+    session_id: Option<Uuid>,
+    kind: cairn_store::spool::CommandKind,
+    payload: &serde_json::Value,
+    native_turn_id: Option<Uuid>,
+) -> Reply {
     // Account-bound, and it fails closed. A command spooled with no account
     // could not be claimed by anyone — the claim predicate matches an account
     // exactly — so queueing one would be a silent black hole rather than a
     // queued write (FR-790, FR-864a).
-    let Some(account_id) = d.account_identity().await else {
+    let credentials = d.server.read().await;
+    let account_id = credentials.account_id;
+    let server_key = credentials.url.as_ref().map(|url| cairn_core::digest(url));
+    drop(credentials);
+    let Some(account_id) = account_id else {
         return Err(WireError::new(
             codes::NOT_LINKED,
             "sign in before recording knowledge: the server owns durable \
@@ -1214,7 +1282,23 @@ pub(crate) async fn queue_knowledge_command(
             .map_err(storage_err)?,
     };
 
-    let admission = cairn_store::spool::spool_command(
+    let checkpoint = match native_turn_id {
+        Some(turn_id) => Some(cairn_store::capture_checkpoint::CheckpointKey {
+            account_id,
+            server_key: server_key.ok_or_else(|| {
+                WireError::new(
+                    codes::NOT_LINKED,
+                    "native checkpoint requires a bound server",
+                )
+            })?,
+            session_id: session_id
+                .ok_or_else(|| WireError::invalid("native capture requires a session"))?,
+            turn_id,
+        }),
+        None => None,
+    };
+
+    let admission = cairn_store::spool::spool_command_with_checkpoint(
         &d.store,
         cairn_store::spool::NewCommand {
             // Bound to the server this store has established a lane with, at the
@@ -1227,6 +1311,7 @@ pub(crate) async fn queue_knowledge_command(
             payload,
         },
         cairn_store::spool::SpoolCapacity::default(),
+        checkpoint.as_ref(),
     )
     .await
     .map_err(storage_err)?;
@@ -1325,6 +1410,7 @@ async fn memory_create(
     supersedes: Option<Uuid>,
     subject: SubjectProposal,
     capture_attestation: Option<cairn_core::reuse::CaptureAttestation>,
+    native_turn_id: Option<Uuid>,
 ) -> Reply {
     if !evidence.is_empty() {
         return Err(WireError::invalid(
@@ -1355,6 +1441,17 @@ async fn memory_create(
     } else {
         None
     };
+    if let Some(turn_id) = native_turn_id {
+        if turn_id.is_nil()
+            || session
+                .as_ref()
+                .is_none_or(|s| s.agent != "codex" || s.status == SessionStatus::Completed)
+        {
+            return Err(WireError::invalid(
+                "native capture requires an open Codex session and valid turn",
+            ));
+        }
+    }
     let scope_key = memory_scope_key(
         scope,
         scope_key,
@@ -1374,7 +1471,7 @@ async fn memory_create(
         "target_id": supersedes,
         "capture_attestation": capture_attestation,
     });
-    queue_knowledge_command(
+    queue_knowledge_command_for_turn(
         d,
         Some(r.project.id),
         attributed_session_id,
@@ -1388,6 +1485,7 @@ async fn memory_create(
             cairn_store::spool::CommandKind::Remember
         },
         &payload,
+        native_turn_id,
     )
     .await
 }
@@ -1618,6 +1716,79 @@ async fn memory_search(
 
 #[cfg(test)]
 mod tests {
+    #[tokio::test]
+    async fn native_capture_credit_is_exact_and_completed_sessions_cannot_acknowledge() {
+        let fixture = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = fixture.daemon.resolve(&fixture.cwd).await.unwrap();
+        let caller = Uuid::now_v7().to_string();
+        let session = repo::start_session(
+            &fixture.daemon.store,
+            repo::StartSession {
+                project_id: resolved.project.id,
+                user_id: fixture.daemon.user_id,
+                agent: "codex",
+                agent_session_key: &caller,
+                branch: "main",
+                commit_sha: None,
+                worktree_path: &resolved.worktree(),
+                daemon_run_id: fixture.daemon.run_id,
+            },
+        )
+        .await
+        .unwrap();
+        {
+            let mut server = fixture.daemon.server.write().await;
+            server.account_id = Some(Uuid::now_v7());
+            server.url = Some("http://checkpoint.invalid".into());
+        }
+        let turn = Uuid::now_v7();
+        let capture: Request = serde_json::from_value(json!({
+            "op":"memory_capture","cwd":fixture.cwd,"agent_session_key":caller,
+            "native_turn_id":turn,"kind":"decision","scope":"project",
+            "content":"The user requires preservation of the decision's conditions.",
+            "capture_attestation":{"basis":"user_report","support_summary":"The user explicitly chose this requirement."}
+        })).unwrap();
+        assert_eq!(
+            handle(&fixture.daemon, capture).await.unwrap()["accepted_for_delivery"],
+            true
+        );
+        let gate = |turn_id| Request::CaptureDisposition {
+            cwd: fixture.cwd.clone(),
+            agent_session_key: caller.clone(),
+            native_turn_id: turn_id,
+            no_durable_finding: false,
+        };
+        assert_eq!(
+            handle(&fixture.daemon, gate(turn)).await.unwrap()["intervene"],
+            false
+        );
+        let next = Uuid::now_v7();
+        assert_eq!(
+            handle(&fixture.daemon, gate(next)).await.unwrap()["intervene"],
+            true
+        );
+        assert_eq!(
+            handle(&fixture.daemon, gate(next)).await.unwrap()["intervene"],
+            false
+        );
+        sqlx::query("UPDATE sessions SET status='completed' WHERE id=?1")
+            .bind(session.id.to_string())
+            .execute(fixture.daemon.store.pool())
+            .await
+            .unwrap();
+        assert!(handle(
+            &fixture.daemon,
+            Request::CaptureDisposition {
+                cwd: fixture.cwd.clone(),
+                agent_session_key: caller,
+                native_turn_id: next,
+                no_durable_finding: true
+            }
+        )
+        .await
+        .is_err());
+    }
+
     #[tokio::test]
     async fn unknown_agent_key_recovery_preserves_session_selection() {
         let repo = fx::Repo::with(cairn_core::CairnConfig::default()).await;

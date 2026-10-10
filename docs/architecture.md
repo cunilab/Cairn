@@ -82,3 +82,15 @@ These alpha.9 defaults are safety bounds, not throughput, capacity, or disaster-
 | Local snapshot I/O | 64 KiB chunks | Copy and hash avoid loading the whole SQLite file, but need free disk for backup. |
 
 Accepted knowledge, evidence, backups, and PostgreSQL volume growth have no automatic retention policy in alpha.9. Operators must size storage and test physical backup and restore. [Validation](validation.md) states the evidence needed before any wider operating claim.
+
+### Native capture finalization
+
+The pinned Codex profile can resume once at Stop to capture supported findings or
+state `no_durable_finding`. Native turn metadata is cross-checked with the session
+identity; generic clients do not claim this checkpoint. Local bookkeeping is
+partitioned by account, server URL digest, session and turn. Command admission and
+capture credit share a SQLite transaction. A separate intervention flag, native
+recursion guard and remaining hook deadline bound the interaction; errors release
+finalization. No prompt or assistant text is stored in checkpoint rows.
+[ADR 0009](adr/0009-bounded-native-finalization-checkpoint.md) owns its evidence and
+limitations; an admitted command is not semantic or full milestone acceptance.

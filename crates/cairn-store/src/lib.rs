@@ -1,6 +1,7 @@
 //! Local edge storage: binding, correlation, integration ownership, typed
 //! delivery spools, migration artifacts, diagnostics and transactions.
 
+pub mod capture_checkpoint;
 pub mod constraints;
 pub mod diag;
 pub mod integrations;

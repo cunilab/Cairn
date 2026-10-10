@@ -1,4 +1,27 @@
-# M1/M2 candidate evidence — through 2026-10-09
+# M1/M2 candidate evidence — through 2026-10-10
+
+## Finding capture development — autonomous capture not observed
+
+At `b526e64cbc3d80c5e5680b049eb65649b3dd18cc`, a fresh isolated F1
+run used the unchanged frozen corpus, pinned Codex 0.160.0 and GPT-6-Luna/low.
+The earlier treatment agent made task-bound context/search calls but no
+`cairn_remember` call. Server persistence contained zero treatment memories.
+The later agent also issued task queries; there was no captured decision to use.
+The runner's trace-valid result is not a semantic or milestone pass.
+
+The preregistered stop rule applies: no prompt, corpus or provider iteration,
+no unseen-case qualification or full workload advancement, and no semantic
+rescoring. This identifies a remaining automatic-capture problem; it does not
+show that the new batch API or the selector failed on separately captured facts.
+The batch's 24 unit tests, lost-ack regression, actual MCP/fake-socket adapter,
+contract rendering and Skill revision checks pass. Independent Sol review passed
+after correcting blank fields and duplicate replay risk.
+
+The installed alpha.8 client/daemon mismatch was repaired with matching alpha.9
+binaries. A real context MCP call now renders without `missing field briefing`,
+but durable server knowledge remained unavailable; full runtime health is not
+claimed. [Metadata](finding-capture-development-metadata.json) preserves source,
+binary and private evidence hashes. M1/M2 remain open; Claude remains skipped.
 
 ## Local embedding development — advance criteria failed
 

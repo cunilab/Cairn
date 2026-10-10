@@ -50,6 +50,18 @@ known not to have been admitted; do not repeat the whole batch after a partial
 result or an uncertain acknowledgement. Local admission is not server persistence.
 Bounds and separate support do not prove semantic coherence or verification.
 
+## Native finalization checkpoint
+
+A supported Codex turn may resume once before finishing when it has neither
+captured a finding nor reported a disposition. Record only newly established,
+properly supported findings. If none exist, call `cairn_session` with
+`action: "capture_disposition"` and `disposition: "no_durable_finding"`.
+The native runtime supplies turn identity; never author or borrow an identifier.
+Do not fabricate a finding to satisfy the checkpoint, replay an unconfirmed write,
+or describe an empty disposition as useful capture. An acknowledged capture means
+local durable command admission; it does not prove server persistence or complete
+coverage. An unavailable checkpoint allows the coding turn to finish.
+
 ## Not worth recording
 
 - Routine tool calls. Supported hooks capture bounded structured activity; do not duplicate it as durable knowledge.

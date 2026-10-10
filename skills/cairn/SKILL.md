@@ -3,7 +3,7 @@ name: cairn
 description: Use when resuming work in a Cairn-connected repository, investigating prior decisions or failures, recording durable findings, or diagnosing memory and session problems.
 metadata:
   cairn_skill_schema: 1
-  cairn_skill_revision: 0a10aaefc831
+  cairn_skill_revision: b0b353a0b096
 ---
 
 # Cairn

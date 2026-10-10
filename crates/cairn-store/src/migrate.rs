@@ -88,6 +88,11 @@ pub const MIGRATIONS: &[(i64, &str, &str)] = &[
         "attested_memory_commands",
         include_str!("../migrations/0016_attested_memory_commands.sql"),
     ),
+    (
+        17,
+        "capture_checkpoints",
+        include_str!("../migrations/0017_capture_checkpoints.sql"),
+    ),
 ];
 
 /// The schema version this build knows how to use.

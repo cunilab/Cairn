@@ -381,6 +381,32 @@ pub async fn run(event: &str) {
                 // server generated, if it generated one at all (§3, §6.2).
                 report_retrieval_outcome(&value, transport_ok, started, deadline).await;
             }
+            if let Some(native_turn_id) = stop_gate_turn(agent, event, &raw, &key) {
+                // The Stop gate deliberately gets the short capture budget and
+                // one attempt. Any uncertainty leaves the agent free to end.
+                let gate = Request::CaptureDisposition {
+                    cwd: cwd.clone(),
+                    agent_session_key: key.clone(),
+                    native_turn_id,
+                    no_durable_finding: false,
+                };
+                let gate_deadline =
+                    capture_deadline(&config).min(deadline.saturating_sub(started.elapsed()));
+                match client::send_once_with_deadline(&gate, gate_deadline).await {
+                    Ok(reply) => {
+                        if reply.get("intervene").and_then(|value| value.as_bool()) == Some(true) {
+                            let _ = emit_stop_intervention();
+                        }
+                    }
+                    // The existing bounded drop journal is the only local,
+                    // payload-free diagnostic channel on this path. It records
+                    // the missed Stop checkpoint without changing fail-open.
+                    Err(error) if missed_checkpoint_is_journalled(&error) => {
+                        journal_capture_drop(agent, &cwd, "Stop", None, &error.message)
+                    }
+                    Err(_) => {}
+                }
+            }
         }
         Err(e) => {
             if delivers_context {
@@ -397,6 +423,55 @@ pub async fn run(event: &str) {
             log_drop(event, &e.message);
         }
     }
+}
+
+fn missed_checkpoint_is_journalled(error: &cairn_core::wire::WireError) -> bool {
+    matches!(
+        error.code.as_str(),
+        cairn_core::wire::codes::DAEMON_UNAVAILABLE | cairn_core::wire::codes::STORAGE_UNAVAILABLE
+    )
+}
+
+/// A Stop interaction is eligible only on the pinned Codex shape. It retains
+/// identifiers, never prompt or assistant text, and does not guess a turn.
+fn stop_gate_turn(
+    agent: cairn_integrate::AgentId,
+    event: &str,
+    raw: &serde_json::Value,
+    session_key: &str,
+) -> Option<uuid::Uuid> {
+    if agent != cairn_integrate::AgentId::Codex
+        || event != "Stop"
+        || raw
+            .get("stop_hook_active")
+            .and_then(|value| value.as_bool())
+            != Some(false)
+    {
+        return None;
+    }
+    let session_id = raw
+        .get("session_id")
+        .and_then(|value| value.as_str())
+        .and_then(|value| uuid::Uuid::parse_str(value).ok())
+        .filter(|id| !id.is_nil())?;
+    let turn_id = raw
+        .get("turn_id")
+        .and_then(|value| value.as_str())
+        .and_then(|value| uuid::Uuid::parse_str(value).ok())
+        .filter(|id| !id.is_nil())?;
+    (session_key == session_id.to_string()).then_some(turn_id)
+}
+
+fn emit_stop_intervention() -> bool {
+    use std::io::Write;
+    let out = serde_json::json!({
+        "decision": "block",
+        "reason": "Record supported durable findings through cairn_remember action=capture, or call cairn_session action=capture_disposition with disposition=no_durable_finding. Preserve qualifiers; do not add routine summaries, secrets, raw prompts, or replay unconfirmed writes.",
+    });
+    let mut stdout = std::io::stdout();
+    writeln!(stdout, "{out}")
+        .and_then(|()| stdout.flush())
+        .is_ok()
 }
 
 /// Whether this agent's `UserPromptSubmit` is a committed automatic delivery
@@ -950,5 +1025,62 @@ mod tests {
             "/repo"
         )
         .is_none());
+    }
+
+    #[test]
+    fn stop_gate_requires_a_fresh_verified_codex_turn() {
+        let session = uuid::Uuid::now_v7();
+        let turn = uuid::Uuid::now_v7();
+        let active = json!({
+            "session_id": session,
+            "turn_id": turn,
+            "stop_hook_active": false,
+            "last_assistant_message": "must not cross the boundary"
+        });
+        assert_eq!(
+            stop_gate_turn(AgentId::Codex, "Stop", &active, &session.to_string()),
+            Some(turn)
+        );
+        assert!(stop_gate_turn(
+            AgentId::Codex,
+            "Stop",
+            &json!({ "session_id": session, "turn_id": turn, "stop_hook_active": true }),
+            &session.to_string()
+        )
+        .is_none());
+        assert!(stop_gate_turn(
+            AgentId::Codex,
+            "Stop",
+            &json!({ "session_id": session, "stop_hook_active": false }),
+            &session.to_string()
+        )
+        .is_none());
+        assert!(stop_gate_turn(
+            AgentId::ClaudeCode,
+            "Stop",
+            &json!({ "session_id": session, "turn_id": turn, "stop_hook_active": false }),
+            &session.to_string()
+        )
+        .is_none());
+        assert!(stop_gate_turn(
+            AgentId::Codex,
+            "Stop",
+            &json!({ "session_id": session, "turn_id": turn, "stop_hook_active": false }),
+            "other-session"
+        )
+        .is_none());
+    }
+
+    #[test]
+    fn only_unavailable_stop_gates_are_journalled() {
+        assert!(missed_checkpoint_is_journalled(
+            &cairn_core::wire::WireError::new(
+                cairn_core::wire::codes::DAEMON_UNAVAILABLE,
+                "timeout"
+            )
+        ));
+        assert!(!missed_checkpoint_is_journalled(
+            &cairn_core::wire::WireError::invalid("rejected")
+        ));
     }
 }

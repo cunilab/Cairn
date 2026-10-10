@@ -69,6 +69,13 @@ but useful retrieval was 50% and one selection lost a necessary condition.
 criteria. This approach stopped before production integration. M1/M2 thresholds
 and full exit requirements remain unchanged. PR #66 remains draft.
 
+The structural finding-capture revision passed mechanical checks, but an unchanged
+F1 diagnostic recorded no ordinary capture. [ADR 0008](adr/0008-independent-finding-capture.md)
+preserves that failure. A pinned native Stop capability probe supports the bounded
+per-turn checkpoint in [ADR 0009](adr/0009-bounded-native-finalization-checkpoint.md).
+Its implementation and fresh journey remain under verification; the roadmap and
+full milestone thresholds are unchanged.
+
 The [complete v13 Codex run](../evals/m1-m2/regression-v13-metadata.json) has
 15 valid comparisons across three repositories and 15 valid calibrated
 judgments. Useful application passed at **8/8 (100%)**, but delivered claim

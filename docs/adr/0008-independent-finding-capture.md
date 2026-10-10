@@ -1,6 +1,6 @@
 # 0008 — Capture independently supported findings through existing writes
 
-**Status:** Accepted implementation direction; verification in progress; M2 remains open.
+**Status:** Implemented; structural checks passed; autonomous capture screen failed; M2 remains open.
 **Recorded:** 2026-10-10.
 
 ## Context and decision
@@ -83,3 +83,18 @@ and daemon binaries against the newer section-based server response. An isolated
 copy of the local database upgraded with the alpha.9 daemon restored the old
 client's context call. This diagnosis requires a matching live binary upgrade and
 actual context observation before the integration repair is reported complete.
+
+The actual MCP/fake-socket adapter passed on the built candidate, including
+independent scopes/support, all-item preflight, partial receipts and one request
+after a lost reply. The matching alpha.9 pair is now installed locally. The real
+context tool renders without the previous missing-briefing parse error, but the
+server's durable knowledge remains unavailable. A cold restart took longer than
+the client deadline and caused retry starts before one daemon settled.
+
+A frozen isolated F1 diagnostic at `b526e64c` observed zero memory writes and zero
+persisted treatment memories despite delivered capture guidance. Both sessions
+issued task queries. The automatic-capture prerequisite failed, so qualification
+stopped without prompt iteration, unseen screening or full milestone advancement.
+See [development evidence](../../evals/m1-m2/finding-capture-development-metadata.json).
+The remaining decision is how ordinary work reliably produces durable findings;
+adding a batch surface and guidance alone has not demonstrated that journey.

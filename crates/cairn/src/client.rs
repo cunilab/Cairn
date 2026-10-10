@@ -149,7 +149,7 @@ pub async fn send_once(request: &Request) -> Result<serde_json::Value, WireError
     send_once_with_deadline(request, Duration::from_secs(30)).await
 }
 
-async fn send_once_with_deadline(
+pub(crate) async fn send_once_with_deadline(
     request: &Request,
     deadline: Duration,
 ) -> Result<serde_json::Value, WireError> {

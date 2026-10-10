@@ -1715,6 +1715,29 @@ pub async fn spool_command(
     new: NewCommand<'_>,
     capacity: SpoolCapacity,
 ) -> Result<CommandAdmission> {
+    spool_command_with_checkpoint(store, new, capacity, None).await
+}
+
+pub async fn spool_command_with_checkpoint(
+    store: &Store,
+    new: NewCommand<'_>,
+    capacity: SpoolCapacity,
+    checkpoint: Option<&crate::capture_checkpoint::CheckpointKey>,
+) -> Result<CommandAdmission> {
+    if checkpoint.is_some_and(|key| {
+        key.account_id != new.account_id
+            || Some(key.session_id) != new.scope.session_id()
+            || key.turn_id.is_nil()
+            || !matches!(
+                new.kind,
+                CommandKind::RememberAttested | CommandKind::SupersedeAttested
+            )
+    }) {
+        return Err(StoreError::Refused {
+            code: "invalid_request",
+            message: "capture checkpoint does not match command admission".into(),
+        });
+    }
     let scope = new.scope;
     let scope_kind = scope.kind();
     let scope_key = scope.key().to_string();
@@ -1761,6 +1784,9 @@ pub async fn spool_command(
     .bind(new.server_instance_id.map(|i| i.to_string()))
     .execute(&mut *tx)
     .await?;
+    if let Some(key) = checkpoint {
+        crate::capture_checkpoint::capture_admitted_in(&mut tx, key).await?;
+    }
     tx::commit(tx, "spool_command").await?;
 
     Ok(CommandAdmission::Spooled(SpooledCommand {

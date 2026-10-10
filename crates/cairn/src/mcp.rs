@@ -300,11 +300,12 @@ fn tool_definitions() -> Vec<Value> {
                 "type": "object",
                 "properties": {
                     "cwd": cwd_property(),
-                    "action": { "type": "string", "enum": ["current", "start", "end", "checkpoint", "replay"] },
+                    "action": { "type": "string", "enum": ["current", "start", "end", "checkpoint", "capture_disposition", "replay"] },
                     "agent": { "type": "string" },
                     "agent_session_key": { "type": "string" },
                     "session_id": { "type": "string" },
                     "status": { "type": "string", "enum": ["completed", "interrupted"] },
+                    "disposition": { "type": "string", "enum": ["no_durable_finding"], "description": "Native Codex only: state that this verified turn has no durable finding. Turn identity comes from framework metadata." },
                     // checkpoint
                     "next_action": { "type": "string", "description": "What you were about to do" },
                     "relevant_paths": { "type": "array", "items": { "type": "string" }, "description": "Repository-relative paths this work depends on" }
@@ -338,6 +339,14 @@ fn tool_definitions() -> Vec<Value> {
 
 fn call_arguments(params: &Value, codex_identity: bool) -> Result<Value, WireError> {
     let mut args = params.get("arguments").cloned().unwrap_or(json!({}));
+    if args
+        .as_object()
+        .is_some_and(|fields| fields.contains_key("__cairn_native_turn_id"))
+    {
+        return Err(WireError::invalid(
+            "native turn identity is supplied by Codex metadata, not tool arguments",
+        ));
+    }
     if codex_identity {
         let thread = params["_meta"]["threadId"]
             .as_str()
@@ -357,8 +366,43 @@ fn call_arguments(params: &Value, codex_identity: bool) -> Result<Value, WireErr
         }
         // Client provenance selects a session; account/project/worktree authorization remains in the daemon.
         fields.insert("agent_session_key".into(), json!(thread.to_string()));
+        if let Some(turn) = native_turn_metadata(params, thread) {
+            fields.insert("__cairn_native_turn_id".into(), json!(turn.to_string()));
+        }
     }
     Ok(args)
+}
+
+#[derive(Deserialize)]
+struct NativeTurnMetadata {
+    turn_id: uuid::Uuid,
+    session_id: uuid::Uuid,
+    thread_id: uuid::Uuid,
+}
+
+/// Pinned Codex carries these three UUIDs in a metadata JSON string. Any
+/// malformed or conflicting value simply withholds disposition credit.
+fn native_turn_metadata(params: &Value, thread: uuid::Uuid) -> Option<uuid::Uuid> {
+    let header_session = params["_meta"]["sessionId"]
+        .as_str()
+        .and_then(|value| uuid::Uuid::parse_str(value).ok())
+        .filter(|id| !id.is_nil())?;
+    let raw = params["_meta"]["x-codex-turn-metadata"].as_str()?;
+    let metadata: NativeTurnMetadata = serde_json::from_str(raw).ok()?;
+    (metadata.turn_id != uuid::Uuid::nil()
+        && metadata.session_id != uuid::Uuid::nil()
+        && metadata.thread_id != uuid::Uuid::nil()
+        && header_session == thread
+        && metadata.session_id == thread
+        && metadata.thread_id == thread)
+        .then_some(metadata.turn_id)
+}
+
+fn native_turn_id(args: &Value) -> Option<uuid::Uuid> {
+    args.get("__cairn_native_turn_id")
+        .and_then(|value| value.as_str())
+        .and_then(|value| uuid::Uuid::parse_str(value).ok())
+        .filter(|id| !id.is_nil())
 }
 
 async fn call(params: &Value, codex_identity: bool) -> Value {
@@ -550,6 +594,7 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                             cwd,
                             agent_session_key: key,
                             session_id: uuid_opt(args, "session_id"),
+                            native_turn_id: native_turn_id(args),
                             kind,
                             scope: enum_arg(args, "scope"),
                             scope_key: str_arg(args, "scope_key"),
@@ -730,6 +775,29 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                     })
                     .await?
                 }
+                "capture_disposition" => {
+                    if str_arg(args, "disposition").as_deref() != Some("no_durable_finding") {
+                        return Err(WireError::invalid(
+                            "capture_disposition requires disposition no_durable_finding",
+                        ));
+                    }
+                    let native_turn_id = native_turn_id(args).ok_or_else(|| {
+                        WireError::invalid(
+                            "capture_disposition requires verified native Codex turn metadata",
+                        )
+                    })?;
+                    client::send_once(&Request::CaptureDisposition {
+                        cwd,
+                        agent_session_key: key.ok_or_else(|| {
+                            WireError::invalid(
+                                "capture_disposition requires verified native Codex identity",
+                            )
+                        })?,
+                        native_turn_id,
+                        no_durable_finding: true,
+                    })
+                    .await?
+                }
                 "replay" => client::send(&Request::Replay { cwd }).await?,
                 other => return Err(WireError::invalid(format!("unknown action: {other}"))),
             };
@@ -848,7 +916,12 @@ fn prepare_capture_findings(args: &Value) -> Result<Vec<CaptureFinding>, WireErr
     for key in fields.keys() {
         if !matches!(
             key.as_str(),
-            "cwd" | "action" | "findings" | "agent_session_key" | "session_id"
+            "cwd"
+                | "action"
+                | "findings"
+                | "agent_session_key"
+                | "session_id"
+                | "__cairn_native_turn_id"
         ) {
             return Err(WireError::invalid(
                 "action capture accepts only its batch envelope and findings",
@@ -947,6 +1020,7 @@ async fn capture_findings(
     // has one capture per request.
     let findings = prepare_capture_findings(args)?;
     let session_id = uuid_opt(args, "session_id");
+    let native_turn_id = native_turn_id(args);
     let mut receipts = Vec::with_capacity(findings.len());
     let mut unconfirmed = false;
     let mut rejected = false;
@@ -955,6 +1029,7 @@ async fn capture_findings(
             cwd: cwd.clone(),
             agent_session_key: agent_session_key.clone(),
             session_id,
+            native_turn_id,
             kind: finding.kind,
             scope: Some(finding.scope),
             scope_key: finding.scope_key,
@@ -1195,6 +1270,83 @@ mod tests {
         ] {
             assert!(call_arguments(&params, true).is_err());
         }
+    }
+
+    #[test]
+    fn pinned_codex_turn_metadata_is_cross_checked_before_credit() {
+        let thread = uuid::Uuid::now_v7();
+        let session = thread;
+        let turn = uuid::Uuid::now_v7();
+        let metadata = json!({
+            "turn_id": turn,
+            "session_id": session,
+            "thread_id": thread,
+        })
+        .to_string();
+        let params = json!({
+            "_meta": { "threadId": thread, "sessionId": session, "x-codex-turn-metadata": metadata },
+            "arguments": { "cwd": "/repo" },
+        });
+        let args = call_arguments(&params, true).unwrap();
+        assert_eq!(native_turn_id(&args), Some(turn));
+        assert_eq!(args["agent_session_key"], thread.to_string());
+
+        let other_session = uuid::Uuid::now_v7();
+        let distinct_pairs =
+            json!({"turn_id": turn, "session_id": other_session, "thread_id": thread}).to_string();
+        for bad in [
+            json!({ "_meta": { "threadId": thread, "sessionId": other_session, "x-codex-turn-metadata": distinct_pairs }, "arguments": { "cwd": "/repo" } }),
+            json!({ "_meta": { "threadId": thread, "sessionId": uuid::Uuid::now_v7(), "x-codex-turn-metadata": params["_meta"]["x-codex-turn-metadata"] }, "arguments": { "cwd": "/repo" } }),
+            json!({ "_meta": { "threadId": thread, "sessionId": session, "x-codex-turn-metadata": "not json" }, "arguments": { "cwd": "/repo" } }),
+        ] {
+            let args = call_arguments(&bad, true).unwrap();
+            assert!(native_turn_id(&args).is_none());
+        }
+
+        let metadata_with_extras = json!({
+            "turn_id": turn,
+            "session_id": session,
+            "thread_id": thread,
+            "model": "gpt-6-luna",
+            "reasoning_effort": "low",
+        })
+        .to_string();
+        let args = call_arguments(
+            &json!({
+                "_meta": { "threadId": thread, "sessionId": session, "x-codex-turn-metadata": metadata_with_extras },
+                "arguments": { "cwd": "/repo" },
+            }),
+            true,
+        )
+        .unwrap();
+        assert_eq!(native_turn_id(&args), Some(turn));
+    }
+
+    #[test]
+    fn native_turn_identity_cannot_be_authored_in_tool_arguments() {
+        let thread = uuid::Uuid::now_v7();
+        let params = json!({
+            "_meta": { "threadId": thread },
+            "arguments": { "cwd": "/repo", "__cairn_native_turn_id": uuid::Uuid::now_v7() },
+        });
+        assert!(call_arguments(&params, true).is_err());
+        assert!(call_arguments(&params, false).is_err());
+    }
+
+    #[test]
+    fn generic_capture_remains_compatible_without_native_turn_metadata() {
+        let params = json!({ "arguments": { "cwd": "/repo", "action": "capture" } });
+        let args = call_arguments(&params, false).unwrap();
+        assert!(native_turn_id(&args).is_none());
+        let session = tool_definitions()
+            .into_iter()
+            .find(|tool| tool["name"] == "cairn_session")
+            .unwrap();
+        assert!(session["inputSchema"]["properties"]["action"]["enum"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|action| action == "capture_disposition"));
     }
 
     #[test]
