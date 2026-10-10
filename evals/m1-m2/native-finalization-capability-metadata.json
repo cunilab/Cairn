@@ -11,7 +11,7 @@
       true
     ],
     "recursion_guard_ends_after_one_intervention": true,
-    "native_mcp_turn_metadata": "_meta.x-codex-turn-metadata JSON string: turn_id/session_id/thread_id",
+    "native_mcp_turn_metadata": "_meta.x-codex-turn-metadata object: turn_id/session_id/thread_id",
     "cross_channel_ids_match": true,
     "caller_threadId_matches_native_header_session_and_thread": true
   },
@@ -23,11 +23,13 @@
     "metadata/mcp-top-level.py": "4a3fd5bbe255b39f235ced4455bf074ed5b7a7ea38a36c2aefe93e847bb08fb5",
     "metadata/mcp.py": "0606b05a8f4d22a5d6b50ee1f865cfc85495cf286cabc9976994c3ef2bf200d2",
     "metadata/metadata-nested.jsonl": "9f1e2592d1567a1e8a2f570271cf918aae28ce0dd2d7aa0f07fd1f565f16248e",
-    "metadata/cross-channel-trace.private.jsonl": "a86ac88b31d0167e5e4cbf5c0ecce93ce96164a4d1555e0f884541f1abc8b945"
+    "metadata/cross-channel-trace.private.jsonl": "a86ac88b31d0167e5e4cbf5c0ecce93ce96164a4d1555e0f884541f1abc8b945",
+    "type_only_probe": "998773d2831a104d514ec224da9364390df95d6b19d58e4ac15547f566e7d697"
   },
   "limits": [
     "Native capability only; no semantic capture/usefulness judgment.",
     "Metadata is native-client assertion, not actor/account authorization.",
     "Full milestone workload, outage/cancellation and production checkpoint implementation remain unverified."
-  ]
+  ],
+  "correction": "Original nested probe flattened both strings and objects without preserving type. The type-only follow-up observed an object and the exact pinned initialization profile; the earlier JSON-string inference was wrong."
 }

@@ -707,3 +707,14 @@ labels, but only 2/6 answers cleared the 0.9 confidence gate; four abstained.
 Together with the disputed labels, this does not establish scorer reliability.
 Codex's CLI-reported model identity and the complete context/error/metadata privacy
 coverage required by the protocol are also **NOT VERIFIED** by this run.
+
+### Native checkpoint diagnostic — 2026-10-10
+
+Frozen `381eee31` F1 persisted three memories but no checkpoint rows: Stop
+dispatch bypassed the new path and native metadata was an object, not the
+assumed string. Both mechanical errors have regression fixes. The calibrated
+judge marked completion and useful application `no`; 6/9 delivered claims were
+relevant and supported. The authored credential-restoration requirement was
+not captured. Qualification stops; repairing credit cannot recover omitted
+intent. See [metadata](native-checkpoint-development-metadata.json) and
+[ADR 0009](../../docs/adr/0009-bounded-native-finalization-checkpoint.md).

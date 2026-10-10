@@ -191,6 +191,14 @@ fn repository_root(cwd: &str) -> Option<std::path::PathBuf> {
     }
 }
 
+fn needs_reply(
+    agent: cairn_integrate::AgentId,
+    event: &str,
+    canonical: cairn_core::lifecycle::CanonicalEvent,
+) -> bool {
+    canonical.is_boundary_class() || (agent == cairn_integrate::AgentId::Codex && event == "Stop")
+}
+
 /// Handle a capture-class event without an async runtime (SC-007).
 ///
 /// Returns `true` when the event was handled here. A capture-class event needs
@@ -226,7 +234,7 @@ pub fn run_blocking(event: &str) -> bool {
             drain_stdin();
             return true;
         }
-        Some(class) if class.is_boundary_class() => return false,
+        Some(class) if needs_reply(agent, event, class) => return false,
         _ => {}
     }
 
@@ -328,7 +336,7 @@ pub async fn run(event: &str) {
         return;
     };
 
-    let boundary = canonical.event.is_boundary_class();
+    let boundary = needs_reply(agent, event, canonical.event);
     let deadline = if boundary {
         context_deadline(&config)
     } else {
@@ -1069,6 +1077,15 @@ mod tests {
             "other-session"
         )
         .is_none());
+    }
+
+    #[test]
+    fn native_stop_reaches_the_reply_path_without_changing_lifecycle_class() {
+        let quiesced = cairn_integrate::event_class(AgentId::Codex, "Stop").unwrap();
+        assert!(!quiesced.is_boundary_class());
+        assert!(needs_reply(AgentId::Codex, "Stop", quiesced));
+        assert!(!needs_reply(AgentId::ClaudeCode, "Stop", quiesced));
+        assert!(!needs_reply(AgentId::Codex, "PostToolUse", quiesced));
     }
 
     #[test]

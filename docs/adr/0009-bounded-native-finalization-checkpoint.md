@@ -73,3 +73,28 @@ verified that all four native session/thread identifiers must agree, including
 the regression test for distinct internally consistent pairs; no remaining
 must-fix finding was reported. These checks do not establish automatic capture
 or useful recall. The frozen ordinary native journey is the next evidence gate.
+
+## First installed diagnostic and correction
+
+Frozen `381eee31` F1 persisted three memories, but recorded zero native
+checkpoint rows. Codex Stop followed the capture-class fast dispatch, bypassing
+the new reply path. The metadata parser also expected a string, while a
+type-only pinned-client follow-up observed an object. The original probe
+flattened both forms and did not establish the claimed type. Both mistakes
+are corrected with regression coverage; the original run is retained.
+
+The calibrated full-packet judge marked both completion and useful application
+`no`: the memories omitted the authored team requirement to restore both
+original credential files byte-for-byte. Six of nine delivered claims were
+both relevant and supported. A correctly functioning admission checkpoint
+would still credit these incomplete memories. Therefore semantic qualification
+stops; the mechanical repairs do not establish capture completeness.
+
+Astra's focused follow-up review found no remaining must-fix issue in these
+corrections and recommended one bounded native empty/capture check, followed
+by an explicit account of the semantic stop. A separately designed and evaluated
+capture-completeness mechanism or an agreed scope change is still needed;
+another instruction alone is not established by the evidence.
+
+[Diagnostic metadata](../../evals/m1-m2/native-checkpoint-development-metadata.json)
+retains hashes, counts and evidence boundaries without protected task traces.

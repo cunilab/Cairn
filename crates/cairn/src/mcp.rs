@@ -380,15 +380,15 @@ struct NativeTurnMetadata {
     thread_id: uuid::Uuid,
 }
 
-/// Pinned Codex carries these three UUIDs in a metadata JSON string. Any
+/// Pinned Codex carries these three UUIDs in a metadata object. Any
 /// malformed or conflicting value simply withholds disposition credit.
 fn native_turn_metadata(params: &Value, thread: uuid::Uuid) -> Option<uuid::Uuid> {
     let header_session = params["_meta"]["sessionId"]
         .as_str()
         .and_then(|value| uuid::Uuid::parse_str(value).ok())
         .filter(|id| !id.is_nil())?;
-    let raw = params["_meta"]["x-codex-turn-metadata"].as_str()?;
-    let metadata: NativeTurnMetadata = serde_json::from_str(raw).ok()?;
+    let metadata: NativeTurnMetadata =
+        serde_json::from_value(params["_meta"]["x-codex-turn-metadata"].clone()).ok()?;
     (metadata.turn_id != uuid::Uuid::nil()
         && metadata.session_id != uuid::Uuid::nil()
         && metadata.thread_id != uuid::Uuid::nil()
@@ -1281,8 +1281,7 @@ mod tests {
             "turn_id": turn,
             "session_id": session,
             "thread_id": thread,
-        })
-        .to_string();
+        });
         let params = json!({
             "_meta": { "threadId": thread, "sessionId": session, "x-codex-turn-metadata": metadata },
             "arguments": { "cwd": "/repo" },
@@ -1293,7 +1292,7 @@ mod tests {
 
         let other_session = uuid::Uuid::now_v7();
         let distinct_pairs =
-            json!({"turn_id": turn, "session_id": other_session, "thread_id": thread}).to_string();
+            json!({"turn_id": turn, "session_id": other_session, "thread_id": thread});
         for bad in [
             json!({ "_meta": { "threadId": thread, "sessionId": other_session, "x-codex-turn-metadata": distinct_pairs }, "arguments": { "cwd": "/repo" } }),
             json!({ "_meta": { "threadId": thread, "sessionId": uuid::Uuid::now_v7(), "x-codex-turn-metadata": params["_meta"]["x-codex-turn-metadata"] }, "arguments": { "cwd": "/repo" } }),
@@ -1309,8 +1308,7 @@ mod tests {
             "thread_id": thread,
             "model": "gpt-6-luna",
             "reasoning_effort": "low",
-        })
-        .to_string();
+        });
         let args = call_arguments(
             &json!({
                 "_meta": { "threadId": thread, "sessionId": session, "x-codex-turn-metadata": metadata_with_extras },

@@ -125,3 +125,9 @@ established.
 ## Later
 
 Additional integrations, production vector storage, richer analytics, hosted service, larger-team administration, and a broader human CLI need product evidence before entering this sequence. The bounded local-embedding experiment above does not establish production vector support.
+
+The `381eee31` F1 diagnostic persisted three findings but omitted the authored
+team requirement; calibrated useful application failed and claim quality was
+6/9. Native dispatch/metadata bugs are repaired separately. Semantic
+qualification is stopped pending an evaluated capture-completeness design or
+an explicitly agreed scope change; mechanical repairs do not close M2.
