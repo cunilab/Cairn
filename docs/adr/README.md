@@ -17,7 +17,7 @@ has passed. [Architecture](../architecture.md) describes current behavior;
 | [0006](0006-local-embedding-experiment.md) | Test local statement retrieval before replacing the selector | Experiment complete; useful retrieval and condition preservation failed |
 | [0007](0007-agentmemory-workflow-reassessment.md) | Reassess the Agentmemory workflow with Cairn's requested scopes | Review complete; implementation recommendations proposed |
 | [0008](0008-independent-finding-capture.md) | Capture separately supported findings through existing canonical writes | Implemented; structural checks passed, automatic-capture screen failed |
-| [0009](0009-bounded-native-finalization-checkpoint.md) | Give native turns one bounded opportunity to capture or decline | Implemented; native repair check pending, semantic qualification stopped |
+| [0009](0009-bounded-native-finalization-checkpoint.md) | Give native turns one bounded opportunity to capture or decline | Implemented; native mechanical check passed, semantic qualification stopped |
 
 ## Maintaining the records
 

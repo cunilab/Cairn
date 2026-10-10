@@ -1,6 +1,6 @@
 # 0009 — Give each native turn one bounded capture checkpoint
 
-**Status:** Accepted; native capability verified; implemented with mechanical checks passed; native journey and semantic gates open.
+**Status:** Accepted; native capability verified; implemented with mechanical checks passed; native mechanical check passed; semantic qualification stopped.
 **Recorded:** 2026-10-10.
 
 ## Evidence and decision
@@ -98,3 +98,19 @@ another instruction alone is not established by the evidence.
 
 [Diagnostic metadata](../../evals/m1-m2/native-checkpoint-development-metadata.json)
 retains hashes, counts and evidence boundaries without protected task traces.
+
+## Bounded native repair check
+
+Frozen `043a6c2a` passed the one-attempt mechanical check with Codex 0.160.0 /
+GPT-6-Luna / low. The ordinary OK turn recorded one intervention and
+`no_durable_finding`, emitted two quiescence events and exited zero. The
+authored team-decision turn recorded `capture_admitted` without intervention,
+persisted one memory on the isolated server and exited zero. Both checkpoint
+turn keys match native transcript turn context. This verifies exact-turn
+bookkeeping and bounded continuation, not complete intent or useful return.
+
+All 52 CLI tests, affected CLI Clippy with warnings denied, formatting and
+whitespace checks passed after the fixes. All six CI jobs passed the earlier
+`381eee31` source; CI for the repair is tracked separately. See
+[mechanical metadata](../../evals/m1-m2/native-checkpoint-mechanical-metadata.json).
+The semantic stop above remains in force.

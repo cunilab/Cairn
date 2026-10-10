@@ -718,3 +718,10 @@ relevant and supported. The authored credential-restoration requirement was
 not captured. Qualification stops; repairing credit cannot recover omitted
 intent. See [metadata](native-checkpoint-development-metadata.json) and
 [ADR 0009](../../docs/adr/0009-bounded-native-finalization-checkpoint.md).
+
+Frozen `043a6c2a` then passed the bounded mechanical repair check: an ordinary
+OK turn acknowledged no finding after one intervention and finished; an
+authored team-decision turn received exact-turn capture credit and persisted
+one memory. Both keys match native turn context. See
+[mechanical metadata](native-checkpoint-mechanical-metadata.json). This does
+not change the failed F1 semantic result or close full milestone evidence.
