@@ -1087,3 +1087,25 @@ wrappers; semantic predicates, delivery rules and fixture gold are unchanged.
 [metadata](source-classification-live-failures.json) are preserved. A non-scoring
 pinned actor-route readiness check passed; no full workload or downstream semantic
 gate advanced.
+
+### Private reversed model-role profile — false completeness confirmed
+
+Using the unchanged reviewed budgeted implementation, Qwen proposed source units
+and GPT-OSS audited them on another fresh independently authored and reviewed
+24-case screen. The screen ran once: 19/24 full predicates and statuses matched.
+Six assessments were unknown: two primary HTTP 429 responses, an unsupported
+final unit, one total-deadline expiry and two unsafe inputs.
+
+Blinded supplemental scoring found seventeen valid, one invalid and six unknown
+classifications and coverage assessments. In `fa063b`, the primary selected the
+complete quarantine rule, duration and exemption jointly. The auditor split them
+into separate fragments and falsely credited separately admitted quotations as
+complete coverage. The scorer independently confirmed the missing joint unit.
+This wrong positive stops qualification regardless of mechanical test success.
+
+An exact-proposal-conservation guard was independently rejected as overrestrictive
+and withdrawn before this run; it is not represented as a successful fix. The
+[fresh screen](source-reversed-role-qualification-screen.json) and all outcomes
+are preserved in [metadata](source-classification-live-failures.json). No old
+case was rerun or relabelled, no experimental classifier was published or enabled,
+and no recall/full-agent/installed semantic gate advanced.
