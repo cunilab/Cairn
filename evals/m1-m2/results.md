@@ -1017,3 +1017,28 @@ The [fresh fixture](source-targeted-audit-strict-qualification-screen.json) and
 every outcome are in [metadata](source-classification-live-failures.json). No
 failed case was retried, no classifier was enabled or published, and no capture,
 recall or full-agent semantic gate advanced. Claude remains skipped.
+
+### Private exact-cardinality and negative-consensus audit — gate failed
+
+The next candidate constrained audit array lengths to actual input counts and
+withheld no-durable credit when the primary and auditor disagreed. It passed
+76 daemon tests and eight actual HTTP scenarios, plus separate zero/positive
+Groq schema capability checks. Independent source review found no mechanical
+defect. These checks did not establish semantic qualification.
+
+A genuinely fresh 24-case screen ran once with unchanged models, source-only
+inputs, total 10-second assessment deadline and 32-KiB combined response cap.
+All real SQLite admissions and independently reviewed gold matched author
+expectations before execution; no case or gold correction was needed.
+19/24 full predicates and statuses matched. Seven assessments were unknown:
+three incomplete audits and one uncertain audit returned HTTP 200; the remaining
+three inputs were intentionally unsafe. Complete decoded evidence is preserved.
+
+Blinded supplemental scoring found sixteen valid, one invalid and seven unknown
+classifications and coverage assessments. Both models discarded the bounded
+technician observation in `m8f4s2`, incorrectly reporting no durable requirement.
+Their agreement did not prove semantic completeness. The candidate is rejected,
+not published or enabled; the [fresh screen](source-exact-audit-qualification-screen.json)
+and every outcome are retained in [metadata](source-classification-live-failures.json).
+No failed case was retried, no prior result changed, and no downstream semantic
+gate advanced. Claude, real-task uploads and production enablement remain excluded.
