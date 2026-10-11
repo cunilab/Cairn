@@ -906,3 +906,28 @@ or production reconfiguration was performed.
 No Claude actor, real-task upload, full Codex workload, new deployment, push or
 merge followed these failed gates. The blocker is semantic reliability, not
 missing Groq access. PR #66 remains draft and not merge-ready.
+
+### Mechanical split merged; candidate integrated with current main
+
+PR #67 was explicitly approved and squash-merged into main at
+`04d1895db4eaf02c3ff19234734c8d33d49841fd`; all six PR checks passed
+on its approved head. This is a mechanical merge, not semantic qualification.
+
+Before integrating, all local reviewed changes and failed-evaluation files were
+preserved in signed snapshot `d53f302315717d1075138ae8ad59aaa4c420d289`
+using an independent Git index. The original branch, worktree and staging were
+not reset or stashed. Integration occurred on a separate continuation branch.
+
+The merge retained candidate-specific verified memory scopes and source-bound
+capture while preserving main’s six-path identity and metadata regressions.
+Duplicate superseded four-path tests were removed, not renamed or weakened.
+Local integration verification passed 73 daemon tests (one live screen ignored),
+57 store tests, 54 CLI tests, 212 integration-resource tests, five-package
+all-target Clippy with warnings denied, and formatting. Actual isolated native
+CLI/daemon smoke refused a cropped quote and credential-shaped metadata before
+admission, retained the trusted digest and checked session, and left semantic
+review unknown without a configured comparator. No provider or Claude ran.
+
+The classifier source and complete failed-attempt metadata retain their original
+SHA-256 identities. No V1–V4 failures were rerun or relabelled. PR #66 stays draft
+and cannot claim a qualified comparator, recall selector or milestone pass.
