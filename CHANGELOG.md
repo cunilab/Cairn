@@ -9,6 +9,11 @@ schemas, and the wire protocol without a deprecation period.
 
 ## [Unreleased]
 
+### Fixed
+
+- Validate supplied caller/session identity against the project and worktree before queueing project memory creation, replacement, pinning, reinforcement, reconciliation, or evidence commands. Key-only requests use the checked session; requests without identity remain store-scoped.
+- Refuse recognized credential-shaped topic, value and scope keys before queueing project memory creation or replacement, rather than storing or rewriting those identifiers.
+
 ### Documentation
 
 - Consolidated current product, architecture, roadmap, integrations, and validation guidance into five canonical documents; historical alpha.7 contracts remain available from Git tags.

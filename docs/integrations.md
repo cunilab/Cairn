@@ -13,6 +13,24 @@ The current human command is `cairn setup` in an authorized Git repository. It i
 
 The five tools are `cairn_context`, `cairn_search`, `cairn_remember`, `cairn_session`, and `cairn_handoff`. Session and handoff calls are manual recovery controls for native integrations and the manual path for generic MCP. A tool's presence does not mean every lifecycle action is automatic. The running integration's reported capability and health are the source for its actual observed state.
 
+## Project mutation boundaries
+
+Project create, supersede, pin, reinforce, reconcile and evidence-attachment
+requests validate any supplied session UUID or agent session key against this
+project, worktree and caller before command admission. A caller key alone selects
+its checked session. Supplying neither identity leaves the command store-scoped,
+even when multiple sessions are active; it never chooses an arbitrary session.
+These are local attribution checks, not account or memory-target authorization,
+which remains server-owned. Existing memory-scope defaults are unchanged.
+
+Project create and supersede refuse topic, value and scope keys containing
+recognized credential shapes before queueing. Identifiers are refused, not
+silently redacted into different identities. This is pattern-based detection,
+not a guarantee against every secret shape. Content retains its existing
+redaction behavior. A queue receipt means accepted for delivery, not server
+persistence or successful application.
+
+
 ## Ownership and setup
 
 Setup requires a server URL, token, authorized account, and repository remote matching an existing project. It cannot create an account, membership, or access grant. It installs only supported resources for detected agents: MCP configuration, lifecycle hooks, an instruction block, and an embedded skill where applicable. The MCP invocation carries no server token; the daemon retains credentials in its protected local store.
