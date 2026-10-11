@@ -952,3 +952,27 @@ was removed, not the meaningful identity or installation checks.
 
 This is a packaging correction, not semantic qualification. Earlier measured
 Skill identities remain historical evidence; no frozen model result was changed.
+
+### Private V5 dual-source audit — failed and rejected
+
+The two independent Groq source maps were required to agree before exact-source
+coverage resolution. The private candidate ran every case of a fresh 25-case
+screen once: 8/25 full predicates and 10/25 statuses matched; 15 assessments
+were unknown. Blinded supplemental scoring found eight valid, two invalid and
+15 unknown classifications; nine valid, one invalid and 15 unknown coverage
+assessments. The chart-room scope/procedure was incorrectly split in two cases.
+Unknown diagnostic causes were not retained and are not inferred.
+
+The preference-only case `f5q8` received covered status against frozen
+no-durable gold, while the post-run scorer considered it a lasting preference.
+Both judgments remain preserved as an unresolved durability-rubric disagreement,
+not a confirmed false-covered case or permission to relabel the screen.
+
+Preparation errors and four gold corrections were recorded before the provider
+run; all 25 authored cases were retained. The screen and complete outcomes are
+preserved in [metadata](source-classification-live-failures.json) and the
+[fresh fixture](source-dual-audit-qualification-screen.json). Supplemental
+scoring was tool-free and blinded, but was not calibrated milestone scoring.
+The failed candidate was not published or enabled. The published V2 response-
+completion correction remains disabled by default and semantically unqualified;
+no V1–V4 result changed, no Claude ran, and no downstream gate advanced.

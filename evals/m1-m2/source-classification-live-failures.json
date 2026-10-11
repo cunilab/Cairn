@@ -2350,6 +2350,496 @@
           "status": "covered"
         }
       ]
+    },
+    {
+      "version": "v5-private-dual-audit",
+      "qualification": "failed_candidate_rejected",
+      "published_base_revision": "d06dcdf4",
+      "source_sha256": "8ddbacdd18626c2159068985b55f54acb7eb4927ff9762eee3f338a8e791b16e",
+      "configured_models": {
+        "primary": "openai/gpt-oss-120b",
+        "audit": "qwen/qwen3.8-27b"
+      },
+      "provider_model_attested": false,
+      "provider_input_readback_verified": false,
+      "fixture": "source-dual-audit-qualification-screen.json",
+      "fixture_sha256": "afeedb70f2267ccbd005d80bb025ac70589bfaf5754a4db29b186cfb3df08c1b",
+      "cases": 25,
+      "full_predicates_matched": 8,
+      "status_matches": 10,
+      "unknown": 15,
+      "covered_status_mismatches": [
+        {
+          "id": "f5q8",
+          "frozen_expected": "no_durable_requirement",
+          "actual": "covered",
+          "independent_post_score": "valid lasting user preference",
+          "status": "unresolved durability-rubric disagreement; not established false-covered"
+        }
+      ],
+      "confirmed_invalid_classifications": [
+        "k3m7",
+        "e0u4"
+      ],
+      "confirmed_invalid_coverage": [
+        "e0u4"
+      ],
+      "exit_code": 101,
+      "production_request_deadline_seconds": 10,
+      "combined_response_bytes": 32768,
+      "maximum_concurrent_provider_requests": 2,
+      "valid_case_retries": 0,
+      "protocol_sha256": "b3856a58e62acd44e19afdc87a7f4868a45659249d2f914f1ff36141231fb20a",
+      "result_sha256": "8640c25701b0ca81b56413e022cdd78115104ede6d25d4b4c41dbe07628b884c",
+      "results": [
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "q7m2",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "p4x9",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "b8k3",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "r2v6",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "n5c1",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "w3j8",
+          "missing_quotes": [
+            "Separately, label all loan crates with the lender's code."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "c9f4",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "expected": "missing",
+          "id": "h6d0",
+          "missing_quotes": [
+            "At the basalt archive, keep the west stair closed until the humidity alarm is cleared."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "expected": "missing",
+          "id": "t1y5",
+          "missing_quotes": [
+            "At the basalt archive, keep the west stair closed until the humidity alarm is cleared."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "d8a2",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "k3m7",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "e0u4",
+          "missing_quotes": [
+            "If a coordinate is disputed, retain both versions and mark the dispute; do not choose one."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "s2a9",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "no_durable_requirement",
+          "id": "f5q8",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "m7b1",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "a4n6",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "x9c2",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "j6p0",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "u8r3",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "g3w5",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "v0e7",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "z5l2",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "unknown",
+          "id": "o1d9",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "i4t6",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "l8h3",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        }
+      ],
+      "independent_scoring": {
+        "judgments": [
+          {
+            "id": "q7m2",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The complete closure decision includes its location and release condition, and the admitted user report covers it."
+          },
+          {
+            "id": "p4x9",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "b8k3",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "r2v6",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The two independent policies are selected separately and each has an admitted user report."
+          },
+          {
+            "id": "n5c1",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The independent policies remain separate selected obligations; the single admitted report covers both completely."
+          },
+          {
+            "id": "w3j8",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Both independent policies are selected, and the missing quote exactly identifies the uncovered crate-labeling policy."
+          },
+          {
+            "id": "c9f4",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "h6d0",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The complete closure decision is selected and correctly quoted as missing because no findings cover it."
+          },
+          {
+            "id": "t1y5",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The complete closure decision is selected and correctly quoted as missing because no findings cover it."
+          },
+          {
+            "id": "d8a2",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "k3m7",
+            "classification_valid": "no",
+            "coverage_valid": "yes",
+            "reason": "The dispute procedure inherits the chart-room scope and must remain joined with its context. The admitted report nevertheless covers the complete linked passage."
+          },
+          {
+            "id": "e0u4",
+            "classification_valid": "no",
+            "coverage_valid": "no",
+            "reason": "The linked chart-room rule is split into fragments. The missing quote omits its scope and linked signature context, so it is not the complete missing unit."
+          },
+          {
+            "id": "s2a9",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "f5q8",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The stated map-border preference is lasting user intent, and its complete passage is covered by an admitted user report."
+          },
+          {
+            "id": "m7b1",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "a4n6",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "x9c2",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "j6p0",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The contiguous selection preserves the location, threshold, duration, and linked exclusion; the admitted report covers all of them jointly."
+          },
+          {
+            "id": "u8r3",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "g3w5",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "v0e7",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "z5l2",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "o1d9",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "i4t6",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "l8h3",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          }
+        ],
+        "configured_model": "gpt-6.1-sol",
+        "configured_cli": "codex-cli 0.160.0",
+        "expected_labels_withheld": true,
+        "model_identities_withheld": true,
+        "tool_calls": 0,
+        "compactions": 0,
+        "calibrated_milestone_judge": false
+      },
+      "independent_scoring_scope": "blinded tool-free gpt-6.1-sol with Codex 0.160.0; not calibrated milestone scoring",
+      "unknown_diagnostic_causes": "not retained; no causes inferred",
+      "production_changes": false,
+      "frozen_prior_evidence_unchanged": true
     }
   ],
   "independent_reviews": {
