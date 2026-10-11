@@ -11,7 +11,7 @@ schemas, and the wire protocol without a deprecation period.
 
 ### Fixed
 
-- Validate caller, project and worktree identity before admitting pin, reinforcement, reconciliation and evidence commands; bind native key-only requests to their checked session while preserving identity-free store-scoped requests.
+- Validate supplied caller/session identity against the project and worktree before queueing project memory creation, replacement, pinning, reinforcement, reconciliation, or evidence commands. Key-only requests use the checked session; requests without identity remain store-scoped.
 - Refuse credential-shaped subject and scope metadata before durable command admission, including attested create/supersede and batch capture.
 - Bind native authored-intent admission to exact complete current-source passages and preserve quoted bytes; invalidate legacy completeness credit on local schema-19 upgrade. Source integrity does not prove semantic completeness.
 

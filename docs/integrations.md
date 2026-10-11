@@ -37,11 +37,12 @@ explicit identity selection and refuse ambiguous worktrees. Generic MCP cannot
 start native lifecycle sessions; use an existing session rather than inventing
 a key. Native integrations manage their own lifecycle.
 
-Pinning, reinforcement, reconciliation and evidence attachment validate supplied
-session identity before queueing a knowledge command. A native caller key selects
-the matching session even without an explicit `session_id`; a mismatched caller,
-project or worktree is refused. Generic clients that supply neither identity
-field retain store-scoped commands rather than acquiring an arbitrary session.
+Project create, replacement, pinning, reinforcement, reconciliation and evidence
+attachment validate supplied identity before command admission. A caller key
+selects its checked session without an explicit session UUID; mismatched caller,
+project or worktree is refused. Identity-free project-scoped requests remain
+store-scoped; branch/session creation also applies the candidate's verified
+memory-scope rules. Local attribution is not server authorization.
 
 Client identity metadata establishes local-client provenance, not authorization.
 Account credentials, project membership and worktree checks remain mandatory.

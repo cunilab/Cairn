@@ -980,7 +980,7 @@ pub(crate) async fn resolve_session(
     }
 }
 
-/// Commands without caller identity remain store-scoped; supplied identity must match.
+/// Supplied identity must match; absence never selects an arbitrary session.
 async fn resolve_command_session(
     d: &Daemon,
     r: &Resolved,
@@ -1688,6 +1688,8 @@ async fn memory_reinforce(
     from_memory_id: Option<Uuid>,
 ) -> Reply {
     let r = d.resolve(cwd).await?;
+    let session_id =
+        resolve_command_session(d, &r, session_id, agent_session_key.as_deref()).await?;
     from_memory_id.ok_or_else(|| {
         WireError::invalid("reinforcement needs the memory that carries the confirming statement")
     })?;
@@ -1747,6 +1749,8 @@ async fn evidence_add(
     _role: Option<EvidenceRole>,
 ) -> Reply {
     let r = d.resolve(cwd).await?;
+    let session_id =
+        resolve_command_session(d, &r, session_id, agent_session_key.as_deref()).await?;
     let memory_id =
         memory_id.ok_or_else(|| WireError::invalid("evidence needs a memory target"))?;
     let session_id =
@@ -1873,127 +1877,6 @@ async fn memory_search(
 
 #[cfg(test)]
 mod tests {
-    fn attributed_mutations(
-        cwd: &str,
-        caller: Option<&str>,
-        session: Option<Uuid>,
-    ) -> Vec<Request> {
-        let target = Uuid::now_v7();
-        let mutations = [
-            json!({"op":"memory_pin", "memory_id":target, "pinned":true}),
-            json!({"op":"memory_reinforce", "memory_id":target, "from_memory_id":Uuid::now_v7()}),
-            json!({"op":"memory_reconcile", "from_memory_id":target, "to_memory_id":Uuid::now_v7(),
-                "relation":"narrows", "basis":"explicit_agent"}),
-            json!({"op":"evidence_add", "memory_id":target, "kind":"runtime_state",
-                "subject":"fixture", "observed_value":"checked", "source_locator":"fixture"}),
-        ];
-        mutations
-            .into_iter()
-            .map(|mut value| {
-                value["cwd"] = json!(cwd);
-                value["agent_session_key"] = json!(caller);
-                value["session_id"] = json!(session);
-                serde_json::from_value(value).unwrap()
-            })
-            .collect()
-    }
-
-    #[tokio::test]
-    async fn attributed_mutations_reject_foreign_caller_project_and_worktree_before_admission() {
-        let fixture = fx::Repo::with(cairn_core::CairnConfig::default()).await;
-        let resolved = fixture.daemon.resolve(&fixture.cwd).await.unwrap();
-        fixture.daemon.server.write().await.account_id = Some(Uuid::now_v7());
-        let other_project = fx::project(&fixture.daemon, "other", None).await;
-        for (project_id, worktree, key) in [
-            (resolved.project.id, resolved.worktree(), "other-caller"),
-            (
-                resolved.project.id,
-                format!("{}/other", fixture.cwd),
-                "caller",
-            ),
-            (other_project.id, resolved.worktree(), "caller"),
-        ] {
-            let session = repo::start_session(
-                &fixture.daemon.store,
-                repo::StartSession {
-                    project_id,
-                    user_id: fixture.daemon.user_id,
-                    agent: "codex",
-                    agent_session_key: key,
-                    branch: "main",
-                    commit_sha: None,
-                    worktree_path: &worktree,
-                    daemon_run_id: fixture.daemon.run_id,
-                },
-            )
-            .await
-            .unwrap();
-            for request in attributed_mutations(&fixture.cwd, Some("caller"), Some(session.id)) {
-                let error = handle(&fixture.daemon, request).await.unwrap_err();
-                assert_eq!(error.code, codes::NOT_FOUND);
-            }
-        }
-        for request in attributed_mutations(&fixture.cwd, Some("unknown-caller"), None) {
-            assert_eq!(
-                handle(&fixture.daemon, request).await.unwrap_err().code,
-                codes::NO_ACTIVE_SESSION
-            );
-        }
-        let queued: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM command_spool")
-            .fetch_one(fixture.daemon.store.pool())
-            .await
-            .unwrap();
-        assert_eq!(queued, 0);
-    }
-
-    #[tokio::test]
-    async fn attributed_mutations_use_the_checked_session_and_preserve_sessionless_commands() {
-        let fixture = fx::Repo::with(cairn_core::CairnConfig::default()).await;
-        let resolved = fixture.daemon.resolve(&fixture.cwd).await.unwrap();
-        fixture.daemon.server.write().await.account_id = Some(Uuid::now_v7());
-        let session = repo::start_session(
-            &fixture.daemon.store,
-            repo::StartSession {
-                project_id: resolved.project.id,
-                user_id: fixture.daemon.user_id,
-                agent: "codex",
-                agent_session_key: "caller",
-                branch: "main",
-                commit_sha: None,
-                worktree_path: &resolved.worktree(),
-                daemon_run_id: fixture.daemon.run_id,
-            },
-        )
-        .await
-        .unwrap();
-        for (caller, explicit_id, expected) in [
-            (Some("caller"), Some(session.id), Some(session.id)),
-            (Some("caller"), None, Some(session.id)),
-            (None, Some(session.id), Some(session.id)),
-            (None, None, None),
-        ] {
-            for request in attributed_mutations(&fixture.cwd, caller, explicit_id) {
-                let receipt = handle(&fixture.daemon, request).await.unwrap();
-                let (scope, stored_session, payload): (String, Option<String>, String) =
-                    sqlx::query_as("SELECT scope_kind, session_id, payload FROM command_spool WHERE command_id=?1")
-                        .bind(receipt["command_id"].as_str().unwrap())
-                        .fetch_one(fixture.daemon.store.pool()).await.unwrap();
-                assert_eq!(
-                    scope,
-                    if expected.is_some() {
-                        "session"
-                    } else {
-                        "store"
-                    }
-                );
-                assert_eq!(stored_session, expected.map(|id| id.to_string()));
-                let payload: Value = serde_json::from_str(&payload).unwrap();
-                if payload.get("session_id").is_some() {
-                    assert_eq!(payload["session_id"], json!(expected));
-                }
-            }
-        }
-    }
 
     #[tokio::test]
     async fn credential_replacement_blocks_native_recording_until_old_lane_is_purged() {
@@ -2520,6 +2403,157 @@ mod tests {
     use crate::state::ServerCredentials;
     use crate::testsupport as fx;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    fn attributed_mutations(
+        cwd: &str,
+        caller: Option<&str>,
+        session: Option<Uuid>,
+    ) -> Vec<Request> {
+        let target = Uuid::now_v7();
+        let mutations = [
+            json!({"op":"memory_create", "kind":"decision", "content":"Preserve the approved policy."}),
+            json!({"op":"memory_supersede", "memory_id":target,"kind":"decision", "content":"Preserve the revised policy."}),
+            json!({"op":"memory_pin", "memory_id":target, "pinned":true}),
+            json!({"op":"memory_reinforce", "memory_id":target, "from_memory_id":Uuid::now_v7()}),
+            json!({"op":"memory_reconcile", "from_memory_id":target, "to_memory_id":Uuid::now_v7(),
+                "relation":"narrows", "basis":"explicit_agent"}),
+            json!({"op":"evidence_add", "memory_id":target, "kind":"runtime_state",
+                "subject":"fixture", "observed_value":"checked", "source_locator":"fixture"}),
+        ];
+        mutations
+            .into_iter()
+            .map(|mut value| {
+                value["cwd"] = json!(cwd);
+                value["agent_session_key"] = json!(caller);
+                value["session_id"] = json!(session);
+                serde_json::from_value(value).unwrap()
+            })
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn attributed_mutations_reject_foreign_caller_project_and_worktree_before_admission() {
+        let fixture = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = fixture.daemon.resolve(&fixture.cwd).await.unwrap();
+        fixture.daemon.server.write().await.account_id = Some(Uuid::now_v7());
+        let other_project = fx::project(&fixture.daemon, "other", None).await;
+        for (project_id, worktree, key) in [
+            (resolved.project.id, resolved.worktree(), "other-caller"),
+            (
+                resolved.project.id,
+                format!("{}/other", fixture.cwd),
+                "caller",
+            ),
+            (other_project.id, resolved.worktree(), "caller"),
+        ] {
+            let session = repo::start_session(
+                &fixture.daemon.store,
+                repo::StartSession {
+                    project_id,
+                    user_id: fixture.daemon.user_id,
+                    agent: "codex",
+                    agent_session_key: key,
+                    branch: "main",
+                    commit_sha: None,
+                    worktree_path: &worktree,
+                    daemon_run_id: fixture.daemon.run_id,
+                },
+            )
+            .await
+            .unwrap();
+            for request in attributed_mutations(&fixture.cwd, Some("caller"), Some(session.id)) {
+                let error = handle(&fixture.daemon, request).await.unwrap_err();
+                assert_eq!(error.code, codes::NOT_FOUND);
+            }
+        }
+        for request in attributed_mutations(&fixture.cwd, Some("unknown-caller"), None) {
+            assert_eq!(
+                handle(&fixture.daemon, request).await.unwrap_err().code,
+                codes::NO_ACTIVE_SESSION
+            );
+        }
+        let queued: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM command_spool")
+            .fetch_one(fixture.daemon.store.pool())
+            .await
+            .unwrap();
+        assert_eq!(queued, 0);
+    }
+
+    #[tokio::test]
+    async fn attributed_mutations_use_the_checked_session_and_preserve_sessionless_commands() {
+        let fixture = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        let resolved = fixture.daemon.resolve(&fixture.cwd).await.unwrap();
+        fixture.daemon.server.write().await.account_id = Some(Uuid::now_v7());
+        let session = repo::start_session(
+            &fixture.daemon.store,
+            repo::StartSession {
+                project_id: resolved.project.id,
+                user_id: fixture.daemon.user_id,
+                agent: "codex",
+                agent_session_key: "caller",
+                branch: "main",
+                commit_sha: None,
+                worktree_path: &resolved.worktree(),
+                daemon_run_id: fixture.daemon.run_id,
+            },
+        )
+        .await
+        .unwrap();
+        for (caller, explicit_id, expected) in [
+            (Some("caller"), Some(session.id), Some(session.id)),
+            (Some("caller"), None, Some(session.id)),
+            (None, Some(session.id), Some(session.id)),
+            (None, None, None),
+        ] {
+            for request in attributed_mutations(&fixture.cwd, caller, explicit_id) {
+                let receipt = handle(&fixture.daemon, request).await.unwrap();
+                let (scope, stored_session, payload): (String, Option<String>, String) =
+                    sqlx::query_as("SELECT scope_kind, session_id, payload FROM command_spool WHERE command_id=?1")
+                        .bind(receipt["command_id"].as_str().unwrap())
+                        .fetch_one(fixture.daemon.store.pool()).await.unwrap();
+                assert_eq!(
+                    scope,
+                    if expected.is_some() {
+                        "session"
+                    } else {
+                        "store"
+                    }
+                );
+                assert_eq!(stored_session, expected.map(|id| id.to_string()));
+                let payload: serde_json::Value = serde_json::from_str(&payload).unwrap();
+                if payload.get("session_id").is_some() {
+                    assert_eq!(payload["session_id"], json!(expected));
+                }
+            }
+        }
+    }
+    #[tokio::test]
+    async fn credential_shaped_metadata_is_refused_before_command_admission() {
+        let fixture = fx::Repo::with(cairn_core::CairnConfig::default()).await;
+        fixture.daemon.server.write().await.account_id = Some(Uuid::now_v7());
+        for op in ["memory_create", "memory_supersede"] {
+            for (field, scope) in [
+                ("topic_key", "project"),
+                ("value_key", "project"),
+                ("scope_key", "project"),
+                ("scope_key", "branch"),
+            ] {
+                let mut value = json!({"op":op,"cwd":fixture.cwd,"kind":"decision","content":"Preserve deployment approvals.","scope":scope,"memory_id":Uuid::now_v7()});
+                value[field] = json!("sk-abcdefghijklmnopqrstuvwxyz0123");
+                let error = handle(&fixture.daemon, serde_json::from_value(value).unwrap())
+                    .await
+                    .expect_err(field);
+                assert_eq!(error.code, codes::INVALID_REQUEST);
+            }
+        }
+        for table in ["command_spool", "command_seq"] {
+            let count: i64 = sqlx::query_scalar(&format!("SELECT COUNT(*) FROM {table}"))
+                .fetch_one(fixture.daemon.store.pool())
+                .await
+                .unwrap();
+            assert_eq!(count, 0, "{table} changed after refusal");
+        }
+    }
 
     async fn lookup_server(project_id: Uuid) -> String {
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
