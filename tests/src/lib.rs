@@ -1188,7 +1188,7 @@ fn test_selector_response(mut stream: TcpStream, gate: &SelectorGate) {
         let content = serde_json::json!({"selections":[{"id":id,"quotes":["not an exact source substring"]}]}).to_string();
         (
             200,
-            serde_json::json!({"choices":[{"message":{"content":content}}]}),
+            serde_json::json!({"choices":[{"finish_reason":"stop","message":{"content":content}}]}),
         )
     } else {
         let selections =
@@ -1211,10 +1211,26 @@ fn test_selector_response(mut stream: TcpStream, gate: &SelectorGate) {
                 .collect::<Vec<_>>()
             };
         let content = serde_json::json!({"selections": selections}).to_string();
-        (
-            200,
-            serde_json::json!({"choices":[{"message":{"content":content}}]}),
-        )
+        let finish_reason = if query.contains("[[selector:length]]") {
+            serde_json::json!("length")
+        } else if query.contains("[[selector:filtered]]") {
+            serde_json::json!("content_filter")
+        } else if query.contains("[[selector:missing-finish]]") {
+            serde_json::Value::Null
+        } else if query.contains("[[selector:unexpected-finish]]") {
+            serde_json::json!("unexpected")
+        } else {
+            serde_json::json!("stop")
+        };
+        let mut choice =
+            serde_json::json!({"finish_reason":finish_reason,"message":{"content":content}});
+        if query.contains("[[selector:missing-finish]]") {
+            choice
+                .as_object_mut()
+                .expect("test choice object")
+                .remove("finish_reason");
+        }
+        (200, serde_json::json!({"choices":[choice]}))
     };
     let encoded = response.1.to_string();
     let status = if response.0 == 200 {

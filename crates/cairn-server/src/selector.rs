@@ -120,11 +120,14 @@ impl Selector {
         }
         let envelope: ChatResponse =
             serde_json::from_slice(&bytes).map_err(|_| SelectorError::InvalidResponse)?;
-        let content = envelope
+        let choice = envelope
             .choices
             .first()
-            .map(|choice| choice.message.content.as_str())
             .ok_or(SelectorError::InvalidResponse)?;
+        if choice.finish_reason != Some(FinishReason::Stop) {
+            return Err(SelectorError::InvalidResponse);
+        }
+        let content = choice.message.content.as_str();
         let selection =
             serde_json::from_str(content).map_err(|_| SelectorError::InvalidResponse)?;
         resolve_response(records, selection)
@@ -204,6 +207,15 @@ struct ChatResponse {
 #[derive(Deserialize)]
 struct ChatChoice {
     message: ChatMessage,
+    finish_reason: Option<FinishReason>,
+}
+
+#[derive(Deserialize, PartialEq, Eq)]
+enum FinishReason {
+    #[serde(rename = "stop")]
+    Stop,
+    #[serde(other)]
+    Other,
 }
 
 #[derive(Deserialize)]

@@ -48,6 +48,9 @@ client deadline; automatic context retains its configured short deadline.
 The provider request is bounded separately. Provider failure and malformed or
 nonextractive output produce safe actionable errors; inspect original records
 only when archival review is intended.
+The selected provider choice must report `finish_reason: "stop"`. Interrupted,
+filtered, missing or unrecognized completion reasons refuse working recall,
+even if the response contains valid JSON and exact source quotations.
 
 ## Validate before milestone claims
 

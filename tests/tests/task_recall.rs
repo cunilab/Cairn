@@ -291,7 +291,14 @@ fn selector_refusal_paths_do_not_fall_back_to_project_source_bodies() {
         pg.project, pg.project, source
     ));
     pg.attest_project_memory(id, &pg.owner, "fixture");
-    for marker in ["[[selector:outage]]", "[[selector:invalid]]"] {
+    for marker in [
+        "[[selector:outage]]",
+        "[[selector:invalid]]",
+        "[[selector:length]]",
+        "[[selector:filtered]]",
+        "[[selector:missing-finish]]",
+        "[[selector:unexpected-finish]]",
+    ] {
         let (body, status) = post_json_status_bearer(
             &pg.server.base,
             "/api/retrieve",
@@ -300,6 +307,30 @@ fn selector_refusal_paths_do_not_fall_back_to_project_source_bodies() {
         );
         assert_eq!(status, 503, "{body}");
         assert!(!body.to_string().contains(source), "{body}");
+        let encoded = format!(
+            "bounded%20parser%20{}",
+            marker
+                .replace('[', "%5B")
+                .replace(']', "%5D")
+                .replace(':', "%3A")
+        );
+        for path in [
+            format!(
+                "/api/projects/{}/memories?purpose=reuse&q={encoded}",
+                pg.project
+            ),
+            format!("/api/memories/{id}?purpose=reuse&q={encoded}"),
+        ] {
+            let (reuse, status) = get_json_status_bearer(&pg.server.base, &path, &pg.owner.token);
+            assert_eq!(
+                status, 503,
+                "{marker} admitted an incomplete selector response: {reuse}"
+            );
+            assert!(
+                !reuse.to_string().contains(source),
+                "{marker} leaked source after selector refusal: {reuse}"
+            );
+        }
     }
     let (empty, status) = post_json_status_bearer(
         &pg.server.base,

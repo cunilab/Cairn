@@ -17,6 +17,7 @@ schemas, and the wire protocol without a deprecation period.
 - Exclude repository-ignored OS metadata from embedded and on-disk Skill trees so clean builds, installed content and declared revisions agree.
 - Keep lexically matching project memories available to search and task-conditioned context when an added query term is absent from the record; retain relevance ordering, candidate limits, reuse eligibility and semantic excerpt selection.
 - Withhold native capture-completeness credit unless the provider reports normal generation completion; invalidate cached assessments made under the older response rule.
+- Refuse interrupted or uncertain provider selections before server context, search or reuse-detail delivery; archive inspection and eligible recall after normal completion remain available.
 
 ### Documentation
 
