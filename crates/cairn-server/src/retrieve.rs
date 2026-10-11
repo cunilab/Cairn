@@ -1316,7 +1316,6 @@ async fn project_memory(
             AND ({})
             AND to_tsvector('english', content) @@
                 replace(plainto_tsquery('english', $5)::text, ' & ', ' | ')::tsquery
-            AND lex.term_overlap >= LEAST(2, cardinality(tsvector_to_array(to_tsvector('english', $5))))
           ORDER BY lex.term_overlap DESC, updated_at DESC, id
           LIMIT $4",
         crate::reuse::eligible("memories")

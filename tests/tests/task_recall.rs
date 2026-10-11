@@ -393,3 +393,52 @@ fn paused_retrieve(pg: &Pg, session: Uuid) -> std::thread::JoinHandle<(serde_jso
         )
     })
 }
+
+#[test]
+fn adding_a_task_keyword_keeps_a_known_entity_available_to_recall() {
+    let Some(pg) = Pg::start() else {
+        eprintln!("skipped: CAIRN_TEST_DATABASE_URL is not set");
+        return;
+    };
+    let session = pg.session_for(&pg.owner);
+    let content =
+        "The team chose SQLite for isolated integration tests only; production retains PostgreSQL.";
+    let (capture, status) = post_json_status_bearer(
+        &pg.server.base,
+        &format!("/api/projects/{}/captures", pg.project),
+        &json!({"type":"decision","scope":"project","content":content,"capture_attestation":{"basis":"user_report","support_summary":"Synthetic team choice."}}),
+        &pg.owner.token,
+    );
+    assert_eq!(status, 200, "{capture}");
+    let id = capture["id"].as_str().unwrap();
+    let (search, status) = get_json_status_bearer(
+        &pg.server.base,
+        &format!(
+            "/api/projects/{}/memories?purpose=reuse&domain=project&q=SQLite%20decision",
+            pg.project
+        ),
+        &pg.owner.token,
+    );
+    assert_eq!(status, 200, "{search}");
+    assert!(
+        search["memories"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|m| m["id"] == id),
+        "known SQLite entity disappeared: {search}"
+    );
+    let (context, status) = post_json_status_bearer(
+        &pg.server.base,
+        "/api/retrieve",
+        &json!({"session_id":session,"trigger":"explicit","query":"SQLite decision"}),
+        &pg.owner.token,
+    );
+    assert_eq!(status, 200, "{context}");
+    assert!(
+        context["sections"]["project_memory"]
+            .as_array()
+            .is_some_and(|items| items.iter().any(|m| m["knowledge_id"] == id)),
+        "known SQLite entity disappeared from context: {context}"
+    );
+}

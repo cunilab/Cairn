@@ -2514,9 +2514,8 @@ async fn project_memories(
            AND m.deleted_at IS NULL
            AND m.state = $3
            AND ($2::text IS NULL OR $2 = ''
-                OR (to_tsvector('english', m.content) @@
-                    replace(plainto_tsquery('english', $2)::text, ' & ', ' | ')::tsquery
-                    AND lex.term_overlap >= LEAST(2, cardinality(tsvector_to_array(to_tsvector('english', $2))))))
+                OR to_tsvector('english', m.content) @@
+                   replace(plainto_tsquery('english', $2)::text, ' & ', ' | ')::tsquery)
            AND ($4::text IS NULL OR m.scope = $4)
            AND ($5::text IS NULL OR m.scope_key = $5)
            AND ($6::text IS NULL OR m.type = $6)
