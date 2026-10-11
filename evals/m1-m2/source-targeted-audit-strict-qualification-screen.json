@@ -1,0 +1,632 @@
+[
+  {
+    "id": "q7m2v9",
+    "task": "The tideglass workshop must stamp each finished lens with its furnace batch number.\n\nThe workshop must retain rejected lens blanks for thirty days.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The tideglass workshop must stamp each finished lens with its furnace batch number.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The authored workshop instruction establishes an ongoing stamping convention."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The workshop must retain rejected lens blanks for thirty days.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes the workshop's retention requirement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "h4x8c1",
+    "task": "At the reed organ archive, cataloguers must record the maker's inscription verbatim.\n\nLoan officers must photograph the bellows before every outgoing loan.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "At the reed organ archive, cataloguers must record the maker's inscription verbatim.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author sets a lasting cataloguing convention."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "n6p3z8",
+    "task": "The dune seed bank must keep accession names in the donor's original spelling.\n\nThe bank must weigh every sealed storage pouch before shelving it.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The dune seed bank must keep accession names in the donor's original spelling.\n\nThe bank must weigh every sealed storage pouch before shelving it.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes both ongoing seed-bank requirements."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "b9r5k2",
+    "task": "For winter journeys, the marsh ferry dispatcher must assign two pole operators whenever the channel markers are submerged, except when the ferry is empty and being repositioned within the dock basin.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "the marsh ferry dispatcher must assign two pole operators whenever the channel markers are submerged",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author intends to capture the ongoing operator assignment rule."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "w2j7f4",
+    "task": "At the shell pigment studio, apprentices must use ceramic scoops for dry pigments, except that the sealed indigo dispenser may retain its supplied metal scoop until its cartridge is replaced.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "At the shell pigment studio, apprentices must use ceramic scoops for dry pigments, except that the sealed indigo dispenser may retain its supplied metal scoop until its cartridge is replaced.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes the studio convention and its temporary exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "t8d1s6",
+    "task": "The following inspection rule applies only to the east cavern's suspended walkways during public opening hours; maintenance-only platforms are excluded.\n\nGuides must log each loose fastening before allowing the next group onto a walkway.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Guides must log each loose fastening before allowing the next group onto a walkway.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author reports the guide logging instruction."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "a3y9u5",
+    "task": "The next rule governs only hand-cut survey stones installed along the northern aqueduct after the spring inspection; restored historic stones are exempt.\n\nMasons must carve the installation year on the underside before setting a stone.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The next rule governs only hand-cut survey stones installed along the northern aqueduct after the spring inspection; restored historic stones are exempt.\n\nMasons must carve the installation year on the underside before setting a stone.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes the carving rule with its cross-paragraph scope and exemption."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "m5c2e7",
+    "task": "The next handling rule covers ceremonial drums borrowed from the river guild, only while they are in our rehearsal hall; guild-owned transport cases are excluded.\n\nStage attendants must place a felt pad beneath each covered drum.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The next handling rule covers ceremonial drums borrowed from the river guild, only while they are in our rehearsal hall; guild-owned transport cases are excluded.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author specifies the handling rule's scope and exclusion."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Stage attendants must place a felt pad beneath each covered drum.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author specifies the recurring padding instruction."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "v1g8l3",
+    "task": "Keeper Imani reports that the west moth enclosure's humidity gauge showed zero on two dawn checks last week; she did not inspect its wiring or compare it with another instrument, and no cause has been established.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "Keeper Imani reports that the west moth enclosure's humidity gauge showed zero on two dawn checks last week; she did not inspect its wiring or compare it with another instrument, and no cause has been established.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author preserves Imani's attributed observations and their explicit limits."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "p4q6a9",
+    "task": "Navigator Osei reports that the star table's brass pointer stuck during one indoor demonstration; he has not tested it outdoors, and the report does not identify a cause.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "The star table's pointer fails because its brass joint binds in outdoor use.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author intends this payload to capture Osei's reported incident."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "k7u3h8",
+    "task": "The salt mosaic team must store numbered pattern cards in the dry cabinet after every workshop.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The salt mosaic team must store numbered pattern cards in the dry cabinet after every workshop.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The authored statement establishes the team's recurring storage convention."
+        }
+      }
+    ],
+    "source_bound": false,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "e8n5w1",
+    "task": "The fossil casting room must label silicone molds with the specimen accession number.\n\nIts booking coordinator must reserve the first hour of every Monday for mold cleaning.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The fossil casting room must label silicone molds with the specimen accession number.\n\nIts booking coordinator must reserve the first hour of every Monday for mold cleaning.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author adopts both the mold labelling and recurring scheduling requirements."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "s2f9b6",
+    "task": "The ice bell ensemble must number replacement clappers in ascending order.\n\nThe ensemble must archive each concert's tuning sheet.\n\nThe touring manager must obtain written venue approval before suspending bells from a ceiling.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The ice bell ensemble must number replacement clappers in ascending order.\n\nThe ensemble must archive each concert's tuning sheet.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes the numbering and tuning-sheet archive policies."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "j6r1m4",
+    "task": "Please count the empty amber vials on this tray for today's packing slip.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "c9t4p7",
+    "task": "Could rotating the kelp drying racks improve airflow? I am exploring possibilities and have not chosen a procedure.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "u3a8d2",
+    "task": "For this afternoon's demonstration only, put the clay astrolabe on the front table, then return it to its usual shelf.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "g5v2q8",
+    "task": "What are three possible ways to display the miniature canal locks? This is a brainstorming question; no display arrangement is being adopted.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "r8k6z1",
+    "task": "The wind harp conservatory must record each string replacement in its maintenance ledger.\n\nThe exception to this rule applies when",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The wind harp conservatory must record each string replacement in its maintenance ledger.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author attempts to capture the visible maintenance instruction."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 1,
+    "truncated": true,
+    "redacted": false
+  },
+  {
+    "id": "f1s7n9",
+    "task": "The pearl grading team must quarantine trays from [REDACTED SUPPLIER CLASS] unless [REDACTED RELEASE CONDITION].",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The pearl grading team must quarantine trays from [REDACTED SUPPLIER CLASS] unless [REDACTED RELEASE CONDITION].",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author attempts to capture the visible quarantine statement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": true
+  },
+  {
+    "id": "z4h9e3",
+    "task": "The beacon crew must follow the special sealing rule for those housings.\n\nThis note does not identify which sealing rule or which housings are meant.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The beacon crew must follow the special sealing rule for those housings.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author attempts to capture the instruction despite its unresolved referents."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "d7b3y6",
+    "task": "Technician Lale reports that the ceramic kiln's door latch failed to engage on three attempts during yesterday's cold inspection; no heated run was attempted, and she has not determined whether the latch or door alignment was responsible.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "Technician Lale reports that the ceramic kiln's door latch failed to engage on three attempts during yesterday's cold inspection; no heated run was attempted, and she has not determined whether the latch or door alignment was responsible.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author preserves Lale's failure report, attribution, test limits, and unresolved cause."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "l2w8j5",
+    "task": "At the shadow puppet repository, handlers must wear cotton gloves when moving painted leather figures, except during documented pigment sampling supervised by the conservator.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "At the shadow puppet repository, handlers must wear cotton gloves when moving painted leather figures",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author intends to capture the repository's ongoing handling convention."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Cotton gloves are mandatory for every movement of every puppet.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author intends this restatement to represent the handling convention."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 2,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "x6m1c8",
+    "task": "The alpine pollen station must use sealed slides for samples collected above the snow line, unless a slide is opened inside the filtered examination cabinet.\n\nStation couriers must record the handover time for every sample shipment.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The alpine pollen station must use sealed slides for samples collected above the snow line, unless a slide is opened inside the filtered examination cabinet.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes the qualified slide-handling requirement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "o9p4t2",
+    "task": "The following packing rule applies to loaned sand clocks travelling by boat, except clocks carried upright in the curator's fitted case.\n\nPacking staff must immobilize both bulbs with shaped cork supports.\n\nThe collection registrar must retain every lender's signed receipt for five years.\n\nDock steward Neri reports that one packed clock arrived with a cracked bulb on Tuesday; she saw only the unpacking and cannot identify when the crack occurred.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The following packing rule applies to loaned sand clocks travelling by boat, except clocks carried upright in the curator's fitted case.\n\nPacking staff must immobilize both bulbs with shaped cork supports.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes the packing instruction with its scope and exception."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The collection registrar must retain every lender's signed receipt for five years.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes the independent receipt retention policy."
+        }
+      },
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "Dock steward Neri reports that one packed clock arrived with a cracked bulb on Tuesday; she saw only the unpacking and cannot identify when the crack occurred.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author preserves Neri's attributed observation and its timing limits."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      },
+      {
+        "first_block": 3,
+        "last_block": 3
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  }
+]

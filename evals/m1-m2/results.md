@@ -995,3 +995,25 @@ qualification; the published classifier remains unchanged and unqualified.
 The [fixture](source-targeted-audit-qualification-screen.json) and every outcome
 are preserved in [metadata](source-classification-live-failures.json). No Claude,
 real-task upload, production enablement or downstream advancement occurred.
+
+### Private strict-schema contextual audit — gate failed
+
+The corrected serializer ran a genuinely fresh 24-case screen once, with strict
+schemas accepted by both providers and 20-second harness-only case spacing.
+11/24 full predicates and statuses matched. Thirteen assessments were unknown:
+eight incomplete audits, three invalid final-unit references (all eleven reached
+the audit stage with HTTP 200), and two intentionally unsafe inputs. All decoded
+primary proposals and rejected audit outputs remain recorded.
+
+Blinded supplemental scoring found ten valid, one invalid and thirteen unknown
+classifications and coverage assessments. In `p4q6a9`, the auditor discarded a
+lasting attributed limited observation identified by the primary model and
+incorrectly granted no-durable credit. Schema correctness did not establish
+semantic completeness. In `z4h9e3`, frozen unknown gold conflicts with the
+post-run scorer accepting the missing limited-reference passage; both remain
+preserved without relabelling. The screen still fails under its frozen criteria.
+
+The [fresh fixture](source-targeted-audit-strict-qualification-screen.json) and
+every outcome are in [metadata](source-classification-live-failures.json). No
+failed case was retried, no classifier was enabled or published, and no capture,
+recall or full-agent semantic gate advanced. Claude remains skipped.

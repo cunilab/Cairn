@@ -3645,6 +3645,1358 @@
       ],
       "production_changes": false,
       "prior_evidence_unchanged": true
+    },
+    {
+      "version": "v6-private-targeted-entailment-strict-schema",
+      "qualification": "failed_not_advanced",
+      "published_base_revision": "d06dcdf4",
+      "source_sha256": "869d3d0c6892a79fea82b47f535f32887f648f1573156b39def27c883fdc185d",
+      "configured_models": {
+        "primary": "openai/gpt-oss-120b",
+        "audit": "qwen/qwen3.8-27b"
+      },
+      "fixture": "source-targeted-audit-strict-qualification-screen.json",
+      "fixture_sha256": "15bdaf86768b61c6032e09ab511f13aa4f0bd1bcbd2ee115deaeda7678f771e0",
+      "cases": 24,
+      "full_predicates_matched": 11,
+      "status_matches": 11,
+      "status_counts": {
+        "covered": 3,
+        "missing": 5,
+        "unknown": 13,
+        "no_durable_requirement": 3
+      },
+      "rejection_counts": {
+        "incomplete_audit": 8,
+        "invalid_final_unit_reference": 3,
+        "unsafe_input": 2
+      },
+      "provider_rejections": {
+        "stage": "audit",
+        "http_status": 200,
+        "cases": 11
+      },
+      "wrong_positive_completeness": [
+        {
+          "id": "p4q6a9",
+          "frozen_expected": "missing",
+          "actual": "no_durable_requirement",
+          "independent_score": "invalid classification and coverage; lasting limited observation omitted"
+        }
+      ],
+      "gold_score_conflicts": [
+        {
+          "id": "z4h9e3",
+          "frozen_expected": "unknown",
+          "actual": "missing",
+          "post_run_classification": "yes",
+          "post_run_coverage": "yes",
+          "status": "preserve frozen gold and post-run scoring; no relabel or improved score"
+        }
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 462.76,
+      "production_total_deadline_seconds": 10,
+      "combined_response_bytes": 32768,
+      "max_concurrent_provider_requests": 2,
+      "harness_minimum_case_interval_seconds": 20,
+      "valid_case_retries": 0,
+      "provider_model_attested": false,
+      "provider_input_readback_verified": false,
+      "protocol_sha256": "a8c502417daff6676d2d9d3b3ca389ad28df8dc7bef71950af3befc82673d4c4",
+      "gold_sha256": "2625f2bad270ce151ca748519e38ad8a699f40bf691229d55e17bb309af82c6d",
+      "result_sha256": "5724f2a1527b9401017a199bbc5e4374cf0e80ecde3577f57a80a8f7e663d3c8",
+      "independent_scoring_sha256": "e45c6a6cab390db31cffcf01847da30f6f617ce5b0b9ccdd13ac0f713cbac97f",
+      "independent_scoring": {
+        "judgments": [
+          {
+            "id": "q7m2v9",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Both independent durable requirements are selected separately and fully covered."
+          },
+          {
+            "id": "h4x8c1",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Both requirements are selected; the uncaptured loan photography requirement is correctly quoted as missing."
+          },
+          {
+            "id": "n6p3z8",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Separate selections preserve both independent requirements; the joint finding fully covers each."
+          },
+          {
+            "id": "b9r5k2",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "w2j7f4",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "t8d1s6",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "a3y9u5",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "m5c2e7",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "v1g8l3",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "p4q6a9",
+            "classification_valid": "no",
+            "coverage_valid": "no",
+            "reason": "The attributed limited observation is durable and must retain its untested outdoor scope and unidentified cause; it is omitted and uncovered."
+          },
+          {
+            "id": "k7u3h8",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "e8n5w1",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Both independent requirements are separately selected and fully covered by the admitted finding."
+          },
+          {
+            "id": "s2f9b6",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "All three independent policies are separately selected; only venue approval is uncovered and correctly quoted."
+          },
+          {
+            "id": "j6r1m4",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The one-off counting request contains no durable requirement."
+          },
+          {
+            "id": "c9t4p7",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The exploratory question explicitly adopts no procedure and contains no durable requirement."
+          },
+          {
+            "id": "u3a8d2",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "g5v2q8",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "r8k6z1",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "f1s7n9",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "z4h9e3",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The selected passage preserves the instruction and explicit unresolved referents jointly; the finding omits those limits, so the complete passage is correctly missing."
+          },
+          {
+            "id": "d7b3y6",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          },
+          {
+            "id": "l2w8j5",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The complete qualified glove requirement is selected and correctly missing because no findings cover it."
+          },
+          {
+            "id": "x6m1c8",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Both independent requirements are selected with the slide exception intact; only shipment handover recording is missing."
+          },
+          {
+            "id": "o9p4t2",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider abstained."
+          }
+        ],
+        "configured_model": "gpt-6.1-sol",
+        "configured_cli": "codex-cli 0.160.0",
+        "expected_labels_withheld": true,
+        "model_identities_withheld": true,
+        "tool_calls": 0,
+        "compactions": 0,
+        "calibrated_milestone_judge": false
+      },
+      "results": [
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "q7m2v9",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "h4x8c1",
+          "missing_quotes": [
+            "Loan officers must photograph the bellows before every outgoing loan."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "n6p3z8",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": null,
+          "expected": "missing",
+          "id": "b9r5k2",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "context",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              },
+              {
+                "disposition": "uncertain",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ],
+            "required_passages": [
+              {
+                "first_block": 0,
+                "last_block": 0
+              }
+            ]
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "incomplete_audit",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "covered",
+          "id": "w2j7f4",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "context",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ],
+            "required_passages": [
+              {
+                "first_block": 0,
+                "last_block": 1
+              }
+            ]
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "incomplete_audit",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "t8d1s6",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "context",
+                "final_unit_indices": []
+              },
+              {
+                "disposition": "uncertain",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": false,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": false,
+                "standalone_faithful": false
+              }
+            ],
+            "required_passages": []
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "incomplete_audit",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "covered",
+          "id": "a3y9u5",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": false,
+                "standalone_faithful": false
+              },
+              {
+                "independent_unit": false,
+                "standalone_faithful": false
+              }
+            ],
+            "required_passages": [
+              {
+                "first_block": 0,
+                "last_block": 1
+              }
+            ]
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "invalid_final_unit_reference",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "m5c2e7",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "context",
+                "final_unit_indices": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": false,
+                "standalone_faithful": false
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ],
+            "required_passages": [
+              {
+                "first_block": 0,
+                "last_block": 1
+              }
+            ]
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "invalid_final_unit_reference",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "covered",
+          "id": "v1g8l3",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ],
+            "required_passages": [
+              {
+                "first_block": 0,
+                "last_block": 0
+              }
+            ]
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "incomplete_audit",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": false,
+                "standalone_faithful": false
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "p4q6a9",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "k7u3h8",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "context",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": false,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": false
+              }
+            ],
+            "required_passages": [
+              {
+                "first_block": 0,
+                "last_block": 0
+              }
+            ]
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "incomplete_audit",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "e8n5w1",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  2
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "s2f9b6",
+          "missing_quotes": [
+            "The touring manager must obtain written venue approval before suspending bells from a ceiling."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            },
+            {
+              "first_block": 2,
+              "last_block": 2
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            },
+            {
+              "first_block": 2,
+              "last_block": 2
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": []
+          },
+          "expected": "no_durable_requirement",
+          "id": "j6r1m4",
+          "missing_quotes": [],
+          "primary_passages": [],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": []
+          },
+          "expected": "no_durable_requirement",
+          "id": "c9t4p7",
+          "missing_quotes": [],
+          "primary_passages": [],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "no_durable_requirement",
+          "id": "u3a8d2",
+          "missing_quotes": [],
+          "primary_passages": [],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": false,
+            "proposal_reviews": [],
+            "required_passages": []
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "incomplete_audit",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "no_durable_requirement",
+          "id": "g5v2q8",
+          "missing_quotes": [],
+          "primary_passages": [],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": false,
+            "proposal_reviews": [],
+            "required_passages": []
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "incomplete_audit",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": null,
+          "expected": "unknown",
+          "id": "r8k6z1",
+          "missing_quotes": [],
+          "primary_passages": null,
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": "unsafe_input",
+          "rejection_stage": null,
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": null,
+          "expected": "unknown",
+          "id": "f1s7n9",
+          "missing_quotes": [],
+          "primary_passages": null,
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": "unsafe_input",
+          "rejection_stage": null,
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "context",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": false
+              }
+            ]
+          },
+          "expected": "unknown",
+          "id": "z4h9e3",
+          "missing_quotes": [
+            "The beacon crew must follow the special sealing rule for those housings.\n\nThis note does not identify which sealing rule or which housings are meant."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "covered",
+          "id": "d7b3y6",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ],
+            "required_passages": [
+              {
+                "first_block": 0,
+                "last_block": 0
+              }
+            ]
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "incomplete_audit",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request",
+            "invalid_request"
+          ],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "l2w8j5",
+          "missing_quotes": [
+            "At the shadow puppet repository, handlers must wear cotton gloves when moving painted leather figures, except during documented pigment sampling supervised by the conservator."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "x6m1c8",
+          "missing_quotes": [
+            "Station couriers must record the handover time for every sample shipment."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "covered",
+          "id": "o9p4t2",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            },
+            {
+              "first_block": 2,
+              "last_block": 2
+            },
+            {
+              "first_block": 3,
+              "last_block": 3
+            }
+          ],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  2
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  3
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": false,
+                "standalone_faithful": false
+              },
+              {
+                "independent_unit": false,
+                "standalone_faithful": false
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ],
+            "required_passages": [
+              {
+                "first_block": 0,
+                "last_block": 1
+              },
+              {
+                "first_block": 2,
+                "last_block": 2
+              },
+              {
+                "first_block": 3,
+                "last_block": 3
+              }
+            ]
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "invalid_final_unit_reference",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        }
+      ],
+      "production_changes": false,
+      "prior_evidence_unchanged": true
     }
   ],
   "independent_reviews": {
