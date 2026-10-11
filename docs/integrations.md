@@ -94,6 +94,10 @@ Setup requires a server URL, token, authorized account, and repository remote ma
 
 Cairn records ownership of the exact resources and bytes it writes. Running `cairn setup` again repairs missing or byte-matching Cairn-owned content, while unrelated settings and user-edited conflicting content are preserved and reported. A clone with committed instruction files is not an installation on another machine; each developer runs setup with their own credential. Configuration managers such as CC Switch may own their own entries, and Cairn must not silently take them over.
 
+Skill identity covers its content files consistently on disk and in the embedded
+export. Repository-ignored OS metadata (.DS_Store and Thumbs.db) is not installed
+or hashed; adding or changing a real Skill asset still changes its revision.
+
 Direct setup pins MCP and native Claude Code/Codex hook commands to the `cairn`
 executable that performed setup. Moving the archive and rerunning setup updates
 only registrations that still match Cairn's ownership record. Portable manager

@@ -931,3 +931,24 @@ review unknown without a configured comparator. No provider or Claude ran.
 The classifier source and complete failed-attempt metadata retain their original
 SHA-256 identities. No V1–V4 failures were rerun or relabelled. PR #66 stays draft
 and cannot claim a qualified comparator, recall selector or milestone pass.
+
+### Clean-build Skill identity correction
+
+The first integrated-head CI run `38116574628` failed installed-Skill
+self-consistency and declared-revision checks. Its clean tree computed
+`a1a5a99a11e0`, while the copied local tree included ignored Finder metadata
+and declared the contaminated `52a5da4b6584`. The local success did not prove
+clean-source reproducibility; the failed run is preserved.
+
+Both embedded export and filesystem collection now exclude `.DS_Store` and
+`Thumbs.db`, matching repository ignore conventions, while real content files
+remain revision inputs. A deterministic temporary-tree regression failed before
+the fix and passed afterward; adding a real asset still changes the revision.
+The canonical generator computes `a1a5a99a11e0` for both collection paths, and
+the declared header was regenerated. Actual compiled artifact export omitted
+Finder metadata and passed installed self-consistency with that revision.
+The 212 integration-resource tests pass; the redundant forwarding assertion
+was removed, not the meaningful identity or installation checks.
+
+This is a packaging correction, not semantic qualification. Earlier measured
+Skill identities remain historical evidence; no frozen model result was changed.

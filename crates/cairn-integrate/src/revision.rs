@@ -187,8 +187,18 @@ pub fn embedded_files_verbatim() -> Vec<SkillFile> {
     files
 }
 
+fn is_skill_content(path: &std::path::Path) -> bool {
+    !matches!(
+        path.file_name().and_then(std::ffi::OsStr::to_str),
+        Some(".DS_Store" | "Thumbs.db")
+    )
+}
+
 fn collect(dir: &Dir<'_>, out: &mut Vec<SkillFile>) {
     for f in dir.files() {
+        if !is_skill_content(f.path()) {
+            continue;
+        }
         let content = String::from_utf8_lossy(f.contents()).to_string();
         out.push(SkillFile {
             path: f.path().to_string_lossy().replace('\\', "/"),
@@ -196,7 +206,9 @@ fn collect(dir: &Dir<'_>, out: &mut Vec<SkillFile>) {
         });
     }
     for d in dir.dirs() {
-        collect(d, out);
+        if is_skill_content(d.path()) {
+            collect(d, out);
+        }
     }
 }
 
@@ -218,11 +230,14 @@ fn walk(
     for entry in std::fs::read_dir(dir)? {
         let entry = entry?;
         let path = entry.path();
+        if !is_skill_content(&path) {
+            continue;
+        }
         if path.is_dir() {
             walk(root, &path, out)?;
         } else {
-            // Nothing is excluded — a new reference file changes the revision,
-            // which is the point (D29b step 1).
+            // Content files remain authoritative; only repository-ignored OS
+            // metadata is excluded consistently from embedding and disk reads.
             let rel = path
                 .strip_prefix(root)
                 .unwrap_or(&path)
@@ -368,6 +383,28 @@ mod tests {
     use super::*;
 
     #[test]
+    fn os_metadata_does_not_change_skill_identity_but_real_assets_do() {
+        let root = tempfile::tempdir().unwrap();
+        std::fs::write(root.path().join("SKILL.md"), "# Fixture skill\n").unwrap();
+        std::fs::create_dir(root.path().join("references")).unwrap();
+        std::fs::write(
+            root.path().join("references/policy.md"),
+            "Preserve conditions.\n",
+        )
+        .unwrap();
+        let before = revision_of(&files_from_disk(root.path()).unwrap());
+        std::fs::write(root.path().join(".DS_Store"), [0_u8, 255, 42]).unwrap();
+        std::fs::write(root.path().join("references/Thumbs.db"), [7_u8, 0, 255]).unwrap();
+        assert_eq!(revision_of(&files_from_disk(root.path()).unwrap()), before);
+        std::fs::write(
+            root.path().join("references/asset.json"),
+            "{\"scope\":\"project\"}",
+        )
+        .unwrap();
+        assert_ne!(revision_of(&files_from_disk(root.path()).unwrap()), before);
+    }
+
+    #[test]
     fn the_checked_in_revision_equals_the_computed_value() {
         // D29b validation: an ordinary `cargo test` catches a Skill edit that
         // forgot to update the frontmatter field.
@@ -491,14 +528,6 @@ mod tests {
         assert!(r
             .chars()
             .all(|c| c.is_ascii_hexdigit() && !c.is_uppercase()));
-    }
-
-    #[test]
-    fn skillref_output_is_the_same_function_the_binary_uses() {
-        let v = skillref_json(&embedded_files());
-        assert_eq!(v["skill_revision"], embedded_revision());
-        assert_eq!(v["skill_schema"], embedded_schema());
-        assert_eq!(v["skill_branch"], embedded_branch());
     }
 
     #[test]
