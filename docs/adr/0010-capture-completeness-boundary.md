@@ -205,3 +205,17 @@ See [live results](../../evals/m1-m2/results.md#live-source-classification-quali
 and [complete metadata](../../evals/m1-m2/source-classification-live-failures.json).
 The prior failed evidence is unchanged. A reliable semantic boundary remains
 a prerequisite; repeating failed cases or counting connectivity is not a remedy.
+
+## Completed-response boundary
+
+A loopback HTTP reproduction showed that parseable classification JSON marked
+`length`, `content_filter` or null completion could receive `covered` or
+`no_durable_requirement` credit. The comparator now requires `finish_reason:
+"stop"`; other or absent completion reasons remain unknown. Its revision is
+`capture-source-passages-v2-completed-response`, invalidating old cached credit.
+The source-selection prompt and passage-resolution contract are unchanged.
+
+The failed-before/passed-after HTTP regression and standalone comparator smoke
+exercise this response boundary; 74 daemon tests and 14 capture-review store
+tests passed. No live provider screen was rerun. This correction does not prove
+semantic completeness or change the preserved V1–V4 failures.

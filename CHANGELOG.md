@@ -16,6 +16,7 @@ schemas, and the wire protocol without a deprecation period.
 - Bind native authored-intent admission to exact complete current-source passages and preserve quoted bytes; invalidate legacy completeness credit on local schema-19 upgrade. Source integrity does not prove semantic completeness.
 - Exclude repository-ignored OS metadata from embedded and on-disk Skill trees so clean builds, installed content and declared revisions agree.
 - Keep lexically matching project memories available to search and task-conditioned context when an added query term is absent from the record; retain relevance ordering, candidate limits, reuse eligibility and semantic excerpt selection.
+- Withhold native capture-completeness credit unless the provider reports normal generation completion; invalidate cached assessments made under the older response rule.
 
 ### Documentation
 

@@ -12,7 +12,7 @@ use serde_json::Value;
 use std::{net::IpAddr, sync::LazyLock, time::Duration};
 use tokio::sync::Semaphore;
 
-pub const REVISION: &str = "capture-source-passages-v2";
+pub const REVISION: &str = "capture-source-passages-v2-completed-response";
 const MAX_RESPONSE: usize = 32 * 1024;
 const MAX_TASK_BYTES: usize = 16 * 1024;
 const MAX_FINDINGS: usize = 8;
@@ -193,6 +193,10 @@ impl Comparator {
             bytes.extend_from_slice(&chunk);
         }
         let envelope: Value = serde_json::from_slice(&bytes).map_err(|_| ())?;
+        // Parseable JSON is not completeness evidence when generation was interrupted.
+        if envelope["choices"][0]["finish_reason"] != "stop" {
+            return Err(());
+        }
         let answer = envelope["choices"][0]["message"]["content"]
             .as_str()
             .ok_or(())?;
@@ -369,6 +373,66 @@ mod tests {
                 required_passages: passages,
             },
         )
+    }
+
+    #[tokio::test]
+    async fn interrupted_generation_cannot_grant_positive_coverage() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        for reason in [
+            json!("length"),
+            json!("content_filter"),
+            json!("tool_calls"),
+            Value::Null,
+            json!("stop"),
+        ] {
+            for no_durable in [false, true] {
+                let task = if no_durable {
+                    "Format this output."
+                } else {
+                    "Keep recovery keys offline."
+                };
+                let data = input(
+                    task,
+                    if no_durable {
+                        vec![]
+                    } else {
+                        vec![finding(task, "user_report", Some("current"))]
+                    },
+                );
+                let answer = json!({"no_durable_requirement":no_durable,"required_passages":if no_durable { vec![] } else { vec![passage(0,0)] }});
+                let body = json!({"choices":[{"finish_reason":reason,"message":{"content":answer.to_string()}}]}).to_string();
+                let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+                let address = listener.local_addr().unwrap();
+                let server = tokio::spawn(async move {
+                    let (mut socket, _) = listener.accept().await.unwrap();
+                    let mut request = [0_u8; 4096];
+                    socket.read(&mut request).await.unwrap();
+                    socket.write_all(format!("HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}", body.len()).as_bytes()).await.unwrap();
+                });
+                let comparator = Comparator::from_parts(
+                    Some(&format!("http://{address}")),
+                    Some("fixture"),
+                    Some("fixture"),
+                    false,
+                )
+                .unwrap()
+                .unwrap();
+                let result = comparator.assess(&data).await;
+                server.await.unwrap();
+                if reason == "stop" {
+                    assert_eq!(
+                        result.unwrap().status,
+                        if no_durable {
+                            "no_durable_requirement"
+                        } else {
+                            "covered"
+                        }
+                    );
+                } else {
+                    assert!(result.is_err(), "interrupted generation received coverage: {reason}, no_durable={no_durable}");
+                }
+            }
+        }
     }
 
     #[test]
