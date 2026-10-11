@@ -2840,6 +2840,811 @@
       "unknown_diagnostic_causes": "not retained; no causes inferred",
       "production_changes": false,
       "frozen_prior_evidence_unchanged": true
+    },
+    {
+      "version": "v6-private-targeted-entailment-json-object",
+      "qualification": "failed_not_advanced",
+      "published_base_revision": "d06dcdf4",
+      "source_sha256": "20e14b0beee6ffd5c9fca576d24e68f22cd7242f11b0e9e73593d7b8e28a2b1a",
+      "configured_models": {
+        "primary": "openai/gpt-oss-120b",
+        "audit": "qwen/qwen3.8-27b"
+      },
+      "provider_model_attested": false,
+      "provider_input_readback_verified": false,
+      "fixture": "source-targeted-audit-qualification-screen.json",
+      "fixture_sha256": "8ada7dd386b3786eaf513ef06abb90c5b62d2488eb2859d4cb99495bf5ca6edb",
+      "gold_sha256": "119b0ec3602be34ec700b2742866a8cc19c2c621c996a741ae2b1151e77e7eb0",
+      "protocol_sha256": "3e0fe5ede263a3f67e53c8a23acb7bfe4e2a42c125784b29092f46210ce01b26",
+      "result_sha256": "1c4aaab2ea20ba55e40d3be3b405ac031f17796fbc7d983d01af2f8d2fd9b1cf",
+      "cases": 24,
+      "full_predicates_matched": 10,
+      "status_matches": 10,
+      "unknown": 17,
+      "rejection_codes": {
+        "http_failure": 10,
+        "invalid_classification": 4,
+        "unsafe_input": 3
+      },
+      "unrecorded_details": "HTTP status and raw malformed output were not retained. No quota, backend or JSON-shape cause is inferred for those historical failures.",
+      "exit_code": 101,
+      "total_deadline_seconds": 10,
+      "combined_response_bytes": 32768,
+      "max_concurrent_provider_requests": 2,
+      "valid_case_retries": 0,
+      "independent_scoring_sha256": "8a0a37af8c55bd2c641faf7aba34fd8a74574cb9f52919bb461e4e747a06c0dd",
+      "independent_scoring": {
+        "judgments": [
+          {
+            "id": "a7f2c9",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Both independent lasting rules are selected separately and fully covered by admitted findings."
+          },
+          {
+            "id": "b4e8d1",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "c9a3f6",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The independent policies are selected separately; the admitted finding fully covers both."
+          },
+          {
+            "id": "d2b7e4",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The selected and covered rule retains its project scope, trigger, and rescue exception."
+          },
+          {
+            "id": "e6c1a8",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The complete conditional rule is selected and correctly quoted as missing; no findings are admitted."
+          },
+          {
+            "id": "f3d9b2",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "g8e4c7",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "h1f6d3",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "i5a2e9",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The retrieval rule and linked exception form one complete selected passage. Separate findings do not jointly cover it, so the full missing quote is correct."
+          },
+          {
+            "id": "j9b5f1",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "k2c8a4",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "l6d3b8",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "m3e9c2",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "n8f4d6",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "o1a7e3",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The lasting ledger requirement is fully selected and correctly quoted as missing with no admitted findings."
+          },
+          {
+            "id": "p5b2f9",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "q9c6a1",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "r2d8b5",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "s6e3c7",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "t3f9d4",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "u8a5e2",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "v1b7f6",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          },
+          {
+            "id": "w5c2a9",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The complete failure report preserves attribution, the limited observation, and the causal limitation; the admitted finding covers it."
+          },
+          {
+            "id": "x9d6b3",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider assessment is an abstention."
+          }
+        ],
+        "configured_model": "gpt-6.1-sol",
+        "configured_cli": "codex-cli 0.160.0",
+        "expected_labels_withheld": true,
+        "model_identities_withheld": true,
+        "tool_calls": 0,
+        "compactions": 0,
+        "calibrated_milestone_judge": false
+      },
+      "scoring_scope": "All7 completed classifications and coverage accepted;17unknown; blinded tool-free pinned Sol, not calibrated milestone scoring.",
+      "post_run_readiness": "Both configured Groq models subsequently returned HTTP200/stop on non-scoring requests. This does not diagnose or replace historical outcomes.",
+      "strict_schema_capability": "Both configured models returned HTTP200/stop with strict json_schema on non-scoring checks; corrected transport requires new prospective qualification.",
+      "results": [
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "a7f2c9",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "b4e8d1",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "invalid_classification",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "c9a3f6",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "d2b7e4",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "e6c1a8",
+          "missing_quotes": [
+            "For winter runs only, the sled coordinator must inspect each harness before departure, unless the veterinary lead has already signed that day's inspection."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": null,
+          "expected": "missing",
+          "id": "f3d9b2",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "invalid_classification",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "covered",
+          "id": "g8e4c7",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "invalid_classification",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "h1f6d3",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "invalid_classification",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "i5a2e9",
+          "missing_quotes": [
+            "For the reef acoustics project, divers must retrieve recording pods after each survey.\n\nThat retrieval rule does not apply while the marine warden has closed the dive area."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "covered",
+          "id": "j9b5f1",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "http_failure",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": null,
+          "expected": "missing",
+          "id": "k2c8a4",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "http_failure",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "no_durable_requirement",
+          "id": "l6d3b8",
+          "missing_quotes": [],
+          "primary_passages": [],
+          "rejected_audit": null,
+          "rejection_reason": "http_failure",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "no_durable_requirement",
+          "id": "m3e9c2",
+          "missing_quotes": [],
+          "primary_passages": [],
+          "rejected_audit": null,
+          "rejection_reason": "http_failure",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "covered",
+          "id": "n8f4d6",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "http_failure",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "o1a7e3",
+          "missing_quotes": [
+            "The cave mapping team must record compass calibration dates in the expedition ledger."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": null,
+          "expected": "unknown",
+          "id": "p5b2f9",
+          "missing_quotes": [],
+          "primary_passages": null,
+          "rejected_audit": null,
+          "rejection_reason": "unsafe_input",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": null,
+          "expected": "unknown",
+          "id": "q9c6a1",
+          "missing_quotes": [],
+          "primary_passages": null,
+          "rejected_audit": null,
+          "rejection_reason": "unsafe_input",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "unknown",
+          "id": "r2d8b5",
+          "missing_quotes": [],
+          "primary_passages": null,
+          "rejected_audit": null,
+          "rejection_reason": "unsafe_input",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "s6e3c7",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            },
+            {
+              "first_block": 2,
+              "last_block": 2
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "http_failure",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "covered",
+          "id": "t3f9d4",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "http_failure",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "u8a5e2",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            },
+            {
+              "first_block": 2,
+              "last_block": 2
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "http_failure",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "covered",
+          "id": "v1b7f6",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "http_failure",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "w5c2a9",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": null,
+          "expected": "covered",
+          "id": "x9d6b3",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_reason": "http_failure",
+          "required_passages": [],
+          "status": "unknown"
+        }
+      ],
+      "production_changes": false,
+      "prior_evidence_unchanged": true
     }
   ],
   "independent_reviews": {

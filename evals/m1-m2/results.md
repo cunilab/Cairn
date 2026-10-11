@@ -976,3 +976,22 @@ scoring was tool-free and blinded, but was not calibrated milestone scoring.
 The failed candidate was not published or enabled. The published V2 response-
 completion correction remains disabled by default and semantically unqualified;
 no V1–V4 result changed, no Claude ran, and no downstream gate advanced.
+
+### Private V6 standalone contextual audit — gate failed
+
+A different one-pass auditor checked proposed source units as standalone future
+memories against the complete source and returned repaired final ranges. All 24
+fresh cases ran once: 10/24 full predicates matched, with seven completed
+assessments and 17 unknowns. Recorded rejection codes were ten HTTP failures,
+four invalid classification responses and three intentionally unsafe inputs.
+HTTP statuses and raw malformed outputs were not retained; their historical
+causes are not inferred. All seven completed classifications and coverage
+assessments passed blinded supplemental scoring; this is not milestone scoring.
+
+Later non-scoring requests returned HTTP 200 from both configured models, and
+both accepted strict JSON-schema output. These checks do not replace or relabel
+any failed screen outcome. A prospective serialization correction needs fresh
+qualification; the published classifier remains unchanged and unqualified.
+The [fixture](source-targeted-audit-qualification-screen.json) and every outcome
+are preserved in [metadata](source-classification-live-failures.json). No Claude,
+real-task upload, production enablement or downstream advancement occurred.
