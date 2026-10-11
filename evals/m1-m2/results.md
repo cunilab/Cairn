@@ -1042,3 +1042,21 @@ not published or enabled; the [fresh screen](source-exact-audit-qualification-sc
 and every outcome are retained in [metadata](source-classification-live-failures.json).
 No failed case was retried, no prior result changed, and no downstream semantic
 gate advanced. Claude, real-task uploads and production enablement remain excluded.
+
+### Private high-reasoning source audit — gate failed
+
+The source-only two-stage candidate requested high reasoning without returning
+reasoning text. Both models passed separate zero/positive non-scoring capability
+checks. Its fresh independently authored and gold-reviewed 24-case screen then
+ran once: 7/24 full predicates and statuses matched; nineteen assessments were
+unknown. Fifteen audit requests returned HTTP 429, one audit was incomplete,
+one assessment exceeded the unchanged total deadline, and two inputs were unsafe.
+The original rate-limit bodies and headers were not retained; the exhausted
+dimension is not inferred from a later successful connectivity request.
+
+Blinded supplemental scoring accepted all five completed classifications and
+coverage assessments, with nineteen unknowns. This is not qualification. The
+candidate remains rejected and unpublished. Every outcome and the exact
+[fresh screen](source-high-reasoning-qualification-screen.json) are preserved in
+[metadata](source-classification-live-failures.json). No valid case was retried,
+no previous outcome changed, and no downstream semantic gate advanced.
