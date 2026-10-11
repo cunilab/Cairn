@@ -1060,3 +1060,30 @@ candidate remains rejected and unpublished. Every outcome and the exact
 [fresh screen](source-high-reasoning-qualification-screen.json) are preserved in
 [metadata](source-classification-live-failures.json). No valid case was retried,
 no previous outcome changed, and no downstream semantic gate advanced.
+
+### Private completion-budget audit — gate failed
+
+The next candidate bounded each high-reasoning request to 4096 completion tokens
+and preregistered 90-second case spacing in the test harness only. Production
+kept its total 10-second deadline, combined 32-KiB response cap and no retries.
+The fresh independently authored and reviewed 24-case screen ran once: 17/24
+full predicates and 18/24 statuses matched. Nine assessments were unknown: four
+audit HTTP 429 responses, one incomplete audit, one uncertain audit and three
+unsafe inputs. No historical rate-limit dimension is inferred.
+
+Blinded supplemental scoring accepted fourteen classifications, rejected one
+and marked nine unknown; coverage was valid for fifteen and unknown for nine.
+The auditor dropped the attributed failure report in `dc417e` despite accepting
+both primary proposals as faithful and independent. Its admitted findings already
+covered both source units, so this was an invalid classification, not an observed
+wrong coverage status. The failed candidate was not published or enabled.
+
+The separate pinned judge route passed all 42 unchanged consistency fixtures
+(30 binary predicates and 12 delivery/provenance fixtures), with no unknowns.
+The prospective wrapper is not claimed byte-identical to historical private
+wrappers; semantic predicates, delivery rules and fixture gold are unchanged.
+[Calibration](calibration-codex-budget-results.json), the exact
+[screen](source-token-budget-qualification-screen.json), and every outcome in
+[metadata](source-classification-live-failures.json) are preserved. A non-scoring
+pinned actor-route readiness check passed; no full workload or downstream semantic
+gate advanced.

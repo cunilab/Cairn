@@ -7274,6 +7274,1145 @@
       "exit_code": 101,
       "production_changes": false,
       "prior_evidence_unchanged": true
+    },
+    {
+      "version": "v9-private-completion-budget",
+      "qualification": "failed_candidate_rejected",
+      "source_sha256": "f35fb43bae7697dcc8d00eb6672e524bd5b0757a3af744b24311ff8323c2fc82",
+      "configured_models": {
+        "primary": "openai/gpt-oss-120b",
+        "audit": "qwen/qwen3.8-27b"
+      },
+      "reasoning_effort": "high",
+      "include_reasoning": false,
+      "max_completion_tokens_per_request": 4096,
+      "fixture": "source-token-budget-qualification-screen.json",
+      "fixture_sha256": "a3d78fca7ef485c28fdbf10032ed826882c7d81e72f56bea436f60d07c86c8f7",
+      "result_sha256": "44d8fcc5657e560d854fad668f4ab38948478997055a51f7027ba972167be7fd",
+      "independent_scoring_sha256": "119e2cdef55baab840768474981eebd81e9920402e5b0ef11d4ad85e1f17aec1",
+      "protocol_sha256": "5508653ab739be2ff09ac35a931dea6faf0144fce2ef6a7ae6a9537a9cef1874",
+      "cases": 24,
+      "full_predicates_matched": 17,
+      "status_matches": 18,
+      "unknown": 9,
+      "rejections": {
+        "http_failure": 4,
+        "incomplete_audit": 1,
+        "uncertain_audit": 1,
+        "unsafe_input": 3
+      },
+      "results": [
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "7f2a91",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "c083de",
+          "missing_quotes": [
+            "Our kite workshop must keep damaged sails in locker R."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "94bd60",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "ea5178",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "35c9af",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": 429,
+          "rejection_reason": "http_failure",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "b68104",
+          "missing_quotes": [
+            "At our reed nursery, attendants must close the intake valve when the salinity alarm sounds, unless the supervisor has declared a flushing cycle."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "0da7e3",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "f390bc",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "2e56d8",
+          "missing_quotes": [
+            "According to conservator Lio, the west fresco shed pigment during one dry-brush trial; our team has not repeated that trial."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "no_durable_requirement",
+          "id": "8ca142",
+          "missing_quotes": [],
+          "primary_passages": [],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "transient",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": false,
+            "proposal_reviews": [],
+            "required_passages": []
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "incomplete_audit",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "no_durable_requirement",
+          "id": "d7049b",
+          "missing_quotes": [],
+          "primary_passages": [],
+          "rejected_audit": {
+            "block_reviews": [
+              {
+                "disposition": "uncertain",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [],
+            "required_passages": []
+          },
+          "rejection_http_status": 200,
+          "rejection_reason": "uncertain_audit",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "61fb83",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "ab208f",
+          "missing_quotes": [
+            "Our avalanche beacon library must lend batteries separately from beacon cases."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "49e6c0",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": 429,
+          "rejection_reason": "http_failure",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": null,
+          "expected": "unknown",
+          "id": "e91375",
+          "missing_quotes": [],
+          "primary_passages": null,
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": "unsafe_input",
+          "rejection_stage": null,
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": null,
+          "expected": "unknown",
+          "id": "76bc2d",
+          "missing_quotes": [],
+          "primary_passages": null,
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": "unsafe_input",
+          "rejection_stage": null,
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  2
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "03ad69",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            },
+            {
+              "first_block": 2,
+              "last_block": 2
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            },
+            {
+              "first_block": 2,
+              "last_block": 2
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  1
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  2
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "missing",
+          "id": "bd8521",
+          "missing_quotes": [
+            "Our salt museum must use padded carts for stone grinding bowls."
+          ],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            },
+            {
+              "first_block": 2,
+              "last_block": 2
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            },
+            {
+              "first_block": 2,
+              "last_block": 2
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "5f0c97",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "a268db",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            },
+            {
+              "first_block": 2,
+              "last_block": 2
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": 429,
+          "rejection_reason": "http_failure",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "transient",
+                "final_unit_indices": []
+              },
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              },
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "dc417e",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "missing",
+          "id": "18eb54",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": 429,
+          "rejection_reason": "http_failure",
+          "rejection_stage": "audit",
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "audit": {
+            "block_reviews": [
+              {
+                "disposition": "durable",
+                "final_unit_indices": [
+                  0
+                ]
+              }
+            ],
+            "complete": true,
+            "proposal_reviews": [
+              {
+                "independent_unit": true,
+                "standalone_faithful": true
+              }
+            ]
+          },
+          "expected": "covered",
+          "id": "902fc6",
+          "missing_quotes": [],
+          "primary_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": null,
+          "rejection_stage": null,
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "audit": null,
+          "expected": "unknown",
+          "id": "6b73a0",
+          "missing_quotes": [],
+          "primary_passages": null,
+          "rejected_audit": null,
+          "rejection_http_status": null,
+          "rejection_reason": "unsafe_input",
+          "rejection_stage": null,
+          "required_passages": [],
+          "status": "unknown"
+        }
+      ],
+      "independent_scoring": {
+        "judgments": [
+          {
+            "id": "7f2a91",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Both independent standing requirements are separately selected and fully covered by the admitted finding."
+          },
+          {
+            "id": "c083de",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Both standing requirements are selected; only the locker requirement is uncovered and correctly quoted as missing."
+          },
+          {
+            "id": "94bd60",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The continuing ledger requirement is selected and covered; the one-off jar request is excluded."
+          },
+          {
+            "id": "ea5178",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The crew and location scope stays joined to the logging rule, and the complete unit is covered."
+          },
+          {
+            "id": "35c9af",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider returned an unknown assessment; both judgments are abstentions."
+          },
+          {
+            "id": "b68104",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The complete conditional rule and exception are selected and correctly quoted as missing with no admitted findings."
+          },
+          {
+            "id": "0da7e3",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The inspection rule retains its exception and is fully covered."
+          },
+          {
+            "id": "f390bc",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The durable observation retains its timing, unit, and explicit investigation limits and is fully covered."
+          },
+          {
+            "id": "2e56d8",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The attributed observation and repetition limit stay together and are correctly quoted as missing."
+          },
+          {
+            "id": "8ca142",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider returned an unknown assessment; both judgments are abstentions."
+          },
+          {
+            "id": "d7049b",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider returned an unknown assessment; both judgments are abstentions."
+          },
+          {
+            "id": "61fb83",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Only the settled catalog-number requirement is selected and covered; exploratory and one-off requests are excluded."
+          },
+          {
+            "id": "ab208f",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The complete standing lending requirement is selected and correctly quoted as missing."
+          },
+          {
+            "id": "49e6c0",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider returned an unknown assessment; both judgments are abstentions."
+          },
+          {
+            "id": "e91375",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider returned an unknown assessment; both judgments are abstentions."
+          },
+          {
+            "id": "76bc2d",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider returned an unknown assessment; both judgments are abstentions."
+          },
+          {
+            "id": "03ad69",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "Three independent standing policies are separately selected and fully covered by the admitted findings."
+          },
+          {
+            "id": "bd8521",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "All three independent policies are selected; only the padded-cart policy is uncovered and correctly quoted."
+          },
+          {
+            "id": "5f0c97",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The route-card obligation stays joined to its location restriction and waiver, and the complete unit is covered."
+          },
+          {
+            "id": "a268db",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider returned an unknown assessment; both judgments are abstentions."
+          },
+          {
+            "id": "dc417e",
+            "classification_valid": "no",
+            "coverage_valid": "yes",
+            "reason": "Selection omits the durable attributed failure report and its evidence limits. Both lasting units are nevertheless fully covered by admitted findings, so covered with no missing quotes is correct."
+          },
+          {
+            "id": "18eb54",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider returned an unknown assessment; both judgments are abstentions."
+          },
+          {
+            "id": "902fc6",
+            "classification_valid": "yes",
+            "coverage_valid": "yes",
+            "reason": "The complete tagging policy retains its provenance condition and exception and is fully covered."
+          },
+          {
+            "id": "6b73a0",
+            "classification_valid": "unknown",
+            "coverage_valid": "unknown",
+            "reason": "The provider returned an unknown assessment; both judgments are abstentions."
+          }
+        ],
+        "configured_model": "gpt-6.1-sol",
+        "configured_cli": "codex-cli 0.160.0",
+        "expected_labels_withheld": true,
+        "model_identities_withheld": true,
+        "tool_calls": 0,
+        "compactions": 0,
+        "calibrated_milestone_judge": false
+      },
+      "confirmed_invalid_classifications": [
+        "dc417e"
+      ],
+      "confirmed_invalid_coverage": [],
+      "historical_http_429_diagnosis": "Specific exhausted quota dimension not retained; later200capacity probe is not historical diagnosis",
+      "production_request_deadline_seconds": 10,
+      "combined_response_bytes": 32768,
+      "max_concurrent_provider_requests": 2,
+      "harness_only_interval_seconds": 90,
+      "valid_case_retries": 0,
+      "exit_code": 101,
+      "production_changes": false,
+      "prior_evidence_unchanged": true
     }
   ],
   "independent_reviews": {
