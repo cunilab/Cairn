@@ -1,0 +1,2874 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-11T04:19:45.130Z",
+  "source_base_revision": "a209f77e09306d484fcbe3a459a386bbb81bb47a",
+  "status": "all_candidates_failed",
+  "scope": "isolated synthetic development qualification; not milestone certification",
+  "endpoint": "https://api.groq.com/openai/v1",
+  "provider_input_readback_verified": false,
+  "attempts": [
+    {
+      "version": "v2",
+      "configured_model": "qwen/qwen3.8-27b",
+      "provider_model_attested": false,
+      "exit_code": 101,
+      "qualification": "failed",
+      "source_sha256": "a4bda840e5891237cc14eb82d361e91d0f875a48a1075b50855e369a93b8d09f",
+      "fixture": "source-passage-qualification-screen.json",
+      "fixture_sha256": "a386d11a0bc22bbd99f7e9b3aede7d86862ce4245f88e5d3bba8a8c8eb016b01",
+      "cases": 18,
+      "full_predicates_matched": 14,
+      "status_matches": 15,
+      "unknown": 1,
+      "false_covered": [],
+      "minimum_case_interval_seconds": 0,
+      "production_request_deadline_seconds": 10,
+      "result_sha256": "af1991321a08195872af0572f4b3acba0fa7a7892a01551c2f17bf7a051422dc",
+      "revision": "capture-source-passages-v2:4c6c8294c8cc9aee07291b873808127a986424c9230e1b8a71a0ec8017d3995f",
+      "results": [
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "expected": "missing",
+          "id": "tenant-readonly-qualifier",
+          "missing_quotes": [
+            "Team policy: operators may read tenant audit indexes only; account owners must approve every repair."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "sandbox-boundary-retained",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "multiline-exception-retained",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "expected": "missing",
+          "id": "cropped-exception-refused",
+          "missing_quotes": [
+            "Team policy: retain billing exports for seven years, except test-tenant exports that contain no real customer data."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "one-independent-policy-missing",
+          "missing_quotes": [
+            "Team policy: both reviewers must approve schema changes.\n\nTeam policy: preserve failed rollback logs for 48 hours."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "two-independent-policies-covered",
+          "missing_quotes": [
+            "Team policy: disable deployment while migration verification is running.\n\nTeam policy: reopening deployment requires the on-call engineer approval."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "implementation-cannot-cover-intent",
+          "missing_quotes": [
+            "Team policy: after an interrupted import, restore both the keyring and namespace binding before reconnecting."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "unbound-exact-quote-no-credit",
+          "missing_quotes": [
+            "Team policy: cross-team exports require approval from both owning teams."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "expected": "missing",
+          "id": "negated-upload-crop-refused",
+          "missing_quotes": [
+            "Team policy: never send incident transcripts to external inference endpoints, even when incident data is anonymized."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "no_durable_requirement",
+          "id": "routine-task-not-lasting",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "no_durable_requirement",
+          "id": "exploratory-question-not-policy",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "limited-trial-counts-and-scope",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "lasting-readonly-policy",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "lasting-policy-between-task-instructions",
+          "missing_quotes": [
+            "Team policy: production health checks must never query customer payload tables.\n\nReply with the affected code path; do not deploy anything in this task."
+          ],
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 2
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "cross-paragraph-scope-not-retained",
+          "missing_quotes": [
+            "The following exception applies only to manually triggered disaster-recovery drills.\n\nTeam policy: operators may disable request tracing during the restore."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "cross-paragraph-scope-retained",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "separate-fragments-not-joint-memory",
+          "missing_quotes": [
+            "The following approval exception applies only to developer-owned throwaway environments.\n\nTeam policy: the environment owner may authorize a package downgrade."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "inspected-exact-policy-still-no-intent-proof",
+          "missing_quotes": [
+            "Team policy: automated support tools may view anonymized error counts, but must never modify ticket contents."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "version": "v2",
+      "configured_model": "openai/gpt-oss-120b",
+      "provider_model_attested": false,
+      "exit_code": 101,
+      "qualification": "failed",
+      "source_sha256": "a4bda840e5891237cc14eb82d361e91d0f875a48a1075b50855e369a93b8d09f",
+      "fixture": "source-passage-qualification-screen.json",
+      "fixture_sha256": "a386d11a0bc22bbd99f7e9b3aede7d86862ce4245f88e5d3bba8a8c8eb016b01",
+      "cases": 18,
+      "full_predicates_matched": 16,
+      "status_matches": 17,
+      "unknown": 0,
+      "false_covered": [],
+      "minimum_case_interval_seconds": 0,
+      "production_request_deadline_seconds": 10,
+      "result_sha256": "17548a944edb62686589d773b349f6aa246608e8f3433d43daaae412d3069f14",
+      "revision": "capture-source-passages-v2:84f9b2b7ff6ec38a566dac7bf1f84d7a933806bef0d7dd60542ae5366f268ff1",
+      "results": [
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "expected": "missing",
+          "id": "tenant-readonly-qualifier",
+          "missing_quotes": [
+            "Team policy: operators may read tenant audit indexes only; account owners must approve every repair."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "sandbox-boundary-retained",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "multiline-exception-retained",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "expected": "missing",
+          "id": "cropped-exception-refused",
+          "missing_quotes": [
+            "Team policy: retain billing exports for seven years, except test-tenant exports that contain no real customer data."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "one-independent-policy-missing",
+          "missing_quotes": [
+            "Team policy: both reviewers must approve schema changes.\n\nTeam policy: preserve failed rollback logs for 48 hours."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "two-independent-policies-covered",
+          "missing_quotes": [
+            "Team policy: disable deployment while migration verification is running.\n\nTeam policy: reopening deployment requires the on-call engineer approval."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "implementation-cannot-cover-intent",
+          "missing_quotes": [
+            "Team policy: after an interrupted import, restore both the keyring and namespace binding before reconnecting."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "unbound-exact-quote-no-credit",
+          "missing_quotes": [
+            "Team policy: cross-team exports require approval from both owning teams."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "expected": "missing",
+          "id": "negated-upload-crop-refused",
+          "missing_quotes": [
+            "Team policy: never send incident transcripts to external inference endpoints, even when incident data is anonymized."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "no_durable_requirement",
+          "id": "routine-task-not-lasting",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "no_durable_requirement",
+          "id": "exploratory-question-not-policy",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "limited-trial-counts-and-scope",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "lasting-readonly-policy",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "lasting-policy-between-task-instructions",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "cross-paragraph-scope-not-retained",
+          "missing_quotes": [
+            "The following exception applies only to manually triggered disaster-recovery drills.\n\nTeam policy: operators may disable request tracing during the restore."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "covered",
+          "id": "cross-paragraph-scope-retained",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "separate-fragments-not-joint-memory",
+          "missing_quotes": [
+            "The following approval exception applies only to developer-owned throwaway environments.\n\nTeam policy: the environment owner may authorize a package downgrade."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "expected": "missing",
+          "id": "inspected-exact-policy-still-no-intent-proof",
+          "missing_quotes": [
+            "Team policy: automated support tools may view anonymized error counts, but must never modify ticket contents."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "version": "v3",
+      "configured_model": "openai/gpt-oss-120b",
+      "provider_model_attested": false,
+      "exit_code": 101,
+      "qualification": "failed",
+      "source_sha256": "d539c842de75d950aaf9f2a3ae79a3c1e3ee71ac7ac048f35c2d18271ccc042d",
+      "fixture": "source-anchor-qualification-screen.json",
+      "fixture_sha256": "7ef9ba76ba4a7c24ed54b15319f6f0890eb681f0d913fe64f30dc7147d24ada2",
+      "cases": 24,
+      "full_predicates_matched": 15,
+      "status_matches": 19,
+      "unknown": 4,
+      "false_covered": [
+        "enrollment-scope-fragmented"
+      ],
+      "minimum_case_interval_seconds": 8,
+      "production_request_deadline_seconds": 10,
+      "result_sha256": "7b1340293fab433256750fe4fc10c3163e095605fd6067b9a7dca5e50fff07bb",
+      "revision": "capture-source-anchors-v3:4eae91f8b4000dda45656da95d654c3f75235f129830dae1103c1dd02fb18b43",
+      "results": [
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "owner-consent-retained",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "owner-consent-cropped",
+          "missing_quotes": [
+            "Permanent policy: exporting diagnostic archives requires the workspace owner’s written approval."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "distinct-signing-and-preview-policies",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "signing-policy-absent",
+          "missing_quotes": [
+            "Project policy: use hardware-backed signing keys for release artifacts."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "distinct-incident-and-metric-policies",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "lag-retention-policy-absent",
+          "missing_quotes": [
+            "Team policy: preserve replication-lag samples for twenty-one days."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "covered",
+          "id": "policy-between-oneoff-actions",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "ignore",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "policy-after-oneoff-request",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "enrollment-scope-retained",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "enrollment-scope-fragmented",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "enrollment-scope-omitted",
+          "missing_quotes": [
+            "These permissions apply only to disposable integration-test accounts."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "heartbeat-exception-retained",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "heartbeat-exception-scope-omitted",
+          "missing_quotes": [
+            "The following exception applies only to scheduled maintenance rehearsals."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "covered",
+          "id": "multiline-audit-exception",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "multiline-audit-exception-cropped",
+          "missing_quotes": [
+            "Team policy: retain session audit trails for 120 days.\nException: redacted sandbox trails may be discarded after ten days, but only with the sandbox owner’s approval."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "limited-canary-report",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [],
+            "roles": [
+              "ignore"
+            ]
+          },
+          "expected": "no_durable_requirement",
+          "id": "routine-test-command",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [],
+            "roles": [
+              "ignore"
+            ]
+          },
+          "expected": "no_durable_requirement",
+          "id": "routine-code-location",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "no_durable_requirement",
+          "id": "open-store-question",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [],
+            "roles": [
+              "ignore"
+            ]
+          },
+          "expected": "no_durable_requirement",
+          "id": "open-retention-question",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "inspection-not-authored-proof",
+          "missing_quotes": [
+            "Standing policy: automated agents can view ticket labels but cannot alter assignees."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "missing",
+          "id": "unbound-policy-not-current-proof",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "negated-external-transmission",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "negated-external-transmission-cropped",
+          "missing_quotes": [
+            "Standing policy: never transmit tenant query samples to an external debugging service, even if identifiers have been hashed."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "version": "v4",
+      "configured_model": "openai/gpt-oss-120b",
+      "provider_model_attested": false,
+      "exit_code": 101,
+      "qualification": "failed",
+      "source_sha256": "3617082c47d56411c1d2f88a65167075c6a347388fd1264da4722570cfa76f39",
+      "fixture": "source-qualifier-qualification-screen.json",
+      "fixture_sha256": "3578a2b95dbf354cfd2346796a0c5814fa83eeaa32a7d7ce806f725819e50e1e",
+      "cases": 24,
+      "full_predicates_matched": 14,
+      "status_matches": 18,
+      "unknown": 3,
+      "false_covered": [
+        "vault-scope-separate",
+        "throttling-exception-separate"
+      ],
+      "minimum_case_interval_seconds": 8,
+      "production_request_deadline_seconds": 10,
+      "result_sha256": "b210c46c1e578247cc66bef057f6ebb0519ab35e02394c6602d8f4544fcad5e9",
+      "revision": "capture-source-qualifiers-v4:36b9fb47a9947f3bae4a9aeeeb6feb8a94f30b08d8232c88508af51fe03a633c",
+      "results": [
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "vault-scope-joint",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "vault-scope-separate",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "vault-scope-not-recorded",
+          "missing_quotes": [
+            "These access privileges are restricted to offline training vaults."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": [
+                  1
+                ]
+              },
+              {
+                "anchor": 1,
+                "blocks": [
+                  0
+                ]
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "vault-inspection-not-intent",
+          "missing_quotes": [
+            "These access privileges are restricted to offline training vaults.\n\nA vault operator may rotate the simulated signing certificate."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "throttling-exception-joint",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "throttling-exception-separate",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "throttling-exception-scope-absent",
+          "missing_quotes": [
+            "The exception below is restricted to smoke-test sessions."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "journals-and-signing-independent",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "journal-rule-missing",
+          "missing_quotes": [
+            "Standing policy: retain failed synchronization journals for thirty-six hours."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "signing-rule-missing",
+          "missing_quotes": [
+            "Standing policy: artifact signing requires approval from three owning teams."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "recovery-and-timestamps-independent",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "ignore",
+              "durable",
+              "ignore"
+            ]
+          },
+          "expected": "covered",
+          "id": "queue-policy-with-review-actions",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "covered",
+          "id": "identity-policy-after-check",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "demo-log-exception-preserved",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "classification": null,
+          "expected": "missing",
+          "id": "demo-log-exception-cropped",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "laboratory-counts-limited",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [],
+            "roles": [
+              "ignore"
+            ]
+          },
+          "expected": "no_durable_requirement",
+          "id": "oneoff-style-check",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "no_durable_requirement",
+          "id": "oneoff-reference-report",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "no_durable_requirement",
+          "id": "exploratory-scheduler-options",
+          "missing_quotes": [
+            "Could a different scheduler simplify a future prototype? No scheduler choice has been made."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [],
+            "roles": [
+              "ignore"
+            ]
+          },
+          "expected": "no_durable_requirement",
+          "id": "exploratory-observation-only",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "unbound-owner-policy",
+          "missing_quotes": [
+            "Standing policy: only workspace owners can approve cross-workspace backups."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "attachment-negation-preserved",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "attachment-negation-cropped",
+          "missing_quotes": [
+            "Standing policy: never send incident attachments to an external classifier, including scrubbed attachments."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": [
+                  0
+                ]
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "reported-counts-linked-scope",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        }
+      ]
+    },
+    {
+      "version": "v4",
+      "configured_model": "qwen/qwen3.8-27b",
+      "provider_model_attested": false,
+      "exit_code": 101,
+      "qualification": "failed",
+      "source_sha256": "3617082c47d56411c1d2f88a65167075c6a347388fd1264da4722570cfa76f39",
+      "fixture": "source-qualifier-qualification-screen.json",
+      "fixture_sha256": "3578a2b95dbf354cfd2346796a0c5814fa83eeaa32a7d7ce806f725819e50e1e",
+      "cases": 24,
+      "full_predicates_matched": 13,
+      "status_matches": 14,
+      "unknown": 8,
+      "false_covered": [
+        "vault-scope-separate"
+      ],
+      "minimum_case_interval_seconds": 8,
+      "production_request_deadline_seconds": 10,
+      "result_sha256": "ca83258dadff437204accb457ad054dff811d00c6652291a741c25382744c905",
+      "revision": "capture-source-qualifiers-v4:e1f9f5dfe5318e93d1dc4f798f81dc5e84b8cd673c8842f5e7bd9ac06573db78",
+      "results": [
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "vault-scope-joint",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "vault-scope-separate",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "missing",
+          "id": "vault-scope-not-recorded",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "missing",
+          "id": "vault-inspection-not-intent",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 1,
+                "blocks": [
+                  0
+                ]
+              }
+            ],
+            "roles": [
+              "context",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "throttling-exception-joint",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "missing",
+          "id": "throttling-exception-separate",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 1,
+                "blocks": [
+                  0
+                ]
+              }
+            ],
+            "roles": [
+              "context",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "throttling-exception-scope-absent",
+          "missing_quotes": [
+            "The exception below is restricted to smoke-test sessions.\n\nA test coordinator may disable batch throttling."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "journals-and-signing-independent",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "journal-rule-missing",
+          "missing_quotes": [
+            "Standing policy: retain failed synchronization journals for thirty-six hours."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              },
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable",
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "signing-rule-missing",
+          "missing_quotes": [
+            "Standing policy: artifact signing requires approval from three owning teams."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            },
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "covered",
+          "id": "recovery-and-timestamps-independent",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 1,
+                "blocks": [
+                  2
+                ]
+              }
+            ],
+            "roles": [
+              "ignore",
+              "durable",
+              "context"
+            ]
+          },
+          "expected": "covered",
+          "id": "queue-policy-with-review-actions",
+          "missing_quotes": [
+            "Standing policy: service bots may inspect aggregate queue counts but must not alter queue membership.\n\nReport its current response shape; do not edit settings during this review."
+          ],
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 2
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 1,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "ignore",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "identity-policy-after-check",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 1,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "demo-log-exception-preserved",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "covered"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "classification": null,
+          "expected": "missing",
+          "id": "demo-log-exception-cropped",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "covered",
+          "id": "laboratory-counts-limited",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [],
+            "roles": [
+              "ignore"
+            ]
+          },
+          "expected": "no_durable_requirement",
+          "id": "oneoff-style-check",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [],
+            "roles": [
+              "ignore"
+            ]
+          },
+          "expected": "no_durable_requirement",
+          "id": "oneoff-reference-report",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [],
+            "roles": [
+              "ignore"
+            ]
+          },
+          "expected": "no_durable_requirement",
+          "id": "exploratory-scheduler-options",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "no_durable_requirement"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "no_durable_requirement",
+          "id": "exploratory-observation-only",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "unbound-owner-policy",
+          "missing_quotes": [
+            "Standing policy: only workspace owners can approve cross-workspace backups."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": null,
+          "expected": "covered",
+          "id": "attachment-negation-preserved",
+          "missing_quotes": [],
+          "required_passages": [],
+          "status": "unknown"
+        },
+        {
+          "admission_refusals": [
+            "invalid_request"
+          ],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 0,
+                "blocks": []
+              }
+            ],
+            "roles": [
+              "durable"
+            ]
+          },
+          "expected": "missing",
+          "id": "attachment-negation-cropped",
+          "missing_quotes": [
+            "Standing policy: never send incident attachments to an external classifier, including scrubbed attachments."
+          ],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 0
+            }
+          ],
+          "status": "missing"
+        },
+        {
+          "admission_refusals": [],
+          "classification": {
+            "contexts": [
+              {
+                "anchor": 1,
+                "blocks": [
+                  0
+                ]
+              }
+            ],
+            "roles": [
+              "context",
+              "durable"
+            ]
+          },
+          "expected": "covered",
+          "id": "reported-counts-linked-scope",
+          "missing_quotes": [],
+          "required_passages": [
+            {
+              "first_block": 0,
+              "last_block": 1
+            }
+          ],
+          "status": "covered"
+        }
+      ]
+    }
+  ],
+  "independent_reviews": {
+    "v2_qwen": {
+      "sha256": "6e755397e5dee8d32a997e9b4d64a32c5e38a45f563de381b14271f2dd2c8299",
+      "report": {
+        "expected_labels_withheld": true,
+        "descriptive_ids_withheld": true,
+        "new_rubric_calibrated": false,
+        "milestone_judge": false,
+        "model": "gpt-6.1-sol",
+        "cli": "codex-cli 0.160.0",
+        "tool_calls": 0,
+        "compactions": 0,
+        "judgments": [
+          {
+            "case": "tenant-readonly-qualifier",
+            "id": "2837e0844eba60da",
+            "classification_valid": "yes",
+            "reason": "The complete policy preserves operators' read-only access to tenant audit indexes and account-owner approval for every repair."
+          },
+          {
+            "case": "sandbox-boundary-retained",
+            "id": "ffb28d553a6e26a6",
+            "classification_valid": "yes",
+            "reason": "The selection preserves the sandbox-only unsigned-build allowance and signed-manifest requirement for deployed releases, excluding the inspection request."
+          },
+          {
+            "case": "multiline-exception-retained",
+            "id": "ff120bb2168f2609",
+            "classification_valid": "yes",
+            "reason": "The selected paragraph includes both 60-day retention and the exception requiring tenant owners to obtain legal approval."
+          },
+          {
+            "case": "cropped-exception-refused",
+            "id": "6d97d8b1b0015017",
+            "classification_valid": "yes",
+            "reason": "The selection preserves seven-year retention and the exception for test-tenant exports containing no real customer data."
+          },
+          {
+            "case": "one-independent-policy-missing",
+            "id": "3dd09e1fe6c5ada4",
+            "classification_valid": "no",
+            "reason": "The passage merges independent policies: both reviewers approving schema changes and preserving failed rollback logs for 48 hours. They require separate passages."
+          },
+          {
+            "case": "two-independent-policies-covered",
+            "id": "b5451ce92a786a1e",
+            "classification_valid": "no",
+            "reason": "The passage merges independently useful policies: disabling deployment during migration verification and requiring on-call engineer approval to reopen deployment. Neither paragraph depends on the other to state its requirement."
+          },
+          {
+            "case": "implementation-cannot-cover-intent",
+            "id": "b9102dc7fc092589",
+            "classification_valid": "yes",
+            "reason": "The selection preserves the interrupted-import condition and restoration of both the keyring and namespace binding before reconnecting."
+          },
+          {
+            "case": "unbound-exact-quote-no-credit",
+            "id": "b61b3b81cc7a0a6a",
+            "classification_valid": "yes",
+            "reason": "The complete selected policy requires approval from both owning teams for cross-team exports."
+          },
+          {
+            "case": "negated-upload-crop-refused",
+            "id": "af677cf4b1e2e2da",
+            "classification_valid": "yes",
+            "reason": "The selection preserves the prohibition on external inference endpoints, including when incident transcripts are anonymized."
+          },
+          {
+            "case": "routine-task-not-lasting",
+            "id": "8cc5d2c2b7bd6add",
+            "classification_valid": "yes",
+            "reason": "The formatter execution and exit-status report are one-off task requests; no lasting finding requires selection."
+          },
+          {
+            "case": "exploratory-question-not-policy",
+            "id": "6740f8c5433bfc05",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable, so there is no observed selection to endorse."
+          },
+          {
+            "case": "limited-trial-counts-and-scope",
+            "id": "8adee5028af99bf4",
+            "classification_valid": "yes",
+            "reason": "The selection preserves the limited team report: 2 failed restores in 9 runs in a three-node staging trial, with no production trial performed."
+          },
+          {
+            "case": "lasting-readonly-policy",
+            "id": "bef89e1942347309",
+            "classification_valid": "yes",
+            "reason": "The complete selection preserves the permanent read-only constraint for automated agents and the requirement that humans perform all migrations."
+          },
+          {
+            "case": "lasting-policy-between-task-instructions",
+            "id": "238149e059fa520e",
+            "classification_valid": "no",
+            "reason": "The selection includes the lasting prohibition on production health checks querying customer payload tables, but also includes unrelated task instructions to report the code path and avoid deployment in this task."
+          },
+          {
+            "case": "cross-paragraph-scope-not-retained",
+            "id": "829b5f831ae941e5",
+            "classification_valid": "yes",
+            "reason": "The contiguous selection links permission to disable tracing during restore with its restriction to manually triggered disaster-recovery drills."
+          },
+          {
+            "case": "cross-paragraph-scope-retained",
+            "id": "c93e4bf5fc5e3a33",
+            "classification_valid": "yes",
+            "reason": "The contiguous selection preserves the legal-hold simulation scope of the incident commander's permission to shorten log retention."
+          },
+          {
+            "case": "separate-fragments-not-joint-memory",
+            "id": "e70cc9d06fdf0693",
+            "classification_valid": "yes",
+            "reason": "The contiguous selection links environment-owner authorization for package downgrades to developer-owned throwaway environments only."
+          },
+          {
+            "case": "inspected-exact-policy-still-no-intent-proof",
+            "id": "a93905c82518df3d",
+            "classification_valid": "yes",
+            "reason": "The complete policy preserves permission to view anonymized error counts and the prohibition on modifying ticket contents."
+          }
+        ]
+      }
+    },
+    "v4": {
+      "sha256": "f24418bc7dfa6f9317e47f7d3b9d41b53b1322e1ef00c2fe5d00983f95a9e1f4",
+      "report": {
+        "expected_labels_withheld": true,
+        "descriptive_ids_withheld": true,
+        "model_identities_withheld": true,
+        "calibrated_milestone_judge": false,
+        "configured_model": "gpt-6.1-sol",
+        "configured_cli": "codex-cli 0.160.0",
+        "observed_tools": 0,
+        "observed_compactions": 0,
+        "judgments": [
+          {
+            "arm": "A",
+            "case": "vault-scope-joint",
+            "id": "569094515926232a",
+            "classification_valid": "no",
+            "reason": "“These access privileges are restricted to offline training vaults” qualifies “A vault operator may rotate the simulated signing certificate.” Missing links and separate passages leave the permission without its restriction."
+          },
+          {
+            "arm": "A",
+            "case": "vault-scope-separate",
+            "id": "145fc1b2e488ffea",
+            "classification_valid": "no",
+            "reason": "“These access privileges are restricted to offline training vaults” qualifies “A vault operator may rotate the simulated signing certificate.” Missing links and separate passages leave the permission without its restriction."
+          },
+          {
+            "arm": "A",
+            "case": "vault-scope-not-recorded",
+            "id": "9b8bed7a58f22ec5",
+            "classification_valid": "no",
+            "reason": "“These access privileges are restricted to offline training vaults” qualifies “A vault operator may rotate the simulated signing certificate.” Missing links and separate passages leave the permission without its restriction."
+          },
+          {
+            "arm": "A",
+            "case": "vault-inspection-not-intent",
+            "id": "a88f2ae05ea7a6b1",
+            "classification_valid": "yes",
+            "reason": "Both durable statements are linked and retained together, preserving the offline training vault restriction on certificate rotation."
+          },
+          {
+            "arm": "A",
+            "case": "throttling-exception-joint",
+            "id": "3f9b3e8e98642708",
+            "classification_valid": "no",
+            "reason": "“The exception below is restricted to smoke-test sessions” qualifies “A test coordinator may disable batch throttling.” Missing links and separate passages omit the permission’s intrinsic scope."
+          },
+          {
+            "arm": "A",
+            "case": "throttling-exception-separate",
+            "id": "eb0779587ea6c7cb",
+            "classification_valid": "no",
+            "reason": "“The exception below is restricted to smoke-test sessions” qualifies “A test coordinator may disable batch throttling.” Missing links and separate passages omit the permission’s intrinsic scope."
+          },
+          {
+            "arm": "A",
+            "case": "throttling-exception-scope-absent",
+            "id": "ac69eeee5e660ce3",
+            "classification_valid": "no",
+            "reason": "“The exception below is restricted to smoke-test sessions” qualifies “A test coordinator may disable batch throttling.” Missing links and separate passages omit the permission’s intrinsic scope."
+          },
+          {
+            "arm": "A",
+            "case": "journals-and-signing-independent",
+            "id": "fbc122f2fa5c7bd2",
+            "classification_valid": "yes",
+            "reason": "The two independent standing policies are durable and correctly retained as separate units."
+          },
+          {
+            "arm": "A",
+            "case": "journal-rule-missing",
+            "id": "f3d12f076285da86",
+            "classification_valid": "yes",
+            "reason": "The two independent standing policies are durable and correctly retained as separate units."
+          },
+          {
+            "arm": "A",
+            "case": "signing-rule-missing",
+            "id": "2aafa606b5d0a7b1",
+            "classification_valid": "yes",
+            "reason": "The two independent standing policies are durable and correctly retained as separate units."
+          },
+          {
+            "arm": "A",
+            "case": "recovery-and-timestamps-independent",
+            "id": "a4f3a16305a27132",
+            "classification_valid": "yes",
+            "reason": "The recovery-code and UTC timestamp policies are independent durable rules, correctly retained separately."
+          },
+          {
+            "arm": "A",
+            "case": "queue-policy-with-review-actions",
+            "id": "7810c9b2cab37c16",
+            "classification_valid": "yes",
+            "reason": "The standing bot permission and membership restriction are retained together; the surrounding one-off review tasks are correctly ignored."
+          },
+          {
+            "arm": "A",
+            "case": "identity-policy-after-check",
+            "id": "128b8936a2551d87",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "A",
+            "case": "demo-log-exception-preserved",
+            "id": "b9fc57c50c8fd9be",
+            "classification_valid": "yes",
+            "reason": "The single paragraph preserves the durable retention policy, demo exception, and required owner approval together."
+          },
+          {
+            "arm": "A",
+            "case": "demo-log-exception-cropped",
+            "id": "e90dd59043fcf0db",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "A",
+            "case": "laboratory-counts-limited",
+            "id": "6bdcf4969e9943fd",
+            "classification_valid": "yes",
+            "reason": "The durable limited report retains attribution, 4 losses in 23 attempts, two-region laboratory scope, and absence of production testing or a reliability guarantee."
+          },
+          {
+            "arm": "A",
+            "case": "oneoff-style-check",
+            "id": "53f8085dff2db433",
+            "classification_valid": "yes",
+            "reason": "The style-check request is a routine one-off task and is correctly ignored."
+          },
+          {
+            "arm": "A",
+            "case": "oneoff-reference-report",
+            "id": "35f83eb889810dcf",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "A",
+            "case": "exploratory-scheduler-options",
+            "id": "65b853fd5cbd8514",
+            "classification_valid": "no",
+            "reason": "“Could a different scheduler simplify a future prototype? No scheduler choice has been made” is exploratory without a choice, so marking it durable and deriving a passage is incorrect."
+          },
+          {
+            "arm": "A",
+            "case": "exploratory-observation-only",
+            "id": "b1d2aaf7d8c2b7de",
+            "classification_valid": "yes",
+            "reason": "Exploration without selecting a format or changing policy is correctly ignored."
+          },
+          {
+            "arm": "A",
+            "case": "unbound-owner-policy",
+            "id": "352c2af952e028ec",
+            "classification_valid": "yes",
+            "reason": "The durable approval restriction is retained in full."
+          },
+          {
+            "arm": "A",
+            "case": "attachment-negation-preserved",
+            "id": "b0539b817fc93ead",
+            "classification_valid": "yes",
+            "reason": "The durable prohibition is retained with its explicit inclusion of scrubbed attachments."
+          },
+          {
+            "arm": "A",
+            "case": "attachment-negation-cropped",
+            "id": "847c9dd6b2afe624",
+            "classification_valid": "yes",
+            "reason": "The durable prohibition is retained with its explicit inclusion of scrubbed attachments."
+          },
+          {
+            "arm": "A",
+            "case": "reported-counts-linked-scope",
+            "id": "bec254e4d3e3aed8",
+            "classification_valid": "yes",
+            "reason": "The report links and retains the four-worker staging-only scope, 2 interrupted replays in 11 runs, and absence of a production exercise together."
+          },
+          {
+            "arm": "B",
+            "case": "vault-scope-joint",
+            "id": "3b6ec8bb75fa568b",
+            "classification_valid": "no",
+            "reason": "“These access privileges are restricted to offline training vaults” qualifies “A vault operator may rotate the simulated signing certificate.” Missing links and separate passages leave the permission without its restriction."
+          },
+          {
+            "arm": "B",
+            "case": "vault-scope-separate",
+            "id": "eb059de75a5b2051",
+            "classification_valid": "no",
+            "reason": "“These access privileges are restricted to offline training vaults” qualifies “A vault operator may rotate the simulated signing certificate.” Missing links and separate passages leave the permission without its restriction."
+          },
+          {
+            "arm": "B",
+            "case": "vault-scope-not-recorded",
+            "id": "f94b3f85aaf22207",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "B",
+            "case": "vault-inspection-not-intent",
+            "id": "063a1068ebefca19",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "B",
+            "case": "throttling-exception-joint",
+            "id": "7f4fd2e6d07486aa",
+            "classification_valid": "yes",
+            "reason": "The smoke-test restriction is correctly linked as intrinsic context and retained with the durable throttling exception."
+          },
+          {
+            "arm": "B",
+            "case": "throttling-exception-separate",
+            "id": "0a7bbff4dd41f60d",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "B",
+            "case": "throttling-exception-scope-absent",
+            "id": "616607d323dddfae",
+            "classification_valid": "yes",
+            "reason": "The smoke-test restriction is correctly linked as intrinsic context and retained with the durable throttling exception."
+          },
+          {
+            "arm": "B",
+            "case": "journals-and-signing-independent",
+            "id": "04a76da79b8f4962",
+            "classification_valid": "yes",
+            "reason": "The two independent standing policies are durable and correctly retained as separate units."
+          },
+          {
+            "arm": "B",
+            "case": "journal-rule-missing",
+            "id": "4335f0cbecf368d7",
+            "classification_valid": "yes",
+            "reason": "The two independent standing policies are durable and correctly retained as separate units."
+          },
+          {
+            "arm": "B",
+            "case": "signing-rule-missing",
+            "id": "801794b2745fb03e",
+            "classification_valid": "yes",
+            "reason": "The two independent standing policies are durable and correctly retained as separate units."
+          },
+          {
+            "arm": "B",
+            "case": "recovery-and-timestamps-independent",
+            "id": "b954f13de91ec585",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "B",
+            "case": "queue-policy-with-review-actions",
+            "id": "fd03576970f504d7",
+            "classification_valid": "no",
+            "reason": "“Report its current response shape; do not edit settings during this review” is a one-off review instruction, not an intrinsic qualifier of the standing bot policy. Its context link and inclusion add unrelated task instructions."
+          },
+          {
+            "arm": "B",
+            "case": "identity-policy-after-check",
+            "id": "bada42d92b7ea8ac",
+            "classification_valid": "yes",
+            "reason": "The permanent human-authorization policy is retained, and the one-off smoke-command request is correctly ignored."
+          },
+          {
+            "arm": "B",
+            "case": "demo-log-exception-preserved",
+            "id": "b8e65d499ca87654",
+            "classification_valid": "yes",
+            "reason": "The single paragraph preserves the durable retention policy, demo exception, and required owner approval together."
+          },
+          {
+            "arm": "B",
+            "case": "demo-log-exception-cropped",
+            "id": "ab8ffd056c8a57aa",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "B",
+            "case": "laboratory-counts-limited",
+            "id": "10ff4c814a41fbbf",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "B",
+            "case": "oneoff-style-check",
+            "id": "d3816f2d2ab281a3",
+            "classification_valid": "yes",
+            "reason": "The style-check request is a routine one-off task and is correctly ignored."
+          },
+          {
+            "arm": "B",
+            "case": "oneoff-reference-report",
+            "id": "07f8278b9458d932",
+            "classification_valid": "yes",
+            "reason": "Locating the allocator and reporting current references is a routine one-off task, correctly ignored."
+          },
+          {
+            "arm": "B",
+            "case": "exploratory-scheduler-options",
+            "id": "e7a1f50439408773",
+            "classification_valid": "yes",
+            "reason": "The scheduler question is exploratory and explicitly makes no choice, so it is correctly ignored."
+          },
+          {
+            "arm": "B",
+            "case": "exploratory-observation-only",
+            "id": "5bf4daa9efa3af66",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "B",
+            "case": "unbound-owner-policy",
+            "id": "6937f2237228c683",
+            "classification_valid": "yes",
+            "reason": "The durable approval restriction is retained in full."
+          },
+          {
+            "arm": "B",
+            "case": "attachment-negation-preserved",
+            "id": "d16fecec525efe38",
+            "classification_valid": "unknown",
+            "reason": "Classification is unavailable."
+          },
+          {
+            "arm": "B",
+            "case": "attachment-negation-cropped",
+            "id": "41e4db6f96ab5cbe",
+            "classification_valid": "yes",
+            "reason": "The durable prohibition is retained with its explicit inclusion of scrubbed attachments."
+          },
+          {
+            "arm": "B",
+            "case": "reported-counts-linked-scope",
+            "id": "ba824b09eb7b7b78",
+            "classification_valid": "yes",
+            "reason": "The intrinsic four-worker staging-only scope is linked to the durable report; the combined passage retains 2 interrupted replays in 11 runs and absence of a production exercise."
+          }
+        ]
+      }
+    }
+  },
+  "run_log_sha256": {
+    "v2_qwen": "d08a79eef67c3af39a512f94a2a521e5b28ace536f120f0a562e042e164f17d3",
+    "v2_oss": "13025859604658e75a5a844071662b81c6330e3c7bf0ba83eaa440203eafa02f",
+    "v3_oss": "b214d557797379910f0fa76c936ea4ae70d1ba45df9d50362fc6e276c892f288",
+    "v4_oss": "cd1d468e08eff7929ff36634647681146749d27bc826b55052f58d03e2cb310a",
+    "v4_qwen": "6afb096e486f4a44eaf00602094dd7a7b08dee96bf329293012e3a7bb0400886"
+  },
+  "restored_candidate": {
+    "protocol": "capture-source-passages-v2",
+    "source_sha256": "a4bda840e5891237cc14eb82d361e91d0f875a48a1075b50855e369a93b8d09f",
+    "semantic_qualification": "failed",
+    "role_and_qualifier_prototypes": "rejected and removed from production source",
+    "debug_cli_sha256": "356bf39b97cac8b3d85871d9e1004b8bb9d46d0dd6c3b8dc56c99e79d9c71a9d",
+    "debug_daemon_sha256": "de308bbe223d64887d382e14645ef0984605260e5d257fb13e9465207efe29b7",
+    "verification": {
+      "daemon_passed": 72,
+      "store_passed": 57,
+      "cli_passed": 54,
+      "integration_passed": 212,
+      "clippy_five_packages_all_targets": "passed",
+      "format": "passed",
+      "actual_cli_daemon_smoke": "passed with local response fixture; not semantic evidence"
+    }
+  },
+  "boundaries": {
+    "credentials_added_to_repo_or_evidence": false,
+    "credential_references_cleared": true,
+    "real_task_uploads": false,
+    "claude_executed": false,
+    "production_changed": false,
+    "local_model_weights_downloaded": false,
+    "local_model_service_started": false,
+    "ollama_installation": "0.40.2 installed before user revoked local-model choice; not used",
+    "valid_failed_cases_retried": false,
+    "old_failed_evidence_changed": false
+  },
+  "readiness": {
+    "pr_draft": true,
+    "changes_pushed": false,
+    "recall_qualification": "not advanced",
+    "full_codex_workload": "not advanced",
+    "fresh_deployment": "not advanced"
+  }
+}

@@ -1,4 +1,4 @@
-# M1/M2 candidate evidence — through 2026-10-10
+# M1/M2 candidate evidence — through 2026-10-11
 
 ## Finding capture development — autonomous capture not observed
 
@@ -749,6 +749,160 @@ correction checks passed: 51 store tests, 66 daemon tests (one live-provider
 test excluded), affected-package Clippy, two deterministic credential race
 regressions, and file-backed deletion/busy-checkpoint retry regressions. Sol's
 bounded independent review found no remaining mechanical integration blocker.
-All six remote CI jobs passed preceding head `df6adecc`; correction-head CI
-remains a separate gate. Semantic qualification remains failed and no full
-milestone pass is claimed.
+All six remote CI jobs passed correction head `a209f77e` in
+[run 38048511151](https://github.com/cunilab/Cairn/actions/runs/38048511151).
+That run does not validate subsequent source changes. Semantic qualification
+remains failed and no full milestone pass is claimed.
+
+### PR review corrections — local working tree based on `a209f77e`
+
+Pin, reinforcement, reconciliation and evidence admission now check supplied
+caller/session identity against the resolved project and worktree. Native
+key-only requests acquire their checked session; identity-free generic requests
+remain store-scoped. Two real-SQLite regressions failed before the fix and pass
+after it, including rejection before any command is admitted.
+
+Local verification passed: 68 daemon tests (the live comparator screen excluded),
+27 MCP tests, 51 store tests, 10 contract-rendering tests, daemon all-targets
+Clippy with warnings denied, matching CLI/daemon builds and formatting checks.
+An isolated smoke ran the actual `cairn mcp` and `cairnd` binaries with the pinned
+Codex client metadata profile: 20 mismatched/unknown/missing-identity requests
+were refused before admission, and 16 valid requests had the expected persisted
+session/store scope. Model-supplied keys could not override framework identity.
+
+The smoke had no configured server URL and proves local admission only, not
+remote persistence, native actor usefulness or semantic qualification. No Claude
+actor, inference provider or production deployment ran. These working-tree
+corrections are not covered by the remote CI run above. PR #66 remains draft
+pending an approved replacement runtime, passing frozen recall/completeness
+qualification and fresh source-bound paired-workload/deployment evidence.
+
+### Authorized replacement Groq completeness screen — failed
+
+`qwen/qwen3.8-27b` ran the existing frozen twelve synthetic completeness cases
+once through `capture_review::tests::frozen_synthetic_comparator_screen`. Nine
+outcomes matched, two were unknown, and `lost-condition` falsely credited
+coverage without the isolated-integration-test restriction. The test failed.
+Unknown diagnostic causes were not retained; no rate-limit or provider-error
+explanation is inferred.
+
+[Replacement metadata](qwen-qualification-metadata.json) binds the production
+comparator, checked-in fixture, selector source and raw results/log to exact
+hashes. This is development qualification, not independent milestone evidence.
+The model is unqualified; no tuning, retry, recall selector qualification, full
+Codex workload or fresh deployment followed the failed gate. Existing GPT-OSS
+failures and frozen scoring remain unchanged. Only synthetic fixtures reached
+Groq; no key was written to the repository. Claude and production remain
+unchanged. The PR remains draft and local corrections are not pushed.
+
+### Source-passage redesign — mechanical checks passed, qualification pending
+
+The approved V2 redesign selects contiguous authored passages without sending
+finding snapshots to the model. Native authored-intent admission derives its
+proof from a safe, unexpired same-turn task record, never model-authored digests.
+Linked context must remain in one finding; implementation observations and
+fragmented or stale records cannot receive authored-intent coverage. Schema 19
+preserves existing rows while revoking legacy positive review caches.
+
+An independent security review found unscreened credential-shaped subject/scope
+metadata. Actual local CLI/daemon execution reproduced a topic-key leak before
+the fix. Canonical admission now rejects recognized credential shapes in those
+keys without rewriting identity. The post-fix real-process smoke refused eight
+requests before admission, including batch branch scope, cropped content and
+missing/wrong turns; a complete batch passage retained its trusted task digest.
+An inspected-source capture received no intent proof. Unconfigured review stayed
+unknown. A separate loopback response fixture exercised the actual production
+network/parser/proof path from missing to covered and preserved CRLF paragraph
+delimiters. That fixed model response proves mechanics only, not model quality.
+No actual Codex or Claude actor, external provider, server token or production
+deployment was used for these smoke checks.
+
+| Local check | Result |
+| --- | --- |
+| Daemon | 72 passed; one live screen ignored |
+| Store | 57 passed, including schema-18-to-19 regression |
+| CLI | 54 passed, including 28 MCP cases |
+| Core | 365 passed, including five source-passage cases |
+| Integration | 212 passed |
+| All-target Clippy | Five packages, warnings denied |
+| Rust formatting | Passed |
+
+The canonical contract remains below its unchanged 1200-character bound:
+1186 for managed instructions and 1195 for MCP. The generated contract revision
+is `3585abeab1cd`; the embedded Skill revision is `52a5da4b6584`. Obsolete
+wording/count/copy tests were removed; size and revision behavior gates remain.
+
+[Mechanical metadata](source-passage-mechanical-metadata.json) records source,
+fixture and debug-artifact SHA-256 identities. The new eighteen-case synthetic
+screen was prepared before any V2 provider run; independent scoring and live
+qualification have not run. The prior chat-exposed Groq credential was cleared,
+and no protected classifier credential is configured. A fresh protected credential
+is required before the real configured screen; do not paste a key into chat.
+
+Both failed V1 Groq screens and the old recall/paired failures remain unchanged.
+No simulated response counts as qualification. Recall qualification, the unchanged
+Codex paired workload, and fresh installed-artifact deployment evidence remain
+mandatory after qualification. These local changes are not pushed; PR #66 is
+still draft and not merge-ready.
+
+### Live source-classification qualification — failed; prototypes rejected
+
+The authorized Groq development runs used real Rust comparator requests and
+real task-bound in-memory admission, not synthesized model answers. Every
+candidate ran once on its frozen source and corpus; separate model candidates
+shared unchanged comparison cases. No valid candidate/case was retried or
+relabeled. V3 and V4 used new 24-case screens frozen before their model calls.
+
+| Contract | Configured model | Full predicates | Status matches | Unknown | False covered |
+| --- | --- | --- | --- | --- | --- |
+| V2 | `qwen/qwen3.8-27b` | 14/18 | 15/18 | 1 | 0 |
+| V2 | `openai/gpt-oss-120b` | 16/18 | 17/18 | 0 | 0 |
+| V3 | `openai/gpt-oss-120b` | 15/24 | 19/24 | 4 | 1 |
+| V4 | `openai/gpt-oss-120b` | 14/24 | 18/24 | 3 | 2 |
+| V4 | `qwen/qwen3.8-27b` | 13/24 | 14/24 | 8 | 1 |
+
+V2 failed independent-policy separation. V3 attempted per-block roles and context
+links; V4 allowed durable restrictions to qualify other durable statements and
+required joint proof for connected qualifiers. Mechanical regression and actual
+CLI/daemon fixture journeys passed, but real models omitted necessary scope
+relationships. Separate permission/scope fragments then falsely received positive
+completeness credit. This rejects the prototypes regardless of aggregate scores.
+
+Blinded supplemental review used pinned Codex `0.160.0`, configured `gpt-6.1-sol`,
+no tools or compaction, withheld expected labels/descriptive IDs, and withheld
+model identities for the two V4 arms. V2 Qwen received 14 yes, 3 no and 1 unknown.
+V4 GPT-OSS received 14 yes, 7 no and 3 unknown; V4 Qwen received 13 yes, 3 no and
+8 unknown. This new rubric was not calibrated as a milestone judge. It corroborates
+defects and does not qualify a runtime. Unknown response causes were not retained;
+no rate-limit, timeout or malformed-output explanation is asserted.
+
+The V3/V4 production code was removed. The preserved V2 source-passage candidate
+was restored byte-for-byte to SHA-256
+`a4bda840e5891237cc14eb82d361e91d0f875a48a1075b50855e369a93b8d09f`.
+It remains unqualified and opt-in, not a successful completeness mechanism.
+Native attribution, metadata privacy and source-integrity fixes remain intact.
+After restoration, 72 daemon, 57 store, 54 CLI and 212 integration tests passed;
+five-package all-target Clippy and formatting passed. Actual CLI/daemon smoke
+again exercised independent missing units and joint qualifier proof using a
+fixed local response fixture, not semantic inference.
+
+[Complete attempt metadata](source-classification-live-failures.json) preserves
+all observed outcomes, exact source/corpus/result/log identities, review results
+and the rejected prototype status. Source snapshots and raw traces are retained
+privately. The new input files remain evaluation evidence, not production adapters.
+
+Credentials were transient child-process environment inputs; no key was added
+to source or these artifacts. References were cleared. The supplied key remains
+exposed in chat and should be revoked now, not at merge. One non-scoring readiness
+request omitted JSON-mode wording, received HTTP 400 and was corrected before
+scoring; neither attempt is counted as a corpus result.
+
+Ollama 0.40.2 was installed while the local-runtime choice was authorized, before
+the user changed to Groq. No local model weights were downloaded and no service
+was started. Homebrew also installed OpenSSL 4, MLX and MLX-C and upgraded its
+CA certificates, readline, SQLite, XZ and Python 3.14 dependencies; no rollback
+or production reconfiguration was performed.
+
+No Claude actor, real-task upload, full Codex workload, new deployment, push or
+merge followed these failed gates. The blocker is semantic reliability, not
+missing Groq access. PR #66 remains draft and not merge-ready.

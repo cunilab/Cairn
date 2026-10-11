@@ -1,0 +1,470 @@
+[
+  {
+    "id": "tenant-readonly-qualifier",
+    "task": "Team policy: operators may read tenant audit indexes only; account owners must approve every repair.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Operators may read tenant audit indexes.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1
+  },
+  {
+    "id": "sandbox-boundary-retained",
+    "task": "Please inspect the current retry helper and report findings.\n\nTeam policy: allow unsigned builds only in isolated sandboxes; deployed releases require signed manifests.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: allow unsigned builds only in isolated sandboxes; deployed releases require signed manifests.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "multiline-exception-retained",
+    "task": "Team policy: retain failed migration artifacts for 60 days.\nException: tenant owners may shorten retention only after legal approval.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: retain failed migration artifacts for 60 days.\nException: tenant owners may shorten retention only after legal approval.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "cropped-exception-refused",
+    "task": "Team policy: retain billing exports for seven years, except test-tenant exports that contain no real customer data.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: retain billing exports for seven years.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1
+  },
+  {
+    "id": "one-independent-policy-missing",
+    "task": "Team policy: both reviewers must approve schema changes.\n\nTeam policy: preserve failed rollback logs for 48 hours.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: preserve failed rollback logs for 48 hours.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "two-independent-policies-covered",
+    "task": "Team policy: disable deployment while migration verification is running.\n\nTeam policy: reopening deployment requires the on-call engineer approval.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: disable deployment while migration verification is running.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: reopening deployment requires the on-call engineer approval.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "implementation-cannot-cover-intent",
+    "task": "Team policy: after an interrupted import, restore both the keyring and namespace binding before reconnecting.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "Current importer restores namespace binding but leaves the keyring unchanged.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "inspected-current-behavior",
+        "capture_attestation": {
+          "basis": "inspected_source",
+          "source_reference": "local://synthetic-fixture",
+          "source_revision": "synthetic-source-v1",
+          "support_summary": "Synthetic independently inspected implementation statement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "unbound-exact-quote-no-credit",
+    "task": "Team policy: cross-team exports require approval from both owning teams.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: cross-team exports require approval from both owning teams.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": false,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "negated-upload-crop-refused",
+    "task": "Team policy: never send incident transcripts to external inference endpoints, even when incident data is anonymized.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Send anonymized incident transcripts to inference endpoints.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1
+  },
+  {
+    "id": "routine-task-not-lasting",
+    "task": "Run the formatter on the changed module and tell me whether it exits successfully.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "exploratory-question-not-policy",
+    "task": "Could a persistent memory cache make our agents faster? Compare the tradeoffs without implementing any change.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "limited-trial-counts-and-scope",
+    "task": "Team report: a three-node staging trial found 2 failed restores in 9 runs; no production trial has been performed.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "Team report: a three-node staging trial found 2 failed restores in 9 runs; no production trial has been performed.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "lasting-readonly-policy",
+    "task": "Team policy: this workspace is permanently read-only for automated agents; humans perform all migrations.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: this workspace is permanently read-only for automated agents; humans perform all migrations.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "lasting-policy-between-task-instructions",
+    "task": "Please find the reason the staging health check was slow yesterday.\n\nTeam policy: production health checks must never query customer payload tables.\n\nReply with the affected code path; do not deploy anything in this task.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: production health checks must never query customer payload tables.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "cross-paragraph-scope-not-retained",
+    "task": "The following exception applies only to manually triggered disaster-recovery drills.\n\nTeam policy: operators may disable request tracing during the restore.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: operators may disable request tracing during the restore.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "cross-paragraph-scope-retained",
+    "task": "This retention override applies only to legal-hold simulation exercises.\n\nTeam policy: an incident commander may shorten the log-retention window during the exercise.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "This retention override applies only to legal-hold simulation exercises.\n\nTeam policy: an incident commander may shorten the log-retention window during the exercise.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "separate-fragments-not-joint-memory",
+    "task": "The following approval exception applies only to developer-owned throwaway environments.\n\nTeam policy: the environment owner may authorize a package downgrade.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The following approval exception applies only to developer-owned throwaway environments.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: the environment owner may authorize a package downgrade.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "complete-authored-source",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic authored durable decision, with all source conditions retained."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "inspected-exact-policy-still-no-intent-proof",
+    "task": "Team policy: automated support tools may view anonymized error counts, but must never modify ticket contents.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "Team policy: automated support tools may view anonymized error counts, but must never modify ticket contents.",
+        "topic_key": "qualification/source-passages",
+        "value_key": "inspected-current-behavior",
+        "capture_attestation": {
+          "basis": "inspected_source",
+          "source_reference": "local://synthetic-fixture",
+          "source_revision": "synthetic-source-v1",
+          "support_summary": "Synthetic independently inspected implementation statement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  }
+]

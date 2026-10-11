@@ -3,7 +3,7 @@ name: cairn
 description: Use when resuming work in a Cairn-connected repository, investigating prior decisions or failures, recording durable findings, or diagnosing memory and session problems.
 metadata:
   cairn_skill_schema: 1
-  cairn_skill_revision: 66ffc104c4ce
+  cairn_skill_revision: 52a5da4b6584
 ---
 
 # Cairn
@@ -29,10 +29,13 @@ current implementation already agrees. For durable project findings, preserve ta
 requirements, counts, qualifiers, identifiers, constraints, and status. Keep lasting policies,
 including read-only restrictions, but not temporary task requests or completion reports. Separate
 remembered intent from current implementation. State choices as decisions and trials as observations,
-not as implemented or validated behavior. For a user decision or incident, record that finding
-concisely; cite source locators without appending an implementation summary. Skip routine tool
-calls and plain source summaries. Never send secrets, raw prompts, transcripts, diffs, or
-unbounded output.
+not as implemented or validated behavior. For generic clients, record a user decision
+concisely without an implementation summary. For native `user_report`, quote one
+complete selected authored passage verbatim, keeping linked context, conditions and
+internal lines together; verified turn identity and the local task bind its admission. Refuse
+missing, unsafe, ambiguous or oversized source rather than trimming or changing basis.
+Skip routine calls and plain source summaries. Never send secrets, entire prompts,
+transcripts, diffs, or unbounded output.
 When recording project knowledge for ordinary reuse, include a bounded
 `capture_attestation` with basis `user_report` or `inspected_source`; the server derives the
 actor. This records accountability and never objective verification. Use specific topic and

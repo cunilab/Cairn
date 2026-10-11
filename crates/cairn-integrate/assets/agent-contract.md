@@ -15,6 +15,10 @@ mcp = Call cairn_search with task keywords before repeating an investigation.
 block = Before finish, use cairn_remember action=capture for durable project findings. Each item keeps its conditions, counts and own support. Separate user intent from inspected implementation; skip routine summaries.
 mcp = Before finish, use cairn_remember action=capture for durable project findings. Each item keeps its conditions, counts and own support. Separate user intent from inspected implementation; skip routine summaries.
 
+[rule native_source]
+block = Native user_report quotes complete durable passages verbatim with linked context/conditions. Refuse missing turn/source or oversized quotes; never trim.
+mcp = Native user_report quotes complete durable passages verbatim with linked context/conditions. Refuse missing turn/source or oversized quotes; never trim.
+
 [rule scope]
 block = Project scope spans branches; branch is branch-specific; session is scratch.
 mcp = Project scope spans branches; branch is branch-specific; session is scratch.

@@ -1,0 +1,46 @@
+{
+  "started_at": "2026-10-10T12:17:32.886Z",
+  "source_base_sha": "a209f77e09306d484fcbe3a459a386bbb81bb47a",
+  "source_state": "local PR working tree with mutation identity and documentation corrections; not a frozen release candidate",
+  "status": "qualification_failed",
+  "provider": "Groq",
+  "base_url": "https://api.groq.com/openai/v1",
+  "model": "qwen/qwen3.8-27b",
+  "revision": "capture-coverage-v1:a3c6c3e2e663d15ded8948f41ff9d31f2152bbf89ba57e48b08e2763c971bde0",
+  "screen": "12 checked-in frozen synthetic cases through the actual Rust completeness comparator; development gate, not independent milestone scoring",
+  "command": "cargo test --offline -p cairnd capture_review::tests::frozen_synthetic_comparator_screen -- --ignored --exact --nocapture",
+  "exit_code": 101,
+  "cases": 12,
+  "correct": 9,
+  "unknown": 2,
+  "false_positive_coverage": ["lost-condition"],
+  "per_case": [
+    {"id": "omitted-intent", "expected": "missing", "observed": "missing", "missing_quotes": ["restore both original credential files byte-for-byte"]},
+    {"id": "covered-intent", "expected": "covered", "observed": "covered", "missing_quotes": []},
+    {"id": "lost-condition", "expected": "missing", "observed": "covered", "missing_quotes": []},
+    {"id": "covered-condition", "expected": "covered", "observed": "covered", "missing_quotes": []},
+    {"id": "negation", "expected": "missing", "observed": "missing", "missing_quotes": ["Team policy: never upload raw task text to an external inference provider."]},
+    {"id": "paraphrase", "expected": "covered", "observed": "covered", "missing_quotes": []},
+    {"id": "empty", "expected": "no_durable_requirement", "observed": "no_durable_requirement", "missing_quotes": []},
+    {"id": "routine", "expected": "no_durable_requirement", "observed": "no_durable_requirement", "missing_quotes": []},
+    {"id": "two-requirements", "expected": "missing", "observed": "missing", "missing_quotes": ["never merge a PR before CI passes"]},
+    {"id": "two-covered", "expected": "covered", "observed": "covered", "missing_quotes": []},
+    {"id": "readonly-policy", "expected": "covered", "observed": "unknown", "missing_quotes": []},
+    {"id": "unrelated-implementation", "expected": "missing", "observed": "unknown", "missing_quotes": []}
+  ],
+  "evidence_sha256": {
+    "evals/m1-m2/capture-completeness-screen.json": "f70014acf39d54e2fcc10120bacc6c1139f5ebc40cbee0825171186783272ea1",
+    "crates/cairnd/src/capture_review.rs": "510beee1b236c039eaa02c8a22f835ba54fe0f53cbdd7883cb742df4a7ec8d75",
+    "crates/cairn-server/src/selector.rs": "39d3feb1e3e161c425583831a5c8d37d8a29f973ebeac9fb650fa0bdb60a7d73",
+    "capture-completeness-results.json": "211f750673485d1d2105e7c184977360f4bfcbf0b82cfde540b74a8cbd22bae7",
+    "capture-completeness-test.log": "37f82ce89925f1c236eb41ed4df20da928db77ee6ef66903e16c3f00757b9733"
+  },
+  "stop": "A false positive completeness decision stops this model qualification. No tuning or rerun, selector qualification, native/full actor workload or fresh deployment followed this screen.",
+  "limits": [
+    "Two unknown assessments have no diagnostic cause retained by the current comparator; no provider-error explanation is inferred.",
+    "Existing GPT-OSS failed evidence and fixture expectations are unchanged.",
+    "Synthetic fixtures only; API key passed transiently to the test process, not written to repository files or this report.",
+    "No Claude actor, real-task upload or production configuration change.",
+    "PR remains draft; local corrections are not pushed and require source-bound CI after publication."
+  ]
+}

@@ -222,6 +222,8 @@ mod tests {
         key: &CheckpointKey,
         capacity: crate::spool::SpoolCapacity,
     ) -> Result<crate::spool::CommandAdmission> {
+        crate::capture_review::record_task(store, key, "bounded supported finding", false, false)
+            .await?;
         crate::spool::spool_command_with_checkpoint(
             store,
             crate::spool::NewCommand {

@@ -15,7 +15,7 @@ constraints, even when the code already follows them. A later session cannot rec
 user's decision or incident history from the implementation alone. Keep the content focused
 on that finding. State what was chosen or observed, including constraints and identifiers;
 do not promote a proposed change or limited trial into implemented or validated behavior.
-For these records, preserve the user finding concisely and cite a source locator when useful.
+For generic clients, preserve the user finding concisely and cite a source locator when useful.
 Do not append a code-path narrative, current constants, or other implementation summaries.
 Those details belong in the task answer; a later session asking about the choice needs the
 choice itself.
@@ -43,6 +43,23 @@ useful implementation observations in separate items with `inspected_source`
 support naming the revision actually read. Do not attach those observations to a
 user decision under one `user_report` attestation. Existing single-record create
 and supersede remain available; team policy still requires governed promotion.
+
+For a verified native Codex turn, `user_report` content must be a verbatim complete
+selected authored passage spanning complete adjacent blank-line-separated blocks.
+Keep linked context, internal lines, conditions, exceptions and attribution together
+in one finding; separate records must not fragment a single qualified requirement.
+Do not paraphrase, crop clauses or add implementation commentary. The local daemon
+checks the exact passage against this turn's safe task record; framework metadata
+supplies turn identity. Absent, expired, truncated or redacted tasks, ambiguous
+duplicate passages, over-limit tasks or passages larger than 2048 UTF-8 bytes
+cannot support native authored-intent admission.
+Report the refusal rather than shortening the finding or changing its basis to
+bypass the check. Never capture an entire task, prompt or transcript automatically.
+Choose only a durable statement worth retaining; prose surrounding a decision
+may make a complete bounded source passage unsuitable for capture. Source integrity
+does not prove durability, relevance or semantic independence between blocks.
+Generic captures and independently inspected source observations retain their
+existing contracts but do not receive native authored-intent coverage credit.
 
 The batch returns indexed receipts or errors for separate operations. It is not
 an all-or-nothing transaction. Inspect every outcome and retry only findings
@@ -157,11 +174,18 @@ and existing evidence. The current MCP interface has no `record_outcome` action.
 ## Native completeness review
 
 At a native Codex finalization checkpoint, call `cairn_session` with
-`action: "capture_review"`. It compares this turn's bounded local task record
-with actually admitted findings. If it identifies omitted durable requirements,
-record those user choices separately from implementation facts and review again.
-Do not copy the whole local task into durable memory. Preserve conditions and
-attribution in each selected finding.
+`action: "capture_review"`. A classifier sees authored source blocks, not findings,
+and selects `required_passages` with inclusive `first_block`/`last_block` bounds.
+Keep linked cross-paragraph context in one complete finding. Rust computes
+coverage from admissions carrying trusted proof for this current task digest;
+separate fragments cannot jointly cover one selected passage. Implementation
+inspection, stale, unproven or cropped findings cannot cover authored intent.
+If missing, capture the complete selected durable passage through `user_report`
+and review again. Do not automatically archive the whole local task.
+
+The classifier can still omit requirements or misjudge cross-block dependencies.
+Exact source binding prevents qualifier loss at admission; it is not semantic
+qualification or proof that every requirement was identified.
 
 Unknown coverage is not success. Missing/truncated/redacted input or an
 unconfigured comparator permits the coding session to finish after one bounded

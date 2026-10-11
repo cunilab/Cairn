@@ -39,6 +39,15 @@ archetypes.
 
 ### Measures
 
+**Metric erratum (2026-10-10):** the original table below is preserved as
+reported. Claude's `1/1 pairs met` does not satisfy the protocol's two-record
+cross-session consistency measure: its export contains one record and A2
+avoided a second write. That measure is **not evaluable** for Claude in this
+run. The observed duplicate avoidance is a separate behavior, not evidence of
+topic-key agreement between two writes. Adoption counts, raw evidence and
+other recorded outcomes are unchanged.
+
+
 | measure | codex | opencode | claude-code |
 |---|---|---|---|
 | items that produced a memory | 7 / 12 | 6 / 12 | 1 / 12 |

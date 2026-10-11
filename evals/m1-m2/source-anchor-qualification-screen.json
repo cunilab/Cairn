@@ -1,0 +1,609 @@
+[
+  {
+    "id": "owner-consent-retained",
+    "task": "Permanent policy: exporting diagnostic archives requires the workspace owner’s written approval.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Permanent policy: exporting diagnostic archives requires the workspace owner’s written approval.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "owner-consent-cropped",
+    "task": "Permanent policy: exporting diagnostic archives requires the workspace owner’s written approval.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Exporting diagnostic archives requires approval.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1
+  },
+  {
+    "id": "distinct-signing-and-preview-policies",
+    "task": "Project policy: use hardware-backed signing keys for release artifacts.\n\nProject policy: remove expired preview workspaces after fourteen days.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Project policy: use hardware-backed signing keys for release artifacts.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Project policy: remove expired preview workspaces after fourteen days.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "signing-policy-absent",
+    "task": "Project policy: use hardware-backed signing keys for release artifacts.\n\nProject policy: remove expired preview workspaces after fourteen days.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Project policy: remove expired preview workspaces after fourteen days.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "distinct-incident-and-metric-policies",
+    "task": "Team policy: require a human incident commander before disabling alert delivery.\n\nTeam policy: preserve replication-lag samples for twenty-one days.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: require a human incident commander before disabling alert delivery.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: preserve replication-lag samples for twenty-one days.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "lag-retention-policy-absent",
+    "task": "Team policy: require a human incident commander before disabling alert delivery.\n\nTeam policy: preserve replication-lag samples for twenty-one days.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: require a human incident commander before disabling alert delivery.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "policy-between-oneoff-actions",
+    "task": "Find the job summary serializer.\n\nStanding policy: service accounts may inspect anonymized job summaries but must never change job ownership.\n\nList the touched files; do not run a deployment for this review.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: service accounts may inspect anonymized job summaries but must never change job ownership.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "policy-after-oneoff-request",
+    "task": "Run the current lint command and report the exit code.\n\nStanding policy: changing an encryption algorithm requires both security leads to approve.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: changing an encryption algorithm requires both security leads to approve.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "enrollment-scope-retained",
+    "task": "These permissions apply only to disposable integration-test accounts.\n\nA test coordinator may bypass the normal enrollment wait.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "These permissions apply only to disposable integration-test accounts.\n\nA test coordinator may bypass the normal enrollment wait.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "enrollment-scope-fragmented",
+    "task": "These permissions apply only to disposable integration-test accounts.\n\nA test coordinator may bypass the normal enrollment wait.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "These permissions apply only to disposable integration-test accounts.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "A test coordinator may bypass the normal enrollment wait.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "enrollment-scope-omitted",
+    "task": "These permissions apply only to disposable integration-test accounts.\n\nA test coordinator may bypass the normal enrollment wait.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "A test coordinator may bypass the normal enrollment wait.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "heartbeat-exception-retained",
+    "task": "The following exception applies only to scheduled maintenance rehearsals.\n\nA coordinator may suspend the heartbeat probe.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The following exception applies only to scheduled maintenance rehearsals.\n\nA coordinator may suspend the heartbeat probe.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "heartbeat-exception-scope-omitted",
+    "task": "The following exception applies only to scheduled maintenance rehearsals.\n\nA coordinator may suspend the heartbeat probe.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "A coordinator may suspend the heartbeat probe.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "multiline-audit-exception",
+    "task": "Team policy: retain session audit trails for 120 days.\nException: redacted sandbox trails may be discarded after ten days, but only with the sandbox owner’s approval.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: retain session audit trails for 120 days.\nException: redacted sandbox trails may be discarded after ten days, but only with the sandbox owner’s approval.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "multiline-audit-exception-cropped",
+    "task": "Team policy: retain session audit trails for 120 days.\nException: redacted sandbox trails may be discarded after ten days, but only with the sandbox owner’s approval.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: retain session audit trails for 120 days.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1
+  },
+  {
+    "id": "limited-canary-report",
+    "task": "Team report: a five-zone canary run lost 3 acknowledgements in 17 attempts; no production rollout or performance conclusion was established.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "Team report: a five-zone canary run lost 3 acknowledgements in 17 attempts; no production rollout or performance conclusion was established.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "routine-test-command",
+    "task": "Run the isolated unit test and paste its exit status.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "routine-code-location",
+    "task": "Locate the stream decoder and report its current call sites.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "open-store-question",
+    "task": "Should we consider another object store for the next prototype? No store has been selected.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "open-retention-question",
+    "task": "Would a shorter retention interval reduce costs? This is an exploratory question, not an approved policy.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "inspection-not-authored-proof",
+    "task": "Standing policy: automated agents can view ticket labels but cannot alter assignees.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: automated agents can view ticket labels but cannot alter assignees.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "inspected_source",
+          "support_summary": "Synthetic independent inspection.",
+          "source_reference": "local://synthetic",
+          "source_revision": "fixture"
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "unbound-policy-not-current-proof",
+    "task": "Standing policy: automated agents can view ticket labels but cannot alter assignees.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: automated agents can view ticket labels but cannot alter assignees.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": false,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "negated-external-transmission",
+    "task": "Standing policy: never transmit tenant query samples to an external debugging service, even if identifiers have been hashed.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: never transmit tenant query samples to an external debugging service, even if identifiers have been hashed.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "negated-external-transmission-cropped",
+    "task": "Standing policy: never transmit tenant query samples to an external debugging service, even if identifiers have been hashed.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Never transmit tenant query samples.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1
+  }
+]

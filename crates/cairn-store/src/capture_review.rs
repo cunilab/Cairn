@@ -23,6 +23,8 @@ const FINDING_PAYLOAD_MAX_BYTES: usize = 8192;
 pub struct ReviewFinding {
     pub command_id: Uuid,
     pub payload: Value,
+    /// Digest of the exact current task that admitted this authored source block.
+    pub source_task_digest: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -195,7 +197,7 @@ async fn findings_in(
 ) -> Result<Vec<ReviewFinding>> {
     let (server, account, session, turn) = key_binds(key);
     let rows = sqlx::query(
-        "SELECT command_id,payload FROM local_capture_findings
+        "SELECT command_id,payload,source_task_digest FROM local_capture_findings
          WHERE account_id=?1 AND server_key=?2 AND session_id=?3 AND turn_id=?4
          ORDER BY command_id",
     )
@@ -212,6 +214,7 @@ async fn findings_in(
                     .map_err(|_| StoreError::Corrupt("local capture command id".into()))?,
                 payload: serde_json::from_str(row.get::<&str, _>("payload"))
                     .map_err(|_| StoreError::Corrupt("local capture payload".into()))?,
+                source_task_digest: row.get("source_task_digest"),
             })
         })
         .collect()
@@ -224,6 +227,8 @@ fn findings_digest(findings: &[ReviewFinding]) -> String {
         source.push(':');
         source.push_str(&cairn_core::digest(&finding.payload.to_string()));
         source.push('\n');
+        source.push(':');
+        source.push_str(finding.source_task_digest.as_deref().unwrap_or(""));
     }
     cairn_core::digest(&source)
 }
@@ -369,6 +374,43 @@ pub(crate) async fn snapshot_finding_in(
         ));
     }
     let (server, account, session, turn) = key_binds(key);
+    let source_task_digest: Option<String> = match payload
+        .get("capture_attestation")
+        .and_then(Value::as_object)
+        .and_then(|attestation| attestation.get("basis"))
+        .and_then(Value::as_str)
+    {
+        Some("user_report") => {
+            let content = payload
+                .get("content")
+                .and_then(Value::as_str)
+                .unwrap_or_default();
+            let task = sqlx::query(
+                "SELECT task_text,task_digest,truncated,redacted FROM local_task_records
+                 WHERE account_id=?1 AND server_key=?2 AND session_id=?3 AND turn_id=?4
+                   AND expires_at>=?5",
+            )
+            .bind(&account)
+            .bind(server)
+            .bind(&session)
+            .bind(&turn)
+            .bind(now())
+            .fetch_optional(&mut *connection)
+            .await?
+            .ok_or_else(|| refused("authored finding requires current task input"))?;
+            if task.get::<i64, _>("truncated") != 0 || task.get::<i64, _>("redacted") != 0 {
+                return Err(refused(
+                    "authored finding requires safe complete task input",
+                ));
+            }
+            let task_text: String = task.get("task_text");
+            cairn_core::capture_source::unique_source_passage(&task_text, content).ok_or_else(
+                || refused("authored finding must quote one unique complete task block"),
+            )?;
+            Some(task.get("task_digest"))
+        }
+        _ => None,
+    };
     let count: i64 = sqlx::query_scalar(
         "SELECT COUNT(*) FROM local_capture_findings
          WHERE account_id=?1 AND server_key=?2 AND session_id=?3 AND turn_id=?4 AND command_id<>?5",
@@ -386,8 +428,8 @@ pub(crate) async fn snapshot_finding_in(
     let time = now();
     sqlx::query(
         "INSERT INTO local_capture_findings
-          (account_id,server_key,session_id,turn_id,command_id,payload,payload_digest,created_at,expires_at)
-         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9)
+          (account_id,server_key,session_id,turn_id,command_id,payload,payload_digest,source_task_digest,created_at,expires_at)
+         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
          ON CONFLICT (account_id,server_key,session_id,turn_id,command_id) DO NOTHING",
     )
     .bind(&account)
@@ -397,6 +439,7 @@ pub(crate) async fn snapshot_finding_in(
     .bind(command_id.to_string())
     .bind(&encoded)
     .bind(cairn_core::digest(&encoded))
+    .bind(source_task_digest)
     .bind(time)
     .bind(time + TTL_SECONDS)
     .execute(&mut *connection)
@@ -586,7 +629,7 @@ mod tests {
             &mut transaction,
             key,
             Uuid::now_v7(),
-            &serde_json::json!({"content":"complete finding","capture_attestation":{"basis":"user_report"}}),
+            &serde_json::json!({"content":"complete finding","capture_attestation":{"basis":"inspected_source","support_summary":"inspected support","source_reference":"local://test","source_revision":"test"}}),
         )
         .await
         .unwrap();
@@ -614,12 +657,210 @@ mod tests {
         .await
     }
 
+    fn authored(content: &str) -> Value {
+        serde_json::json!({"content":content, "capture_attestation":{
+            "basis":"user_report", "support_summary":"The user authored this durable policy."}})
+    }
+
+    async fn assert_no_admission(store: &Store) {
+        for table in [
+            "command_spool",
+            "command_seq",
+            "capture_checkpoints",
+            "local_capture_findings",
+        ] {
+            let count: i64 = sqlx::query_scalar(&format!("SELECT COUNT(*) FROM {table}"))
+                .fetch_one(store.pool())
+                .await
+                .unwrap();
+            assert_eq!(count, 0, "{table} changed after source refusal");
+        }
+    }
+
+    #[tokio::test]
+    async fn authored_source_refusal_rolls_back_command_and_checkpoint_state() {
+        let complete = "Use DuckDB for disposable benchmarks.\nOnly on synthetic data; production uses PostgreSQL.";
+        let duplicate = "Keep backups encrypted.\n\nKeep backups encrypted.";
+        for (task, content, truncated, redacted, expired) in [
+            (None, complete, false, false, false),
+            (
+                Some(complete),
+                "Use DuckDB for disposable benchmarks.",
+                false,
+                false,
+                false,
+            ),
+            (Some(complete), complete, true, false, false),
+            (Some(complete), complete, false, true, false),
+            (Some(complete), complete, false, false, true),
+            (
+                Some(duplicate),
+                "Keep backups encrypted.",
+                false,
+                false,
+                false,
+            ),
+        ] {
+            let (store, key) = fixture().await;
+            if let Some(task) = task {
+                record_task(&store, &key, task, truncated, redacted)
+                    .await
+                    .unwrap();
+            }
+            if expired {
+                sqlx::query("UPDATE local_task_records SET expires_at=0")
+                    .execute(store.pool())
+                    .await
+                    .unwrap();
+            }
+            let error = admit_payload(&store, &key, &authored(content))
+                .await
+                .unwrap_err();
+            assert!(matches!(error, StoreError::Refused { code, .. } if code == "invalid_request"));
+            assert_no_admission(&store).await;
+        }
+    }
+
+    #[tokio::test]
+    async fn authored_proof_preserves_conditions_and_rejects_stale_task_credit() {
+        let (store, key) = fixture().await;
+        let block = "Never remove an audit log.\nAn exception requires both reviewer approvals.";
+        record_task(&store, &key, block, false, false)
+            .await
+            .unwrap();
+        let mut payload = authored(block);
+        payload["source_task_digest"] = serde_json::json!("caller-forged-proof");
+        admit_payload(&store, &key, &payload).await.unwrap();
+        let input = load_review(&store, &key).await.unwrap().unwrap();
+        assert_eq!(
+            input.findings[0].source_task_digest.as_deref(),
+            Some(input.task_digest.as_str())
+        );
+        let stored: String = sqlx::query_scalar("SELECT payload FROM command_spool")
+            .fetch_one(store.pool())
+            .await
+            .unwrap();
+        assert_eq!(
+            serde_json::from_str::<Value>(&stored).unwrap()["content"],
+            block
+        );
+        assert!(save_review(&store, &key, &input, "covered", "source-v2")
+            .await
+            .unwrap());
+        let changed = format!("{block}\n\nTeam policy: retain both approval signatures.");
+        record_task(&store, &key, &changed, false, false)
+            .await
+            .unwrap();
+        let current = load_review(&store, &key).await.unwrap().unwrap();
+        assert_ne!(
+            current.findings[0].source_task_digest.as_deref(),
+            Some(current.task_digest.as_str())
+        );
+        assert!(!save_review(&store, &key, &input, "covered", "source-v2")
+            .await
+            .unwrap());
+        assert_eq!(
+            review_status(&store, &key, "source-v2").await.unwrap(),
+            "unknown"
+        );
+    }
+
+    #[tokio::test]
+    async fn authored_source_cannot_be_borrowed_from_another_turn_or_credential_lane() {
+        let (store, key) = fixture().await;
+        let task = "All production exports require redaction.";
+        record_task(&store, &key, task, false, false).await.unwrap();
+        for changed in [
+            CheckpointKey {
+                turn_id: Uuid::now_v7(),
+                ..key.clone()
+            },
+            CheckpointKey {
+                account_id: Uuid::now_v7(),
+                ..key.clone()
+            },
+            CheckpointKey {
+                server_key: "other-server".into(),
+                ..key.clone()
+            },
+        ] {
+            let error = admit_payload(&store, &changed, &authored(task))
+                .await
+                .unwrap_err();
+            assert!(matches!(error, StoreError::Refused { code, .. } if code == "invalid_request"));
+            assert_no_admission(&store).await;
+        }
+    }
+
+    #[tokio::test]
+    async fn inspected_and_unbound_commands_cannot_forge_authored_source_proof() {
+        let (store, key) = fixture().await;
+        let task = "Retain signed release manifests for five years.";
+        record_task(&store, &key, task, false, false).await.unwrap();
+        let inspected = serde_json::json!({"content":task,
+            "source_task_digest":cairn_core::digest(task), "capture_attestation":{
+                "basis":"inspected_source", "support_summary":"Synthetic inspected observation.",
+                "source_reference":"local://fixture", "source_revision":"fixture"}});
+        admit_payload(&store, &key, &inspected).await.unwrap();
+        let input = load_review(&store, &key).await.unwrap().unwrap();
+        assert_eq!(input.findings[0].source_task_digest, None);
+        let payload = authored(task);
+        let admission = crate::spool::spool_command_with_checkpoint(
+            &store,
+            crate::spool::NewCommand {
+                scope: crate::spool::CommandScope::Session(key.session_id),
+                project_id: None,
+                account_id: key.account_id,
+                server_instance_id: None,
+                kind: crate::spool::CommandKind::RememberAttested,
+                payload: &payload,
+            },
+            crate::spool::SpoolCapacity::default(),
+            None,
+        )
+        .await
+        .unwrap();
+        let crate::spool::CommandAdmission::Spooled(command) = admission else {
+            panic!("unbound command refused")
+        };
+        let snapshots: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM local_capture_findings WHERE command_id=?1")
+                .bind(command.command_id.to_string())
+                .fetch_one(store.pool())
+                .await
+                .unwrap();
+        assert_eq!(snapshots, 0);
+    }
+
+    #[tokio::test]
+    async fn changing_trusted_proof_invalidates_cached_positive_coverage() {
+        let (store, key) = fixture().await;
+        let task = "Never publish an unsigned artifact.";
+        record_task(&store, &key, task, false, false).await.unwrap();
+        admit_payload(&store, &key, &authored(task)).await.unwrap();
+        let input = load_review(&store, &key).await.unwrap().unwrap();
+        assert!(save_review(&store, &key, &input, "covered", "source-v2")
+            .await
+            .unwrap());
+        sqlx::query("UPDATE local_capture_findings SET source_task_digest=NULL")
+            .execute(store.pool())
+            .await
+            .unwrap();
+        assert_eq!(
+            review_status(&store, &key, "source-v2").await.unwrap(),
+            "unknown"
+        );
+        assert!(!save_review(&store, &key, &input, "covered", "source-v2")
+            .await
+            .unwrap());
+    }
+
     #[tokio::test]
     async fn oversized_and_ninth_native_finding_roll_back_admission() {
         let (store, key) = fixture().await;
         for payload in [
-            serde_json::json!({"content":"x".repeat(2049),"capture_attestation":{"basis":"user_report"}}),
-            serde_json::json!({"content":"bounded finding","capture_attestation":{"basis":"user_report"},"extra":"x".repeat(8192)}),
+            serde_json::json!({"content":"x".repeat(2049),"capture_attestation":{"basis":"inspected_source","support_summary":"inspected support","source_reference":"local://test","source_revision":"test"}}),
+            serde_json::json!({"content":"bounded finding","capture_attestation":{"basis":"inspected_source","support_summary":"inspected support","source_reference":"local://test","source_revision":"test"},"extra":"x".repeat(8192)}),
         ] {
             assert!(admit_payload(&store, &key, &payload).await.is_err());
         }
@@ -635,7 +876,7 @@ mod tests {
                 .unwrap();
             assert_eq!(count, 0, "{table}");
         }
-        let payload = serde_json::json!({"content":"bounded supported finding","capture_attestation":{"basis":"user_report"}});
+        let payload = serde_json::json!({"content":"bounded supported finding","capture_attestation":{"basis":"inspected_source","support_summary":"inspected support","source_reference":"local://test","source_revision":"test"}});
         for _ in 0..8 {
             admit_payload(&store, &key, &payload).await.unwrap();
         }
@@ -769,6 +1010,41 @@ mod tests {
             .unwrap();
         assert_eq!(records, MAX_RECORDS);
         assert_eq!(commands, 0);
+    }
+
+    #[tokio::test]
+    async fn source_proof_upgrade_preserves_records_but_revokes_legacy_coverage() {
+        let pool = sqlx::sqlite::SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect("sqlite::memory:")
+            .await
+            .unwrap();
+        crate::migrate::run_to(&pool, 18).await.unwrap();
+        let project = Uuid::now_v7().to_string();
+        let session = Uuid::now_v7().to_string();
+        sqlx::query("INSERT INTO projects (id,name,git_common_dir,created_at,updated_at) VALUES (?1,'upgrade','/upgrade','now','now')").bind(&project).execute(&pool).await.unwrap();
+        sqlx::query("INSERT INTO sessions (id,project_id,user_id,agent,branch,worktree_path,agent_session_key,status,started_at,last_event_at,daemon_run_id) VALUES (?1,?2,'user','codex','main','/upgrade','upgrade','active','now','now','upgrade')").bind(&session).bind(&project).execute(&pool).await.unwrap();
+        let text = "Never publish without approval.";
+        let payload =
+            serde_json::json!({"content":text,"capture_attestation":{"basis":"user_report"}})
+                .to_string();
+        let digest = cairn_core::digest(text);
+        sqlx::query("INSERT INTO local_task_records (account_id,server_key,session_id,turn_id,task_text,task_digest,truncated,redacted,coverage_status,coverage_task_digest,coverage_findings_digest,coverage_revision,created_at,updated_at,expires_at) VALUES ('account','server',?1,'turn',?2,?3,0,0,'covered',?3,'legacy-findings','capture-completeness-v1',1,1,9999999999)")
+            .bind(&session).bind(text).bind(&digest).execute(&pool).await.unwrap();
+        sqlx::query("INSERT INTO local_capture_findings (account_id,server_key,session_id,turn_id,command_id,payload,payload_digest,created_at,expires_at) VALUES ('account','server',?1,'turn','command',?2,?3,1,9999999999)")
+            .bind(&session).bind(&payload).bind(cairn_core::digest(&payload)).execute(&pool).await.unwrap();
+        crate::migrate::run_to(&pool, 19).await.unwrap();
+        let (retained, status, task_credit, finding_credit, revision): (String,String,Option<String>,Option<String>,Option<String>) = sqlx::query_as("SELECT task_text,coverage_status,coverage_task_digest,coverage_findings_digest,coverage_revision FROM local_task_records").fetch_one(&pool).await.unwrap();
+        assert_eq!(retained, text);
+        assert_eq!(status, "unknown");
+        assert_eq!((task_credit, finding_credit, revision), (None, None, None));
+        let (retained, proof): (String, Option<String>) =
+            sqlx::query_as("SELECT payload,source_task_digest FROM local_capture_findings")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+        assert_eq!(retained, payload);
+        assert_eq!(proof, None);
     }
 
     #[tokio::test]

@@ -6,6 +6,7 @@
 pub mod applicability;
 pub mod bound;
 pub mod budget;
+pub mod capture_source;
 pub mod config;
 pub mod context;
 pub mod continuity;

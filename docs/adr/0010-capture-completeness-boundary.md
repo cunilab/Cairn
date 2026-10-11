@@ -1,6 +1,6 @@
 # 0010 — Establish capture completeness before claiming automatic memory
 
-**Status:** Accepted by explicit user answer; implemented; mechanical checks passed; comparator qualification failed.
+**Status:** Accepted local boundary; all tested completeness candidates failed; role/qualifier prototypes rejected; V2 restored and unqualified.
 **Recorded:** 2026-10-10.
 
 ## Evidence
@@ -54,9 +54,9 @@ require an explicit agreement; this proposal does not lower thresholds.
 - Only after qualification, rerun the full paired workload and fresh installed
   deployment evidence. Claude remains skipped under the existing user instruction.
 
-## Comparator and failure boundary
+## Superseded V1 comparator and failure boundary
 
-The implementation uses a separately configured semantic comparator against
+The V1 implementation used a separately configured semantic comparator against
 the actual admitted finding snapshots. It emits exact source quotes with
 existing finding IDs. Output bounds and references are checked mechanically;
 semantic coverage still requires independent qualification. Cache validity is
@@ -119,11 +119,89 @@ The final store suite passed 51 tests, the daemon suite passed 66 with the
 live comparator test excluded, and affected-package Clippy and whitespace
 checks passed. Sol independently verified the correction and three focused
 regressions, finding no remaining mechanical blocker in the reviewed scope.
-This does not change the failed comparator screen. Remote CI passed all six
-jobs on preceding head `df6adecc`; the privacy correction needs its own CI run.
+This does not change the failed comparator screen. All six remote CI jobs
+passed the privacy correction head `a209f77e` in
+[run 38048511151](https://github.com/cunilab/Cairn/actions/runs/38048511151).
+That run does not validate subsequent source changes or semantic qualification.
 
 The local mechanism can now expose missing authored intent, but this tested
 comparator is not qualified to establish completeness. A different explicitly
 configured comparator must qualify before native useful-return and full
 milestone evidence can advance. Production and real-task external processing
 remain unconfigured.
+
+## Authorized replacement Groq screen — failed
+
+With new user authorization for isolated synthetic Groq testing, a different
+model family, `qwen/qwen3.8-27b`, ran the unchanged checked-in twelve-case screen
+once through the production Rust comparator. Nine predicates matched; two
+assessments were unknown, and `lost-condition` was falsely reported covered.
+The omitted restriction to isolated integration tests remains a false positive
+completeness decision. The current comparator does not retain a diagnostic cause
+for unknown assessments, so none is inferred.
+
+This replacement is also unqualified. No prompt/corpus tuning, rerun, recall
+selector qualification, native/full actor workload or fresh deployment followed.
+The original GPT-OSS evidence and all fixture expectations remain unchanged.
+[Replacement metadata](../../evals/m1-m2/qwen-qualification-metadata.json)
+preserves every outcome and exact source/input/result hashes. Testing used only
+synthetic fixtures; credentials were transient process inputs, not repository
+content. Claude, real-task external processing and production changes remain
+excluded. PR #66 is still draft.
+
+## Approved V2 source-passage redesign — unqualified
+
+The revised classifier receives only ordered authored source blocks, never
+finding snapshots or IDs. It returns inclusive contiguous `required_passages`.
+Rust derives coverage from current-task-bound admission proofs. A native
+`user_report` must preserve one exact, unique, complete source passage, including
+linked context, exceptions and internal paragraph delimiters. Separate fragments
+cannot jointly cover a linked requirement; inspected-source observations cannot
+cover user intent. Missing, unsafe, expired or ambiguous source refuses admission
+before command allocation. Oversized or ambiguous classifier selections remain
+unknown, not fabricated or shortened memory. Schema 19 retains old records but
+revokes legacy coverage caches and never backfills trusted proofs.
+
+An independent security review identified credential-shaped metadata bypassing
+content-only screening. The real local CLI/daemon reproduced a secret-shaped
+topic key reaching its finding snapshot. Canonical daemon admission now refuses
+recognized credentials in topic, value and scope keys without rewriting them.
+The corrected real-process smoke rejected eight requests before admission,
+preserved a joint passage and its trusted task digest, withheld intent proof
+from inspected-source capture, and returned unknown for unconfigured review.
+This used synthetic input, isolated local storage and no provider or server token.
+A separate loopback response fixture exercised missing-to-covered review through
+the actual production classifier path, preserving CRLF passage separators and
+withholding finding snapshots from its request. This is mechanical proof only;
+the fixed response does not establish model quality or semantic qualification.
+
+Local verification: 72 daemon tests (one live screen ignored), 57 store tests,
+54 CLI tests (28 MCP cases), 365 core tests, 212 integration tests, and five-package
+all-target Clippy with warnings denied. The schema-18-to-19 regression preserves data while
+revoking old completeness credit. These are mechanical checks, not useful
+memory, independent semantic qualification, delivery or deployed-artifact proof.
+
+The new eighteen-case synthetic screen is frozen before V2 provider execution.
+Its ignored runtime test requires a real configured classifier, records actual
+selections, missing quotes and admission refusals, and saves all outcomes before
+asserting the gate. It never synthesizes model answers from expected labels.
+Independent semantic scoring, a protected fresh provider credential, passing
+recall qualification, the unchanged Codex paired workload and fresh deployment
+evidence remain prerequisites. Neither failed V1 screen was rerun or relabelled.
+Claude, real-task uploads and production changes remain excluded.
+
+## Live V2–V4 results and rejected prototypes
+
+Real Groq runs failed both V2 candidates and the fresh role/qualifier prototypes.
+Independent-policy grouping remained unreliable; the later designs also credited
+fragmented scoped permissions as complete when models omitted required links.
+The supplemental blinded review corroborated invalid selections. Exact quotations
+and trusted task digests do not establish semantic dependency completeness.
+
+The prototype role/qualifier code was rejected and removed; the preserved V2
+candidate was restored and mechanically reverified. It remains unqualified,
+opt-in and disabled by default. No milestone workload or deployment followed.
+See [live results](../../evals/m1-m2/results.md#live-source-classification-qualification--failed-prototypes-rejected)
+and [complete metadata](../../evals/m1-m2/source-classification-live-failures.json).
+The prior failed evidence is unchanged. A reliable semantic boundary remains
+a prerequisite; repeating failed cases or counting connectivity is not a remedy.

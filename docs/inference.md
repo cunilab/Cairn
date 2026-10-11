@@ -64,9 +64,8 @@ private; disclose any provider revision or input-readback evidence that is unava
 ## Local capture-completeness comparator
 
 [ADR 0010](adr/0010-capture-completeness-boundary.md) adds a separate daemon
-comparator for bounded local task records and admitted findings. It is
-unconfigured by default and is not qualified yet. Configure these together
-in the local daemon's protected environment:
+source-passage classifier. It is unconfigured by default and not qualified.
+Configure these together in the local daemon's protected environment:
 
 | Setting | Value |
 | --- | --- |
@@ -75,11 +74,29 @@ in the local daemon's protected environment:
 | `CAIRN_CAPTURE_REVIEW_API_KEY` | Private comparator credential |
 | `CAIRN_CAPTURE_REVIEW_ALLOW_EXTERNAL` | `true` only when the operator authorizes external processing of local task text; otherwise only loopback endpoints are accepted |
 
-This configuration is separate from server recall inference and Dokploy. It
-processes the entire retained task and admitted finding snapshots, including
-text not ultimately selected as durable memory. Local retention alone does
-not authorize external processing. Requests have a ten-second deadline, no
-redirects, bounded output and two concurrent slots. Missing, redacted or
-truncated input and invalid/unavailable results remain unknown coverage.
+This configuration is separate from server recall inference and Dokploy. The
+model receives authored source blocks, never admitted findings. Rust checks
+selected contiguous passages against current-task-bound admission proofs.
+Selecting all requirements and their context remains a semantic qualification
+gate. Local retention does not authorize external processing. Requests have a
+ten-second deadline, no redirects, bounded streamed output and two concurrent
+slots. Missing, redacted or truncated input and invalid/unavailable results
+remain unknown coverage.
 The coding session can finish after one bounded intervention. Do not treat
 local admission, a no-finding assertion or model connectivity as qualification.
+
+The superseded V1 synthetic Groq completeness screen failed for both tested models.
+`openai/gpt-oss-120b` matched 11/12 expected outcomes with one false positive;
+the separately authorized replacement `qwen/qwen3.8-27b` matched 9/12, with
+the same condition-loss false positive and two unknown assessments. Neither is
+a qualified completeness comparator. See [ADR 0010](adr/0010-capture-completeness-boundary.md#authorized-replacement-groq-screen--failed)
+and [replacement metadata](../evals/m1-m2/qwen-qualification-metadata.json).
+These development screens do not establish a recall-selector pass or permit
+native/full milestone advancement, and do not authorize real-task processing.
+
+Subsequent real V2 screens and fresh V3/V4 role/qualifier experiments also failed.
+Models omitted necessary scope relationships, including false completeness for
+fragmented findings. The later prototypes were removed; the V2 source-passage
+candidate was restored and remains unqualified. See [all live results](../evals/m1-m2/source-classification-live-failures.json).
+Do not enable a tested model as qualified completeness inference or advance
+milestone/deployment claims from these runs.

@@ -98,6 +98,11 @@ pub const MIGRATIONS: &[(i64, &str, &str)] = &[
         "capture_review",
         include_str!("../migrations/0018_capture_review.sql"),
     ),
+    (
+        19,
+        "capture_source_proof",
+        include_str!("../migrations/0019_capture_source_proof.sql"),
+    ),
 ];
 
 /// The schema version this build knows how to use.

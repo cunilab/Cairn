@@ -37,6 +37,12 @@ explicit identity selection and refuse ambiguous worktrees. Generic MCP cannot
 start native lifecycle sessions; use an existing session rather than inventing
 a key. Native integrations manage their own lifecycle.
 
+Pinning, reinforcement, reconciliation and evidence attachment validate supplied
+session identity before queueing a knowledge command. A native caller key selects
+the matching session even without an explicit `session_id`; a mismatched caller,
+project or worktree is refused. Generic clients that supply neither identity
+field retain store-scoped commands rather than acquiring an arbitrary session.
+
 Client identity metadata establishes local-client provenance, not authorization.
 Account credentials, project membership and worktree checks remain mandatory.
 
@@ -71,6 +77,15 @@ After successful command delivery, the edge retains receipt identifiers and
 status but discards the authored command body. Pending and unsuccessful bodies
 remain available for delivery or retry. Existing delivered bodies are scrubbed
 when local schema 16 is applied; this does not erase saved backups or transcripts.
+
+The candidate native Codex capture boundary requires verified current-turn
+metadata and a safe unexpired local source record for authored intent. Preserve
+one complete contiguous passage, including linked conditions, verbatim. Cropped
+or ambiguous quotations are refused; inspected observations have no authored-
+intent coverage proof. Local schema 19 revokes pre-proof completeness caches.
+Subject and scope keys containing recognized credentials are refused before
+command admission, including attested single-record and batch paths. The
+source-only classifier is opt-in and still unqualified; see [ADR 0010](adr/0010-capture-completeness-boundary.md).
 
 ## Ownership and setup
 

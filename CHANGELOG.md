@@ -9,10 +9,19 @@ schemas, and the wire protocol without a deprecation period.
 
 ## [Unreleased]
 
+### Fixed
+
+- Validate caller, project and worktree identity before admitting pin, reinforcement, reconciliation and evidence commands; bind native key-only requests to their checked session while preserving identity-free store-scoped requests.
+- Refuse credential-shaped subject and scope metadata before durable command admission, including attested create/supersede and batch capture.
+- Bind native authored-intent admission to exact complete current-source passages and preserve quoted bytes; invalidate legacy completeness credit on local schema-19 upgrade. Source integrity does not prove semantic completeness.
+
 ### Documentation
 
 - Consolidated current product, architecture, roadmap, integrations, and validation guidance into five canonical documents; historical alpha.7 contracts remain available from Git tags.
 - Corrected the security reporting link and current storage boundary, and recorded the alpha.9 publication and published-image smoke evidence.
+- Regenerated repository agent guidance from the canonical capture contract and corrected stale CI status and the historical topic-key consistency interpretation without rerunning Claude or changing raw evaluation evidence.
+- Document the unqualified source-only passage classifier and preserve both failed V1 Groq screens; no Claude execution or production rollout was performed.
+- Preserve real V2–V4 qualification failures and blinded supplemental reviews; reject role/qualifier prototypes that falsely credited fragmented scopes and restore the unqualified V2 candidate.
 
 ## [0.1.0-alpha.9] — 2026-10-04
 

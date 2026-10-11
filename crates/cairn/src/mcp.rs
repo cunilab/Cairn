@@ -405,13 +405,33 @@ fn native_turn_id(args: &Value) -> Option<uuid::Uuid> {
         .filter(|id| !id.is_nil())
 }
 
+fn check_native_capture_turn(
+    name: &str,
+    args: &Value,
+    codex_identity: bool,
+) -> Result<(), WireError> {
+    let action = args["action"].as_str();
+    let captures = action == Some("capture")
+        || (matches!(action, Some("create" | "supersede"))
+            && args.get("capture_attestation").is_some());
+    if codex_identity && name == "cairn_remember" && captures && native_turn_id(args).is_none() {
+        return Err(WireError::invalid(
+            "native capture requires verified framework turn metadata; reconnect the MCP server",
+        ));
+    }
+    Ok(())
+}
+
 async fn call(params: &Value, codex_identity: bool) -> Value {
     let name = params
         .get("name")
         .and_then(|n| n.as_str())
         .unwrap_or_default();
     let result = match call_arguments(params, codex_identity) {
-        Ok(args) => dispatch(name, &args).await,
+        Ok(args) => match check_native_capture_turn(name, &args, codex_identity) {
+            Ok(()) => dispatch(name, &args).await,
+            Err(error) => Err(error),
+        },
         Err(error) => Err(error),
     };
     match result {
@@ -1335,6 +1355,26 @@ mod tests {
         )
         .unwrap();
         assert_eq!(native_turn_id(&args), Some(turn));
+    }
+
+    #[test]
+    fn native_capture_rejects_absent_or_cross_session_turn_identity() {
+        let thread = uuid::Uuid::now_v7();
+        let other = uuid::Uuid::now_v7();
+        for action in ["capture", "create", "supersede"] {
+            for metadata in [
+                json!({"threadId": thread}),
+                json!({"threadId": thread, "sessionId": other,
+                    "x-codex-turn-metadata": {"turn_id": uuid::Uuid::now_v7(),
+                        "session_id": other, "thread_id": thread}}),
+            ] {
+                let params = json!({"_meta": metadata, "arguments": {
+                    "action": action, "capture_attestation": {"basis":"user_report"}}});
+                let args = call_arguments(&params, true).unwrap();
+                let error = check_native_capture_turn("cairn_remember", &args, true).unwrap_err();
+                assert_eq!(error.code, cairn_core::wire::codes::INVALID_REQUEST);
+            }
+        }
     }
 
     #[test]
