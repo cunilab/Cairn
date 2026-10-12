@@ -1,0 +1,612 @@
+[
+  {
+    "id": "q7m2",
+    "task": "At the basalt archive, keep the west stair closed until the humidity alarm is cleared.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "At the basalt archive, keep the west stair closed until the humidity alarm is cleared.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicit source report."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "p4x9",
+    "task": "At the basalt archive, keep the west stair closed until the humidity alarm is cleared.\n\nThe humidity alarm was cleared at 09:10.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "At the basalt archive, keep the west stair closed until the humidity alarm is cleared.\n\nThe humidity alarm was cleared at 09:10.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicit report plus linked condition context."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "b8k3",
+    "task": "For the basalt archive, close the west stair during humidity alarms.\n\nVisitors with mobility permits may use the north lift instead.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "For the basalt archive, close the west stair during humidity alarms.\n\nVisitors with mobility permits may use the north lift instead.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicit report; exception links the two source blocks."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "r2v6",
+    "task": "Separately, label all loan crates with the lender's code.\n\nAt the basalt archive, keep the west stair closed until the humidity alarm is cleared.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Separately, label all loan crates with the lender's code.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report of crate-labeling convention."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "At the basalt archive, keep the west stair closed until the humidity alarm is cleared.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report of stair closure decision."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "n5c1",
+    "task": "Separately, label all loan crates with the lender's code.\n\nAt the basalt archive, keep the west stair closed until the humidity alarm is cleared.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Separately, label all loan crates with the lender's code.\n\nAt the basalt archive, keep the west stair closed until the humidity alarm is cleared.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicit reports of two independent policies."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "w3j8",
+    "task": "At the basalt archive, keep the west stair closed until the humidity alarm is cleared.\n\nSeparately, label all loan crates with the lender's code.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "At the basalt archive, keep the west stair closed until the humidity alarm is cleared.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report of first independent policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "c9f4",
+    "task": "At the basalt archive, keep the west stair closed until the humidity alarm is cleared.\n\nSeparately, label all loan crates with the lender's code.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Separately, label all loan crates with the lender's code.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report of second independent policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "h6d0",
+    "task": "At the basalt archive, keep the west stair closed until the humidity alarm is cleared.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Keep the west stair closed.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report quote paraphrases and crops source."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1
+  },
+  {
+    "id": "t1y5",
+    "task": "At the basalt archive, keep the west stair closed until the humidity alarm is cleared.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "At the basalt archive, keep the west stair closed.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report omits condition from source."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1
+  },
+  {
+    "id": "d8a2",
+    "task": "The field note says the western gallery may close after the dust monitor rises above 40.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "The field note says the western gallery may close after the dust monitor rises above 40.",
+        "capture_attestation": {
+          "basis": "inspected_source",
+          "support_summary": "Synthetic inspected-source observation, not a user requirement.",
+          "source_reference": "/tmp/cairn-completeness-qualified.JVQR1Z/inspected-d8a2.txt",
+          "source_revision": "sha256:1482747a5c866348b5bf35bf19ddc58f0544176e9ad200b10aa987869af392c0"
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "k3m7",
+    "task": "For the Lumen chart room, never publish a coordinate unless the surveyor has signed it.\n\nIf a coordinate is disputed, retain both versions and mark the dispute; do not choose one.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "For the Lumen chart room, never publish a coordinate unless the surveyor has signed it.\n\nIf a coordinate is disputed, retain both versions and mark the dispute; do not choose one.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report of signature gate and linked dispute procedure."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "e0u4",
+    "task": "For the Lumen chart room, never publish a coordinate unless the surveyor has signed it.\n\nIf a coordinate is disputed, retain both versions and mark the dispute; do not choose one.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "For the Lumen chart room, never publish a coordinate unless the surveyor has signed it.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report omits linked dispute procedure."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "s2a9",
+    "task": "For the Lumen chart room, never publish a coordinate unless the surveyor has signed it.\n\nIf a coordinate is disputed, retain both versions and mark the dispute; do not choose one.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "If a coordinate is disputed, retain both versions and mark the dispute; do not choose one.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report omits linked signature prerequisite."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "f5q8",
+    "task": "I like maps with pale blue borders.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "I like maps with pale blue borders.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic preference, not durable requirement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "m7b1",
+    "task": "Our team standard: every kiln batch needs a signed temperature log, even when the firing is interrupted.\n\nThe log must identify the operator and record the maximum temperature.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Our team standard: every kiln batch needs a signed temperature log, even when the firing is interrupted.\n\nThe log must identify the operator and record the maximum temperature.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic team standard includes interruption exception and required log fields."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "a4n6",
+    "task": "Our team standard: every kiln batch needs a signed temperature log, even when the firing is interrupted.\n\nThe log must identify the operator and record the maximum temperature.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Our team standard: every kiln batch needs a signed temperature log, even when the firing is interrupted.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report omits required log contents."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "x9c2",
+    "task": "Our team standard: every kiln batch needs a signed temperature log, even when the firing is interrupted.\n\nThe log must identify the operator and record the maximum temperature.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The log must identify the operator and record the maximum temperature.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report omits applicability and interrupted-firing exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "j6p0",
+    "task": "At the Nacre greenhouse, record a frost incident when the sensor reads below -3 C for ten minutes.\n\nIgnore brief dips that recover before ten minutes; do not count them as incidents.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "At the Nacre greenhouse, record a frost incident when the sensor reads below -3 C for ten minutes.\n\nIgnore brief dips that recover before ten minutes; do not count them as incidents.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report includes threshold, duration, and linked exclusion."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "u8r3",
+    "task": "At the Nacre greenhouse, record a frost incident when the sensor reads below -3 C for ten minutes.\n\nIgnore brief dips that recover before ten minutes; do not count them as incidents.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "At the Nacre greenhouse, record a frost incident when the sensor reads below -3 C for ten minutes.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report omits linked false-positive exclusion."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "g3w5",
+    "task": "The handover note reports that the Nacre greenhouse sensor read -4 C at 06:00.\n\nNo standing frost rule was stated.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "The handover note reports that the Nacre greenhouse sensor read -4 C at 06:00.",
+        "capture_attestation": {
+          "basis": "inspected_source",
+          "support_summary": "Synthetic observed reading; no user policy asserted.",
+          "source_reference": "/tmp/cairn-completeness-qualified.JVQR1Z/inspected-g3w5.txt",
+          "source_revision": "sha256:7683f94bf985a7cf409586b5a985df13786a0107099af82ca94d57c4f57892de"
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "v0e7",
+    "task": "In the Vey archive, tag oral histories with speaker and recording date.\n\nIf either is unknown, use the explicit value 'unrecorded'; never guess.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "In the Vey archive, tag oral histories with speaker and recording date.\n\nIf either is unknown, use the explicit value 'unrecorded'; never guess.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report specifies fields and linked unknown-value rule."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "z5l2",
+    "task": "In the Vey archive, tag oral histories with speaker and recording date.\n\nIf either is unknown, use the explicit value 'unrecorded'; never guess.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "In the Vey archive, tag oral histories with speaker and recording date.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report omits linked unknown-value rule."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "o1d9",
+    "task": "Remember: the vault code is [REDACTED SECRET].\n\nNever store or repeat that credential.",
+    "findings": [],
+    "source_bound": false,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "redacted": true
+  },
+  {
+    "id": "i4t6",
+    "task": "Remember that the old observatory used a brass telescope, though I cannot remember which site or whether it is still there.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "Remember that the old observatory used a brass telescope, though I cannot remember which site or whether it is still there.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic uncertain recollection about site and current status."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "l8h3",
+    "task": "In the Morrow seed bank, keep accession labels attached to each sample through every transfer.\n\nWhen a label is damaged, quarantine that sample until its accession is verified; do not infer identity from neighboring trays.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "In the Morrow seed bank, keep accession labels attached to each sample through every transfer.\n\nWhen a label is damaged, quarantine that sample until its accession is verified; do not infer identity from neighboring trays.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic report links label preservation, quarantine, and anti-inference safeguard."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  }
+]

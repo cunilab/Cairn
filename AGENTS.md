@@ -1,18 +1,25 @@
-<!-- cairn:managed:begin id=agent-contract schema=1 content=3ffccb6ee572 -->
+<!-- cairn:managed:begin id=agent-contract schema=1 content=3585abeab1cd -->
 ## Cairn — persistent project memory
 
-Cairn is durable, project-scoped memory for this repository, shared by every agent working on it.
-1. Read the Cairn context you were given before re-deriving the project.
-2. Search Cairn memory before repeating an investigation you may already have done.
-3. Record durable facts, decisions, conventions, failures and procedures — never routine tool calls.
-4. Use the narrowest correct scope: task, else branch, else project.
-5. Never invent an evidence observation identifier.
-6. Never put secrets, credentials, raw prompts or unbounded output into memory.
-7. Session boundaries, checkpoints and handoffs are automatic here. Do not hand-roll them.
-8. Bind work to a Cairn task when one applies.
+Cairn is shared durable project memory.
+1. Read delivered continuity; call cairn_context with short task keywords for relevant findings.
+2. Search Cairn with task keywords before repeating an investigation.
+3. Before finish, use cairn_remember action=capture for durable project findings. Each item keeps its conditions, counts and own support. Separate user intent from inspected implementation; skip routine summaries.
+4. Native user_report quotes complete durable passages verbatim with linked context/conditions. Refuse missing turn/source or oversized quotes; never trim.
+5. Project scope spans branches; branch is branch-specific; session is scratch.
+6. Never invent evidence observation IDs.
+7. Never store secrets, credentials, raw prompts, or unbounded output.
+8. Lifecycle is automatic; do not hand-roll sessions, checkpoints, or handoffs.
 9. For deeper workflows, use the Cairn Skill.
-10. Give a durable project fact a topic key and a value key specific enough to state the whole claim.
-11. Attach evidence instead of asserting importance.
-12. If Cairn names a corroborating member and it is the same claim, reinforce it.
+10. Use topic/value keys specific enough to state the whole durable fact.
+11. Attach evidence; do not assert importance.
+12. If Cairn names corroboration for the same claim, reinforce it.
 13. Record a pattern's outcome, including when it did not apply.
 <!-- cairn:managed:end id=agent-contract -->
+
+## Architecture decisions
+
+Read [docs/adr/README.md](docs/adr/README.md) before revisiting M1/M2 architecture
+or evaluation choices. Record consequential new decisions with their alternatives
+and evidence; update implementation and validation status without erasing failed
+approaches. Accepted direction is not proof that a milestone passed.

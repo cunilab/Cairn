@@ -23,7 +23,7 @@
 //! posting every session's events first, and closing only one, sets up.
 
 use cairn_e2e::feature005::{Account, Pg};
-use cairn_e2e::{binary, post_json_status_bearer};
+use cairn_e2e::{post_json_status_bearer, server_binary};
 use serde_json::{json, Value};
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
@@ -67,7 +67,7 @@ impl Worker {
             let port = probe.local_addr().expect("addr").port();
             drop(probe);
             let addr = format!("127.0.0.1:{port}");
-            let mut child = Command::new(binary("cairn-server"))
+            let mut child = Command::new(server_binary())
                 .args([
                     "--addr",
                     &addr,
@@ -344,7 +344,7 @@ fn each_of_the_eight_extraction_rules_fires_on_the_event_sequence_its_contract_s
     // --- Session A -----------------------------------------------------
     // 1: establishes the "core"/"parser" tokens R7's decision_signal cites.
     // 2: R7 — a recorded decision, topic `decision.<subject>`, value `<object>`.
-    // 3,4: two file_changed in `api/`, after the decision — R4's evidence.
+    // 3,4: two file_changed in `api/`, after the decision — R4 and R7's evidence.
     // 5: names the suite for R1, and is R6's first (of two) consistent invocation.
     // 6,7,8: test failed -> a file changed -> test passed — R1.
     // 9,10,11: three `tool_failed`, same kind, no later success for that tool — R2.
@@ -669,6 +669,7 @@ fn re_consolidating_the_same_session_yields_the_same_candidate_id_and_no_second_
             "parser",
             Some(1),
         ),
+        file_changed(session, 3, "claude_code", "core/confirmation.rs"),
     ];
     let (body, status) = post(&pg, &pg.owner, events);
     assert_all_accepted("idempotency fixture", &body, status);

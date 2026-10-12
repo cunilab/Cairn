@@ -78,6 +78,12 @@ and declined to duplicate it — one subject for one fact, which neither other
 agent achieved. Low adoption and good discipline are not the same axis, and this
 run has one instance of each in the same agent.
 
+**Metric clarification (2026-10-10):** the preceding historical interpretation
+describes duplicate avoidance, not the protocol's same-fact two-write
+cross-session consistency. With only one recorded memory, that measure is not
+evaluable for Claude. Preserve the observation without ranking it as the best
+topic-key consistency result; see the [results erratum](RESULTS.md#measures).
+
 Two causes are entangled here and this run cannot separate them: how strongly the
 guidance asks for a durable record, and how much instruction-following capacity a
 deliberately cheap model has. Separating them needs the same corpus at a second

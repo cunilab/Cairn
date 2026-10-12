@@ -1,0 +1,91 @@
+{
+  "status": "stopped_auto_capture_not_observed",
+  "source_sha": "b526e64cbc3d80c5e5680b049eb65649b3dd18cc",
+  "date": "2026-10-10",
+  "scope": "one previously used frozen F1 development diagnostic; not unseen holdout or full milestone evidence",
+  "actor": {
+    "cli": "codex-cli 0.160.0",
+    "configured_model": "gpt-6-luna",
+    "configured_effort": "low",
+    "reported_model": null
+  },
+  "selector": {
+    "provider": "Groq",
+    "model": "openai/gpt-oss-120b",
+    "status": "unqualified development component; previous failures remain unchanged"
+  },
+  "observations": {
+    "runner_exit": 0,
+    "runner_trace_valid": true,
+    "persisted_treatment_memory_count": 0,
+    "calls": [
+      {
+        "phase": "prior",
+        "completed_calls": [
+          {
+            "tool": "cairn_context",
+            "status": "completed",
+            "query_present": true
+          },
+          {
+            "tool": "cairn_search",
+            "status": "completed",
+            "query_present": true
+          }
+        ],
+        "remember_calls": 0
+      },
+      {
+        "phase": "later",
+        "completed_calls": [
+          {
+            "tool": "cairn_search",
+            "status": "completed",
+            "query_present": true
+          },
+          {
+            "tool": "cairn_context",
+            "status": "completed",
+            "query_present": true
+          }
+        ],
+        "remember_calls": 0
+      }
+    ],
+    "quota_reported": false
+  },
+  "interpretation": "Earlier agent did not invoke any memory capture; later queries had no captured decision. No semantic judgment or qualification pass is claimed. API unit/IPC success does not establish autonomous capture.",
+  "stop_rule": "Stop on failed or unavailable required gate; no prompt/corpus/provider iterations after observing this failure.",
+  "semantic_judge": "not run: automatic capture prerequisite failed",
+  "claude": "SKIP by user instruction",
+  "private_evidence": {
+    "protocol_sha256": "415cfc84d655bb2d121de2155069dfe996711eb2a22e8bbb8e58972c37b5f775",
+    "summary_sha256": "45dfb754fc6c27e67439ecdf56cd0fd57219a58c49c08e341ab27bc2da7a9285",
+    "case_result_sha256": "a831e143c9c5cf8166a693714fbc5edda2dcfe26f01ab87c6a06355765f35c59",
+    "treatment_prior_trace_sha256": "0f305b3111aaa5430a1eead2cc8dcb7356c57bae6c3ff73b47465d509aa819be",
+    "treatment_later_trace_sha256": "8595b75b2bb14bfb986c79a7e9c89027ba07858fd7cf66b83902bdcf3834f89d",
+    "server_log_sha256": "1b609d97876c950b4b02089d5e9d597eaa157a1645e8c20111bf93d94bcb68b2"
+  },
+  "binary_sha256": {
+    "cairn": "def0c62143d485ad1deca5f0dc851c7c89e42f50d197d662ed27a985d4447c59",
+    "cairnd": "2816b18bbb1dcdce686cc2851945cd5116b7a3531c69f13178d2d75c87b70815",
+    "cairn-server": "03701e946e2aa06122e754fcb4552508ba4a81d83f7351ea5284b222336bbf09"
+  },
+  "mechanical_validation": {
+    "mcp_unit_tests": 24,
+    "lost_ack_regression": "PASS",
+    "mcp_fake_socket_adapter": "PASS: scopes/provenance/preflight/partial/lost_ack; no persistence claim",
+    "contract_render_tests": 10,
+    "skill_revision": "0a10aaefc831",
+    "skill_revision_check": "PASS",
+    "affected_package_clippy": "PASS -D warnings",
+    "independent_review": "Sol PASS after blank-field and duplicate-replay fixes"
+  },
+  "local_runtime": {
+    "installed_pair": "alpha.9 matching current binaries",
+    "context_mcp_is_error": false,
+    "missing_briefing_error": "resolved",
+    "fresh_knowledge_unavailable": true,
+    "limitations": "Local runtime restarted slowly and generated retry daemon starts before settling. Real context renders, but durable server memory was unavailable."
+  }
+}

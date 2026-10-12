@@ -1,15 +1,15 @@
 # Knowledge domains: project, personal, team
 
 Cairn holds three kinds of durable knowledge. They are not scopes. A **scope** (`project`,
-`branch`, `task`, `session`) says how long a project memory stays relevant; a **domain** says
+`branch`, `session`) says where a project memory applies; a **domain** says
 whose knowledge it is and how far it travels. The two are independent, and nothing you do here
 changes a scope.
 
 | Domain | Whose | Travels to | Authored by |
 |---|---|---|---|
 | `project` | this repository | everyone with access to the project | you, directly — the default |
-| `personal` | your account | every project and machine you sign in from | you, directly or by promotion |
-| `team` | everyone on the server | every account, regardless of project membership | proposed by anyone, made authoritative only by a human administrator |
+| `personal` | your account | every project and machine you sign in from | you, directly |
+| `team` | everyone on the server | every account, regardless of project membership | server proposal path; made authoritative only by a human administrator |
 
 ## Recording personal knowledge
 
@@ -18,7 +18,7 @@ of *you* rather than of this repository — a habit, a preference, a lesson that
 your next project too.
 
 ```json
-{ "action": "create", "domain": "personal", "type": "convention",
+{ "cwd": "/path/to/repository", "action": "create", "domain": "personal", "type": "convention",
   "content": "Read the failing test before the implementation, not after" }
 ```
 
@@ -30,34 +30,13 @@ Personal records are immutable once written. The one permitted change is forgett
 `action: "forget"` with `domain: "personal"` — which clears the content and leaves the record
 as a tombstone, so the machine that already synchronized it learns it is gone.
 
-## Promoting a project memory
-
-`action: "promote"` with `target: "personal"` copies a project memory into your personal
-domain. `target: "team"` proposes it as team guidance. In both cases the original project
-memory is untouched and stays where it is: promotion **copies**, and nothing links the two
-afterwards, so forgetting the original later leaves the promoted record alone.
-
-Add conditions with `applicability_facts`, as `kind=value` strings. `kind` is `language` or
-`tool` and nothing else — anything outside that is refused, not quietly dropped, because a
-dropped condition means the record starts applying more widely than you asked for.
-
-```json
-{ "action": "promote", "target": "personal", "memory_id": "…",
-  "applicability_facts": ["language=rust", "tool=cargo"] }
-```
-
-A record with no conditions applies everywhere. That is usually what you want.
-
 ## Team knowledge, and the line you cannot cross
 
-**No agent action makes team guidance authoritative.** `promote` with `target: "team"` creates
-a *proposal*, invisible to every recall path including your own, and it stays that way until a
-human administrator runs `cairn team ratify`. There is no tool action shaped like
-ratification, and this is deliberate: an agent may propose how a whole team should work; only a
-person decides that it does.
-
-`domain: "team"` is refused on `create` for the same reason. Proposals come from `promote`, or
-from a person running `cairn team propose`.
+**No MCP action makes team guidance authoritative.** The current five MCP tools do not
+author team guidance: `domain: "team"` is refused on `create`, and `promote` is not a
+supported action. Existing proposals remain absent from recall until a human administrator
+ratifies them through web **Governance**. That screen also supports retirement.
+The old `cairn team propose` and `cairn team ratify` CLI commands are not available.
 
 ## What these two domains will not accept
 

@@ -157,6 +157,23 @@ fn snapshot_preserves_pending_work_and_import_is_idempotent() {
     source.execute(&format!("INSERT INTO safe_events (event_id, project_id, session_id, account_id, agent, kind, session_seq, contract_version, content, occurred_at) VALUES ('{event}', '{project}', '{session}', '{account}', 'codex', 'file_changed', 1, 1, '{{\"File\":{{\"repo_file\":\"src/main.rs\",\"repo_file_from\":null,\"change_kind\":\"modified\",\"file_identity\":\"present\"}}}}', now())"));
     source.execute(&format!("INSERT INTO consolidation_session (project_id, session_id, state, oldest_enqueued_at) VALUES ('{project}', '{session}', 'claimed', now())"));
     source.execute(&format!("INSERT INTO consolidation_work (event_id, project_id, session_id, session_seq, state, attempts) VALUES ('{event}', '{project}', '{session}', 1, 'pending', 4)"));
+    let mut dependency = None;
+    let mut captures = Vec::new();
+    for content in ["transfer supported dependency", "transfer dependent claim"] {
+        let (capture, status) = post_json_status_bearer(
+            &source.base,
+            &format!("/api/projects/{project}/captures"),
+            &json!({"type":"fact", "scope":"project", "content":content,
+                "capture_attestation": {"basis":"user_report",
+                    "support_summary":"The operator supplied this transfer fixture.",
+                    "dependency_memory_id":dependency}}),
+            &source_token,
+        );
+        assert_eq!(status, 200, "capture: {capture}");
+        let id = capture["id"].as_str().unwrap().to_owned();
+        captures.push(id.clone());
+        dependency = Some(id);
+    }
     let (bundle, status) =
         get_json_status_bearer(&source.base, "/api/admin/logical-export", &source_token);
     assert_eq!(status, 200, "export: {bundle}");
@@ -166,6 +183,37 @@ fn snapshot_preserves_pending_work_and_import_is_idempotent() {
         .parse::<Uuid>()
         .is_ok());
     assert!(serde_json::to_vec(&bundle).unwrap().len() <= 32 * 1024 * 1024);
+    let mut held = Server::start_at_schema(8).expect("held-schema destination");
+    held.create_user(
+        "held-transfer@example.test",
+        "held operator",
+        "hunter2hunter2",
+    );
+    held.execute("UPDATE users SET role='admin' WHERE email='held-transfer@example.test'");
+    let held_token = held.token_for("held-transfer@example.test", "hunter2hunter2");
+    let held_request = json!({"import_id":bundle["bundle_id"], "bundle":bundle});
+    let (refusal, status) = post_json_status_bearer(
+        &held.base,
+        "/api/admin/logical-import",
+        &held_request,
+        &held_token,
+    );
+    assert_eq!(status, 409, "held import: {refusal}");
+    assert_eq!(held.count("SELECT count(*) FROM memories"), 0);
+    assert_eq!(held.count("SELECT count(*) FROM logical_imports"), 0);
+    let upgraded = held.upgraded();
+    let (restored, status) = post_json_status_bearer(
+        &upgraded.base,
+        "/api/admin/logical-import",
+        &held_request,
+        &held_token,
+    );
+    assert_eq!(status, 200, "retry after upgrade: {restored}");
+    assert_eq!(restored["rejected"], 0, "{restored}");
+    assert_eq!(
+        upgraded.count("SELECT count(*) FROM project_memory_attestations"),
+        2
+    );
     let Some(destination) =
         Server::start_with_admin("destination-transfer@example.test", "hunter2hunter2")
     else {
@@ -190,6 +238,44 @@ fn snapshot_preserves_pending_work_and_import_is_idempotent() {
     );
     assert_eq!(status, 200, "import: {receipt}");
     assert_eq!(receipt["rejected"], 0, "{receipt}");
+    assert_eq!(
+        destination.count(&format!(
+            "SELECT count(*) FROM project_memory_attestations WHERE actor_user_id='{account}'"
+        )),
+        2
+    );
+    assert_eq!(
+        destination.count(
+            "SELECT count(*) FROM project_memory_attestations a
+        JOIN memories d ON d.id=a.dependency_memory_id
+        WHERE a.dependency_updated_at=d.updated_at AND a.invalidated_at IS NULL"
+        ),
+        1
+    );
+    assert_eq!(
+        destination.count("SELECT count(*) FROM memories WHERE verification_authority IS NOT NULL"),
+        0
+    );
+    let destination_actor = destination.get_json("/api/auth/me", &destination_token)["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    destination.execute(&format!(
+        "INSERT INTO project_members (project_id,user_id)
+        VALUES ('{project}','{destination_actor}')"
+    ));
+    let recalled = destination.get_json(
+        &format!(
+            "/api/projects/{project}/memories?purpose=reuse&q=transfer%20supported%20dependent"
+        ),
+        &destination_token,
+    );
+    for id in captures {
+        assert!(
+            recalled["memories"].to_string().contains(&id),
+            "restored claim lost eligibility: {recalled}"
+        );
+    }
     assert_eq!(destination.count("SELECT count(*) FROM safe_events"), 1);
     assert_eq!(
         destination

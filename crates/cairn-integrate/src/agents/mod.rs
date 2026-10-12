@@ -14,7 +14,9 @@ pub mod opencode;
 use crate::adapter::{Observed, RawPayload};
 use crate::edit::{json, EditError};
 use crate::markers::{self, CONTRACT_ID};
-use crate::model::{AgentId, HealthCondition, InstallationScope, ResourceKind, ResourceOwner};
+use crate::model::{
+    canonical_hash, AgentId, HealthCondition, InstallationScope, ResourceKind, ResourceOwner,
+};
 use crate::plan::RecordedInstall;
 use crate::{render, revision};
 use cairn_core::event::{
@@ -98,7 +100,38 @@ pub(crate) fn classify_entry(
                     .detail("present, distributed by the manager");
             }
             if value == canonical {
-                base(HealthCondition::Healthy)
+                let command = canonical.get("command");
+                let pinned = command
+                    .and_then(Value::as_str)
+                    .is_some_and(|value| value != "cairn")
+                    || command
+                        .and_then(Value::as_array)
+                        .and_then(|values| values.first())
+                        .and_then(Value::as_str)
+                        .is_some_and(|value| value != "cairn");
+                if pinned
+                    && recorded.and_then(|record| record.content_hash.as_deref())
+                        != Some(canonical_hash(&value.to_string()).as_str())
+                {
+                    base(HealthCondition::Outdated)
+                        .detail("canonical Cairn entry needs its ownership record refreshed")
+                        .remedy("cairn setup")
+                } else {
+                    base(HealthCondition::Healthy)
+                }
+            } else if recorded.is_none()
+                && (value == crate::mcp_entry() || value == crate::mcp_entry_opencode())
+            {
+                base(HealthCondition::Outdated)
+                    .detail("legacy Cairn entry uses portable executable lookup")
+                    .remedy("cairn setup")
+            } else if recorded
+                .and_then(|record| record.content_hash.as_deref())
+                .is_some_and(|hash| hash == canonical_hash(&value.to_string()))
+            {
+                base(HealthCondition::Outdated)
+                    .detail("Cairn's recorded entry names an older executable path")
+                    .remedy("cairn setup")
             } else {
                 base(HealthCondition::Modified)
                     .detail("the entry differs from Cairn's canonical form")

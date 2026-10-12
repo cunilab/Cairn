@@ -116,7 +116,14 @@ const TOOL_EVENTS: &[&str] = &["PostToolUse", "PostToolUseFailure"];
 
 /// The hook entry Cairn writes for one event.
 pub fn hook_entry(event: &str) -> serde_json::Value {
-    let command = format!("cairn hook {event}");
+    hook_entry_for_executable(event, None)
+}
+
+pub fn hook_entry_for_executable(
+    event: &str,
+    executable: Option<&std::path::Path>,
+) -> serde_json::Value {
+    let command = format!("{} hook {event}", crate::hook_executable(executable));
     if TOOL_EVENTS.contains(&event) {
         serde_json::json!({
             "matcher": "*",
@@ -134,20 +141,15 @@ pub fn hook_entry(event: &str) -> serde_json::Value {
 /// Cairn registers. A longer command that merely mentions `cairn hook` does
 /// not match, which is the whole point (FR-139).
 pub fn is_cairn_hook_entry(entry: &serde_json::Value, event: &str) -> bool {
-    let Some(hooks) = entry.get("hooks").and_then(|h| h.as_array()) else {
-        return false;
-    };
-    if hooks.len() != 1 {
-        return false;
-    }
-    let h = &hooks[0];
-    if h.get("type").and_then(|t| t.as_str()) != Some("command") {
-        return false;
-    }
-    let Some(command) = h.get("command").and_then(|c| c.as_str()) else {
-        return false;
-    };
-    command == format!("cairn hook {event}")
+    is_cairn_hook_entry_for_executable(entry, event, None)
+}
+
+pub fn is_cairn_hook_entry_for_executable(
+    entry: &serde_json::Value,
+    event: &str,
+    executable: Option<&std::path::Path>,
+) -> bool {
+    entry == &hook_entry_for_executable(event, executable)
 }
 
 /// Whether an MCP entry is Cairn's own, by exact shape.
@@ -198,7 +200,7 @@ impl AgentAdapter for ClaudeCode {
                 &keys,
                 mcp_scope,
                 find(ResourceKind::Mcp),
-                crate::mcp_entry(),
+                crate::mcp_entry_for_executable(env.cairn_executable.as_deref()),
             ));
         }
 
@@ -211,6 +213,7 @@ impl AgentAdapter for ClaudeCode {
                 &path,
                 life_scope,
                 find(ResourceKind::Lifecycle),
+                env.cairn_executable.as_deref(),
             ));
         }
 
@@ -329,6 +332,7 @@ fn inspect_hooks(
     path: &std::path::Path,
     scope: InstallationScope,
     recorded: Option<&RecordedInstall>,
+    executable: Option<&std::path::Path>,
 ) -> Observed {
     let display = path.display().to_string();
     let text = read(path);
@@ -347,7 +351,7 @@ fn inspect_hooks(
             .unwrap_or_default();
         let ours = entries
             .iter()
-            .filter(|e| is_cairn_hook_entry(e, ev))
+            .filter(|e| is_cairn_hook_entry_for_executable(e, ev, executable))
             .count();
         if ours > 0 {
             present += 1;
@@ -366,6 +370,49 @@ fn inspect_hooks(
             .detail("more than one Cairn registration for a single event")
             .remedy("cairn setup");
     }
+    if present < EVENTS.len() {
+        let portable = EVENTS.iter().all(|event| {
+            hooks
+                .and_then(|value| value.get(*event))
+                .and_then(serde_json::Value::as_array)
+                .is_some_and(|entries| {
+                    entries
+                        .iter()
+                        .filter(|entry| is_cairn_hook_entry(entry, event))
+                        .count()
+                        == 1
+                })
+        });
+        if recorded.is_none() && portable {
+            return Observed::new(ResourceKind::Lifecycle, HealthCondition::Outdated)
+                .at(scope, Some(path.to_path_buf()))
+                .detail("legacy Cairn hooks use portable executable lookup")
+                .remedy("cairn setup");
+        }
+        if recorded_hook_entries(&value, recorded).is_some() {
+            return Observed::new(ResourceKind::Lifecycle, HealthCondition::Outdated)
+                .at(scope, Some(path.to_path_buf()))
+                .detail("Cairn's recorded hooks name an older executable path")
+                .remedy("cairn setup");
+        }
+        let unmatched = EVENTS.iter().any(|event| {
+            hooks
+                .and_then(|value| value.get(*event))
+                .and_then(serde_json::Value::as_array)
+                .is_some_and(|entries| {
+                    !entries.is_empty()
+                        && !entries.iter().any(|entry| {
+                            is_cairn_hook_entry_for_executable(entry, event, executable)
+                        })
+                })
+        });
+        if recorded.is_some() && (hook_candidates(&value).is_some() || unmatched) {
+            return Observed::new(ResourceKind::Lifecycle, HealthCondition::Modified)
+                .at(scope, Some(path.to_path_buf()))
+                .detail("the recorded Cairn hook registrations were edited")
+                .remedy("resolve the edit manually, then run `cairn setup`");
+        }
+    }
     if present == 0 {
         return Observed::new(ResourceKind::Lifecycle, HealthCondition::Missing)
             .at(scope, Some(path.to_path_buf()))
@@ -380,7 +427,65 @@ fn inspect_hooks(
             ))
             .remedy("cairn setup");
     }
+    if executable.is_some()
+        && recorded.map(|record| record.owner) != Some(ResourceOwner::Manager)
+        && recorded_hook_entries(&value, recorded).is_none()
+    {
+        return Observed::new(ResourceKind::Lifecycle, HealthCondition::Outdated)
+            .at(scope, Some(path.to_path_buf()))
+            .detail("canonical Cairn hooks need their ownership record refreshed")
+            .remedy("cairn setup");
+    }
     base
+}
+
+fn hook_candidates(value: &serde_json::Value) -> Option<Vec<serde_json::Value>> {
+    let hooks = value.get("hooks")?;
+    EVENTS
+        .iter()
+        .map(|event| {
+            let entries = hooks.get(*event)?.as_array()?;
+            let candidates = entries
+                .iter()
+                .filter(|entry| hook_candidate(entry, event))
+                .cloned()
+                .collect::<Vec<_>>();
+            (candidates.len() == 1).then(|| candidates[0].clone())
+        })
+        .collect()
+}
+
+fn hook_candidate(entry: &serde_json::Value, event: &str) -> bool {
+    if TOOL_EVENTS.contains(&event)
+        && entry.get("matcher").and_then(|value| value.as_str()) != Some("*")
+    {
+        return false;
+    }
+    let Some(hooks) = entry.get("hooks").and_then(|value| value.as_array()) else {
+        return false;
+    };
+    let [hook] = hooks.as_slice() else {
+        return false;
+    };
+    hook.get("type").and_then(|value| value.as_str()) == Some("command")
+        && hook
+            .get("command")
+            .and_then(|value| value.as_str())
+            .is_some_and(|command| command.ends_with(&format!(" hook {event}")))
+}
+
+pub(crate) fn recorded_hook_entries(
+    value: &serde_json::Value,
+    recorded: Option<&RecordedInstall>,
+) -> Option<Vec<serde_json::Value>> {
+    let entries = hook_candidates(value)?;
+    let digest = entries
+        .iter()
+        .map(serde_json::Value::to_string)
+        .collect::<Vec<_>>()
+        .join("\n");
+    let expected = recorded?.content_hash.as_deref()?;
+    (crate::model::canonical_hash(&digest) == expected).then_some(entries)
 }
 
 /// What the legacy bridge found in a Feature 001 installation.

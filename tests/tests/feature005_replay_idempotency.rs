@@ -48,7 +48,7 @@
 //! instead.
 
 use cairn_e2e::feature005::{Account, Pg};
-use cairn_e2e::{binary, post_json_status_bearer};
+use cairn_e2e::{post_json_status_bearer, server_binary};
 use serde_json::{json, Value};
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
@@ -121,7 +121,7 @@ impl Worker {
             let port = probe.local_addr().expect("addr").port();
             drop(probe);
             let addr = format!("127.0.0.1:{port}");
-            let mut child = Command::new(binary("cairn-server"))
+            let mut child = Command::new(server_binary())
                 .args([
                     "--addr",
                     &addr,
@@ -484,16 +484,18 @@ fn a_batch_replayed_after_it_was_consolidated_produces_no_second_input_and_no_se
     let session = pg.session_for(&pg.owner);
 
     // The smallest sequence the baseline extractor turns into knowledge: a file
-    // change that establishes the tokens, and a decision citing them (R7,
-    // `contracts/extraction.md` §13.5). Two events, one candidate, one memory —
+    // change that establishes the tokens, a decision citing them, and a later
+    // change that supports it (R7, `contracts/extraction.md` §13.5). Three
+    // events, one recorded-decision candidate and its corresponding memory —
     // small enough that "one" is unambiguous.
     let events = vec![
         file_changed(session, 1, "core/parser.rs"),
         decision_signal(session, 2, "core", "parser", 1),
+        file_changed(session, 3, "core/confirmation.rs"),
     ];
     let (body, status) = post(&pg, &pg.owner, &events);
     assert_eq!(status, 200, "{body}");
-    assert_eq!(statuses(&body), vec!["accepted"; 2]);
+    assert_eq!(statuses(&body), vec!["accepted"; 3]);
 
     close_session(&pg, session);
     let _worker = Worker::start(&pg.server.database_url);
@@ -534,7 +536,7 @@ fn a_batch_replayed_after_it_was_consolidated_produces_no_second_input_and_no_se
     assert_eq!(candidate_count(), 1, "the fixture produced no candidate");
     assert_eq!(memory_count(), 1, "the fixture produced no durable record");
     // How many events the candidate cites is the extractor's business, not
-    // this test's — R7 cites the decision alone, R1 cites three. What the
+    // this test's — R7 cites the signal and later change, R1 cites three. What the
     // replay must not do is change the number, so it is read rather than
     // predicted.
     let sources_before = source_links();
@@ -553,17 +555,17 @@ fn a_batch_replayed_after_it_was_consolidated_produces_no_second_input_and_no_se
     for attempt in 0..DELIVERIES {
         let (body, status) = post(&pg, &pg.owner, &events);
         assert_eq!(status, 200, "delivery {attempt}: {body}");
-        assert_eq!(statuses(&body), vec!["duplicate"; 2]);
+        assert_eq!(statuses(&body), vec!["duplicate"; 3]);
     }
 
     // Give the worker every chance to elect the session again before claiming
     // it did not.
     std::thread::sleep(QUIET);
 
-    assert_eq!(canonical_events(&pg, session), 2);
+    assert_eq!(canonical_events(&pg, session), 3);
     assert_eq!(
         consolidation_inputs(&pg, session),
-        2,
+        3,
         "a replay re-enqueued events that had already been consolidated"
     );
     assert_eq!(
@@ -571,7 +573,7 @@ fn a_batch_replayed_after_it_was_consolidated_produces_no_second_input_and_no_se
             "SELECT count(*) FROM consolidation_work
               WHERE session_id = '{session}' AND state = 'done'"
         )),
-        2,
+        3,
         "a replay reset a finished consolidation input back to pending"
     );
     assert_eq!(

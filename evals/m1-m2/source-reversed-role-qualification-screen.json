@@ -1,0 +1,673 @@
+[
+  {
+    "id": "7f2a91",
+    "task": "The pollen archive team must store accession cards in cedar drawers.\n\nThe pollen archive team must record collector initials on every accession card.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The pollen archive team must store accession cards in cedar drawers.\n\nThe pollen archive team must record collector initials on every accession card.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The archive team adopted both requirements as standing policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "c83e04",
+    "task": "At the kite workshop, apprentices must mark spar lengths in millimetres.\n\nAt the kite workshop, supervisors must sign each completed tension log.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "At the kite workshop, apprentices must mark spar lengths in millimetres.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The workshop adopted this measurement convention."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "a149dc",
+    "task": "For the reef census, divers must log visibility before entering each transect.\n\nFor the reef census, analysts must retain the original slate photographs.\n\nPlease count the spare pencils today.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "For the reef census, divers must log visibility before entering each transect.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The census lead established the diver logging rule."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "For the reef census, analysts must retain the original slate photographs.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The census lead established the photograph retention rule."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "0de672",
+    "task": "The bell foundry must keep alloy samples for five years.\n\nThe bell foundry must use blue tags for molds awaiting inspection.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "b5308f",
+    "task": "In the seed library, volunteers must seal returned packets only after the moisture reading falls below 8%, except that research packets remain unsealed.\n\nIn the seed library, volunteers must shelve empty tins by diameter.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "In the seed library, volunteers must seal returned packets only after the moisture reading falls below 8%, except that research packets remain unsealed.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The library adopted the complete conditional sealing policy."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "In the seed library, volunteers must shelve empty tins by diameter.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The library adopted the tin shelving convention."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "68c1ab",
+    "task": "The shadow theatre crew must number all touring screens.\n\nThe shadow theatre crew must pack lamps upright unless a lamp's transport certificate requires horizontal packing.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The shadow theatre crew must number all touring screens.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The touring crew settled the screen numbering requirement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "e29470",
+    "task": "Reservoir surveyors must photograph each gauge before taking a reading.\n\nThe preceding photography rule applies only at the north reservoir during winter surveys; emergency visits are exempt.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Reservoir surveyors must photograph each gauge before taking a reading.\n\nThe preceding photography rule applies only at the north reservoir during winter surveys; emergency visits are exempt.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The survey team adopted the rule together with its location, season and exemption."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "39ad16",
+    "task": "The ceramic kiln crew must record cooling intervals.\n\nThat recording requirement applies only to porcelain batches in kiln C, except calibration firings.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The ceramic kiln crew must record cooling intervals.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The crew authored this rule block as part of its scoped policy."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "That recording requirement applies only to porcelain batches in kiln C, except calibration firings.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The crew authored this scope block for the preceding rule."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "d751c8",
+    "task": "The falconry station's handlers must weigh birds before flight.\n\nFor that weighing rule, only rehabilitation birds are in scope; birds on veterinary rest are exempt.\n\nThe station's clerks must date all feed receipts.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The falconry station's handlers must weigh birds before flight.\n\nFor that weighing rule, only rehabilitation birds are in scope; birds on veterinary rest are exempt.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The station established the complete weighing policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "42f90e",
+    "task": "Map conservators must use cotton ties around rolled charts.\n\nThe preceding tie requirement covers charts stored in room 4; charts traveling in rigid cases are exempt.\n\nMap conservators must label repair dates in ISO date format.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Map conservators must use cotton ties around rolled charts.\n\nThe preceding tie requirement covers charts stored in room 4; charts traveling in rigid cases are exempt.\n\nMap conservators must label repair dates in ISO date format.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The conservation team adopted the scoped tie policy and the independent date convention."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "fa063b",
+    "task": "The mushroom nursery must quarantine incoming trays.\n\nThis quarantine rule lasts until two daily inspections show no mites.\n\nFor this same rule, sealed reference trays are exempt.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The mushroom nursery must quarantine incoming trays.\n\nThis quarantine rule lasts until two daily inspections show no mites.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The nursery authored these complete blocks of its quarantine policy."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "For this same rule, sealed reference trays are exempt.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The nursery authored the linked exemption block."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "915bd2",
+    "task": "The tidal organ maintainers must inspect reed housings after storms.\n\nThat inspection rule applies at the east pier when the surge exceeds one metre; housings removed to the workshop are exempt.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The tidal organ maintainers must inspect reed housings after storms.\n\nThat inspection rule applies at the east pier when the surge exceeds one metre; housings removed to the workshop are exempt.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The maintainers settled the complete conditional inspection requirement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "2ce8a5",
+    "task": "Our cave acoustics team reports that recorder R7 dropped the final tone in two trials in chamber B; we have not tested other recorders or chambers and do not know the cause.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "Our cave acoustics team reports that recorder R7 dropped the final tone in two trials in chamber B; we have not tested other recorders or chambers and do not know the cause.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The team supplied this bounded failure report for the project record."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "846f13",
+    "task": "According to our dye steward, vat D retained a violet tint after Monday's rinse; the steward inspected only the upper surface, and the project has no measurements from the lower liquid.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "bc7094",
+    "task": "Our avalanche beacon team reports that beacon Q failed to transmit during one bench run at minus 10 degrees Celsius; no field run was performed, and this report does not establish temperature as the cause.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "Our avalanche beacon team reports that beacon Q failed to transmit during one bench run at minus 10 degrees Celsius",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The team intended to record its bench failure but supplied a cropped report."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "507ea9",
+    "task": "Our pearl grading team reports that tray H looked dull under lamp 2 in yesterday's inspection; no daylight comparison was made.\n\nFor future grading sessions, graders must record the lamp identifier on every tray sheet.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "Our pearl grading team reports that tray H looked dull under lamp 2 in yesterday's inspection; no daylight comparison was made.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The team authored this limited inspection observation."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "For future grading sessions, graders must record the lamp identifier on every tray sheet.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The team established a standing lamp recording requirement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "e16c42",
+    "task": "Please calculate how many bunting triangles fit on this one strip of fabric for today's stall.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "73b8d0",
+    "task": "Could a rotating rack help our shell display? Compare a few possibilities; we have not chosen a design or set any display policy.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "ac4527",
+    "task": "For this afternoon only, sort these juggling clubs by colour so I can count them.\n\nWould sorting by weight be useful for some later show? This is just a question, with no future arrangement decided.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "For this afternoon only, sort these juggling clubs by colour so I can count them.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author confirms this exact request was limited to the afternoon."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "19f6ce",
+    "task": "At the meteorite collection, curators must wear nitrile gloves when handling uncoated specimens, except specimens enclosed in sealed holders.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "At the meteorite collection, curators must wear nitrile gloves when handling uncoated specimens",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The curator intended to capture the standing rule but omitted its exception."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Curators must use nitrile gloves for uncoated meteorites unless they are in sealed holders.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The curator supplied a paraphrase of the authored policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 2,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "d083fa",
+    "task": "The scent panel must use opaque cups for every blind session.\n\nThe scent panel must rinse reusable spoons between samples.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The scent panel must use opaque cups for every blind session.\n\nThe scent panel must rinse reusable spoons between samples.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The panel authored both standing requirements."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The scent panel must wash spoons after each sample.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The panel also supplied a paraphrased spoon rule."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "6ab215",
+    "task": "The sundial restoration team must photograph each gnomon before removal.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The sundial restoration team must photograph each gnomon before removal.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "An author reported this policy, but the payload is not bound to the current task."
+        }
+      }
+    ],
+    "source_bound": false,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "f92468",
+    "task": "The ice core team must log sleeve serial numbers.\n\nThe exception to this rule applies when",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The ice core team must log sleeve serial numbers.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The team supplied this rule block from an explicitly truncated policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 1,
+    "truncated": true,
+    "redacted": false
+  },
+  {
+    "id": "35de81",
+    "task": "The tapestry loan team must use padded crates.\n\nThis crate rule excludes [REDACTED].",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The tapestry loan team must use padded crates.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The team supplied the rule from a policy with a redacted exclusion."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The tapestry loan team must use padded crates.\n\nThis crate rule excludes [REDACTED].",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The team supplied the visible policy including its redaction marker."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 2,
+    "truncated": false,
+    "redacted": true
+  }
+]

@@ -6,6 +6,7 @@
 pub mod applicability;
 pub mod bound;
 pub mod budget;
+pub mod capture_source;
 pub mod config;
 pub mod context;
 pub mod continuity;
@@ -27,6 +28,7 @@ pub mod patterns;
 pub mod promotion;
 pub mod redact;
 pub mod release;
+pub mod reuse;
 pub mod startup;
 pub mod tools;
 pub mod validate;

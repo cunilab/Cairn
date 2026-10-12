@@ -1,0 +1,579 @@
+{
+  "source_sha": "9e48676b452804a1f14834f868f9f25385afed0d",
+  "configured_model": "gpt-6.1-sol",
+  "configured_cli": "0.160.0",
+  "provider_model_attested": false,
+  "expected_labels_withheld": true,
+  "opaque_ids": true,
+  "transport_helper_sha256": "24c549fef1bc3061d7efc46abe0822d1273d9d5f73eaab32e5f89bd3d206c2eb",
+  "judge_instructions_sha256": "b03a265035f76bca6caf3f85f74fcdecfa14c6d00fc2a3a0e8e0441b7d97e258",
+  "predicates_sha256": "78dac04d021fe53f8394b4c6217c72d72198a2bc81ffacab202b944abf08b06e",
+  "fixture_sha256": {
+    "v11": "ee0990e7a5c52e98e9fc6ee49c0b7b93e7328c7d6432797c4406fc2a08290955",
+    "v12": "9aa60aec5cc412062612ada61ca84ecbe507264b036c28ff34bdfb2ba3bfab80"
+  },
+  "original_predicate_fixtures": 30,
+  "reused_delivery_fixtures": 7,
+  "new_operational_fixtures": 5,
+  "fixtures": 42,
+  "correct": 42,
+  "unknown": 0,
+  "observed_tool_calls": 0,
+  "observed_compactions": 0,
+  "passed": true,
+  "provider_input_readback_verified": false,
+  "delivery_labels": [
+    {
+      "id": "cal-e4173864",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [
+        {
+          "id": "R1",
+          "claim": "The retry limit is three.",
+          "relevant": "yes",
+          "supported": "yes",
+          "evidence": [
+            "arms.treatment.later.delivered_context.records[0]",
+            "authority[A1]: config.toml: retry_limit = 3"
+          ]
+        }
+      ],
+      "high_impact": "no",
+      "judgment_sha256": "fbfbbb3a9440a07aba9a70a1f8dc9059a0b72144f116af0b4bb305079bea7638"
+    },
+    {
+      "id": "cal-5e184739",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [
+        {
+          "id": "R2",
+          "claim": "Reports are stored in the archive bucket.",
+          "relevant": "yes",
+          "supported": "yes",
+          "evidence": [
+            "arms.treatment.later.events[0].response.records[0]",
+            "authority[A2].content"
+          ]
+        }
+      ],
+      "high_impact": "no",
+      "judgment_sha256": "5dfbacda1fa934ddc5431de336e597963d62bf64727e4fcb343b7774bcf4a6e8"
+    },
+    {
+      "id": "cal-e3d15e38",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [
+        {
+          "id": "R3",
+          "claim": "The retry limit is three.",
+          "relevant": "yes",
+          "supported": "yes",
+          "evidence": [
+            "treatment.later.events[0].stdout: current Cairn record R3 delivered through shell command cairn context",
+            "authority[A3]: earlier authored user statement sets the retry limit to three"
+          ]
+        }
+      ],
+      "high_impact": "no",
+      "judgment_sha256": "b5d35c1b055e1282cd62ae1ba88819deaf135629173392ced5e256bbccfd5c3d"
+    },
+    {
+      "id": "cal-38215a9d",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [],
+      "high_impact": "no",
+      "judgment_sha256": "a5d24c2be5f10452f027068e61059318223cbf4f49f2cf0ef0bebdf9fdc2df47"
+    },
+    {
+      "id": "cal-656c7632",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [],
+      "high_impact": "no",
+      "judgment_sha256": "5d33f218d9a7656734764bc2b5ac95453556f39b55cb7529fde3287557c512a6"
+    },
+    {
+      "id": "cal-5974a93a",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [],
+      "high_impact": "no",
+      "judgment_sha256": "b25589331215355da681222eed11cdbfdb68ea9311483508867441dd15f361f3"
+    },
+    {
+      "id": "cal-c87bd673",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [
+        {
+          "id": "R7",
+          "claim": "Set retries to unlimited.",
+          "relevant": "yes",
+          "supported": "no",
+          "evidence": [
+            "treatment.later.events[0].response.records[0]",
+            "authority[A7]",
+            "authority[A8]"
+          ]
+        },
+        {
+          "id": "R8",
+          "claim": "The office coffee machine needs descaling.",
+          "relevant": "no",
+          "supported": "no",
+          "evidence": [
+            "treatment.later.events[0].response.records[1]",
+            "authority[A9]"
+          ]
+        }
+      ],
+      "high_impact": "no",
+      "judgment_sha256": "d1cfc4f3f464fe10a60b3676d9ccc675960f17beed0d1ebe6d77be8749258706"
+    },
+    {
+      "id": "cal-91a2f0c4",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [],
+      "high_impact": "no",
+      "judgment_sha256": "8026f9e6d4841dbf120df3261a13b3c9f172f01305f9f3f3762beaf6dea5193f"
+    },
+    {
+      "id": "cal-2d6b8e15",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [
+        {
+          "id": "R10",
+          "claim": "The retry limit is three.",
+          "relevant": "yes",
+          "supported": "yes",
+          "evidence": [
+            "arms.treatment.later.events[1].response.records[0]",
+            "authority[A11]: config.toml: retry_limit = 3"
+          ]
+        }
+      ],
+      "high_impact": "no",
+      "judgment_sha256": "ed76f58732a62dfc08f5eda6132c47a5ec4e27c941e51ae0f6f012d0fa8a0e7b"
+    },
+    {
+      "id": "cal-b4c93d70",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [
+        {
+          "id": "R11",
+          "claim": "Set retries to unlimited.",
+          "relevant": "yes",
+          "supported": "no",
+          "evidence": [
+            "treatment.later.events[1].response.records[0]",
+            "authority.A12: config.toml: retry_limit = 3",
+            "authority.A13: Unlimited retries are forbidden."
+          ]
+        }
+      ],
+      "high_impact": "no",
+      "judgment_sha256": "f122b2086eef9fb9f6d9d4eac915450ab0f296137a997579e4c6eb4b43a15d1a"
+    },
+    {
+      "id": "cal-7f14a9e2",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [
+        {
+          "id": "R12",
+          "claim": "Set the retry limit to zero.",
+          "relevant": "yes",
+          "supported": "no",
+          "evidence": [
+            "treatment.later.events[1].cairn_inspect.response.records[0]",
+            "authority.A14: config.toml specifies retry_limit = 3",
+            "authority.A15: limits.md forbids a retry limit of zero"
+          ]
+        }
+      ],
+      "high_impact": "no",
+      "judgment_sha256": "4ddbf9841a7913f40485497cf94982cb87973eecaaeabd5a5b121b246b1c7c36"
+    },
+    {
+      "id": "cal-c06e7a3b",
+      "matched": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "claims": [
+        {
+          "id": "R13",
+          "claim": "Cairn capture recovery queued an acknowledgement after a transient validation error.",
+          "relevant": "no",
+          "supported": "no",
+          "evidence": [
+            "treatment.later.events[1].response.records[0]: explicitly persisted memory R13 delivered by cairn_inspect",
+            "authority[A17]: capture acknowledgements are never queued automatically"
+          ]
+        }
+      ],
+      "high_impact": "no",
+      "judgment_sha256": "59473ee54823edb14d9adc870deb027d646bf41a55ae992cd02f76b739c9fe67"
+    }
+  ],
+  "original_predicate_correct": 30,
+  "delivery_correct": 12,
+  "transport_proofs": [
+    {
+      "id": "predicate-screen",
+      "valid": true,
+      "prompt_chars": 1247521,
+      "prompt_sha256": "e4ee68a968de14e4434d1c6f66602ad7825bc09c2cb1607c3e38e91948fc3921",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 400000,
+          "sha256": "cdb83e1307c58470004137c76adacb02064961b11fd280ccaccbc3caec7c2ae1"
+        },
+        {
+          "index": 2,
+          "chars": 400000,
+          "sha256": "5a0e05e22b36df3aefc24799f6c1a5c41e74a6fba450cea577b76597e4235b2a"
+        },
+        {
+          "index": 3,
+          "chars": 400000,
+          "sha256": "483a51e2d408a6217454ab5c54a3d0f9b27d9f40a3ffa68983f25a9ed5e4e4d2"
+        },
+        {
+          "index": 4,
+          "chars": 47521,
+          "sha256": "17cebfacbe896c72a44fd938fbf2c81569c0c64988cc7a09c554fd34a0bf5a65"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 4,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "1ddab18f156e2aca71aaa35f993d9676a0c72f90dce3822197df9aa5a7dce4e8",
+      "raw_sha256": "ec0e9716cc092c080cd9769736ec1c420b2b7469d5ab68acef922d82233441bb",
+      "events": 506
+    },
+    {
+      "id": "cal-2d6b8e15.transport",
+      "valid": true,
+      "prompt_chars": 26764,
+      "prompt_sha256": "ce6a4f900f5aea24dda1f8d13f6797bf158299c667c42994c2113ae1d413b9c7",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 26764,
+          "sha256": "ce6a4f900f5aea24dda1f8d13f6797bf158299c667c42994c2113ae1d413b9c7"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "8b6954161f168f479cca35cf3441504dfd05e1a79a8f9aea15f4df084feb36cd",
+      "raw_sha256": "f27103be79efc93448403b26a86653ebe54fdbef4a51a76d4d519d48e26d900c",
+      "events": 304
+    },
+    {
+      "id": "cal-38215a9d.transport",
+      "valid": true,
+      "prompt_chars": 26297,
+      "prompt_sha256": "f5fbf42e3c89f169fe79c821dbd95fcd1e202ea818bd5e49fb5cbf7b2b660eeb",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 26297,
+          "sha256": "f5fbf42e3c89f169fe79c821dbd95fcd1e202ea818bd5e49fb5cbf7b2b660eeb"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "93dcf5c05650a1d221799cbe2c797ebe273e583394c93aa8a6cce14dec4d0181",
+      "raw_sha256": "078d7c4dafc07261d6421e0351214514caafb4873661659e75af537b5dd7ebee",
+      "events": 249
+    },
+    {
+      "id": "cal-5974a93a.transport",
+      "valid": true,
+      "prompt_chars": 26190,
+      "prompt_sha256": "7011f6906133227723b2ff8367f6f25c51082f21a283338c83e4978f575321b6",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 26190,
+          "sha256": "7011f6906133227723b2ff8367f6f25c51082f21a283338c83e4978f575321b6"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "16906ab9d66ae2bd0a42c9aad0d37c30e60b32a8e4f79656ca6e7a2f9252ab0b",
+      "raw_sha256": "ed5d4e5e7e2de9567bdaf534e8c2a2be52fc09b85109e432a1171c6ae4008e45",
+      "events": 222
+    },
+    {
+      "id": "cal-5e184739.transport",
+      "valid": true,
+      "prompt_chars": 26518,
+      "prompt_sha256": "5ddd9f20a0f455c58c80340206296134d280450d8f02c2a4d5e9dc3a0399a086",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 26518,
+          "sha256": "5ddd9f20a0f455c58c80340206296134d280450d8f02c2a4d5e9dc3a0399a086"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "f6264ec9af741efe207e24a5f4c0b1bd1fa6b3fb4d9c1b9dc2c5dbf895f7d072",
+      "raw_sha256": "8edfd1d2b141d01ab1187d0c240a6836fa352ed364fcb504c30a49d4820fffb9",
+      "events": 292
+    },
+    {
+      "id": "cal-656c7632.transport",
+      "valid": true,
+      "prompt_chars": 26282,
+      "prompt_sha256": "559188bf0fee2bc6040fdf21483f027724fe5220e2a9bc9bfc09d81b56c5b63e",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 26282,
+          "sha256": "559188bf0fee2bc6040fdf21483f027724fe5220e2a9bc9bfc09d81b56c5b63e"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "c5d4943ddfe39899d23d54f8f0288b6477ef15b4947dcba590ce61481d32b449",
+      "raw_sha256": "ab605f5b3ee12fdaa8025b9f4b82e866bf6cedd1a7cfb80be3324c1ddc783f63",
+      "events": 238
+    },
+    {
+      "id": "cal-7f14a9e2.transport",
+      "valid": true,
+      "prompt_chars": 27068,
+      "prompt_sha256": "29bdeeda06a0bc4ba8f1e480b716f4ca91dcf9edbb095a89852dedc3ac8d52dc",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 27068,
+          "sha256": "29bdeeda06a0bc4ba8f1e480b716f4ca91dcf9edbb095a89852dedc3ac8d52dc"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "9dae5c5a8445ef07a31978e131ffc3899a3f7e1d0475227e32c0ccacabd44038",
+      "raw_sha256": "9bf61305d472f0c1753f10afb55984a5ff7235a556c0521c27a910ab3dd5a1ad",
+      "events": 338
+    },
+    {
+      "id": "cal-91a2f0c4.transport",
+      "valid": true,
+      "prompt_chars": 26421,
+      "prompt_sha256": "e87e44439b5a4cf572f35b8cb186d8bf7eae08bde74f9262856bcc3e5dcd5c20",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 26421,
+          "sha256": "e87e44439b5a4cf572f35b8cb186d8bf7eae08bde74f9262856bcc3e5dcd5c20"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "3ed26aa635aabfb5d69ec7d8f3909b16234c804cad44ca0f5619c4a11a10f979",
+      "raw_sha256": "67d72101e12a65fc67e2f981cf9bc0c26ac0ddb2a12ffc2d25b4b215e1aecfae",
+      "events": 227
+    },
+    {
+      "id": "cal-b4c93d70.transport",
+      "valid": true,
+      "prompt_chars": 26954,
+      "prompt_sha256": "57213130c23333b68f44fa97abe01a60a54af08377faa6f1590af3e1b7351af0",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 26954,
+          "sha256": "57213130c23333b68f44fa97abe01a60a54af08377faa6f1590af3e1b7351af0"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "71522c8ec60a7e86ce917c2a077403e7c887bdf3569771d6eaaff1675f3b909d",
+      "raw_sha256": "96081418a657c7f3e994063cfde778c0b50db1e7ed1da785db8f019acdb6b9f8",
+      "events": 315
+    },
+    {
+      "id": "cal-c06e7a3b.transport",
+      "valid": true,
+      "prompt_chars": 27069,
+      "prompt_sha256": "216a56c83cd7ec0fe35065ab7de7c80cb7b260cff7e1fceadf3234c9cc322a73",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 27069,
+          "sha256": "216a56c83cd7ec0fe35065ab7de7c80cb7b260cff7e1fceadf3234c9cc322a73"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "a76db80dcbd043def344b9feedeca1f92b295741e4e04ba67f6408592a582f08",
+      "raw_sha256": "15ae8e520fca5a3bcc20a5089f42a3abe425a92c8aaf50618dbca8ffd348d7ba",
+      "events": 335
+    },
+    {
+      "id": "cal-c87bd673.transport",
+      "valid": true,
+      "prompt_chars": 26974,
+      "prompt_sha256": "be19f939ce60b4846e5acb77fe70994c406da5143f33ed63919e7b0ecdc38444",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 26974,
+          "sha256": "be19f939ce60b4846e5acb77fe70994c406da5143f33ed63919e7b0ecdc38444"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "10d259af568a6cc33405b0686aca8913338b559ac0265b46c22f5754a78f93e3",
+      "raw_sha256": "dbb1af18aec5cc4b93c3ee04c6d0f5a3afcd4782fa05b4396e40ce7647f209ae",
+      "events": 367
+    },
+    {
+      "id": "cal-e3d15e38.transport",
+      "valid": true,
+      "prompt_chars": 26349,
+      "prompt_sha256": "63f9cb73274733c6c6104574be2beade13b0bb3708fc56e38cc7ee0f71ffffeb",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 26349,
+          "sha256": "63f9cb73274733c6c6104574be2beade13b0bb3708fc56e38cc7ee0f71ffffeb"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "cc1d28e202928209a6241ac469f29421e75f080890882f77131b0fa303bf393b",
+      "raw_sha256": "5fc3a883891a90b1af6e7a4c1f97017e68c2f5cacf0dd57ab66d85370d863e0a",
+      "events": 312
+    },
+    {
+      "id": "cal-e4173864.transport",
+      "valid": true,
+      "prompt_chars": 26337,
+      "prompt_sha256": "26ac076a2b2f2a09b938c9d73a8a871b272fa58318c62e90a5ac6496cb4d07ad",
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 26337,
+          "sha256": "26ac076a2b2f2a09b938c9d73a8a871b272fa58318c62e90a5ac6496cb4d07ad"
+        }
+      ],
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "effective_isolation_verified": true,
+      "metadata_sha256": "29ab5586c09ab1e80761d8fe4af9060d5a97126c4a5bea3c49a5555218491824",
+      "raw_sha256": "1364db4818ac4c48b6a4e47d2c38f55fda85d2f6969797aa435c760ffb1ec0e0",
+      "events": 282
+    }
+  ],
+  "metadata_sha256": "3da3cd158e3081849a5606c754721454a8564317870b7ecbb0fe381b756e7d92",
+  "interpretation": "30 reused predicates, seven reused delivery fixtures and five new operational provenance fixtures; blind screening is not fresh-holdout or real-task performance evidence."
+}

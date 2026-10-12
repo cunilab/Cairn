@@ -219,8 +219,7 @@ impl Default for SpoolCapacity {
 // Command vocabulary
 // ---------------------------------------------------------------------------
 
-/// The thirteen knowledge commands migration 8's `command_spool.kind` CHECK
-/// admits (`data-model.md` §5).
+/// The closed vocabulary admitted by the current `command_spool.kind` CHECK.
 ///
 /// A closed type rather than a bare string, so a caller cannot spool a command
 /// the drain has no case for and discover it at the CHECK. `verification_run`
@@ -236,6 +235,8 @@ impl Default for SpoolCapacity {
 pub enum CommandKind {
     Remember,
     Supersede,
+    RememberAttested,
+    SupersedeAttested,
     Reinforce,
     Relate,
     Pin,
@@ -255,6 +256,8 @@ impl CommandKind {
     pub const ALL: &'static [CommandKind] = &[
         CommandKind::Remember,
         CommandKind::Supersede,
+        CommandKind::RememberAttested,
+        CommandKind::SupersedeAttested,
         CommandKind::Reinforce,
         CommandKind::Relate,
         CommandKind::Pin,
@@ -274,6 +277,8 @@ impl CommandKind {
         match self {
             CommandKind::Remember => "remember",
             CommandKind::Supersede => "supersede",
+            CommandKind::RememberAttested => "remember_attested",
+            CommandKind::SupersedeAttested => "supersede_attested",
             CommandKind::Reinforce => "reinforce",
             CommandKind::Relate => "relate",
             CommandKind::Pin => "pin",
@@ -1710,6 +1715,33 @@ pub async fn spool_command(
     new: NewCommand<'_>,
     capacity: SpoolCapacity,
 ) -> Result<CommandAdmission> {
+    spool_command_with_checkpoint(store, new, capacity, None).await
+}
+
+pub async fn spool_command_with_checkpoint(
+    store: &Store,
+    new: NewCommand<'_>,
+    capacity: SpoolCapacity,
+    checkpoint: Option<&crate::capture_checkpoint::CheckpointKey>,
+) -> Result<CommandAdmission> {
+    if checkpoint.is_some_and(|key| {
+        key.account_id != new.account_id
+            || Some(key.session_id) != new.scope.session_id()
+            || key.turn_id.is_nil()
+            || !matches!(
+                new.kind,
+                CommandKind::RememberAttested | CommandKind::SupersedeAttested
+            )
+            || !new
+                .payload
+                .get("capture_attestation")
+                .is_some_and(serde_json::Value::is_object)
+    }) {
+        return Err(StoreError::Refused {
+            code: "invalid_request",
+            message: "capture checkpoint does not match command admission".into(),
+        });
+    }
     let scope = new.scope;
     let scope_kind = scope.kind();
     let scope_key = scope.key().to_string();
@@ -1756,6 +1788,9 @@ pub async fn spool_command(
     .bind(new.server_instance_id.map(|i| i.to_string()))
     .execute(&mut *tx)
     .await?;
+    if let Some(key) = checkpoint {
+        crate::capture_checkpoint::capture_admitted_in(&mut tx, key, id, new.payload).await?;
+    }
     tx::commit(tx, "spool_command").await?;
 
     Ok(CommandAdmission::Spooled(SpooledCommand {
@@ -1952,11 +1987,13 @@ fn command_row(r: &sqlx::sqlite::SqliteRow) -> Result<SpooledCommand> {
     })
 }
 
-/// The server accepted it.
+/// The server accepted it. Retain the receipt identity/status, not authored
+/// intent: delivered bodies are never read for retry or reconciliation.
 pub async fn mark_command_delivered(store: &Store, command_id: Uuid) -> Result<()> {
     sqlx::query(
         "UPDATE command_spool
-            SET state = 'delivered', claimed_at = NULL, next_attempt_at = NULL
+            SET state = 'delivered', claimed_at = NULL, next_attempt_at = NULL,
+                payload = '{}'
           WHERE command_id = ?1",
     )
     .bind(command_id.to_string())
@@ -2036,6 +2073,40 @@ pub async fn release_command_claims(store: &Store) -> Result<u64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn acknowledgement_loss_preserves_intent_and_delivery_discards_only_the_body() {
+        let store = Store::open_memory().await.unwrap();
+        let id = Uuid::now_v7();
+        let payload = r#"{"content":"authored claim","capture_attestation":{"support_summary":"authored support"}}"#;
+        sqlx::query("INSERT INTO command_spool
+            (command_id,scope_kind,scope_key,account_id,command_seq,kind,payload,state,attempts,created_at)
+            VALUES (?1,'store','writer','account',1,'remember_attested',?2,'in_flight',1,'timestamp')")
+            .bind(id.to_string()).bind(payload).execute(store.pool()).await.unwrap();
+        mark_command_failed(&store, id, "network").await.unwrap();
+        let retained: String =
+            sqlx::query_scalar("SELECT payload FROM command_spool WHERE command_id=?1")
+                .bind(id.to_string())
+                .fetch_one(store.pool())
+                .await
+                .unwrap();
+        assert_eq!(
+            retained, payload,
+            "lost acknowledgement must retain retry intent"
+        );
+        mark_command_delivered(&store, id).await.unwrap();
+        mark_command_delivered(&store, id).await.unwrap();
+        let row = sqlx::query("SELECT * FROM command_spool WHERE command_id=?1")
+            .bind(id.to_string())
+            .fetch_one(store.pool())
+            .await
+            .unwrap();
+        assert_eq!(row.get::<String, _>("state"), "delivered");
+        assert_eq!(row.get::<String, _>("payload"), "{}");
+        assert_eq!(row.get::<String, _>("scope_key"), "writer");
+        assert_eq!(row.get::<String, _>("kind"), "remember_attested");
+        assert_eq!(row.get::<i64, _>("command_seq"), 1);
+    }
 
     #[test]
     fn backoff_starts_at_one_second_and_never_exceeds_five_minutes() {

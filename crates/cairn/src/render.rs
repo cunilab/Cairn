@@ -2,12 +2,68 @@
 
 use cairn_core::wire::ContextPayload;
 
+fn capture_hint() -> String {
+    let mut out = String::new();
+    for rule in cairn_integrate::render::Contract::canonical().rules {
+        if matches!(rule.id.as_str(), "record" | "secrets") {
+            out.push_str(&rule.block);
+            out.push_str("\n\n");
+        }
+    }
+    out
+}
+
 /// Render the canonical server envelope without inventing local history.
 /// Unknown populated sections fail closed so transmission cannot overclaim.
 pub fn context(value: &serde_json::Value) -> Result<String, String> {
+    if value["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY
+        && [
+            ("continuity", "pins"),
+            ("continuity", "warnings"),
+            ("briefing", "constraints"),
+            ("briefing", "warnings"),
+        ]
+        .iter()
+        .any(|(parent, field)| {
+            value[parent][field]
+                .as_array()
+                .is_some_and(|items| !items.is_empty())
+        })
+    {
+        return Err("project pin and warning delivery needs the current recall policy; upgrade the server and daemon".into());
+    }
+    let has_project_bodies = ["session_memory", "branch_memory", "project_memory"]
+        .iter()
+        .any(|key| {
+            value["sections"][key]
+                .as_array()
+                .is_some_and(|a| !a.is_empty())
+        })
+        || ["session", "branch", "project"].iter().any(|key| {
+            value["briefing"]["memory"][key]
+                .as_array()
+                .is_some_and(|a| !a.is_empty())
+        });
+    if has_project_bodies
+        && (value["project_recall_policy"] != cairn_core::reuse::TASK_QUERY_POLICY
+            || value["project_query_sha256"].as_str().is_none()
+            || value["served_from_cache"] == true)
+    {
+        return Err("project findings need a confirmed task query; use cairn_search with query or upgrade the server and daemon".into());
+    }
+    let memory_hint = if value["project_memory_available"] == true {
+        "Project memory is available. Use cairn_search with task keywords to recall findings.\n\n"
+    } else {
+        ""
+    };
     if value.get("briefing").is_some() {
         let payload = serde_json::from_value(value.clone()).map_err(|e| format!("{e}"))?;
-        return Ok(format!("{}{}", continuity(value), briefing(&payload)));
+        return Ok(format!(
+            "{}{}{}",
+            continuity(value),
+            briefing(&payload),
+            memory_hint
+        ));
     }
     let invalid = || "invalid server context; retry with cairn_context".to_string();
     let sections = value["sections"].as_object().ok_or_else(invalid)?;
@@ -26,6 +82,8 @@ pub fn context(value: &serde_json::Value) -> Result<String, String> {
         }
     }
     let mut out = String::from("# Cairn context\n\n");
+    out.push_str(&capture_hint());
+    out.push_str(memory_hint);
     if value["served_from_cache"] == true {
         let age = value["cache_age_seconds"].as_u64().ok_or_else(invalid)?;
         out.push_str(&format!(
@@ -75,6 +133,7 @@ pub fn context(value: &serde_json::Value) -> Result<String, String> {
 pub fn briefing(payload: &ContextPayload) -> String {
     let briefing = &payload.briefing;
     let mut out = String::from("# Cairn context\n\n");
+    out.push_str(&capture_hint());
 
     if briefing.no_prior_history {
         out.push_str("Cairn has no prior history for this project yet.\n\n");
@@ -267,8 +326,44 @@ mod context_tests {
     use serde_json::json;
 
     #[test]
+    fn legacy_pins_and_warnings_cannot_bypass_task_scoped_delivery() {
+        for (parent, field) in [
+            ("continuity", "pins"),
+            ("continuity", "warnings"),
+            ("briefing", "constraints"),
+            ("briefing", "warnings"),
+        ] {
+            let mut value = json!({"sections":{}});
+            value[parent] = json!({});
+            value[parent][field] = json!([{"text":"legacy raw project claim"}]);
+            assert!(context(&value)
+                .unwrap_err()
+                .contains("current recall policy"));
+        }
+    }
+
+    #[test]
+    fn capture_guidance_agrees_with_the_managed_contract() {
+        let contract = cairn_integrate::render::Contract::canonical();
+        let payload = json!({
+            "budget": {"tokens": 3000, "spent": 0}, "degradation_level": "full",
+            "sections": {}
+        });
+        let text = context(&payload).unwrap();
+        for id in ["record", "secrets"] {
+            let rule = contract.rules.iter().find(|rule| rule.id == id).unwrap();
+            assert!(
+                text.contains(&rule.block),
+                "context contradicts the {id} rule"
+            );
+        }
+    }
+
+    #[test]
     fn canonical_context_renders_all_selected_sections_and_honest_fallback() {
         let mut payload = json!({
+            "project_recall_policy": cairn_core::reuse::TASK_QUERY_POLICY,
+            "project_query_sha256": cairn_core::digest("caller procedure"),
             "budget": {"tokens": 3000, "spent": 12}, "degradation_level": "full",
             "sections": {
                 "session_memory": [{"content": "caller decision"}],
@@ -287,7 +382,11 @@ mod context_tests {
         }
         payload["served_from_cache"] = json!(true);
         payload["cache_age_seconds"] = json!(24);
-        assert!(context(&payload).unwrap().contains("24s old"));
+        assert!(
+            context(&payload).is_err(),
+            "cached project findings must be withheld"
+        );
+        payload["served_from_cache"] = json!(false);
         payload["sections"]["unknown"] = json!([{"content": "unrendered claim"}]);
         assert!(context(&payload).is_err());
         payload["sections"] = json!({"project_memory": [{"content": 7}]});

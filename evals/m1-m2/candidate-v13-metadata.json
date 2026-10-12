@@ -1,0 +1,843 @@
+{
+  "candidate_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+  "candidate_workflow_run": 37772527397,
+  "qualification": "Exact frozen source, immutable artifacts and fresh deployed revisions verified. Semantic gates recorded without projection or retrospective changes. Codex-only authorized subset; Claude skipped; original two-agent milestone not certified. Provider revisions and provider input readback unattested.",
+  "workflow": {
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "verify",
+        "conclusion": "success"
+      },
+      {
+        "name": "candidate gates",
+        "conclusion": "success"
+      },
+      {
+        "name": "compute the Skill ref",
+        "conclusion": "success"
+      },
+      {
+        "name": "image (web)",
+        "conclusion": "success"
+      },
+      {
+        "name": "aarch64-apple-darwin",
+        "conclusion": "success"
+      },
+      {
+        "name": "x86_64-unknown-linux-gnu",
+        "conclusion": "success"
+      },
+      {
+        "name": "x86_64-pc-windows-msvc",
+        "conclusion": "success"
+      },
+      {
+        "name": "aarch64-unknown-linux-gnu",
+        "conclusion": "success"
+      },
+      {
+        "name": "image (server)",
+        "conclusion": "success"
+      },
+      {
+        "name": "x86_64-apple-darwin",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (aarch64-unknown-linux-gnu, ubuntu-24.04-arm)",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (x86_64-unknown-linux-gnu, ubuntu-latest)",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (x86_64-pc-windows-msvc)",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (aarch64-apple-darwin)",
+        "conclusion": "success"
+      },
+      {
+        "name": "checksums and SBOM",
+        "conclusion": "success"
+      },
+      {
+        "name": "installed archive journey (x86_64-apple-darwin)",
+        "conclusion": "success"
+      },
+      {
+        "name": "candidate manifest",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "artifacts": {
+    "source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+    "workflow_run": 37772527397,
+    "workflow_jobs_passed": 17,
+    "manifest_sha256": "45715cab5efe1222815c52ba4311adde2d147b7ee2429d0b961c3a35c8b57d40",
+    "manifest_verified": true,
+    "version": "cairn 0.1.0-alpha.9",
+    "skill_revision": "9aca9419341e",
+    "images": {
+      "server": "ghcr.io/cunilab/cairn-server@sha256:2215611e6a0a9fbbf60ad639514df339df41c993542e5d37f88771da88788532",
+      "web": "ghcr.io/cunilab/cairn-web@sha256:994fca1d5bfa4bc3909950d88c445d9134d215a8deac71767b4747a8cfd545b9"
+    },
+    "archives": [
+      {
+        "name": "cairn-v0.1.0-alpha.9-aarch64-apple-darwin.tar.gz",
+        "sha256": "2adcf5a0457bc2741ffdec3d31ad0f8b6a2eca681e9f6530b2ac10922c49281d"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-aarch64-unknown-linux-gnu.tar.gz",
+        "sha256": "5f02a49f339f4d06bf2b3a2ea4ad82491ea35068d29f5d5d79026fd55502345a"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-x86_64-apple-darwin.tar.gz",
+        "sha256": "49a1c375b967a1b7eecf6ce251015b8c9de75da880fdabba3c40b383635bd5ca"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-x86_64-unknown-linux-gnu.tar.gz",
+        "sha256": "ebf19782616877e3c7806310a4778b29be82213cdac69e89a21d9de333a2a3f2"
+      },
+      {
+        "name": "cairn-v0.1.0-alpha.9-x86_64-pc-windows-msvc.zip",
+        "sha256": "8fe14c2ef5457d03dc837baa8d8315bf772553b709a05a1eb33276462d90f46f"
+      }
+    ],
+    "sbom_sha256": "2c74f708ca7b4c73c4c1f8481121e557b205e0ed4ce2d90839288cc683709d27",
+    "sbom_packages": 760,
+    "native_binary_sha256": {
+      "cairn": "f4a0a9ac8854de33c42e2f3f83ee88c12da963ac2e27cbcb0fad53837fdf7c20",
+      "cairnd": "8ee6efea6d8b9090afcc444e45dd302385ae663935a91cf3f366a563610fd488",
+      "cairn-server": "51f587a054aefd092461650031c418c9d9fa627abd229a7f1fc8c6a37b6b38b0"
+    }
+  },
+  "ci_tests": {
+    "source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+    "workflow_run": 37772527397,
+    "job_id": 113295348731,
+    "test_groups": 59,
+    "tests_passed": 1256,
+    "tests_failed": 0,
+    "tests_ignored": 0,
+    "log_sha256": "2b82e69ea5b9a5ef8dbeec3ac3a0f2d0f27a36cb74d92bc7911f33feba98a0cf",
+    "qualification": "Exact candidate release verify job; earlier PR CI job was superseded by evaluation-only commit."
+  },
+  "calibration": {
+    "source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+    "fixtures": 42,
+    "correct": 42,
+    "unknown": 0,
+    "observed_tool_calls": 0,
+    "observed_compactions": 0,
+    "expected_labels_withheld": true,
+    "opaque_ids": true,
+    "provider_model_attested": false,
+    "provider_input_readback_verified": false,
+    "transport_helper_sha256": "b6f63020165ee8526cb95e2d35f1a023f273ac8b5b8cd361598d11be445722d6"
+  },
+  "deployment": {
+    "source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+    "workflow_run": 37772527397,
+    "compose_project": "cairn-m1m2-v13-b70d",
+    "loopback_port": 18152,
+    "https_origin": "https://tba-tip-picnic-gibson.trycloudflare.com",
+    "https_health_verified": true,
+    "deployed_image_revisions_verified": true,
+    "deployed_images": {
+      "server": {
+        "image": "ghcr.io/cunilab/cairn-server@sha256:2215611e6a0a9fbbf60ad639514df339df41c993542e5d37f88771da88788532",
+        "id": "sha256:2215611e6a0a9fbbf60ad639514df339df41c993542e5d37f88771da88788532",
+        "architecture": "arm64",
+        "source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e"
+      },
+      "web": {
+        "image": "ghcr.io/cunilab/cairn-web@sha256:994fca1d5bfa4bc3909950d88c445d9134d215a8deac71767b4747a8cfd545b9",
+        "id": "sha256:994fca1d5bfa4bc3909950d88c445d9134d215a8deac71767b4747a8cfd545b9",
+        "architecture": "arm64",
+        "source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e"
+      }
+    },
+    "fresh_volume_verified_before_start": true
+  },
+  "provisioning_protocol": {
+    "source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+    "workflow_run": 37772527397,
+    "first_case": "F1",
+    "shared_m1_m2_evidence": true,
+    "procedural_change": "F1 browser UI project/token only; ordinary setup and unchanged prior/return prompts, order, budgets and scoring. F1 counted once.",
+    "short_output_preflight": {
+      "socket_path_length_max": 73,
+      "passed": true
+    },
+    "attempt": "v13",
+    "all_earlier_attempts_preserved": true,
+    "final_frozen_run": true,
+    "claude_skipped": true,
+    "calibration_metadata_sha256": "208eba0e7264c23a4837bd6237ff3081e8e228ceac6a4179581c7f5dab01f205",
+    "harness_sha256": {
+      "m1-journey-v13.py": "0b5488b834f0af8348d177196f609290887fb44351f417af204d228c9a1f2861",
+      "m1-browser-project-v13.cjs": "3bc8b2a2b10aae817818be7342d62155f018602e70984db7b2efcc4b05df1331",
+      "check-m1-persistence-v13.py": "64acba807d078fa21219780a76adcacf50a771bf73bd1d969a96318d30f839a0"
+    }
+  },
+  "path_preflight": {
+    "socket_path_length_max": 73,
+    "passed": true
+  },
+  "m1_codex_journey": {
+    "source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+    "workflow_run": 37772527397,
+    "https_origin": "https://tba-tip-picnic-gibson.trycloudflare.com",
+    "case": "F1",
+    "qualification": "F1 is the first case of the unchanged 15-case Codex subset; browser provisioning replaces only project creation. Actor prompts, arm order, budgets and binary predicates remain unchanged; v13 provenance applicability is calibrated prospectively.",
+    "browser_provisioned": true,
+    "preflight": {
+      "fresh_project": true,
+      "membership_matches_token_owner": true,
+      "personal_empty": true,
+      "team_empty": true,
+      "actor_role": "admin",
+      "actor_status": "active",
+      "setup_status": 0,
+      "setup_project_linked": true,
+      "native_hook_commands": 9,
+      "native_hooks_absolute_candidate": true
+    },
+    "runtime_identity": {
+      "control": {
+        "shell": "zsh",
+        "candidate_sha256": "f4a0a9ac8854de33c42e2f3f83ee88c12da963ac2e27cbcb0fad53837fdf7c20",
+        "selected_sha256": "f4a0a9ac8854de33c42e2f3f83ee88c12da963ac2e27cbcb0fad53837fdf7c20",
+        "login_resolution_matches": true,
+        "binary_sha256_matches": true,
+        "mcp_absolute_candidate": true,
+        "passed": true
+      },
+      "treatment": {
+        "shell": "zsh",
+        "candidate_sha256": "f4a0a9ac8854de33c42e2f3f83ee88c12da963ac2e27cbcb0fad53837fdf7c20",
+        "selected_sha256": "f4a0a9ac8854de33c42e2f3f83ee88c12da963ac2e27cbcb0fad53837fdf7c20",
+        "login_resolution_matches": true,
+        "binary_sha256_matches": true,
+        "mcp_absolute_candidate": true,
+        "passed": true
+      }
+    },
+    "valid_comparison": true,
+    "memory_count": 1
+  },
+  "m1_persistence": {
+    "prior_receipt_record_correlations": 1,
+    "later_host_delivered_prior_records": 1,
+    "m1_proof_passed": true,
+    "judge_delivery_inventory_established": true,
+    "case": "F1",
+    "capture_accepted": true,
+    "accepted_command_count": 1,
+    "applied_prior_command_results": 1,
+    "useful_application": "yes",
+    "server_snapshot_sha256": "009860fa89be9e519d837c8d2d376fda382359e1b63efea098ccb3cbf916c97d",
+    "checker_sha256": "64acba807d078fa21219780a76adcacf50a771bf73bd1d969a96318d30f839a0",
+    "qualification": "Prior accepted receipts correlated to authenticated server applied_commands result IDs. Only owned eligible user_report records with those IDs, version-matched later transmitted traces and record-correlated Cairn host payloads can satisfy M1. Other source records neither satisfy nor invalidate it."
+  },
+  "full_execution": {
+    "valid_comparisons": 15,
+    "successful_phases": 46,
+    "complete_traces": 46,
+    "runtime_identity_verified": true,
+    "delivery_snapshots_complete": true
+  },
+  "semantic_gates": {
+    "useful": "PASS",
+    "delivered_quality": "FAIL",
+    "privacy": "PASS for authorized bounded cases",
+    "high_impact_harm": "PASS",
+    "completion": "PASS",
+    "repeated": "PASS"
+  },
+  "semantic_observations": {
+    "useful": {
+      "yes": 8,
+      "denominator": 8
+    },
+    "delivered_quality": {
+      "both_yes": 31,
+      "denominator": 42
+    },
+    "completion": {
+      "control": 5,
+      "treatment": 14
+    },
+    "repeated_known_eligible": 7,
+    "repeated_unknown_natural": [],
+    "median_repeated_savings_known_pairs": 1.0,
+    "high_impact_harm_yes": 0
+  },
+  "semantic_uncertainty": {
+    "useful": [],
+    "delivered_quality": [],
+    "completion": [],
+    "high_impact_harm": [],
+    "repeated": []
+  },
+  "operational_reliability": {
+    "qualification": "Mechanical counts of failed Cairn MCP calls from complete actor traces; includes intentional refusals. No severity label or added gate. Raw service/validation/recovery evidence remains in full private packets.",
+    "failed_cairn_mcp_calls": [
+      {
+        "id": "F1",
+        "arm": "treatment",
+        "phase": "later",
+        "tools": [
+          "cairn.cairn_remember"
+        ]
+      },
+      {
+        "id": "F3",
+        "arm": "treatment",
+        "phase": "later",
+        "tools": [
+          "cairn.cairn_remember"
+        ]
+      },
+      {
+        "id": "R1",
+        "arm": "treatment",
+        "phase": "prior",
+        "tools": [
+          "cairn.cairn_remember"
+        ]
+      },
+      {
+        "id": "S2",
+        "arm": "treatment",
+        "phase": "later",
+        "tools": [
+          "cairn.cairn_remember",
+          "cairn.cairn_remember"
+        ]
+      }
+    ]
+  },
+  "judge_transport": {
+    "mode": "ordered full input injected before one turn for all 15 judgments",
+    "no_actor_replacement": true,
+    "proofs": [
+      {
+        "valid": true,
+        "prompt_chars": 1038719,
+        "prompt_sha256": "82d8a1d92816a8fdc93320c5c9a405426123e903cad4fdb33a9940cb67dfe9ab",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 400000,
+            "sha256": "f6fad92f6e6d5133ef22ffdb977a8e9d76f1c3cfbe7e40c113708db1db0c33e0"
+          },
+          {
+            "index": 2,
+            "chars": 400000,
+            "sha256": "b5193934ecbd48c83696a1a674926ce83688aad4b3f258df5adeb0320950ccf8"
+          },
+          {
+            "index": 3,
+            "chars": 238719,
+            "sha256": "7338110c91540afe0ee66584f46331ab829328f8e1b1292dd086a805ee6b3e83"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 3,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "F1",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "4f13b5e0709ac423fa4b27751e432d47a7c3bfb23fad56b94b2f903025bb3531",
+        "raw_sha256": "01ef1ab4b4405dff8e0836f7a6e97fc7719d7f48a35c6ba35035fcaebbf3b8cf",
+        "events": 1105
+      },
+      {
+        "valid": true,
+        "prompt_chars": 811146,
+        "prompt_sha256": "c9e3331998279e6e27b7e7e5d6f09128349da14ace6a07ed12c8627057d74103",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 400000,
+            "sha256": "e57c94a2d8c39d845480e0bc4665ed7042df92359be3af746615fdc578a8c92f"
+          },
+          {
+            "index": 2,
+            "chars": 400000,
+            "sha256": "44eec970862ac32334800ced591eee53d99c21545599814c6d4e27687d207273"
+          },
+          {
+            "index": 3,
+            "chars": 11146,
+            "sha256": "8a14e439145010b8cde6bc10f792f7d8f25729f2e0a6c410410dc78b0e1ce869"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 3,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "F3",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "ec4940324b73e89b1fff9ab9e7848a54ffe3caff7b5ad3c58766b3e251d90976",
+        "raw_sha256": "2d79f17b859dd931d6bbb3ffb85a644aeb24d0deb0a6397169fbf0c94345d193",
+        "events": 835
+      },
+      {
+        "valid": true,
+        "prompt_chars": 952463,
+        "prompt_sha256": "d420646240c92332b62910c37bca0d95514b06235890e573e410fa4bb104c87b",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 400000,
+            "sha256": "cbb564de13de108a686d60ae5f5b8845d4126c8ccaa5f9184f335a98079bfde1"
+          },
+          {
+            "index": 2,
+            "chars": 400000,
+            "sha256": "f6da002121e13e25c03d8f63478c49667b6a6184f66855e9959ef85d61af6a0b"
+          },
+          {
+            "index": 3,
+            "chars": 152463,
+            "sha256": "63735fff3506ca0e4d6541cc27a14d35dcf1c152d70fad7e91d3a7140c337dd5"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 3,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "F5",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "6853e514081db091264377943392a1e5387f44b29cfcde4166f6430c01ebbb6f",
+        "raw_sha256": "0029af7b2d2094b2e1fbf715e089f613d15aa224f74967f790f1aa84a470a4a1",
+        "events": 846
+      },
+      {
+        "valid": true,
+        "prompt_chars": 582339,
+        "prompt_sha256": "604fff4f473752541715f773b71a37e413d7c1f34b688ad98163b3a0c067a95d",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 400000,
+            "sha256": "b74f9cafc66ecf0b80bcccbb6caaee724a832615e16ded8e1571ee9b55938a74"
+          },
+          {
+            "index": 2,
+            "chars": 182339,
+            "sha256": "a6ac9efd877e64db96def0550845eecc8e5f2190cbea297cc57ea5ee9907d4d1"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 2,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "D2",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "d1ac408fac04fcb4bdcc18846911211a1be725c6a218e7251463e640df3a0bdf",
+        "raw_sha256": "090e517cd3cef3f63454e40497e959bb6e2274dc904e3d8c5f74ba15e5db248a",
+        "events": 969
+      },
+      {
+        "valid": true,
+        "prompt_chars": 214845,
+        "prompt_sha256": "dc71260b6a52b790dc709d618d03ce5509fecce960e75dfd78067ccf443225c2",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 214845,
+            "sha256": "dc71260b6a52b790dc709d618d03ce5509fecce960e75dfd78067ccf443225c2"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 1,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "D4",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "d0884b75762f1f3a2583522e9721da6d490733b866d44f25acfd01f02172f0fb",
+        "raw_sha256": "130cc852fa94993a0aa202220c1a414276f44985fb35139a4156dcf432c10bf1",
+        "events": 848
+      },
+      {
+        "valid": true,
+        "prompt_chars": 563605,
+        "prompt_sha256": "97b84b868edffab91fda1bf44e5d77b4c6b6905c9ac1fc4f23f3414f19b36e30",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 400000,
+            "sha256": "0df6484683179f483f91c47db6f40ffbb2c51abafcbcb5b43eebb13e83aa72e2"
+          },
+          {
+            "index": 2,
+            "chars": 163605,
+            "sha256": "d27e64825c83b8ffac658675908a3eeb96929d24dc9dbb9900072e89473ee3b5"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 2,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "R1",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "ab515912a74abd4beb37e03142a4f5d3cd503455bdedee71fc3a630b01620111",
+        "raw_sha256": "55716ba75a4e4878502d69e5ba124b83f05bcc7b406ca579be07480843e9e77c",
+        "events": 870
+      },
+      {
+        "valid": true,
+        "prompt_chars": 488768,
+        "prompt_sha256": "684d0266e289be2dc50747e72797736221bdf1acea41b2181c6fa1cc0e32d5c4",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 400000,
+            "sha256": "78efa5e6e7a9eb6c04a6a65db976856ed158f76124f9214a67d5539dccf95a0a"
+          },
+          {
+            "index": 2,
+            "chars": 88768,
+            "sha256": "e81f670b7deefa479a54677d2ddbefba86fa525f16289fccf5eedd47a000de25"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 2,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "R3",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "27454058fa30b7c334f43696e8c3d4162b5227163575e861499260c4dadd95f7",
+        "raw_sha256": "0b858b5980572542db27e616a1d4819018d05739f0867db57b0d04b797d51362",
+        "events": 1326
+      },
+      {
+        "valid": true,
+        "prompt_chars": 325025,
+        "prompt_sha256": "fcfb92fa01a09481b02f227056484830383725e3ea7ab5367f4cbbf7f03a9f1c",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 325025,
+            "sha256": "fcfb92fa01a09481b02f227056484830383725e3ea7ab5367f4cbbf7f03a9f1c"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 1,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "R5",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "43f63ac92e5adb5df5b022ff8f587cf838a69f9ed73bb02d454e0e9fab6771c4",
+        "raw_sha256": "6b7d0f19f6329624f1fed852c3efe12d2e7b943b82883daa30cb9672a67c21cd",
+        "events": 683
+      },
+      {
+        "valid": true,
+        "prompt_chars": 249948,
+        "prompt_sha256": "16e770b72d6545eb888a90e8adc619188c2c325f6ee51ca2ad25f2543a74f741",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 249948,
+            "sha256": "16e770b72d6545eb888a90e8adc619188c2c325f6ee51ca2ad25f2543a74f741"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 1,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "S2",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "c22ed0f0c6bdf9d10a960ffc6cc1346e6e444960a94d2137df70c9fdc6120476",
+        "raw_sha256": "d60ce061c7532ed5ac815d03c025e4a524365e61540cc03e7bec3b6af896a3c7",
+        "events": 356
+      },
+      {
+        "valid": true,
+        "prompt_chars": 278328,
+        "prompt_sha256": "f8fc8acca81644750c5ac6760bcaabef9b1b3d8bf79c9ab48f09612c3b004ca4",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 278328,
+            "sha256": "f8fc8acca81644750c5ac6760bcaabef9b1b3d8bf79c9ab48f09612c3b004ca4"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 1,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "S4",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "f6f99b7adb68239e63704f44316fbda08388630d042ff8868a6fd60f1595ed90",
+        "raw_sha256": "db43e90b9ac63bd5fa595064330245f50f670185fe53ca4f5d8cce222b59ba0a",
+        "events": 332
+      },
+      {
+        "valid": true,
+        "prompt_chars": 248061,
+        "prompt_sha256": "0a35f37923cb9a9f2b2140af0104603f5d8674cc4db71c6823da531ad6996f78",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 248061,
+            "sha256": "0a35f37923cb9a9f2b2140af0104603f5d8674cc4db71c6823da531ad6996f78"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 1,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "P1",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "3242b8dd5ed08777670ab1960f08a3851a377cf698c7a9c670f053861c0e7f45",
+        "raw_sha256": "7829e989d94bce3c301eceb253b19e35e715dc488e81f46065883ef2662c5028",
+        "events": 363
+      },
+      {
+        "valid": true,
+        "prompt_chars": 725381,
+        "prompt_sha256": "b95bac51357e2de00012e845d1cc1d260722478c8e397239bd7c6d58f34514af",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 400000,
+            "sha256": "64e50763da945013b486f67705bd57abf15fc123f30d77529ea8ced551322396"
+          },
+          {
+            "index": 2,
+            "chars": 325381,
+            "sha256": "eb587352561f43275d52737c7315ee2c2601389cdd344f5b0fdb87c099eb95dc"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 2,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "P3",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "890f13af701091f2b1cdb3088af0c2f29aa4f6983427f6bdad0a627070967c06",
+        "raw_sha256": "5866d32f19bce170d42fb5dc8205033c9b026ab63dfa2c40cd233e54191ad670",
+        "events": 371
+      },
+      {
+        "valid": true,
+        "prompt_chars": 159197,
+        "prompt_sha256": "9e2526d17d98b979b156c78cf88aade25a9587e45c8cece66b124126642b4406",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 159197,
+            "sha256": "9e2526d17d98b979b156c78cf88aade25a9587e45c8cece66b124126642b4406"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 1,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "P5",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "cf60823f95b73a6895b4466e371564460cd402075f17605045bb6c9aba945e4e",
+        "raw_sha256": "d242dd6981d2f7da5f280ef2ddca12ae1a67a0509c08ba8c50a6decaa093ec06",
+        "events": 377
+      },
+      {
+        "valid": true,
+        "prompt_chars": 91324,
+        "prompt_sha256": "e0e1cb90924162d73b72cdba08268172aef712874ffc1dcda38fe779f855b7f9",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 91324,
+            "sha256": "e0e1cb90924162d73b72cdba08268172aef712874ffc1dcda38fe779f855b7f9"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 1,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "B2",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "a1ab0dd8fdf466969fef75b3f9ea32e797bc2fca0026622b230edce099491aaf",
+        "raw_sha256": "0af33e013f405e91d346b534dc84ba678efddebaa0c8d039d3f74319770f77f0",
+        "events": 346
+      },
+      {
+        "valid": true,
+        "prompt_chars": 700501,
+        "prompt_sha256": "afe981b3eb0bf18dcce24c65c15ba8d28b6ffd9a01df47577d9ebe33e5b2f183",
+        "chunks": [
+          {
+            "index": 1,
+            "chars": 400000,
+            "sha256": "db0ca650693d2f980b8979cd71180ba917e01b905b8b74fb56f4ff2655a32827"
+          },
+          {
+            "index": 2,
+            "chars": 300501,
+            "sha256": "0b0ca68a0967d740d69fcae6daf2984cfa8e2a7a52f22b5849de32e1f5a2a6c6"
+          }
+        ],
+        "local_reconstruction_exact": true,
+        "provider_input_readback_verified": false,
+        "injected_parts_acknowledged": 2,
+        "observed_tool_calls": 0,
+        "observed_compactions": 0,
+        "id": "B4",
+        "effective_isolation_verified": true,
+        "metadata_sha256": "72855a1dbb4a41955c033af3ed450b77bd81b07bc6491536f14796e128614761",
+        "raw_sha256": "ada6c2a6b187e92110902e6bc42a686544295889be98d0051ef1b37dc507251a",
+        "events": 368
+      }
+    ],
+    "qualification": "Exact local chunk reconstruction and acknowledged ordered injections; provider input was not read back. All retained RPC events reparsed with frozen guard; tools, errors and both compaction forms rejected."
+  },
+  "identity_binding_development_check": {
+    "cli": "0.160.0",
+    "client_name": "codex-mcp-client",
+    "framework_thread_id_matches_daemon_key": true,
+    "invented_model_argument_overridden": true,
+    "daemon_request_count": 1,
+    "passed": true,
+    "mock_daemon_only": true,
+    "real_native_hook_keys_match_both_actual_threads": true,
+    "local_client_provenance_not_authentication": true,
+    "upstream_source": {
+      "mcp_runtime.rs": "ff6c351e3af4f662c265a2f0c16e84da7815771913a493694eba0d99ec08d8eb",
+      "mcp_tool_call.rs": "509b10168a9a1e99abd0f5722ad5bf377645dbb2e446ead6c324daef7a84af58",
+      "rmcp_client.rs": "7b4dae74647e0db5d22bc26f49781a0b455beb35f0f3a36a1f067236cd2bf89d"
+    },
+    "intended_candidate_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+    "qualification": "Non-corpus development-binary proof of per-call identity normalization, before final explicit-UUID validation and MCP lifecycle-start refusal; independent source tests cover those subsequent guards. Final candidate artifact identity and journeys require separate verification."
+  },
+  "predicate_serialization_correction": {
+    "helper_sha256": "b6f63020165ee8526cb95e2d35f1a023f273ac8b5b8cd361598d11be445722d6",
+    "synthetic_check": {
+      "passed": true,
+      "non_scoring": true,
+      "schema_enforced": true,
+      "transport_metadata_sha256": "de5888a3c79b6b3e5547c02d8f8d2798d9748288f7f86c30c2c8a632e3a695c3"
+    },
+    "invalid_attempts_preserved": {
+      "product_source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+      "configured_model": "gpt-6.1-sol",
+      "configured_cli": "0.160.0",
+      "attempts": [
+        {
+          "attempt": "malformed-predicate-response",
+          "status": "INVALID",
+          "reason": "Private wrapper omitted frozen response-format instructions; required judgments array absent. No accepted semantic calibration result.",
+          "response_is_bool_id_map": true,
+          "response_entries": 30,
+          "transport_valid": true,
+          "prompt_sha256": "5d5287a37199007b6f6a9189165335f5cd095b3edcab74f49412495b9ae56b3a",
+          "response_sha256": "b89f6f5782814c3ac856dd78627c22a37864c0ffb4314802f62c0c8ea5aa5cb7",
+          "raw_rpc_sha256": "ac94c7a201ce40dbf55cbe1cdd5e81ba1dff381c6ba8f23e018047b76204a438",
+          "observed_tool_calls": 0,
+          "observed_compactions": 0
+        },
+        {
+          "attempt": "malformed-predicate-retry",
+          "status": "INVALID",
+          "reason": "Private wrapper omitted frozen response-format instructions; required judgments array absent. No accepted semantic calibration result.",
+          "response_is_bool_id_map": true,
+          "response_entries": 30,
+          "transport_valid": true,
+          "prompt_sha256": "5d5287a37199007b6f6a9189165335f5cd095b3edcab74f49412495b9ae56b3a",
+          "response_sha256": "b89f6f5782814c3ac856dd78627c22a37864c0ffb4314802f62c0c8ea5aa5cb7",
+          "raw_rpc_sha256": "b7d37a0037337ad009d365bfe83da489efe4bf758acbb7c0b39584746c1759e6",
+          "observed_tool_calls": 0,
+          "observed_compactions": 0
+        }
+      ],
+      "actors_started": 0,
+      "delivery_fixtures_started": 0,
+      "accepted_calibration_labels": 0,
+      "zero_request_cli_path_preflight_preserved": true,
+      "qualification": "Both calls remain invalid; no retrospective coercion or semantic pass. Prospective correction restores exact V12 input SHA and constrains response structure using the verified CLI outputSchema API."
+    },
+    "qualification": "Optional API schema constrains predicate response shape; exact prior V12 input restored; semantic labels unchanged. Delivery uses unchanged frozen helper."
+  },
+  "m1_proof_prospective_amendment": {
+    "recorded_at_utc": "2026-10-08T12:17:51.109476+00:00",
+    "actors_started": false,
+    "product_source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+    "checker_sha256": "64acba807d078fa21219780a76adcacf50a771bf73bd1d969a96318d30f839a0",
+    "public_protocol_sha256": "d8c75b6b4de0dc2550d20153434a481451453a22da6c9479573f2539a550513b",
+    "semantic_gates_unchanged": true,
+    "self_checks": "PASS",
+    "independent_astra_review": "Suitable to freeze for isolated F1; hook proof is conservative correlation, not exact trace-ID receipt."
+  },
+  "judge_quota_recovery": {
+    "original_invalid_judgments": 13,
+    "original_valid_judgments": 2,
+    "original_invalid_rpc_and_result_hashes_verified": true,
+    "immutable_actor_results": 15,
+    "immutable_complete_packets": 15,
+    "original_valid_judgments_unchanged": 2,
+    "actors_replaced": 0,
+    "valid_judgments_replaced": 0,
+    "user_reported_recovery_before_scheduled_reset": true,
+    "readiness_valid": true,
+    "readiness_rpc_sha256": "9bcd819ebadbbbc9a515f37f4e422e23bca77e74206834a2906651573fbf89e5",
+    "readiness_metadata_sha256": "29c70e66c6365b7ffea4e7215bfd988cc8efc003f47f2526931675a27f9dc2fa",
+    "qualification": "Non-scoring availability check verified same pinned isolated judge; then only quota-invalid calls resumed. Original failures preserved, all actor/packet/two-valid-result hashes unchanged. A preceding readiness process ended before completion with nearly full disk; exact cause unestablished; its original logs preserved."
+  },
+  "local_disk_observation": {
+    "generated_worktree_cargo_cache_cleaned": true,
+    "package_caches_cleaned_with_official_commands": true,
+    "private_evidence_preserved": true,
+    "qualification": "Temporary-file allocation failed during actor status inspection; actor comparisons remained valid. No causal claim for subsequent readiness process interruption."
+  },
+  "current_helper_ci": {
+    "commit": "2d4c4f0f817ba301974393994835058c90e0caa9",
+    "workflow_run": 37773577711,
+    "jobs_passed": 6,
+    "product_tree_matches_candidate": true,
+    "qualification": "Evaluation-only commit; final report commit requires its own checks."
+  },
+  "merge_readiness": {
+    "m1_codex": true,
+    "m2_all_gates": false,
+    "ready_under_requested_gates": false,
+    "blocker": "Delivered claim quality31/42=73.8%,below90%;11 supported but irrelevant implementation propositions bundled with useful decisions."
+  },
+  "independent_astra_final_review": {
+    "access": "read-only",
+    "semantic_labels_changed": false,
+    "m1_proof": "passed for isolated Codex journey",
+    "quality_failure_cases": {
+      "D2": 3,
+      "D4": 2,
+      "R3": 4,
+      "R5": 2
+    },
+    "finding": "Actual persisted memories combine reported decisions with inspected implementation commentary under one user_report attestation. All11 failedclaims are supported butirrelevant;no inventory error found. Record-level selection delivers all propositions in each selected record.",
+    "next_decision": "Validate separately attributable and independently selectable reported decisions and inspected implementation findings; no further wording-only tuning or retrospective rescore.",
+    "readiness": "Not ready under requested M1/M2 gates"
+  }
+}

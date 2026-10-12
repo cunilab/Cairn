@@ -62,6 +62,8 @@ pub struct Daemon {
     pub event_drain: Arc<tokio::sync::Mutex<()>>,
     /// Command delivery must not wait behind a blocked event endpoint.
     pub command_drain: Arc<tokio::sync::Mutex<()>>,
+    /// Config files and their ownership records must advance together.
+    pub integration_setup: Arc<tokio::sync::Mutex<()>>,
     /// The bounded, account-bound outage cache for server-side retrieval
     /// (T072, `contracts/retrieval-delivery.md` §12.3). A cache, not durable
     /// state: in-memory, lost on restart, rebuilt by the next successful

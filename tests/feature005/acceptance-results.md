@@ -24,6 +24,11 @@ The order is now: commit the code, verify the test exists in it, run from the
 clean tree, then commit this document. Do not read the repository's final `HEAD`
 as the tested SHA — later commits may follow this one.
 
+This historical run does not prove current M1/M2 behavior. The current R7 rule
+requires a decision signal followed by a file change and emits a suggestion;
+the signal-only example below predates that rule. See the
+[M1/M2 candidate report](../../evals/m1-m2/results.md) for current evidence.
+
 ## Mechanical results
 
 Ten independent sessions per agent, thirty in total. The five criteria the
@@ -107,7 +112,7 @@ work.
 ## What this file does not cover
 
 SC-708 (delivery) and SC-715 (offline deadlines) are also cited on T157 in
-`tasks.md`. They are proved by their own tests —
+the historical `tasks.md` at the tested commit. They are proved by their own tests —
 `feature005_us2_automatic_recall.rs` and `feature005_delivery.rs` for delivery,
 `feature005_outage.rs`, `feature005_us4_fail_soft.rs` and
 `feature005_performance.rs` for deadlines — rather than re-derived here. That is

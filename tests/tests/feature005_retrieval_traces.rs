@@ -37,7 +37,7 @@
 //! harness has no safe way to do — noted here rather than faked.
 
 use cairn_e2e::feature005::{Account, Pg};
-use cairn_e2e::{binary, get_json_status_bearer, post_json_status_bearer};
+use cairn_e2e::{get_json_status_bearer, post_json_status_bearer, server_binary};
 use serde_json::{json, Value};
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
@@ -66,7 +66,7 @@ fn retrieve(pg: &Pg, who: &Account, session: Uuid, trigger: &str) -> (Value, u16
     post_json_status_bearer(
         &pg.server.base,
         "/api/retrieve",
-        &json!({ "session_id": session, "trigger": trigger }),
+        &json!({ "session_id": session, "trigger": trigger, "query": "project" }),
         &who.token,
     )
 }
@@ -105,6 +105,11 @@ fn seed_project_memory(pg: &Pg, session: Uuid, content: &str) -> Uuid {
          VALUES ('{id}', '{}', 'fact', 'project', '{}', '{content}', '{session}')",
         pg.project, pg.project
     ));
+    pg.attest_project_memory(
+        id,
+        &pg.owner,
+        "Fixture author reports this traced project fact.",
+    );
     id
 }
 
@@ -170,7 +175,7 @@ impl Worker {
             let port = probe.local_addr().expect("addr").port();
             drop(probe);
             let addr = format!("127.0.0.1:{port}");
-            let mut child = Command::new(binary("cairn-server"))
+            let mut child = Command::new(server_binary())
                 .args([
                     "--addr",
                     &addr,
@@ -270,7 +275,12 @@ fn a_reported_transmission_failure_becomes_failed_with_a_reason_and_writes_no_de
     let pg = pg!();
     let session = pg.session_for(&pg.owner);
     let item_id = seed_project_memory(&pg, session, "an item whose transmission will fail");
-    let (opened, status) = retrieve(&pg, &pg.owner, session, "session_open");
+    let (opened, status) = post_json_status_bearer(
+        &pg.server.base,
+        "/api/retrieve",
+        &json!({"session_id": session, "trigger": "session_open", "query": "transmission fail"}),
+        &pg.owner.token,
+    );
     assert_eq!(status, 200, "{opened}");
     assert!(opened["sections"]["project_memory"].is_array(), "{opened}");
     let trace_id = opened["trace_id"].as_str().expect("trace_id");

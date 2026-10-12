@@ -1,0 +1,677 @@
+[
+  {
+    "id": "q7m2v9",
+    "task": "The seed vault team must record each accession's drying temperature in the intake ledger.\n\nThe seed vault team must store duplicate accession labels in the north cabinet.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The seed vault team must record each accession's drying temperature in the intake ledger.\n\nThe seed vault team must store duplicate accession labels in the north cabinet.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as two standing seed vault procedures."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "b4x8n1",
+    "task": "For the puppet archive, conservators must photograph hinge wear before every loan.\n\nFor the puppet archive, registrars must retain returned shipping seals for ninety days.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "For the puppet archive, conservators must photograph hinge wear before every loan.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as a continuing conservator obligation."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "h9r3c6",
+    "task": "The reef nursery crew must use ceramic tags on all replacement frames.\n\nCould we explore whether a floating workbench would help?\n\nThe reef nursery coordinator must file tide readings in the shore office each Friday.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The reef nursery crew must use ceramic tags on all replacement frames.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as the settled replacement-frame tagging rule."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The reef nursery coordinator must file tide readings in the shore office each Friday.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as a recurring coordinator duty."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "t2k6p8",
+    "task": "At the kite observatory, technicians must keep calibration weights in drawer C.\n\nAt the kite observatory, flight leads must cancel launches when the east mast is iced.\n\nAt the kite observatory, visitors must remain behind the yellow rope during launches.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "At the kite observatory, technicians must keep calibration weights in drawer C.\n\nAt the kite observatory, flight leads must cancel launches when the east mast is iced.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as standing storage and weather restrictions."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "f5w1d7",
+    "task": "The following bell-handling rule applies only to apprentices in the western foundry during the winter casting season.\n\nThey must move cooled bells on padded sleds, except bells under two kilograms may be carried in lined baskets.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The following bell-handling rule applies only to apprentices in the western foundry during the winter casting season.\n\nThey must move cooled bells on padded sleds, except bells under two kilograms may be carried in lined baskets.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as one scoped handling rule with its exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "n8a4j2",
+    "task": "The following bell-handling rule applies only to apprentices in the western foundry during the winter casting season.\n\nThey must move cooled bells on padded sleds, except bells under two kilograms may be carried in lined baskets.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The following bell-handling rule applies only to apprentices in the western foundry during the winter casting season.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as the complete scope paragraph for the handling rule."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "They must move cooled bells on padded sleds, except bells under two kilograms may be carried in lined baskets.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as the complete action and exception paragraph."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "s3e9u5",
+    "task": "For the following flushing rule, the responsible actors are the night aqueduct inspectors, and the location is the lower inspection gallery.\n\nThey must flush a sampling tap after a sediment alarm, unless the gallery evacuation light is active.\n\nThe aqueduct archivist must retain signed inspection sheets for seven years.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "For the following flushing rule, the responsible actors are the night aqueduct inspectors, and the location is the lower inspection gallery.\n\nThey must flush a sampling tap after a sediment alarm, unless the gallery evacuation light is active.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as a standing inspector rule including scope and exception."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The aqueduct archivist must retain signed inspection sheets for seven years.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as an independent retention obligation."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "v6l2z4",
+    "task": "For the following flushing rule, the responsible actors are the night aqueduct inspectors, and the location is the lower inspection gallery.\n\nThey must flush a sampling tap after a sediment alarm, unless the gallery evacuation light is active.\n\nThe aqueduct archivist must retain signed inspection sheets for seven years.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "They must flush a sampling tap after a sediment alarm, unless the gallery evacuation light is active.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as the complete flushing action paragraph."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The aqueduct archivist must retain signed inspection sheets for seven years.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as an independent retention obligation."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "c1y7m3",
+    "task": "In the ceremonial mask workshop, finishers must use water-based varnish on indoor display masks whenever the humidity exceeds sixty percent, except unfinished teaching samples must remain uncoated.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "In the ceremonial mask workshop, finishers must use water-based varnish on indoor display masks whenever the humidity exceeds sixty percent, except unfinished teaching samples must remain uncoated.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as a settled finishing rule with a humidity condition and sample exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "r4g8b6",
+    "task": "The following pouch-sealing rule applies to the desert fossil survey's field packers at temporary camps.\n\nThey must double-seal specimen pouches before transport.\n\nThe sole exception to that rule is a damp specimen awaiting the camp geologist's drying assessment; its pouch must remain vented until that assessment is complete.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The following pouch-sealing rule applies to the desert fossil survey's field packers at temporary camps.\n\nThey must double-seal specimen pouches before transport.\n\nThe sole exception to that rule is a damp specimen awaiting the camp geologist's drying assessment; its pouch must remain vented until that assessment is complete.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as one field packing rule with its linked damp-specimen exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "a9t5h1",
+    "task": "The following pouch-sealing rule applies to the desert fossil survey's field packers at temporary camps.\n\nThey must double-seal specimen pouches before transport.\n\nThe sole exception to that rule is a damp specimen awaiting the camp geologist's drying assessment; its pouch must remain vented until that assessment is complete.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The following pouch-sealing rule applies to the desert fossil survey's field packers at temporary camps.\n\nThey must double-seal specimen pouches before transport.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as the complete scope and action paragraphs."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The sole exception to that rule is a damp specimen awaiting the camp geologist's drying assessment; its pouch must remain vented until that assessment is complete.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as the complete exception paragraph."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "j2p6w8",
+    "task": "The canal museum's operator Lera reports that the model lock gate stalled twice during yesterday's three supervised demonstrations; she did not test the spare motor and does not know what caused the stalls.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "The canal museum's operator Lera reports that the model lock gate stalled twice during yesterday's three supervised demonstrations; she did not test the spare motor and does not know what caused the stalls.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as Lera's limited failure report, preserving untested equipment and unknown cause."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "u5c1k9",
+    "task": "According to the monastery bookbinder, only the two volumes examined on the south bench showed loose sewing; no claim has been made about the remaining collection.\n\nThe monastery archive team must place newly repaired volumes on the flat shelf for one day.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The monastery archive team must place newly repaired volumes on the flat shelf for one day.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as a standing post-repair storage instruction."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "m8f4s2",
+    "task": "The glacier beacon technician reports that beacon R transmitted normally during a single noon check from the ridge hut; reception in the valley and performance after dark were not observed.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "The glacier beacon technician reports that beacon R transmitted normally during a single noon check from the ridge hut; reception in the valley and performance after dark were not observed.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as a bounded technician observation with explicit unobserved settings."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "e3n7v5",
+    "task": "Please calculate the area of this one triangular sail with a base of four meters and a height of three meters.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "z6b2r4",
+    "task": "Could an underground mushroom tour use amber lighting? I am exploring possibilities and have not selected a lighting policy.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "p1h9a7",
+    "task": "For this afternoon's sand sculpture exercise, suggest three possible names for a temporary sea-serpent sculpture.\n\nWould spiral fins be easier to carve? This is a design question, and no construction convention has been adopted.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "w4u8l6",
+    "task": "The tidal mill crew must lock the grain chute before cleaning, except the designated observer may open its inspection flap while the drive shaft is pinned.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The tidal mill crew must lock the grain chute before cleaning",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Intended to capture the authored cleaning rule but cropped before its exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "k7d3y1",
+    "task": "The marionette festival ushers must reserve the first bench for interpreters at every signed performance.\n\nThe marionette festival riggers must mark replacement strings with violet thread.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Ushers should keep the front bench available for interpreters during signed shows.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Intended to capture the authored seating rule through a paraphrase."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The marionette festival riggers must mark replacement strings with violet thread.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as a continuing replacement-string marking rule."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "g2s6e8",
+    "task": "The salt cavern guide reports that the east stair lamp flickered during one evening tour; the guide did not inspect its wiring or observe the lamp on later tours.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "The salt cavern guide reports that the east stair lamp flickered during one evening tour",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Intended to record the authored observation but cropped out its limits."
+        }
+      },
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "Faulty wiring caused the east stair lamp to flicker.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Intended to summarize the report but substituted an unsupported cause."
+        }
+      },
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "The salt cavern guide reports that the east stair lamp flickered during one evening tour; the guide did not inspect its wiring or observe the lamp on later tours.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as the complete limited observation without a causal conclusion."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 2,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "l5q1t9",
+    "task": "The meteorite lending team must attach a mass certificate to every outbound specimen.\n\nThe meteorite lending team must keep return photographs in the specimen's permanent record.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The meteorite lending team must attach a mass certificate to every outbound specimen.\n\nThe meteorite lending team must keep return photographs in the specimen's permanent record.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored as two standing lending procedures in an unbound capture."
+        }
+      }
+    ],
+    "source_bound": false,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "x8m4c2",
+    "task": "The bat sanctuary team must close the viewing hatch at dusk.\n\nThe exception applies when",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The bat sanctuary team must close the viewing hatch at dusk.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored opening rule captured from input with a truncated exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 1,
+    "truncated": true,
+    "redacted": false
+  },
+  {
+    "id": "d3v7j5",
+    "task": "The porcelain kiln team must store witness cones in cabinet F.\n\nOnly [REDACTED ACTOR] may override the cooling schedule under [REDACTED CONDITION].",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The porcelain kiln team must store witness cones in cabinet F.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored storage rule captured from input whose other rule has redacted scope."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Only [REDACTED ACTOR] may override the cooling schedule under [REDACTED CONDITION].",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored override paragraph remains redacted."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 2,
+    "truncated": false,
+    "redacted": true
+  },
+  {
+    "id": "o6a2f4",
+    "task": "The ropeway maintenance team must label spare pulleys with their inspection month.\n\nFor [REDACTED ROUTE], this rule does not apply if the",
+    "findings": [],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": true,
+    "redacted": true
+  }
+]

@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "source_sha": "73959a1206d2a3782c93a4e0db679b01cde78b74",
+  "status": "development_only",
+  "method": "frozen top-1 retrieval from automatic Intl.Segmenter English sentence units; BM25 versus q8 normalized MiniLM cosine",
+  "runtime": {
+    "model": "Xenova/all-MiniLM-L6-v2",
+    "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+    "runtime": "@huggingface/transformers",
+    "runtime_version": "3.8.1"
+  },
+  "node": "v24.14.0",
+  "model_revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+  "corpus_sha256": "9fad711350666b18703fc04b4261513a64fe7d58c63b1f08cae364ab3383795e",
+  "script_sha256": "7f79e182d5eec3deb6e5b7b811f223340ff17a487aa309b0d4a6a41b120253a1",
+  "retrieval_calibration": {
+    "status": "calibrated",
+    "negative_maximum": 0.25664271099694996,
+    "chosen": {
+      "cutoff": 0.25664271099695,
+      "eligible_hits": 4,
+      "eligible_total": 4,
+      "negative_deliveries": 0
+    }
+  },
+  "calibration_cases": 8,
+  "evaluation_cases": 24,
+  "arms": {
+    "bm25": {
+      "cases": 24,
+      "delivered_cases": 22,
+      "claims": 26,
+      "relevant_supported": 21,
+      "claim_precision": 0.8076923076923077,
+      "eligible_sources": 20,
+      "useful_retrieval_proxy": 10,
+      "useful_retrieval_fraction": 0.5,
+      "qualifier_authority_corruptions": 1,
+      "unknowns": 0,
+      "advance": false
+    },
+    "embedding": {
+      "cases": 24,
+      "delivered_cases": 20,
+      "claims": 22,
+      "relevant_supported": 20,
+      "claim_precision": 0.9090909090909091,
+      "eligible_sources": 20,
+      "useful_retrieval_proxy": 10,
+      "useful_retrieval_fraction": 0.5,
+      "qualifier_authority_corruptions": 1,
+      "unknowns": 0,
+      "advance": false
+    }
+  },
+  "latency": {
+    "startup_ms": 332,
+    "batched_embedding_ms": 256,
+    "elapsed_ms": 958,
+    "per_query_scoring_median_ms": 0.0555,
+    "limitation": "Cached-model standalone batched development run; not production query latency or fresh deployment evidence."
+  },
+  "judge": {
+    "configured_cli": "0.160.0",
+    "configured_model": "gpt-6.1-sol",
+    "calibration_reused_fixtures": 42,
+    "calibration_correct": 42,
+    "calibration_unknown": 0,
+    "transport": {
+      "configured_cli": "codex-cli 0.160.0",
+      "configured_model": "gpt-6.1-sol",
+      "transport": "thread/inject_items ordered user messages before one turn",
+      "prompt_sha256": "9a5dbd7a2513b3949df3233e72caa5fbdf37a0835b602409ede5a3dc7a9cba72",
+      "prompt_chars": 52011,
+      "chunks": [
+        {
+          "index": 1,
+          "chars": 52011,
+          "sha256": "9a5dbd7a2513b3949df3233e72caa5fbdf37a0835b602409ede5a3dc7a9cba72"
+        }
+      ],
+      "final_instruction_sha256": "4237b87a48147510c5a6033d1182ee384ca9b4b03738a792736f61fb94b892bb",
+      "local_reconstruction_exact": true,
+      "provider_input_readback_verified": false,
+      "provider_model_attested": false,
+      "valid": true,
+      "output_schema_sha256": "a1ab8fadf8520590ed7a605cc2aefa174db425772c7338b63f060a34af9d7991",
+      "injected_parts_acknowledged": 1,
+      "observed_tool_calls": 0,
+      "observed_compactions": 0,
+      "isolation_verified": {
+        "instruction_sources_empty": true,
+        "read_only": true,
+        "network_disabled": true
+      }
+    },
+    "limitation": "Relevant/support predicates reuse 42/42 calibration; useful_retrieval is a synthetic proxy, not a separately calibrated agent application measure."
+  },
+  "private_evidence_sha256": {
+    "embedding-development-freeze.json": "67d0dbd9cc33c3fe9fca22365ebda642a7760da71faf5ef492e320c4b9c2f77c",
+    "embedding-development-20261009/embedding-experiment-results.private.json": "5e02bc1c2cc392f9cb58633bf216ae7ecf60a377acd1e816a8457dc3d68e40c9",
+    "embedding-development-20261009/judge-input.private.json": "ffce9e6dd9149a7edc3def34e240565a8da2075d37dfade1bb2ff937aef3e016",
+    "embedding-development-20261009/semantic.private.json": "332f67319e53ac429e9bd329567a0ef23da55eb14feb2a7d19ba3efa1f538fa4",
+    "judge-codex-v15/calibration-metadata.json": "abf766c87b31dd051a238539166d825db52074f09265142fea474f101e110a89"
+  },
+  "full_milestone_evidence": "NOT_RUN for this approach; historical failures retained; Claude SKIP"
+}

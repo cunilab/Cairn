@@ -13,6 +13,8 @@ mod events;
 mod extract;
 mod global;
 mod retrieve;
+mod reuse;
+mod selector;
 mod transfer;
 mod verifysummary;
 mod version;

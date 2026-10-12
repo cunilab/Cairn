@@ -1,0 +1,647 @@
+[
+  {
+    "id": "7f2a91",
+    "task": "The shell archive team must store accession slips in the blue cabinet.\n\nThe shell archive team must record specimen weights in grams.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The shell archive team must store accession slips in the blue cabinet.\n\nThe shell archive team must record specimen weights in grams.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored two standing archive requirements."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "c083de",
+    "task": "Our kite workshop must mark replacement spars with violet ink.\n\nOur kite workshop must keep damaged sails in locker R.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Our kite workshop must mark replacement spars with violet ink.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the standing spar-marking convention."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "94bd60",
+    "task": "Please count the empty jars this afternoon.\n\nFor all future glaze batches, our ceramics team must enter the kiln identifier in the batch ledger.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "For all future glaze batches, our ceramics team must enter the kiln identifier in the batch ledger.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored a continuing batch-record requirement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "ea5178",
+    "task": "The following rule applies only to night crews at the east tide gate.\n\nThey must log each manual opening before leaving their shift.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The following rule applies only to night crews at the east tide gate.\n\nThey must log each manual opening before leaving their shift.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the gate rule together with its crew and location scope."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "35c9af",
+    "task": "The next instruction is restricted to borrowed looms in the upper weaving room.\n\nOperators must detach the treadle straps before storage.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "The next instruction is restricted to borrowed looms in the upper weaving room.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the complete scope paragraph."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Operators must detach the treadle straps before storage.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the complete instruction paragraph."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "b68104",
+    "task": "At our reed nursery, attendants must close the intake valve when the salinity alarm sounds, unless the supervisor has declared a flushing cycle.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "At our reed nursery, attendants must close the intake valve when the salinity alarm sounds.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Intended to capture the valve rule but cropped its exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "0da7e3",
+    "task": "Our bell foundry inspectors must photograph each casting before polishing, except demonstration castings that will be remelted that day.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our bell foundry inspectors must photograph each casting before polishing, except demonstration castings that will be remelted that day.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the inspection rule and its demonstration-casting exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "f390bc",
+    "task": "I observed three blank depth readings on sonar unit H during Tuesday's harbor survey; I did not inspect its power supply or test any other unit.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "I observed three blank depth readings on sonar unit H during Tuesday's harbor survey; I did not inspect its power supply or test any other unit.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored a bounded firsthand failure observation."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "2e56d8",
+    "task": "According to conservator Lio, the west fresco shed pigment during one dry-brush trial; our team has not repeated that trial.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "The west fresco sheds pigment during dry brushing.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Intended to capture Lio's report but generalized and removed attribution."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "8ca142",
+    "task": "Please bring two clean scoops to the seed exchange table before today's opening.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "d7049b",
+    "task": "Could a spiral rack make our marionette strings easier to sort? Please explore possible layouts; we have not chosen one.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "61fb83",
+    "task": "Would amber labels help visitors distinguish the meteorite drawers?\n\nOur gallery team must retain the donor's original catalog number on every replacement label.\n\nPlease sketch an amber label for this afternoon's discussion.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our gallery team must retain the donor's original catalog number on every replacement label.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the settled catalog-number requirement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "ab208f",
+    "task": "Our avalanche beacon library must lend batteries separately from beacon cases.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Keep batteries out of loaned beacon cases.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Intended to capture the lending rule using a paraphrase."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "49e6c0",
+    "task": "Our lacquer studio must reserve shelf K for curing trays.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our lacquer studio must reserve shelf K for curing trays.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the shelf reservation, but this capture is unbound."
+        }
+      }
+    ],
+    "source_bound": false,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "e91375",
+    "task": "Our ice-core custodians must seal transfer tubes.\n\nThis rule does not apply when",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our ice-core custodians must seal transfer tubes.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Attempted capture from an explicitly truncated source."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 1,
+    "truncated": true,
+    "redacted": false
+  },
+  {
+    "id": "76bc2d",
+    "task": "Our observatory attendants must lock the spectrometer room except [REDACTED EXCEPTION].",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our observatory attendants must lock the spectrometer room except [REDACTED EXCEPTION].",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Attempted capture despite a redacted exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": true
+  },
+  {
+    "id": "03ad69",
+    "task": "Our shadow-theater troupe must number scenery panels on their reverse sides.\n\nOur shadow-theater troupe must keep ticket receipts for two seasons.\n\nOur shadow-theater troupe must use cotton ties for transporting puppets.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Our shadow-theater troupe must number scenery panels on their reverse sides.\n\nOur shadow-theater troupe must keep ticket receipts for two seasons.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the panel and receipt policies."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our shadow-theater troupe must use cotton ties for transporting puppets.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the puppet transport policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "bd8521",
+    "task": "Our salt museum must display loan expiry dates beside borrowed pans.\n\nOur salt museum must use padded carts for stone grinding bowls.\n\nOur salt museum must file humidity logs by room.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our salt museum must display loan expiry dates beside borrowed pans.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the borrowed-pan display rule."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "Our salt museum must file humidity logs by room.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the log filing convention."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "5f0c97",
+    "task": "Our aqueduct surveyors must carry paper route cards.\n\nThat obligation applies only inside the covered channel and is waived when a guide escorts the entire survey.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our aqueduct surveyors must carry paper route cards.\n\nThat obligation applies only inside the covered channel and is waived when a guide escorts the entire survey.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the route-card obligation with its location and waiver."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "a268db",
+    "task": "For the cliff apiary's winter crews only, the following handling rule is mandatory.\n\nThey must warm wax seals indoors before opening transport boxes.\n\nThe cliff apiary must retain queen lineage records for five years.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "They must warm wax seals indoors before opening transport boxes.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the complete handling paragraph without its separate scope."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The cliff apiary must retain queen lineage records for five years.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the independent lineage retention policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "dc417e",
+    "task": "Operator Sera reported that the pollen counter stopped twice during Friday's run; I have only her account and no diagnostic results.\n\nOur pollen lab must keep raw counts beside corrected totals.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "Operator Sera reported that the pollen counter stopped twice during Friday's run; I have only her account and no diagnostic results.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored an attributed failure report with explicit evidence limits."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our pollen lab must keep raw counts beside corrected totals.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the independent count-retention policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "18eb54",
+    "task": "Our cave mapping team must write station identifiers in uppercase.\n\nPlease sharpen one pencil for today's trip.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "902fc6",
+    "task": "Our porcelain repair team must tag pieces awaiting adhesive tests when their provenance is uncertain; pieces with verified provenance may proceed without that tag.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our porcelain repair team must tag pieces awaiting adhesive tests",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Attempted a cropped capture that omits the condition and exception."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Our porcelain repair team must tag pieces awaiting adhesive tests when their provenance is uncertain; pieces with verified provenance may proceed without that tag.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Authored the complete conditional tagging policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "6b73a0",
+    "task": "Our wind-harp caretakers must remove strings before storms, except",
+    "findings": [],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": true,
+    "redacted": false
+  }
+]

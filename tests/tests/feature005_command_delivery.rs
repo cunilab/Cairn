@@ -103,7 +103,7 @@ fn every_foundation_command_kind_is_delivered_and_has_an_observable_effect() {
             kind: "remember",
             project: true,
             target: None,
-            payload: json!({ "type": "decision", "scope": "project", "content": "queued claim" }),
+            payload: json!({ "type": "decision", "scope": "project", "scope_key": Uuid::now_v7(), "content": "queued claim" }),
         },
         Case {
             kind: "supersede",
@@ -181,6 +181,12 @@ fn every_foundation_command_kind_is_delivered_and_has_an_observable_effect() {
             pg.project
         )) == 1,
         "remember produced no memory"
+    );
+    assert_eq!(
+        pg.server
+            .text("SELECT scope_key FROM memories WHERE content = 'queued claim'"),
+        pg.project.to_string(),
+        "queued commands from old daemons must normalize their local project key"
     );
     assert_eq!(
         pg.server

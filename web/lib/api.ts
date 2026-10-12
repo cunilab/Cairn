@@ -42,6 +42,7 @@ type TeamProposal = Contract.TeamProposal;
 type PromotedPattern = Contract.PromotedPattern;
 type CreateProjectBody = Contract.CreateProjectBody;
 type CreateMemoryBody = Contract.CreateMemoryBody;
+type CaptureMemoryBody = Contract.CaptureMemoryBody;
 type CreatePersonalKnowledgeBody = Contract.CreatePersonalKnowledgeBody;
 type ProposeTeamKnowledgeBody = Contract.ProposeTeamKnowledgeBody;
 type PromotePatternBody = Contract.PromotePatternBody;
@@ -207,8 +208,8 @@ export const api = {
    * memories. Only the two together say whether the list was truncated
    * (FR-895).
    */
-  memories: (id: string, params: MemorySearch) =>
-    request<MemoryPage>(
+  memories: async (id: string, params: MemorySearch) => {
+    const page = await request<MemoryPage>(
       `/api/projects/${id}/memories${queryString({
         q: params.q,
         scope: params.scope,
@@ -216,12 +217,27 @@ export const api = {
         type: params.type,
         state: params.state,
         limit: params.limit,
+        purpose: params.purpose,
       })}`,
-    ),
+    );
+    if (params.purpose === "reuse" &&
+        (page.purpose !== "reuse" || page.reuse_policy !== "project_attestation_v1")) {
+      throw new ApiError("reuse_policy_unavailable", "Server did not confirm project-memory reuse eligibility", 409);
+    }
+    return page;
+  },
   createMemory: (id: string, body: CreateMemoryBody) =>
     request<CreatedMemory>(`/api/projects/${id}/memories`, {
       method: "POST",
       body: JSON.stringify(body),
+    }),
+  captureMemory: (id: string, body: CaptureMemoryBody) =>
+    request<CreatedMemory>(`/api/projects/${id}/captures`, {
+      method: "POST", body: JSON.stringify(body),
+    }),
+  replaceCapturedMemory: (id: string, body: CaptureMemoryBody) =>
+    request<CreatedMemory>(`/api/memories/${id}/captures`, {
+      method: "POST", body: JSON.stringify(body),
     }),
   deleteMemory: (memoryId: string) =>
     request<DeletedResponse>(`/api/memories/${memoryId}`, {

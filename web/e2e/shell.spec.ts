@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { openNav } from "./nav";
-import { seed, seedControlPlane, type Seeded } from "./seed";
+import { API, seed, seedControlPlane, type Seeded } from "./seed";
 
 /**
  * The application shell: how someone gets in, moves around, and is stopped
@@ -168,8 +168,8 @@ test("a token can be created, is shown once, and is revoked behind a confirmatio
     await page.getByTestId("token-plaintext").innerText(),
   ) as { server_token: string; server_url: string; web_url: string };
   expect(credential.server_token).toHaveLength(64);
-  expect(credential.server_url).toBe("http://127.0.0.1:8080");
-  expect(credential.web_url).toBe("http://127.0.0.1:3100");
+  expect(credential.server_url).toBe(API);
+  expect(credential.web_url).toBe(process.env.CAIRN_WEB_URL ?? "http://127.0.0.1:3100");
 
   const row = page.getByTestId("token-row").filter({ hasText: name });
   await expect(row).toContainText("Active");

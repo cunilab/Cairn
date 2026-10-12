@@ -655,7 +655,9 @@ fn rule_4_decision_near_change(
     }]
 }
 
-/// **R7 — Recorded decision.** `decision_signal{kind, subject, object}`.
+/// **R7 — Decision near a change.** A signal followed by a changed file.
+/// A marker and two vocabulary tokens alone can come from ordinary discussion
+/// or a shell command; without a change they cannot support a project claim.
 ///
 /// The `decision.` prefix on the topic key is load-bearing. R1–R6 derive their
 /// keys from structural evidence; R7 and R8 take theirs from a token the client
@@ -668,8 +670,14 @@ fn rule_4_decision_near_change(
 fn rule_7_recorded_decision(events: &[SafeCanonicalEvent]) -> Vec<CandidateProposal> {
     events
         .iter()
-        .filter(|e| e.kind == EventKind::DecisionSignal)
-        .filter_map(|event| {
+        .enumerate()
+        .filter_map(|(index, event)| {
+            if event.kind != EventKind::DecisionSignal {
+                return None;
+            }
+            let changed_event = events[index + 1..]
+                .iter()
+                .find(|later| changed_file(later).is_some())?;
             let Some(EventContent::Decision {
                 decision_kind,
                 subject_token,
@@ -682,14 +690,14 @@ fn rule_7_recorded_decision(events: &[SafeCanonicalEvent]) -> Vec<CandidatePropo
             Some(CandidateProposal {
                 kind: MemoryType::Decision,
                 content: format!(
-                    "This project decided to {} {} for {}.",
+                    "A session suggested {} {} for {}; verify against current source.",
                     decision_kind.as_str(),
                     object_token.as_str(),
                     subject_token.as_str()
                 ),
                 topic_key: format!("decision.{}", subject_token.as_str()),
                 value_key: object_token.as_str().to_string(),
-                source_event_ids: vec![event.event_id],
+                source_event_ids: vec![event.event_id, changed_event.event_id],
                 proposed_domain: KnowledgeDomain::Project,
             })
         })
@@ -1497,8 +1505,12 @@ mod tests {
         assert_eq!(r7.topic_key, "decision.storage_authority");
         assert_eq!(r7.value_key, "postgresql");
         assert_eq!(
+            r7.source_event_ids,
+            vec![events[0].event_id, events[1].event_id]
+        );
+        assert_eq!(
             r7.content,
-            "This project decided to adopt postgresql for storage_authority."
+            "A session suggested adopt postgresql for storage_authority; verify against current source."
         );
     }
 
@@ -1518,8 +1530,16 @@ mod tests {
                 lexicon_version: 1,
             }),
         );
-        let out = session_rules(session(), &[signal]);
-        let r7 = out.first().expect("R7 fired");
+        let out = session_rules(session(), std::slice::from_ref(&signal));
+        assert!(
+            out.is_empty(),
+            "a signal alone cannot establish a project decision"
+        );
+        let out = session_rules(session(), &[signal, changed(2, "crates/server.rs")]);
+        let r7 = out
+            .iter()
+            .find(|p| p.topic_key.starts_with("decision."))
+            .expect("R7 fired");
         assert_eq!(r7.topic_key, "decision.test.command");
         assert_ne!(r7.topic_key, "test.command");
     }

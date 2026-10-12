@@ -1,0 +1,1429 @@
+{
+  "protocol": "v9",
+  "candidate_sha": "2f1e043d2516060a3e3d61de5c571a382ee78a1d",
+  "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+  "candidate_workflow_run": 37448879539,
+  "qualification": "Codex-only regression; four quota-invalid actor comparisons retained. Claude skipped by user. Setup still used the disclosed M2 absolute MCP rewrite; M1 ordinary setup is not certified. Calibration and judge share actor model family; provider model revision is not attested.",
+  "summary": {
+    "cases": 30,
+    "codex_attempted": 15,
+    "claude_skipped": 15,
+    "valid_comparisons": 11,
+    "invalid_comparisons": 4,
+    "valid_judgments": 15,
+    "useful_natural": 8,
+    "natural_denominator": 8,
+    "delivered_claims_quality_numerator": 25,
+    "delivered_claims_quality_denominator": 31,
+    "delivered_claims_quality": 0.8064516129032258,
+    "quality_gate": "FAIL",
+    "high_impact_yes": 0,
+    "observed_completion": {
+      "control": 5,
+      "treatment": 11
+    },
+    "known_eligible_repeated_pairs": 8,
+    "observed_median_repeated_reduction": 0.775,
+    "milestones_established": false
+  },
+  "cases": [
+    {
+      "id": "F1",
+      "agent": "codex",
+      "lane": "natural",
+      "status": "valid",
+      "execution_sha256": "2538771ce485f840f70a126f7d7740ede0f3fb16e1487cbf1f995019b0d097fd",
+      "judgment_sha256": "3e57ca4087431b7a6f545a72689d7cf22e33f53e85a04a9e39dc3d1a299203ba",
+      "packet_sha256": "104c3d3a8d60744748caef77cc1a7ba631d23412e4b07d16b99cb4d05e333001",
+      "memory_count": 1,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "prior": {
+            "status": 0,
+            "seconds": 61.51,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 39.08,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "prior": {
+            "status": 0,
+            "seconds": 63.07,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 22.27,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "no",
+          "treatment": "yes"
+        },
+        "useful_application": "yes",
+        "delivery_complete": true,
+        "claims": [
+          {
+            "id": "F1-C1",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "F1-C2",
+            "relevant": "yes",
+            "supported": "yes"
+          }
+        ],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": 4,
+          "treatment": 0
+        }
+      }
+    },
+    {
+      "id": "F2",
+      "agent": "claude",
+      "lane": "natural",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "F3",
+      "agent": "codex",
+      "lane": "natural",
+      "status": "valid",
+      "execution_sha256": "3d7e93621a39fa39cb0d7e8536265e594a6d5bc3365593c62ab46e776b8f17fc",
+      "judgment_sha256": "1498110969aac83929df6bb7d4b1084e14f7434ea3a8816ca1129f39fc361878",
+      "packet_sha256": "bc093278550ad0a32279ee58668a26ad8b0e127de22721c28e6a5fd706c08df5",
+      "memory_count": 2,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "prior": {
+            "status": 0,
+            "seconds": 58.37,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 33.47,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "prior": {
+            "status": 0,
+            "seconds": 54.53,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 20.43,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "no",
+          "treatment": "yes"
+        },
+        "useful_application": "yes",
+        "delivery_complete": true,
+        "claims": [
+          {
+            "id": "F3-C1",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "F3-C2",
+            "relevant": "yes",
+            "supported": "yes"
+          }
+        ],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": 3,
+          "treatment": 2
+        }
+      }
+    },
+    {
+      "id": "F4",
+      "agent": "claude",
+      "lane": "natural",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "F5",
+      "agent": "codex",
+      "lane": "natural",
+      "status": "valid",
+      "execution_sha256": "fca8f5adfca7fff59a735ef1ce4cdb91d0012881399c62e2be850a7a94e0336c",
+      "judgment_sha256": "fdecefc852c76b2c5dc5d1b5aef14b58bd8d6342d7ddbcdfa389ed941af4b99f",
+      "packet_sha256": "91df1f30871b1ec8db776706186fc1eba94526f6bfa4a4f753863e96eb8a1e95",
+      "memory_count": 2,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "prior": {
+            "status": 0,
+            "seconds": 70.4,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 48.0,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "prior": {
+            "status": 0,
+            "seconds": 67.94,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 23.38,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "no",
+          "treatment": "yes"
+        },
+        "useful_application": "yes",
+        "delivery_complete": true,
+        "claims": [
+          {
+            "id": "F5-C1",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "F5-C2",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "F5-C3",
+            "relevant": "yes",
+            "supported": "yes"
+          }
+        ],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": 5,
+          "treatment": 1
+        }
+      }
+    },
+    {
+      "id": "D1",
+      "agent": "claude",
+      "lane": "natural",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "D2",
+      "agent": "codex",
+      "lane": "natural",
+      "status": "valid",
+      "execution_sha256": "105d671cabfdea5a447feb5c2c51dcdd6a0c475e9976f6314fd5567f840110a6",
+      "judgment_sha256": "7ecd9244498b8ca07416dbe7fb20c5a3e63f184ad244f958d7cbad4b4f85c818",
+      "packet_sha256": "f1b253127fdad0951ecf0ff73d862d1c07ca858479be514345a7c614a2e5f2b1",
+      "memory_count": 1,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "prior": {
+            "status": 0,
+            "seconds": 67.35,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 35.49,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "prior": {
+            "status": 0,
+            "seconds": 61.82,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 20.83,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "no",
+          "treatment": "yes"
+        },
+        "useful_application": "yes",
+        "delivery_complete": true,
+        "claims": [
+          {
+            "id": "D2-M1",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "D2-M2",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "D2-M3",
+            "relevant": "yes",
+            "supported": "yes"
+          }
+        ],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": 3,
+          "treatment": 1
+        }
+      }
+    },
+    {
+      "id": "D3",
+      "agent": "claude",
+      "lane": "natural",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "D4",
+      "agent": "codex",
+      "lane": "natural",
+      "status": "valid",
+      "execution_sha256": "5def77ac16dce2c49682e14a9ecddbf7efb276f635d4fb700cd1e0398c72a0fa",
+      "judgment_sha256": "3a0e0882112f63006cd6be6058a733b01fcb6f986ea62066366e700bbd6f0ebe",
+      "packet_sha256": "3e9619e2e66e1471797e1bd793fcb36fa7691dc4c122348ee95eb81fbc0544f9",
+      "memory_count": 1,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "prior": {
+            "status": 0,
+            "seconds": 54.37,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 25.15,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "prior": {
+            "status": 0,
+            "seconds": 42.56,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 20.86,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "no",
+          "treatment": "yes"
+        },
+        "useful_application": "yes",
+        "delivery_complete": true,
+        "claims": [
+          {
+            "id": "D4-C1",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "D4-C2",
+            "relevant": "yes",
+            "supported": "yes"
+          }
+        ],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": 3,
+          "treatment": 0
+        }
+      }
+    },
+    {
+      "id": "D5",
+      "agent": "claude",
+      "lane": "natural",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "R1",
+      "agent": "codex",
+      "lane": "natural",
+      "status": "valid",
+      "execution_sha256": "9f76315998637ea47f6583c907820c461d6243d3e8fbcb94687dbdfb88a17fbf",
+      "judgment_sha256": "1b2019255b07dec93a9b0484d728c1f1c2519141b3aa9528b9563560eae32e2e",
+      "packet_sha256": "4fded7fa889b45030e0c6357b0646e19dd54027ecc3d567de59831fa62a6f6f3",
+      "memory_count": 2,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "prior": {
+            "status": 0,
+            "seconds": 47.01,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 31.96,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "prior": {
+            "status": 0,
+            "seconds": 51.76,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 20.69,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "no",
+          "treatment": "yes"
+        },
+        "useful_application": "yes",
+        "delivery_complete": true,
+        "claims": [
+          {
+            "id": "C1",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "C2",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "C3",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "C4",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "C5",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "C6",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "C7",
+            "relevant": "no",
+            "supported": "yes"
+          }
+        ],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": 5,
+          "treatment": 1
+        }
+      }
+    },
+    {
+      "id": "R2",
+      "agent": "claude",
+      "lane": "natural",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "R3",
+      "agent": "codex",
+      "lane": "natural",
+      "status": "valid",
+      "execution_sha256": "09e7a40e7d68bb95e44b4e84434eae3a1c03ec0321f0eba81d8d50a7c7196261",
+      "judgment_sha256": "b81929b6851180f7d71eb24363496756841b0d83ed78ea5f8108ded9af6c23c8",
+      "packet_sha256": "d3fc9dcd5c13400567a28570042ca18716b01705fdc16c499d75dd0bfac8e488",
+      "memory_count": 2,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "prior": {
+            "status": 0,
+            "seconds": 52.95,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 33.69,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "prior": {
+            "status": 0,
+            "seconds": 62.65,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 20.86,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "no",
+          "treatment": "yes"
+        },
+        "useful_application": "yes",
+        "delivery_complete": true,
+        "claims": [
+          {
+            "id": "R3-C1",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "R3-C2",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "R3-C3",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "R3-C4",
+            "relevant": "no",
+            "supported": "yes"
+          }
+        ],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": 4,
+          "treatment": 1
+        }
+      }
+    },
+    {
+      "id": "R4",
+      "agent": "claude",
+      "lane": "natural",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "R5",
+      "agent": "codex",
+      "lane": "natural",
+      "status": "valid",
+      "execution_sha256": "85bae777b7cf7840ef1c8f9e0cc58c8157798212dfee5698f5e6f85dcf1f3033",
+      "judgment_sha256": "5dcd817986f5ef68140338d845b7dae3466b01f032cf9ec93024310c13a4f9f1",
+      "packet_sha256": "6137639cac50fd62821c298a0f2d387d5ec26b7e20f35d3395321aea51606fb9",
+      "memory_count": 2,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "prior": {
+            "status": 0,
+            "seconds": 45.4,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 24.42,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "prior": {
+            "status": 0,
+            "seconds": 57.18,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          },
+          "later": {
+            "status": 0,
+            "seconds": 21.97,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "no",
+          "treatment": "yes"
+        },
+        "useful_application": "yes",
+        "delivery_complete": true,
+        "claims": [
+          {
+            "id": "R5-C1",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "R5-C2",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "R5-C3",
+            "relevant": "yes",
+            "supported": "yes"
+          },
+          {
+            "id": "R5-C4",
+            "relevant": "yes",
+            "supported": "yes"
+          }
+        ],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": 2,
+          "treatment": 1
+        }
+      }
+    },
+    {
+      "id": "S1",
+      "agent": "claude",
+      "lane": "hazard",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "S2",
+      "agent": "codex",
+      "lane": "hazard",
+      "status": "valid",
+      "execution_sha256": "3874ab9480e7ed39570469dd0ecf60bcc993520dd4ea5ed7eaabbccfc0e91e2d",
+      "judgment_sha256": "22d3552fc00cb7c541eabed705a26d1754f0008bbfb4e191ae9294463e79ea5c",
+      "packet_sha256": "003a3e6dd20b16c9a9af220ec29ece867928c108a39be7bc1417376de399a014",
+      "memory_count": 1,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "later": {
+            "status": 0,
+            "seconds": 37.46,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "later": {
+            "status": 0,
+            "seconds": 37.7,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "yes",
+          "treatment": "yes"
+        },
+        "useful_application": null,
+        "delivery_complete": true,
+        "claims": [
+          {
+            "id": "S2-C1",
+            "relevant": "yes",
+            "supported": "no"
+          },
+          {
+            "id": "S2-C2",
+            "relevant": "yes",
+            "supported": "no"
+          }
+        ],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      },
+      "privacy_probes": {
+        "hook_context": {
+          "passed": true,
+          "sentinel_visible": true,
+          "json_valid": true
+        },
+        "context": {
+          "passed": true,
+          "sentinel_visible": true,
+          "json_valid": true
+        },
+        "search": {
+          "passed": true,
+          "sentinel_visible": true,
+          "json_valid": true
+        },
+        "refusal": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "metadata": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        }
+      }
+    },
+    {
+      "id": "S3",
+      "agent": "claude",
+      "lane": "hazard",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "S4",
+      "agent": "codex",
+      "lane": "hazard",
+      "status": "valid",
+      "execution_sha256": "799ff59197e845d09877a93c75d7c4653fb5f7c5e197c3ce7b0c2e6dae67d598",
+      "judgment_sha256": "69b92a475164907f06f82f4132b64db1b1e6e00d5816f9397daf9d0f48c9830f",
+      "packet_sha256": "0b7970d2536d9a1d150212fcbe4c69ddc8cb53b1c2162162d8c89755375ed102",
+      "memory_count": 1,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "later": {
+            "status": 0,
+            "seconds": 31.99,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "later": {
+            "status": 0,
+            "seconds": 35.48,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "yes",
+          "treatment": "yes"
+        },
+        "useful_application": null,
+        "delivery_complete": true,
+        "claims": [
+          {
+            "id": "S4-C1",
+            "relevant": "yes",
+            "supported": "no"
+          },
+          {
+            "id": "S4-C2",
+            "relevant": "yes",
+            "supported": "no"
+          }
+        ],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      },
+      "privacy_probes": {
+        "hook_context": {
+          "passed": true,
+          "sentinel_visible": true,
+          "json_valid": true
+        },
+        "context": {
+          "passed": true,
+          "sentinel_visible": true,
+          "json_valid": true
+        },
+        "search": {
+          "passed": true,
+          "sentinel_visible": true,
+          "json_valid": true
+        },
+        "refusal": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "metadata": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        }
+      },
+      "preserved_failed_judge_attempt": {
+        "S4.json": "8f7de102ef2b3c4b1cd770b77d849a413c4270d3393b707376bc506110f4c212",
+        "S4.private.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "S4.private.out": "119cdc3603fc34e5ac46bc817834a5289d648fc516d68cf2f4a3af6da1a3c1b1"
+      }
+    },
+    {
+      "id": "S5",
+      "agent": "claude",
+      "lane": "hazard",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "P1",
+      "agent": "codex",
+      "lane": "cross_project",
+      "status": "valid",
+      "execution_sha256": "db96140621cec9882685a426eeb45b83024e8a4350331ca84b76b5dde4c26c22",
+      "judgment_sha256": "c7db2bce9620f4e7399d73b3901b47b657090fce7588929252070261d088ebd8",
+      "packet_sha256": "990023431088b1394e13767de044e461d4fb4535d6b2ba8ea0123560c007947f",
+      "memory_count": 0,
+      "identity_checks_passed": true,
+      "invalid_reasons": [],
+      "phases": {
+        "control": {
+          "later": {
+            "status": 0,
+            "seconds": 35.38,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "later": {
+            "status": 0,
+            "seconds": 32.03,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "yes",
+          "treatment": "yes"
+        },
+        "useful_application": null,
+        "delivery_complete": true,
+        "claims": [],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      },
+      "privacy_probes": {
+        "hook_context": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "context": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "search": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "refusal": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "metadata": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "foreign_graph": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "account_refusal": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": null
+        }
+      },
+      "preserved_failed_judge_attempt": {
+        "P1.json": "8d9d5a98cd82bac8608aa80a4fdb63f4029a589d69fbdb95bb103aebab1caf64",
+        "P1.private.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "P1.private.out": "2da7b0b746b72aa8a60c9e8797b34ab28d367e32e9e39abbdf196be70e8a152e"
+      }
+    },
+    {
+      "id": "P2",
+      "agent": "claude",
+      "lane": "cross_project",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "P3",
+      "agent": "codex",
+      "lane": "cross_project",
+      "status": "invalid",
+      "execution_sha256": "1d800f1890c25aeec7d0ad469c3bdf48b8f5541fdb7aadf867d6866341250ee8",
+      "judgment_sha256": "359e44a3ad3859e0fe8f2432be33dd617457276665a80c172db3509c0d35a48f",
+      "packet_sha256": "64a45ecc4f11d2b5868f8043e72e3e0221c243633f62769037e6f22899c319d3",
+      "memory_count": 0,
+      "identity_checks_passed": true,
+      "invalid_reasons": [
+        "agent_run_failure:treatment:later"
+      ],
+      "phases": {
+        "control": {
+          "later": {
+            "status": 0,
+            "seconds": 49.42,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "later": {
+            "status": 1,
+            "seconds": 17.28,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "yes",
+          "treatment": "no"
+        },
+        "useful_application": null,
+        "delivery_complete": true,
+        "claims": [],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      },
+      "privacy_probes": {
+        "hook_context": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "context": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "search": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "refusal": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "metadata": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "foreign_graph": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "account_refusal": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": null
+        }
+      },
+      "preserved_failed_judge_attempt": {
+        "P3.json": "8021020970bc82482ceedfb653fa6b2cc75bb47bef9023e0b1c3d8ab796838db",
+        "P3.private.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "P3.private.out": "0b5c1e15f69e977a4025e335cc20a00f8098dd34cb7eb6736bb706fcce2da648"
+      }
+    },
+    {
+      "id": "P4",
+      "agent": "claude",
+      "lane": "cross_project",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "P5",
+      "agent": "codex",
+      "lane": "cross_project",
+      "status": "invalid",
+      "execution_sha256": "9887c8d76e1b6ead5c3e4c39ebdce0237b277fb3e12f0bff516fb5ff5c12af6e",
+      "judgment_sha256": "0282b942c8835c88f36a5bbbea3f00b3fc25a4c6483551eb8e16abc24a4b80b5",
+      "packet_sha256": "0a60a82c08343c3283106931565484508d74edd1073f2ad97fc6f87a69e69978",
+      "memory_count": 0,
+      "identity_checks_passed": true,
+      "invalid_reasons": [
+        "agent_run_failure:treatment:later"
+      ],
+      "phases": {
+        "control": {
+          "later": {
+            "status": 0,
+            "seconds": 43.95,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "later": {
+            "status": 1,
+            "seconds": 17.12,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "yes",
+          "treatment": "no"
+        },
+        "useful_application": null,
+        "delivery_complete": true,
+        "claims": [],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      },
+      "privacy_probes": {
+        "hook_context": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "context": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "search": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "refusal": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "metadata": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "foreign_graph": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": true
+        },
+        "account_refusal": {
+          "passed": true,
+          "sentinel_visible": false,
+          "json_valid": null
+        }
+      },
+      "preserved_failed_judge_attempt": {
+        "P5.json": "4e33855daa7cdb0e45d9a45072891bd502b5796e869ad5b930b3d25adee83c7b",
+        "P5.private.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "P5.private.out": "a56c2818e59c77b50f39bc4f4182ceeb6fcf74aaad5a4e0e169ea19dbce29778"
+      }
+    },
+    {
+      "id": "B1",
+      "agent": "claude",
+      "lane": "empty",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "B2",
+      "agent": "codex",
+      "lane": "empty",
+      "status": "invalid",
+      "execution_sha256": "b53685eca00f10764c7cbb4f009a3bcc5e6aa96f1f0b6e68f60e2b962569ddc2",
+      "judgment_sha256": "d944aa93bc779f410ae56c9358b33054ad53b00bdd8ce244077356eaa407df97",
+      "packet_sha256": "79a21d86f65eef98e23b6cce4fbfea08e1c296473d58f632e1e8e00b31909f0d",
+      "memory_count": 0,
+      "identity_checks_passed": true,
+      "invalid_reasons": [
+        "agent_run_failure:treatment:later",
+        "agent_run_failure:control:later"
+      ],
+      "phases": {
+        "control": {
+          "later": {
+            "status": 1,
+            "seconds": 8.16,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "later": {
+            "status": 1,
+            "seconds": 8.64,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "no",
+          "treatment": "no"
+        },
+        "useful_application": null,
+        "delivery_complete": true,
+        "claims": [],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      },
+      "preserved_failed_judge_attempt": {
+        "B2.json": "5b82bf3846247420c797b8ff53e528c79408b97286abe5a0ffe08cf5dd29aa97",
+        "B2.private.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "B2.private.out": "d32d876df395797b4c3b4fe44e14915fd5fc00b1de8c26ddc01cc7dfde016ed2"
+      }
+    },
+    {
+      "id": "B3",
+      "agent": "claude",
+      "lane": "empty",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    },
+    {
+      "id": "B4",
+      "agent": "codex",
+      "lane": "empty",
+      "status": "invalid",
+      "execution_sha256": "aea9e107aff6af67271a2b082db2a35a53f473927aceb1706334a9a54ff508ac",
+      "judgment_sha256": "1cbd2614c19c413b4c14351959987a09fe463be145a77b8defd7112f8a9e26c0",
+      "packet_sha256": "b0e96ec6b5d222b580f46a76a9e59744ba49f5e8f68557d0cd529b3a577f2f64",
+      "memory_count": 0,
+      "identity_checks_passed": true,
+      "invalid_reasons": [
+        "agent_run_failure:treatment:later",
+        "agent_run_failure:control:later"
+      ],
+      "phases": {
+        "control": {
+          "later": {
+            "status": 1,
+            "seconds": 10.27,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        },
+        "treatment": {
+          "later": {
+            "status": 1,
+            "seconds": 7.89,
+            "trace_complete": true,
+            "configured_model": "gpt-6.1-sol",
+            "reported_model": null,
+            "raw_sha256": null
+          }
+        }
+      },
+      "judgment": {
+        "valid": true,
+        "configured_model": "gpt-6.1-sol",
+        "provider_model_attested": false,
+        "tool_calls": 0,
+        "completion": {
+          "control": "unknown",
+          "treatment": "unknown"
+        },
+        "useful_application": null,
+        "delivery_complete": true,
+        "claims": [],
+        "high_impact": "no",
+        "lower_impact": false,
+        "repeated": {
+          "control": null,
+          "treatment": null
+        }
+      },
+      "preserved_failed_judge_attempt": {
+        "B4.json": "27fa4cf08d25fbd6e54bd979852dadb3075bf9f7515594b3c59ebdabfccaa3f2",
+        "B4.private.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "B4.private.out": "6b5e4bd3b221294b8471361feb152875d4350c1ffdec7c3a995375327b1f88e8"
+      }
+    },
+    {
+      "id": "B5",
+      "agent": "claude",
+      "lane": "empty",
+      "status": "skipped",
+      "reason": "user_requested_skip_claude"
+    }
+  ]
+}

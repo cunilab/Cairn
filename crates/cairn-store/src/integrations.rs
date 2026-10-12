@@ -221,6 +221,24 @@ pub async fn bind(store: &Store, agent: &str, resource: &InstalledResource) -> R
     Ok(id)
 }
 
+/// Add a consumer of an already-owned shared resource without rewriting its
+/// original ownership metadata (especially `created_container`).
+pub async fn bind_existing(store: &Store, agent: &str, kind: &str, location: &str) -> Result<bool> {
+    let result = sqlx::query(
+        "INSERT INTO resource_bindings (agent, kind, resource_id, bound_at)
+         SELECT ?1, ?2, id, ?4 FROM installed_resources
+          WHERE kind = ?2 AND location = ?3
+         ON CONFLICT (agent, kind) DO NOTHING",
+    )
+    .bind(agent)
+    .bind(kind)
+    .bind(location)
+    .bind(now())
+    .execute(store.pool())
+    .await?;
+    Ok(result.rows_affected() == 1)
+}
+
 /// What happened when a binding was dropped.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Unbound {

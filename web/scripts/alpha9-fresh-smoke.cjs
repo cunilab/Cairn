@@ -109,6 +109,10 @@ function mcp(name, args, env) {
     const accepted = JSON.parse(mcp("cairn_remember", {
       action: "create", agent_session_key: actorA, type: "fact",
       topic_key: "alpha9.fresh", value_key: "remembered", content: fact,
+      capture_attestation: {
+        basis: "user_report",
+        support_summary: "The authenticated operator authored this synthetic journey fact for later recall.",
+      },
     }, env));
     assert.equal(accepted.accepted_for_delivery, true);
 

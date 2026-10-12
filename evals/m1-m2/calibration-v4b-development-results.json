@@ -1,0 +1,1025 @@
+{
+  "version": "v4b",
+  "accepted": false,
+  "classified": 16,
+  "total": 24,
+  "confidently_wrong": 3,
+  "results": [
+    {
+      "id": "adoption-1",
+      "predicate": "adoption",
+      "split": "development",
+      "expected_label": "yes",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.9857,
+              "no": 0.0143
+            },
+            "confidence": 0.8918,
+            "answer_confidence": 0.9857,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 120,
+          "output_tokens": 0,
+          "state_tokens": 42,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "adoption-2",
+      "predicate": "adoption",
+      "split": "development",
+      "expected_label": "yes",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.9962,
+              "no": 0.0038
+            },
+            "confidence": 0.9637,
+            "answer_confidence": 0.9962,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 120,
+          "output_tokens": 0,
+          "state_tokens": 42,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "adoption-3",
+      "predicate": "adoption",
+      "split": "development",
+      "expected_label": "no",
+      "label": null,
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.8659,
+              "no": 0.1341
+            },
+            "confidence": 0.4314,
+            "answer_confidence": 0.8659,
+            "action": {
+              "act_probability": 1
+            },
+            "low_confidence": true,
+            "abstention": "abstained",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 117,
+          "output_tokens": 0,
+          "state_tokens": 39,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "adoption-4",
+      "predicate": "adoption",
+      "split": "development",
+      "expected_label": "no",
+      "label": "no",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "no",
+            "probabilities": {
+              "yes": 0.0099,
+              "no": 0.9901
+            },
+            "confidence": 0.9199,
+            "answer_confidence": 0.9901,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 109,
+          "output_tokens": 0,
+          "state_tokens": 31,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "completion-1",
+      "predicate": "completion",
+      "split": "development",
+      "expected_label": "yes",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.9537,
+              "no": 0.0463
+            },
+            "confidence": 0.7294,
+            "answer_confidence": 0.9537,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 126,
+          "output_tokens": 0,
+          "state_tokens": 50,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "completion-2",
+      "predicate": "completion",
+      "split": "development",
+      "expected_label": "yes",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.9642,
+              "no": 0.0358
+            },
+            "confidence": 0.7771,
+            "answer_confidence": 0.9642,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 126,
+          "output_tokens": 0,
+          "state_tokens": 50,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "completion-3",
+      "predicate": "completion",
+      "split": "development",
+      "expected_label": "no",
+      "label": null,
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "no",
+            "probabilities": {
+              "yes": 0.1063,
+              "no": 0.8937
+            },
+            "confidence": 0.5115,
+            "answer_confidence": 0.8937,
+            "action": {
+              "act_probability": 1
+            },
+            "low_confidence": true,
+            "abstention": "abstained",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 121,
+          "output_tokens": 0,
+          "state_tokens": 45,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "completion-4",
+      "predicate": "completion",
+      "split": "development",
+      "expected_label": "no",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.9238,
+              "no": 0.0762
+            },
+            "confidence": 0.6113,
+            "answer_confidence": 0.9238,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 110,
+          "output_tokens": 0,
+          "state_tokens": 34,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "relevance-1",
+      "predicate": "relevance",
+      "split": "development",
+      "expected_label": "yes",
+      "label": null,
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.8406,
+              "no": 0.1594
+            },
+            "confidence": 0.3672,
+            "answer_confidence": 0.8406,
+            "action": {
+              "act_probability": 1
+            },
+            "low_confidence": true,
+            "abstention": "abstained",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 103,
+          "output_tokens": 0,
+          "state_tokens": 32,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "relevance-2",
+      "predicate": "relevance",
+      "split": "development",
+      "expected_label": "yes",
+      "label": null,
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.8634,
+              "no": 0.1366
+            },
+            "confidence": 0.4249,
+            "answer_confidence": 0.8634,
+            "action": {
+              "act_probability": 1
+            },
+            "low_confidence": true,
+            "abstention": "abstained",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 104,
+          "output_tokens": 0,
+          "state_tokens": 33,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "relevance-3",
+      "predicate": "relevance",
+      "split": "development",
+      "expected_label": "no",
+      "label": "no",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "no",
+            "probabilities": {
+              "yes": 0.0457,
+              "no": 0.9543
+            },
+            "confidence": 0.7321,
+            "answer_confidence": 0.9543,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 99,
+          "output_tokens": 0,
+          "state_tokens": 28,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "relevance-4",
+      "predicate": "relevance",
+      "split": "development",
+      "expected_label": "no",
+      "label": "no",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "no",
+            "probabilities": {
+              "yes": 0.0323,
+              "no": 0.9677
+            },
+            "confidence": 0.7942,
+            "answer_confidence": 0.9677,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 101,
+          "output_tokens": 0,
+          "state_tokens": 30,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "support-1",
+      "predicate": "support",
+      "split": "development",
+      "expected_label": "yes",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.9966,
+              "no": 0.0034
+            },
+            "confidence": 0.9672,
+            "answer_confidence": 0.9966,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 113,
+          "output_tokens": 0,
+          "state_tokens": 35,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "support-2",
+      "predicate": "support",
+      "split": "development",
+      "expected_label": "yes",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.9988,
+              "no": 0.0012
+            },
+            "confidence": 0.9866,
+            "answer_confidence": 0.9988,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 117,
+          "output_tokens": 0,
+          "state_tokens": 39,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "support-3",
+      "predicate": "support",
+      "split": "development",
+      "expected_label": "no",
+      "label": null,
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "no",
+            "probabilities": {
+              "yes": 0.1735,
+              "no": 0.8265
+            },
+            "confidence": 0.3344,
+            "answer_confidence": 0.8265,
+            "action": {
+              "act_probability": 1
+            },
+            "low_confidence": true,
+            "abstention": "abstained",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 111,
+          "output_tokens": 0,
+          "state_tokens": 33,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "support-4",
+      "predicate": "support",
+      "split": "development",
+      "expected_label": "no",
+      "label": null,
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "no",
+            "probabilities": {
+              "yes": 0.2352,
+              "no": 0.7648
+            },
+            "confidence": 0.213,
+            "answer_confidence": 0.7648,
+            "action": {
+              "act_probability": 1
+            },
+            "low_confidence": true,
+            "abstention": "abstained",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 114,
+          "output_tokens": 0,
+          "state_tokens": 36,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "endorsement-1",
+      "predicate": "endorsement",
+      "split": "development",
+      "expected_label": "yes",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.989,
+              "no": 0.011
+            },
+            "confidence": 0.9128,
+            "answer_confidence": 0.989,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 107,
+          "output_tokens": 0,
+          "state_tokens": 27,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "endorsement-2",
+      "predicate": "endorsement",
+      "split": "development",
+      "expected_label": "yes",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.9563,
+              "no": 0.0437
+            },
+            "confidence": 0.7411,
+            "answer_confidence": 0.9563,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 111,
+          "output_tokens": 0,
+          "state_tokens": 31,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "endorsement-3",
+      "predicate": "endorsement",
+      "split": "development",
+      "expected_label": "no",
+      "label": null,
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "no",
+            "probabilities": {
+              "yes": 0.4298,
+              "no": 0.5702
+            },
+            "confidence": 0.0143,
+            "answer_confidence": 0.5702,
+            "action": {
+              "act_probability": 1
+            },
+            "low_confidence": true,
+            "abstention": "abstained",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 118,
+          "output_tokens": 0,
+          "state_tokens": 38,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "endorsement-4",
+      "predicate": "endorsement",
+      "split": "development",
+      "expected_label": "no",
+      "label": "no",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "no",
+            "probabilities": {
+              "yes": 0.0083,
+              "no": 0.9917
+            },
+            "confidence": 0.9304,
+            "answer_confidence": 0.9917,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 108,
+          "output_tokens": 0,
+          "state_tokens": 28,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "repeated-1",
+      "predicate": "repeated",
+      "split": "development",
+      "expected_label": "yes",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.949,
+              "no": 0.051
+            },
+            "confidence": 0.7094,
+            "answer_confidence": 0.949,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 123,
+          "output_tokens": 0,
+          "state_tokens": 44,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "repeated-2",
+      "predicate": "repeated",
+      "split": "development",
+      "expected_label": "yes",
+      "label": null,
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.8101,
+              "no": 0.1899
+            },
+            "confidence": 0.2988,
+            "answer_confidence": 0.8101,
+            "action": {
+              "act_probability": 1
+            },
+            "low_confidence": true,
+            "abstention": "abstained",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 125,
+          "output_tokens": 0,
+          "state_tokens": 46,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "repeated-3",
+      "predicate": "repeated",
+      "split": "development",
+      "expected_label": "no",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.9535,
+              "no": 0.0465
+            },
+            "confidence": 0.7286,
+            "answer_confidence": 0.9535,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 122,
+          "output_tokens": 0,
+          "state_tokens": 43,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    },
+    {
+      "id": "repeated-4",
+      "predicate": "repeated",
+      "split": "development",
+      "expected_label": "no",
+      "label": "yes",
+      "result": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "assessment": {
+            "type": "choice",
+            "choice": "yes",
+            "probabilities": {
+              "yes": 0.9878,
+              "no": 0.0122
+            },
+            "confidence": 0.9052,
+            "answer_confidence": 0.9878,
+            "action": {
+              "act_probability": 1
+            },
+            "abstention": "passed",
+            "abstention_threshold": 0.9
+          }
+        },
+        "usage": {
+          "input_tokens": 121,
+          "output_tokens": 0,
+          "state_tokens": 42,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "routing": {
+          "model": "multilingual",
+          "repo": "convaiinnovations/laya/multilingual",
+          "reason": "explicit model='multilingual'",
+          "detection": null,
+          "workflow": null
+        }
+      }
+    }
+  ]
+}

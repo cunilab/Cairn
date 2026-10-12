@@ -1,0 +1,620 @@
+[
+  {
+    "id": "vault-scope-joint",
+    "task": "These access privileges are restricted to offline training vaults.\n\nA vault operator may rotate the simulated signing certificate.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "These access privileges are restricted to offline training vaults.\n\nA vault operator may rotate the simulated signing certificate.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "vault-scope-separate",
+    "task": "These access privileges are restricted to offline training vaults.\n\nA vault operator may rotate the simulated signing certificate.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "These access privileges are restricted to offline training vaults.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "A vault operator may rotate the simulated signing certificate.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "vault-scope-not-recorded",
+    "task": "These access privileges are restricted to offline training vaults.\n\nA vault operator may rotate the simulated signing certificate.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "A vault operator may rotate the simulated signing certificate.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "vault-inspection-not-intent",
+    "task": "These access privileges are restricted to offline training vaults.\n\nA vault operator may rotate the simulated signing certificate.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "These access privileges are restricted to offline training vaults.\n\nA vault operator may rotate the simulated signing certificate.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "inspected_source",
+          "support_summary": "Synthetic independent inspection.",
+          "source_reference": "local://synthetic",
+          "source_revision": "fixture"
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "throttling-exception-joint",
+    "task": "The exception below is restricted to smoke-test sessions.\n\nA test coordinator may disable batch throttling.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The exception below is restricted to smoke-test sessions.\n\nA test coordinator may disable batch throttling.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "throttling-exception-separate",
+    "task": "The exception below is restricted to smoke-test sessions.\n\nA test coordinator may disable batch throttling.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The exception below is restricted to smoke-test sessions.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "A test coordinator may disable batch throttling.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "throttling-exception-scope-absent",
+    "task": "The exception below is restricted to smoke-test sessions.\n\nA test coordinator may disable batch throttling.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "A test coordinator may disable batch throttling.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "journals-and-signing-independent",
+    "task": "Standing policy: retain failed synchronization journals for thirty-six hours.\n\nStanding policy: artifact signing requires approval from three owning teams.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: retain failed synchronization journals for thirty-six hours.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: artifact signing requires approval from three owning teams.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "journal-rule-missing",
+    "task": "Standing policy: retain failed synchronization journals for thirty-six hours.\n\nStanding policy: artifact signing requires approval from three owning teams.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: artifact signing requires approval from three owning teams.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "signing-rule-missing",
+    "task": "Standing policy: retain failed synchronization journals for thirty-six hours.\n\nStanding policy: artifact signing requires approval from three owning teams.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: retain failed synchronization journals for thirty-six hours.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "recovery-and-timestamps-independent",
+    "task": "Standing policy: rotate administrator recovery codes after every incident.\n\nStanding policy: publish build timestamps in UTC.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: rotate administrator recovery codes after every incident.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: publish build timestamps in UTC.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "queue-policy-with-review-actions",
+    "task": "Find the queue endpoint.\n\nStanding policy: service bots may inspect aggregate queue counts but must not alter queue membership.\n\nReport its current response shape; do not edit settings during this review.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: service bots may inspect aggregate queue counts but must not alter queue membership.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "identity-policy-after-check",
+    "task": "Run the existing smoke command and report its exit status.\n\nPermanent policy: humans must authorize every migration of customer identity records.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Permanent policy: humans must authorize every migration of customer identity records.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "demo-log-exception-preserved",
+    "task": "Team policy: retain redacted service logs for forty-five days.\nException: isolated demo logs may expire after two days, but only after the demo owner approves.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: retain redacted service logs for forty-five days.\nException: isolated demo logs may expire after two days, but only after the demo owner approves.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "demo-log-exception-cropped",
+    "task": "Team policy: retain redacted service logs for forty-five days.\nException: isolated demo logs may expire after two days, but only after the demo owner approves.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Team policy: retain redacted service logs for forty-five days.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1
+  },
+  {
+    "id": "laboratory-counts-limited",
+    "task": "Team report: a two-region laboratory check lost 4 resynchronizations in 23 attempts; production was not exercised and no reliability guarantee was established.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "Team report: a two-region laboratory check lost 4 resynchronizations in 23 attempts; production was not exercised and no reliability guarantee was established.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "oneoff-style-check",
+    "task": "Run the style checker and return the resulting exit code.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "oneoff-reference-report",
+    "task": "Locate the buffer allocator and report its current references.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "exploratory-scheduler-options",
+    "task": "Could a different scheduler simplify a future prototype? No scheduler choice has been made.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "exploratory-observation-only",
+    "task": "Please explore alternative snapshot formats without selecting one or changing project policy.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "unbound-owner-policy",
+    "task": "Standing policy: only workspace owners can approve cross-workspace backups.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: only workspace owners can approve cross-workspace backups.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": false,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "attachment-negation-preserved",
+    "task": "Standing policy: never send incident attachments to an external classifier, including scrubbed attachments.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Standing policy: never send incident attachments to an external classifier, including scrubbed attachments.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0
+  },
+  {
+    "id": "attachment-negation-cropped",
+    "task": "Standing policy: never send incident attachments to an external classifier, including scrubbed attachments.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Never send incident attachments.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1
+  },
+  {
+    "id": "reported-counts-linked-scope",
+    "task": "The reported counts below concern a four-worker staging exercise only.\n\nThe team observed 2 interrupted replays in 11 runs; no production exercise occurred.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "The reported counts below concern a four-worker staging exercise only.\n\nThe team observed 2 interrupted replays in 11 runs; no production exercise occurred.",
+        "topic_key": "qualification/source-anchors",
+        "value_key": "complete-authority-bound-finding",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "Synthetic explicitly authored finding."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0
+  }
+]

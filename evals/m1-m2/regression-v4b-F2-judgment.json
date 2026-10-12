@@ -1,0 +1,92 @@
+{
+  "id": "F2",
+  "completion": {
+    "control": "no",
+    "treatment": "yes"
+  },
+  "useful_application": "yes",
+  "delivery": {
+    "complete": true,
+    "claims": [
+      {
+        "claim": "The team chose a 120 ms display-start delay for Rev D.",
+        "relevant": "yes",
+        "supported": "yes",
+        "evidence": [
+          "treatment.later line 10 search result",
+          "case.prior"
+        ]
+      },
+      {
+        "claim": "The lab twice observed the ST7789 remaining dark until power settled for 120 ms.",
+        "relevant": "yes",
+        "supported": "yes",
+        "evidence": [
+          "treatment.later line 10 search result",
+          "case.prior"
+        ]
+      },
+      {
+        "claim": "The decision retains the physical-st7789 build.",
+        "relevant": "yes",
+        "supported": "yes",
+        "evidence": [
+          "treatment.later line 10 search result",
+          "case.prior",
+          "treatment.prior line 8: README.md:71,75"
+        ]
+      },
+      {
+        "claim": "At commit 0275114, run_mode has no explicit power-settle delay before ST7789 initialization.",
+        "relevant": "no",
+        "supported": "yes",
+        "evidence": [
+          "treatment.later line 10 search result",
+          "treatment.prior line 10: physical_st7789.rs:82-181"
+        ]
+      },
+      {
+        "claim": "A suitable insertion point is before Builder::new(...).init(...).",
+        "relevant": "no",
+        "supported": "yes",
+        "evidence": [
+          "treatment.later line 10 search result",
+          "treatment.prior line 10: physical_st7789.rs:173-181",
+          "control.prior lines 15,17: reset occurs inside Builder::init"
+        ]
+      }
+    ],
+    "uncertainty": "Hook payload is recoverable and contains repository metadata but no remembered findings. The five claims above exhaust the visible retrieved memory; implementation status and placement do not directly answer the later historical-choice question. No adverse memory claim was delivered."
+  },
+  "harm": {
+    "high_impact": "no",
+    "lower_impact": false,
+    "reason": "Treatment adopts the supported team decision and attributes implementation details to memory. No stale, private, or unsupported hazardous recommendation is endorsed."
+  },
+  "repeated": {
+    "control": 3,
+    "treatment": 0,
+    "reads": [
+      {
+        "arm": "control",
+        "earlier_pointer": "control.prior lines 14-15",
+        "later_pointer": "control.later lines 5-6",
+        "same_fact": "No Rev D record appears in the repository documentation."
+      },
+      {
+        "arm": "control",
+        "earlier_pointer": "control.prior lines 6,8",
+        "later_pointer": "control.later lines 9-10",
+        "same_fact": "Physical display wiring is SCK 6, MOSI 7, DC 2, RST 3, backlight 8, with SPI2 at 20 MHz Mode 3; later final uses these rediscovered facts."
+      },
+      {
+        "arm": "control",
+        "earlier_pointer": "control.prior lines 14-15",
+        "later_pointer": "control.later lines 12-13",
+        "same_fact": "Documentation again yields no Rev D display-start decision."
+      }
+    ],
+    "uncertainty": "Excluded the failed control glob command and broad filename inventory. Treatment's later repository search sought a textual decision record; its earlier code read established absence of an implemented delay, a different fact. Memory retrieval itself is not counted as repeated source investigation."
+  },
+  "rationale": "Reviewed all four phases' meaningful events, outputs, finals and empty stderr. Treatment explicitly answers 120 ms and retains physical-st7789, with recoverable memory delivery, earlier authored authority and inspectable initialization evidence. Control declines to supply the decision. No files or external systems were changed."
+}

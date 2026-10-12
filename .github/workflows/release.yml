@@ -35,6 +35,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check paired-evaluation evidence handling
+        run: python3 -B -m unittest discover -s evals/m1-m2 -p test_run.py
+
       - name: Record candidate version
         id: version
         run: |
@@ -55,6 +58,7 @@ jobs:
       - name: Test
         env:
           CAIRN_TEST_DATABASE_URL: postgres://cairn:cairn@localhost:5433/cairn
+          CAIRN_REQUIRE_DATABASE_TESTS: "1"
         run: cargo test --locked --workspace --all-targets
 
   # The exact source commit must pass every release-critical source gate. CI's
@@ -218,7 +222,7 @@ jobs:
           - target: aarch64-apple-darwin
             os: macos-latest
           - target: x86_64-apple-darwin
-            os: macos-latest
+            os: macos-15-intel
           - target: x86_64-pc-windows-msvc
             os: windows-latest
     steps:
@@ -320,12 +324,6 @@ jobs:
           if [[ "${{ matrix.target }}" == *-pc-windows-* ]]; then
             ext=".exe"
           fi
-          # Only a native archive can be executed on this runner.
-          case "${{ matrix.target }}" in
-            x86_64-apple-darwin)
-              echo "cross-built for Intel macOS; skipping execution on arm64"
-              exit 0 ;;
-          esac
           tmp=$(mktemp -d)
           if [[ "${{ matrix.target }}" == *-pc-windows-* ]]; then
             7z x -bso0 -o"$tmp" "$name.zip"
@@ -401,7 +399,15 @@ jobs:
   archive-journey:
     name: installed archive journey
     needs: [verify, candidate-gates, binaries]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-24.04-arm
     services:
       postgres:
         image: postgres:17-alpine
@@ -417,17 +423,78 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: archive-x86_64-unknown-linux-gnu
+          name: archive-${{ matrix.target }}
           path: dist
       - name: Packaged setup journey
         env:
           CAIRN_TEST_DATABASE_URL: postgres://cairn:cairn@localhost:5433/cairn
           VERSION: ${{ needs.verify.outputs.version }}
         run: |
-          name="cairn-v${VERSION}-x86_64-unknown-linux-gnu"
+          name="cairn-v${VERSION}-${{ matrix.target }}"
           tmp=$(mktemp -d)
           tar -C "$tmp" -xzf "dist/$name.tar.gz"
           bash scripts/release-archive-journey.sh "$tmp/$name"
+
+  archive-journey-native:
+    name: installed archive journey (${{ matrix.target }})
+    needs: [verify, candidate-gates, binaries]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-apple-darwin
+            os: macos-15-intel
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+    env:
+      CAIRN_REQUIRE_DATABASE_TESTS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: archive-${{ matrix.target }}
+          path: dist
+      - name: Start disposable PostgreSQL (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew install postgresql@17
+          pg_bin="$(brew --prefix postgresql@17)/bin"
+          "$pg_bin/initdb" -D "$RUNNER_TEMP/cairn-pg" -U cairn -A trust --no-locale
+          "$pg_bin/pg_ctl" -D "$RUNNER_TEMP/cairn-pg" -l "$RUNNER_TEMP/cairn-pg.log" -o '-h 127.0.0.1 -p 5433' start
+          echo 'CAIRN_TEST_DATABASE_URL=postgres://cairn@127.0.0.1:5433/postgres' >> "$GITHUB_ENV"
+      - name: Start disposable PostgreSQL (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-Service postgresql-x64-17 -StartupType Manual
+          Start-Service postgresql-x64-17
+          'CAIRN_TEST_DATABASE_URL=postgres://postgres:root@127.0.0.1:5432/postgres' >> $env:GITHUB_ENV
+      - name: Unpack native archive
+        shell: bash
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          set -euo pipefail
+          name="cairn-v${VERSION}-${{ matrix.target }}"
+          mkdir -p "$RUNNER_TEMP/cairn-archive"
+          ext=''
+          if [[ "${{ runner.os }}" == 'Windows' ]]; then
+            7z x -bso0 -o"$RUNNER_TEMP/cairn-archive" "dist/$name.zip"
+            ext='.exe'
+          else
+            tar -C "$RUNNER_TEMP/cairn-archive" -xzf "dist/$name.tar.gz"
+          fi
+          bin="$RUNNER_TEMP/cairn-archive/$name"
+          printf 'CAIRN_BIN=%s\nCAIRND_BIN=%s\nCAIRN_SERVER_BIN=%s\n' \
+            "$bin/cairn$ext" "$bin/cairnd$ext" "$bin/cairn-server$ext" >> "$GITHUB_ENV"
+      - run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - name: Installed setup, return, recall, and refusal journeys
+        run: cargo test --locked -p cairn-e2e --test alpha9_journey -- --nocapture
 
   # --------------------------------------------------------------------------
   # Server and web images, multi-platform, pushed to GHCR with the release
@@ -509,7 +576,7 @@ jobs:
   # --------------------------------------------------------------------------
   manifest:
     name: candidate manifest
-    needs: [verify, candidate-gates, compute-skill, assets, archive-journey, images]
+    needs: [verify, candidate-gates, compute-skill, assets, archive-journey, archive-journey-native, images]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

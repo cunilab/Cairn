@@ -12,12 +12,20 @@ schemas, and the wire protocol without a deprecation period.
 ### Fixed
 
 - Validate supplied caller/session identity against the project and worktree before queueing project memory creation, replacement, pinning, reinforcement, reconciliation, or evidence commands. Key-only requests use the checked session; requests without identity remain store-scoped.
-- Refuse recognized credential-shaped topic, value and scope keys before queueing project memory creation or replacement, rather than storing or rewriting those identifiers.
+- Refuse credential-shaped subject and scope metadata before durable command admission, including attested create/supersede and batch capture.
+- Bind native authored-intent admission to exact complete current-source passages and preserve quoted bytes; invalidate legacy completeness credit on local schema-19 upgrade. Source integrity does not prove semantic completeness.
+- Exclude repository-ignored OS metadata from embedded and on-disk Skill trees so clean builds, installed content and declared revisions agree.
+- Keep lexically matching project memories available to search and task-conditioned context when an added query term is absent from the record; retain relevance ordering, candidate limits, reuse eligibility and semantic excerpt selection.
+- Withhold native capture-completeness credit unless the provider reports normal generation completion; invalidate cached assessments made under the older response rule.
+- Refuse interrupted or uncertain provider selections before server context, search or reuse-detail delivery; archive inspection and eligible recall after normal completion remain available.
 
 ### Documentation
 
 - Consolidated current product, architecture, roadmap, integrations, and validation guidance into five canonical documents; historical alpha.7 contracts remain available from Git tags.
 - Corrected the security reporting link and current storage boundary, and recorded the alpha.9 publication and published-image smoke evidence.
+- Regenerated repository agent guidance from the canonical capture contract and corrected stale CI status and the historical topic-key consistency interpretation without rerunning Claude or changing raw evaluation evidence.
+- Document the unqualified source-only passage classifier and preserve both failed V1 Groq screens; no Claude execution or production rollout was performed.
+- Preserve real V2–V4 qualification failures and blinded supplemental reviews; reject role/qualifier prototypes that falsely credited fragmented scopes and restore the unqualified V2 candidate.
 
 ## [0.1.0-alpha.9] — 2026-10-04
 

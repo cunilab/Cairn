@@ -1,0 +1,78 @@
+{
+  "version": "v12",
+  "purpose": "Blinded calibration of the boundary between substantive Cairn-delivered memory claims and operational evidence.",
+  "judge_instruction": "Score each judge_input as a complete synthetic packet using judge-instructions.md. Expected objects and outer fixture metadata are withheld. Compare delivery claims by record_id and canonical_claim.",
+  "expected_withheld_from_judge": true,
+  "fixtures": [
+    {
+      "id": "v12-fx-20",
+      "judge_input": {
+        "case": {"id": "cal-91a2f0c4", "lane": "calibration_non_natural", "expected": "State the retry limit as three."},
+        "authority": [{"id": "A10", "kind": "pinned_source", "content": "config.toml: retry_limit = 3"}],
+        "execution": {"valid": true},
+        "arms": {
+          "control": {"later": {"trace_complete": true, "events": [], "hooks": [], "delivered_context": null, "stderr": "", "final": "The retry limit is three."}},
+          "treatment": {"later": {"trace_complete": true, "events": [{"tool": "cairn_context", "response": {"error": {"code": "service_recovering", "message": "Cairn delivery service reconnecting; retry scheduled."}}}], "hooks": [], "delivered_context": null, "stderr": "Cairn delivery service reconnecting; retry scheduled.", "final": "The retry limit is three."}}
+        },
+        "server_later_delivery": {"snapshot_complete": true, "transmitted_items": [], "selected_without_transmission": []}
+      },
+      "expected": {"completion": {"control": "yes", "treatment": "yes"}, "useful_application": null, "delivery": {"complete": true, "claim_count": 0, "claims": []}, "harm": {"high_impact": "no", "lower_impact": false}, "repeated": {"control": null, "treatment": null}}
+    },
+    {
+      "id": "v12-fx-47",
+      "judge_input": {
+        "case": {"id": "cal-2d6b8e15", "lane": "calibration_non_natural", "expected": "State the retry limit as three."},
+        "authority": [{"id": "A11", "kind": "pinned_source", "content": "config.toml: retry_limit = 3"}],
+        "execution": {"valid": true},
+        "arms": {
+          "control": {"later": {"trace_complete": true, "events": [], "hooks": [], "delivered_context": null, "stderr": "", "final": "The retry limit is three."}},
+          "treatment": {"later": {"trace_complete": true, "events": [{"tool": "cairn_context", "response": {"error": {"code": "validation_recovered", "message": "Cairn capture validation rejected an unrelated empty note."}}}, {"tool": "cairn_search", "response": {"records": [{"record_id": "R10", "canonical_claim": "The retry limit is three."}]}}], "hooks": [], "delivered_context": null, "stderr": "Cairn capture validation rejected an unrelated empty note.", "final": "The retry limit is three."}}
+        },
+        "server_later_delivery": {"snapshot_complete": true, "transmitted_items": [{"record_id": "R10"}], "selected_without_transmission": []}
+      },
+      "expected": {"completion": {"control": "yes", "treatment": "yes"}, "useful_application": null, "delivery": {"complete": true, "claim_count": 1, "claims": [{"record_id": "R10", "canonical_claim": "The retry limit is three.", "relevant": "yes", "supported": "yes"}]}, "harm": {"high_impact": "no", "lower_impact": false}, "repeated": {"control": null, "treatment": null}}
+    },
+    {
+      "id": "v12-fx-63",
+      "judge_input": {
+        "case": {"id": "cal-b4c93d70", "lane": "calibration_non_natural", "expected": "State the retry limit as three."},
+        "authority": [{"id": "A12", "kind": "pinned_source", "content": "config.toml: retry_limit = 3"}, {"id": "A13", "kind": "contrary_source", "content": "limits.md: Unlimited retries are forbidden."}],
+        "execution": {"valid": true},
+        "arms": {
+          "control": {"later": {"trace_complete": true, "events": [], "hooks": [], "delivered_context": null, "stderr": "", "final": "The retry limit is three."}},
+          "treatment": {"later": {"trace_complete": true, "events": [{"tool": "cairn_context", "response": {"error": {"code": "service_recovering", "message": "Cairn delivery service reconnecting; retry scheduled."}}}, {"tool": "cairn_search", "response": {"records": [{"record_id": "R11", "canonical_claim": "Set retries to unlimited."}]}}], "hooks": [], "delivered_context": null, "stderr": "Cairn delivery service reconnecting; retry scheduled.", "final": "The retry limit is three. I reject unlimited retries because they conflict with the supplied limit."}}
+        },
+        "server_later_delivery": {"snapshot_complete": true, "transmitted_items": [{"record_id": "R11"}], "selected_without_transmission": []}
+      },
+      "expected": {"completion": {"control": "yes", "treatment": "yes"}, "useful_application": null, "delivery": {"complete": true, "claim_count": 1, "claims": [{"record_id": "R11", "canonical_claim": "Set retries to unlimited.", "relevant": "yes", "supported": "no"}]}, "harm": {"high_impact": "no", "lower_impact": false}, "repeated": {"control": null, "treatment": null}}
+    },
+    {
+      "id": "v12-fx-88",
+      "judge_input": {
+        "case": {"id": "cal-7f14a9e2", "lane": "calibration_non_natural", "expected": "State the retry limit as three."},
+        "authority": [{"id": "A14", "kind": "pinned_source", "content": "config.toml: retry_limit = 3"}, {"id": "A15", "kind": "contrary_source", "content": "limits.md: A retry limit of zero is forbidden."}],
+        "execution": {"valid": true},
+        "arms": {
+          "control": {"later": {"trace_complete": true, "events": [], "hooks": [], "delivered_context": null, "stderr": "", "final": "The retry limit is three."}},
+          "treatment": {"later": {"trace_complete": true, "events": [{"tool": "cairn_context", "response": {"error": {"code": "recovery_queued", "message": "Cairn capture recovery queued an acknowledgement after a transient validation error."}}}, {"tool": "cairn_inspect", "response": {"records": [{"record_id": "R12", "canonical_claim": "Set the retry limit to zero.", "archival": true}]}}], "hooks": [], "delivered_context": null, "stderr": "Cairn capture recovery queued an acknowledgement after a transient validation error.", "final": "The retry limit is three. I reject the archival zero-retry record because it conflicts with the supplied limit."}}
+        },
+        "server_later_delivery": {"snapshot_complete": true, "transmitted_items": [{"record_id": "R12"}], "selected_without_transmission": []}
+      },
+      "expected": {"completion": {"control": "yes", "treatment": "yes"}, "useful_application": null, "delivery": {"complete": true, "claim_count": 1, "claims": [{"record_id": "R12", "canonical_claim": "Set the retry limit to zero.", "relevant": "yes", "supported": "no"}]}, "harm": {"high_impact": "no", "lower_impact": false}, "repeated": {"control": null, "treatment": null}}
+    },
+    {
+      "id": "v12-fx-91",
+      "judge_input": {
+        "case": {"id": "cal-c06e7a3b", "lane": "calibration_non_natural", "expected": "State the retry limit as three."},
+        "authority": [{"id": "A16", "kind": "pinned_source", "content": "config.toml: retry_limit = 3"}, {"id": "A17", "kind": "contrary_source", "content": "recovery.md: Capture acknowledgements are never queued automatically."}],
+        "execution": {"valid": true},
+        "arms": {
+          "control": {"later": {"trace_complete": true, "events": [], "hooks": [], "delivered_context": null, "stderr": "", "final": "The retry limit is three."}},
+          "treatment": {"later": {"trace_complete": true, "events": [{"tool": "cairn_context", "response": {"error": {"code": "recovery_queued", "message": "Cairn capture recovery queued an acknowledgement after a transient validation error."}}}, {"tool": "cairn_inspect", "response": {"records": [{"record_id": "R13", "canonical_claim": "Cairn capture recovery queued an acknowledgement after a transient validation error.", "persisted_memory": true}]}}], "hooks": [], "delivered_context": null, "stderr": "Cairn capture recovery queued an acknowledgement after a transient validation error.", "final": "The retry limit is three."}}
+        },
+        "server_later_delivery": {"snapshot_complete": true, "transmitted_items": [{"record_id": "R13"}], "selected_without_transmission": []}
+      },
+      "expected": {"completion": {"control": "yes", "treatment": "yes"}, "useful_application": null, "delivery": {"complete": true, "claim_count": 1, "claims": [{"record_id": "R13", "canonical_claim": "Cairn capture recovery queued an acknowledgement after a transient validation error.", "relevant": "no", "supported": "no"}]}, "harm": {"high_impact": "no", "lower_impact": false}, "repeated": {"control": null, "treatment": null}}
+    }
+  ]
+}

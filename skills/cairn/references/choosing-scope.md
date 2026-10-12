@@ -1,10 +1,10 @@
 # Choosing the right memory scope
 
-Scope decides who sees a memory later. Choose the narrowest scope that is still correct.
+Scope decides where a project memory applies; authorization decides who can read it.
+Choose the narrowest scope that is still correct.
 
 | Scope | Use when | Example |
 |---|---|---|
-| `task` | The knowledge is only meaningful inside one piece of work | why this task's migration is split in two |
 | `branch` | It is true of this line of work but not of the project | the API shape this branch is moving towards |
 | `project` | It is true of the repository generally | the release process, a naming convention |
 | `session` | It is scratch state for the current session only | a reproduction step you are still refining |
@@ -17,3 +17,7 @@ narrow it.
 
 Too narrow is recoverable — someone re-records it. Too wide is not: a project-scoped memory
 that was only ever true on one branch quietly misleads every future session.
+
+An explicit branch `scope_key` can target another branch of this project without an active
+session. Omit it to use the attributed session’s branch. Session scope always requires an
+owned attributed session; its key must match that session. Project keys come from the server.

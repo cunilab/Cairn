@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "review_date": "2026-10-10",
+  "historical_source_sha": "58107d941ce6b161542d8651ab4efc395ada8e3e",
+  "method": "Read-only tracing of four existing V13 packets and their original valid judgments; no rerun, rescoring or source edits",
+  "findings": [
+    {
+      "case": "D2",
+      "capture_origin": "explicit agent cairn_remember",
+      "capture_event_line": 24,
+      "capture_basis": "user_report",
+      "content_sha256": "3196beb6f521c02483a3ec08e5330a6ff0a62612bdbd9637a8116bc90684f78a",
+      "delivered_identical_content": true,
+      "delivery_point": "session_open",
+      "candidate_rank": 1,
+      "selection_rule": "project_reserve",
+      "existing_judgment_useful_application": "yes",
+      "existing_judgment_claims": 6,
+      "existing_judgment_irrelevant_supported": 3,
+      "packet_sha256": "ae103dc3da4295bff219ddb23f1740d07df5c9039873b0a7d5fd38c37c369395",
+      "judgment_sha256": "3cc95257a84ddf3af9394b34bbb413d012ccf07f7829fff3de35c6162b845ace"
+    },
+    {
+      "case": "D4",
+      "capture_origin": "explicit agent cairn_remember",
+      "capture_event_line": 15,
+      "capture_basis": "user_report",
+      "content_sha256": "c15118cb5e389d65a5222850abc9da80a31b48db37ecb41707528906ea7a7d0b",
+      "delivered_identical_content": true,
+      "delivery_point": "session_open",
+      "candidate_rank": 1,
+      "selection_rule": "project_reserve",
+      "existing_judgment_useful_application": "yes",
+      "existing_judgment_claims": 5,
+      "existing_judgment_irrelevant_supported": 2,
+      "packet_sha256": "13b97121e2d336fcd2af0b24b2700c1591d56113de359025e41e22d642c5b5ec",
+      "judgment_sha256": "f032fe877ed27c8a4752c19505151010e6f78fe92d80c4f9a1440dc1f4dc7427"
+    },
+    {
+      "case": "R3",
+      "capture_origin": "explicit agent cairn_remember",
+      "capture_event_line": 28,
+      "capture_basis": "user_report",
+      "content_sha256": "87fa785e0c82d8d3348b1a1dbce22b1a8cf764982b158ccddfd8d23e43e3fa4b",
+      "delivered_identical_content": true,
+      "delivery_point": "session_open",
+      "candidate_rank": 1,
+      "selection_rule": "project_reserve",
+      "existing_judgment_useful_application": "yes",
+      "existing_judgment_claims": 11,
+      "existing_judgment_irrelevant_supported": 4,
+      "packet_sha256": "2005b2d514db61cb881428c08b1f34b483b8309666480c016d38e0e57a633d63",
+      "judgment_sha256": "bc2f43bb5ecbe818c314e292a45d629be024e8a2415e9817376b41b25dbb1b2b"
+    },
+    {
+      "case": "R5",
+      "capture_origin": "explicit agent cairn_remember",
+      "capture_event_line": 21,
+      "capture_basis": "user_report",
+      "content_sha256": "2d37af756eb54daf3741bb77f7653e63f5a92445734c1dafe1760dbfd4456743",
+      "delivered_identical_content": true,
+      "delivery_point": "session_open",
+      "candidate_rank": 1,
+      "selection_rule": "project_reserve",
+      "existing_judgment_useful_application": "yes",
+      "existing_judgment_claims": 4,
+      "existing_judgment_irrelevant_supported": 2,
+      "packet_sha256": "e0b4045dd10be10f4f07ade162c34477115a9c9d264b0c6739f79613fedd9edf",
+      "judgment_sha256": "4e0539a6b6a8fb47f63a59fd85b5de5574aa6d1c9a09e14909164ddd80e3521a"
+    }
+  ],
+  "limitation": "Candidate rank and captured delivery establish selection/transmission, not model consumption; useful application uses original independent judgment. No new design is qualified."
+}

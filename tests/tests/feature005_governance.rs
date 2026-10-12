@@ -13,7 +13,7 @@
 //! that it never does.
 
 use cairn_e2e::feature005::{Account, Pg};
-use cairn_e2e::{binary, post_json_status_bearer};
+use cairn_e2e::{post_json_status_bearer, server_binary};
 use serde_json::{json, Value};
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
@@ -45,7 +45,7 @@ impl Worker {
             let port = probe.local_addr().expect("addr").port();
             drop(probe);
             let addr = format!("127.0.0.1:{port}");
-            let mut child = Command::new(binary("cairn-server"))
+            let mut child = Command::new(server_binary())
                 .args([
                     "--addr",
                     &addr,
@@ -326,6 +326,9 @@ fn an_adversarial_attempt_to_claim_durability_domain_scope_ownership_verificatio
         ));
         seq += 1;
     }
+    // The final signal also needs a later change. Earlier claims use the next
+    // claim's file change as their follow-up evidence.
+    events.push(file_changed(session, seq, "confirmation/complete.rs"));
     let (body, status) = post(&adversarial, &adversarial.owner, events);
     assert_all_accepted("adversarial run", &body, status);
     close_session(&adversarial, session);
@@ -450,6 +453,7 @@ fn an_oversized_client_supplied_key_is_refused_with_empty_content_and_no_keys_ra
         decision_signal(session, 2, &filler_a, "b", Some(1)),
         file_changed(session, 3, &format!("{filler_c}/d.rs")),
         decision_signal(session, 4, &filler_c, "d", Some(3)),
+        file_changed(session, 5, "confirmation/complete.rs"),
     ];
     let (body, status) = post(&pg, &pg.owner, events);
     assert_all_accepted("oversized-key fixture", &body, status);
@@ -527,6 +531,7 @@ fn consolidation_never_creates_an_authoritative_team_record_only_a_project_scope
         // the point is what governance does with the subject and not
         // whether ingest justifies the object.
         decision_signal(session, 2, "team", "ledger", Some(1)),
+        file_changed(session, 3, "team/confirmation.rs"),
     ];
     let (body, status) = post(&pg, &pg.owner, events);
     assert_all_accepted("team-worded fixture", &body, status);
@@ -567,6 +572,7 @@ fn a_second_disagreeing_value_under_one_subject_is_recorded_as_a_conflict_never_
         vec![
             file_changed(p, 1, "storage/server.rs"),
             decision_signal(p, 2, "storage", "server", Some(1)),
+            file_changed(p, 3, "storage/confirmation.rs"),
         ],
     );
     assert_all_accepted("session P", &body, status);
@@ -576,6 +582,7 @@ fn a_second_disagreeing_value_under_one_subject_is_recorded_as_a_conflict_never_
         vec![
             file_changed(q, 1, "storage/database.rs"),
             decision_signal(q, 2, "storage", "database", Some(1)),
+            file_changed(q, 3, "storage/confirmation.rs"),
         ],
     );
     assert_all_accepted("session Q", &body, status);
@@ -732,6 +739,7 @@ fn a_pass_over_one_project_never_reads_writes_or_cites_another_projects_events()
         vec![
             file_changed(foreign_session, 1, "storage/server.rs"),
             decision_signal(foreign_session, 2, "storage", "server", Some(1)),
+            file_changed(foreign_session, 3, "storage/confirmation.rs"),
         ],
     );
     assert_all_accepted("other project's session", &body, status);
@@ -754,6 +762,7 @@ fn a_pass_over_one_project_never_reads_writes_or_cites_another_projects_events()
         vec![
             file_changed(home_session, 1, "storage/server.rs"),
             decision_signal(home_session, 2, "storage", "server", Some(1)),
+            file_changed(home_session, 3, "storage/confirmation.rs"),
         ],
     );
     assert_all_accepted("the fixture project's session", &body, status);

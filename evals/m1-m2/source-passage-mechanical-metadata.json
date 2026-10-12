@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-10T18:34:57.901Z",
+  "status": "mechanical_checks_passed_live_qualification_pending",
+  "source_base_revision": "a209f77e09306d484fcbe3a459a386bbb81bb47a",
+  "working_tree_not_pushed": true,
+  "protocol": "capture-source-passages-v2",
+  "fixture": {
+    "path": "evals/m1-m2/source-passage-qualification-screen.json",
+    "cases": 18,
+    "sha256": "a386d11a0bc22bbd99f7e9b3aede7d86862ce4245f88e5d3bba8a8c8eb016b01",
+    "provider_runs": 0,
+    "independent_scoring": "pending"
+  },
+  "source_sha256": {
+    "crates/cairnd/src/capture_review.rs": "a4bda840e5891237cc14eb82d361e91d0f875a48a1075b50855e369a93b8d09f",
+    "crates/cairnd/src/handlers.rs": "681deb79ee20b7f0abc4606d3bb03015af3a94118690a3880d57b50ec80a5682",
+    "crates/cairn-core/src/capture_source.rs": "abe9b71b79971cad5f1c4eb0c7859f85ce20c25b9c955786f701267be7f5b0bb",
+    "crates/cairn-store/src/capture_review.rs": "1d0d317af099fb3f49abc043a35a55a5771e881eda00b6e7f38d8a2543a32053",
+    "crates/cairn-store/migrations/0019_capture_source_proof.sql": "414405be3711f07267d44a1321360193cc0a4892b6563d49cf39a73a6c5a8862",
+    "crates/cairn/src/mcp.rs": "84bcdf68c61ae344c4da318117f17378b4519cd57625a218ecb8c56444526403",
+    "crates/cairn-integrate/src/render.rs": "78a9e2a02ec2b88ae47b79a71b0ecd0f175758a090c335d1f3503a2502057232",
+    "crates/cairn-integrate/assets/agent-contract.md": "f69af9fceb610164c2950786299a26d142c4f7322b1afeb653cd496342a7be84"
+  },
+  "debug_artifact_sha256": {
+    "cairn": "356bf39b97cac8b3d85871d9e1004b8bb9d46d0dd6c3b8dc56c99e79d9c71a9d",
+    "cairnd": "95137b14f6b76bafa2293d81d74f9fa2326e3788c2a5fc89d12f9fcab6539a53"
+  },
+  "checks": {
+    "daemon": {
+      "passed": 72,
+      "ignored": 1
+    },
+    "store": {
+      "passed": 57
+    },
+    "cli": {
+      "passed": 54,
+      "mcp_subset_passed": 28
+    },
+    "core": {
+      "passed": 365,
+      "source_passage_subset_passed": 5
+    },
+    "integration": {
+      "passed": 212
+    },
+    "clippy": {
+      "packages": [
+        "cairnd",
+        "cairn-store",
+        "cairn-core",
+        "cairn",
+        "cairn-integrate"
+      ],
+      "all_targets": true,
+      "warnings_denied": true
+    },
+    "format": "passed"
+  },
+  "guidance": {
+    "contract_revision": "3585abeab1cd",
+    "skill_revision": "52a5da4b6584",
+    "block_characters": 1186,
+    "mcp_characters": 1195,
+    "unchanged_bound": 1200
+  },
+  "smoke": {
+    "actual_processes": [
+      "cairn mcp",
+      "cairnd"
+    ],
+    "input": "synthetic",
+    "framework_metadata": "synthetic pinned Codex 0.160.0 profile; no Codex actor executed",
+    "server_token": false,
+    "privacy_before": "credential-shaped topic admitted and retained",
+    "refused_before_admission": 8,
+    "batch_receipt_rejection": true,
+    "joint_passage_and_crlf_preserved": true,
+    "current_digest_proof": true,
+    "inspected_source_intent_proof": false,
+    "unconfigured_review": "unknown",
+    "loopback_fixture": "missing_then_covered",
+    "loopback_is_semantic_qualification": false
+  },
+  "live_gates": {
+    "completeness": "not_run",
+    "recall_selector": "not_run",
+    "paired_workload": "not_run",
+    "fresh_deployment": "not_run",
+    "missing_prerequisite": "fresh protected provider credential"
+  },
+  "claude_executed": false,
+  "production_changed": false,
+  "failed_v1_evidence_preserved": true
+}

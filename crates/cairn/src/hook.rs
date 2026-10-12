@@ -191,6 +191,14 @@ fn repository_root(cwd: &str) -> Option<std::path::PathBuf> {
     }
 }
 
+fn needs_reply(
+    agent: cairn_integrate::AgentId,
+    event: &str,
+    canonical: cairn_core::lifecycle::CanonicalEvent,
+) -> bool {
+    canonical.is_boundary_class() || (agent == cairn_integrate::AgentId::Codex && event == "Stop")
+}
+
 /// Handle a capture-class event without an async runtime (SC-007).
 ///
 /// Returns `true` when the event was handled here. A capture-class event needs
@@ -226,7 +234,7 @@ pub fn run_blocking(event: &str) -> bool {
             drain_stdin();
             return true;
         }
-        Some(class) if class.is_boundary_class() => return false,
+        Some(class) if needs_reply(agent, event, class) => return false,
         _ => {}
     }
 
@@ -243,6 +251,11 @@ pub fn run_blocking(event: &str) -> bool {
         .unwrap_or_else(|| ".".to_string());
 
     let config = CairnConfig::load();
+    if let Some(request) = native_task_record(agent, event, &raw, &cwd) {
+        if let Err(error) = client::send_oneway_blocking(&request, capture_deadline(&config)) {
+            journal_capture_drop(agent, &cwd, event, None, &error.message);
+        }
+    }
     let captured = capture_pass(agent, event, &raw, &cwd, &config);
 
     // Prompt-time delivery (T073, `contracts/retrieval-delivery.md` §1–§2):
@@ -267,7 +280,8 @@ pub fn run_blocking(event: &str) -> bool {
             wait_for_handoff: false,
             token_budget: None,
             capture: captured.output,
-        },
+        }
+        .for_project_reuse(),
         None => match captured.output {
             Some(output) => Request::CaptureEvents {
                 cwd: cwd.clone(),
@@ -327,7 +341,7 @@ pub async fn run(event: &str) {
         return;
     };
 
-    let boundary = canonical.event.is_boundary_class();
+    let boundary = needs_reply(agent, event, canonical.event);
     let deadline = if boundary {
         context_deadline(&config)
     } else {
@@ -344,7 +358,8 @@ pub async fn run(event: &str) {
         wait_for_handoff: false,
         token_budget: None,
         capture: captured.output,
-    };
+    }
+    .for_project_reuse();
 
     if !boundary {
         // Capture class: fire and forget. A missed deadline is a dropped
@@ -379,6 +394,13 @@ pub async fn run(event: &str) {
                 // server generated, if it generated one at all (§3, §6.2).
                 report_retrieval_outcome(&value, transport_ok, started, deadline).await;
             }
+            if let Some(native_turn_id) = stop_gate_turn(agent, event, &raw, &key) {
+                let checkpoint = Request::NativeCaptureCheckpoint { cwd: cwd.clone(), agent_session_key: key.clone(), native_turn_id, no_durable_finding: false };
+                let gate_deadline = capture_deadline(&config).min(deadline.saturating_sub(started.elapsed()));
+                if client::send_once_with_deadline(&checkpoint, gate_deadline).await.ok().and_then(|reply| reply.get("intervene").and_then(|value| value.as_bool())) == Some(true) {
+                    let _ = emit_stop_intervention();
+                }
+            }
         }
         Err(e) => {
             if delivers_context {
@@ -395,6 +417,83 @@ pub async fn run(event: &str) {
             log_drop(event, &e.message);
         }
     }
+}
+
+
+/// A Stop interaction is eligible only on the pinned Codex shape. It retains
+/// identifiers, never prompt or assistant text, and does not guess a turn.
+fn stop_gate_turn(
+    agent: cairn_integrate::AgentId,
+    event: &str,
+    raw: &serde_json::Value,
+    session_key: &str,
+) -> Option<uuid::Uuid> {
+    if agent != cairn_integrate::AgentId::Codex
+        || event != "Stop"
+        || raw
+            .get("stop_hook_active")
+            .and_then(|value| value.as_bool())
+            != Some(false)
+    {
+        return None;
+    }
+    let session_id = raw
+        .get("session_id")
+        .and_then(|value| value.as_str())
+        .and_then(|value| uuid::Uuid::parse_str(value).ok())
+        .filter(|id| !id.is_nil())?;
+    let turn_id = raw
+        .get("turn_id")
+        .and_then(|value| value.as_str())
+        .and_then(|value| uuid::Uuid::parse_str(value).ok())
+        .filter(|id| !id.is_nil())?;
+    (session_key == session_id.to_string()).then_some(turn_id)
+}
+
+fn emit_stop_intervention() -> bool {
+    use std::io::Write;
+    let out = serde_json::json!({
+        "decision": "block",
+        "reason": "Before ending this turn, explicitly capture any durable finding through cairn_remember action=capture. If there is none, finish normally. Preserve qualifiers; do not invent findings, store raw tasks as memory, include secrets, or replay unconfirmed writes.",
+    });
+    let mut stdout = std::io::stdout();
+    writeln!(stdout, "{out}")
+        .and_then(|()| stdout.flush())
+        .is_ok()
+}
+
+fn native_task_record(
+    agent: cairn_integrate::AgentId,
+    event: &str,
+    raw: &serde_json::Value,
+    cwd: &str,
+) -> Option<Request> {
+    if agent != cairn_integrate::AgentId::Codex || event != "UserPromptSubmit" {
+        return None;
+    }
+    let session = uuid::Uuid::parse_str(raw.get("session_id")?.as_str()?).ok()?;
+    let turn = uuid::Uuid::parse_str(raw.get("turn_id")?.as_str()?).ok()?;
+    if session.is_nil() || turn.is_nil() {
+        return None;
+    }
+    let prompt = raw.get("prompt")?.as_str()?;
+    // Redact before the new local IPC boundary, and never hide truncation.
+    let mut text = cairn_core::redact::redact(prompt);
+    let redacted = text != prompt;
+    let truncated = text.len() > 16_384;
+    let mut end = text.len().min(16_384);
+    while !text.is_char_boundary(end) {
+        end -= 1;
+    }
+    text.truncate(end);
+    Some(Request::NativeTaskRecord {
+        cwd: cwd.to_owned(),
+        agent_session_key: session.to_string(),
+        native_turn_id: turn,
+        text,
+        truncated,
+        redacted,
+    })
 }
 
 /// Whether this agent's `UserPromptSubmit` is a committed automatic delivery
@@ -429,6 +528,7 @@ fn deliver_prompt_time(
     let deadline = context_deadline(config);
     let started = Instant::now();
     let request = Request::Context {
+        query: None,
         cwd: cwd.to_string(),
         agent_session_key: (!key.is_empty()).then(|| key.to_string()),
         session_id: None,
@@ -438,7 +538,8 @@ fn deliver_prompt_time(
         depth: None,
         trigger: Some("prompt_submit".to_string()),
         open_trigger: None,
-    };
+    }
+    .for_project_reuse();
     match client::send_blocking(&request, deadline) {
         Ok(value) => {
             let (_content_degraded, transport_ok) =
@@ -803,7 +904,7 @@ fn journal_capture_drop(
 /// so there is no single canonical kind to name and inventing one would file the
 /// loss under something that never existed.
 fn dropped_kind(request: &Request) -> Option<&'static str> {
-    match request {
+    match request.inner_operation() {
         Request::CanonicalEvent { event, .. } => Some(event.event.as_str()),
         _ => None,
     }
@@ -947,4 +1048,89 @@ mod tests {
         )
         .is_none());
     }
+
+    #[test]
+    fn stop_gate_requires_a_fresh_verified_codex_turn() {
+        let session = uuid::Uuid::now_v7();
+        let turn = uuid::Uuid::now_v7();
+        let active = json!({
+            "session_id": session,
+            "turn_id": turn,
+            "stop_hook_active": false,
+            "last_assistant_message": "must not cross the boundary"
+        });
+        assert_eq!(
+            stop_gate_turn(AgentId::Codex, "Stop", &active, &session.to_string()),
+            Some(turn)
+        );
+        assert!(stop_gate_turn(
+            AgentId::Codex,
+            "Stop",
+            &json!({ "session_id": session, "turn_id": turn, "stop_hook_active": true }),
+            &session.to_string()
+        )
+        .is_none());
+        assert!(stop_gate_turn(
+            AgentId::Codex,
+            "Stop",
+            &json!({ "session_id": session, "stop_hook_active": false }),
+            &session.to_string()
+        )
+        .is_none());
+        assert!(stop_gate_turn(
+            AgentId::ClaudeCode,
+            "Stop",
+            &json!({ "session_id": session, "turn_id": turn, "stop_hook_active": false }),
+            &session.to_string()
+        )
+        .is_none());
+        assert!(stop_gate_turn(
+            AgentId::Codex,
+            "Stop",
+            &json!({ "session_id": session, "turn_id": turn, "stop_hook_active": false }),
+            "other-session"
+        )
+        .is_none());
+    }
+
+    #[test]
+    fn native_stop_reaches_the_reply_path_without_changing_lifecycle_class() {
+        let quiesced = cairn_integrate::event_class(AgentId::Codex, "Stop").unwrap();
+        assert!(!quiesced.is_boundary_class());
+        assert!(needs_reply(AgentId::Codex, "Stop", quiesced));
+        assert!(!needs_reply(AgentId::ClaudeCode, "Stop", quiesced));
+        assert!(!needs_reply(AgentId::Codex, "PostToolUse", quiesced));
+    }
+
+    #[test]
+    fn native_task_input_is_redacted_and_bounded_before_ipc() {
+        let session = uuid::Uuid::now_v7();
+        let turn = uuid::Uuid::now_v7();
+        let raw = json!({"session_id":session,"turn_id":turn,
+            "prompt":format!("Authorization: Bearer abcdefghijklmnop.qrstuvwx {}", "日".repeat(6000))});
+        let Some(Request::NativeTaskRecord {
+            text,
+            truncated,
+            redacted,
+            ..
+        }) = native_task_record(AgentId::Codex, "UserPromptSubmit", &raw, "/repo")
+        else {
+            panic!("missing record")
+        };
+        assert!(truncated && redacted);
+        assert!(text.len() <= 16_384);
+        assert!(!text.contains("abcdefghijklmnop.qrstuvwx"));
+        assert!(
+            native_task_record(AgentId::ClaudeCode, "UserPromptSubmit", &raw, "/repo").is_none()
+        );
+        assert!(native_task_record(AgentId::Codex, "Stop", &raw, "/repo").is_none());
+        assert!(native_task_record(
+            AgentId::Codex,
+            "UserPromptSubmit",
+            &json!({"session_id":session,"prompt":"OK"}),
+            "/repo"
+        )
+        .is_none());
+    }
+
 }

@@ -159,9 +159,16 @@ pub fn hooks_feature_disabled(config_toml: &str) -> bool {
 /// reporting itself installed. Verified against codex-cli 0.144.6 with a probe
 /// hook that fires.
 pub fn hook_entry(event: &str) -> serde_json::Value {
+    hook_entry_for_executable(event, None)
+}
+
+pub fn hook_entry_for_executable(
+    event: &str,
+    executable: Option<&std::path::Path>,
+) -> serde_json::Value {
     let _ = event;
     serde_json::json!({
-        "hooks": [ { "type": "command", "command": hook_command(event) } ]
+        "hooks": [ { "type": "command", "command": hook_command_for_executable(event, executable) } ]
     })
 }
 
@@ -172,7 +179,14 @@ pub fn hook_entry(event: &str) -> serde_json::Value {
 /// Claude Code's entry deliberately does not, so a Feature 001 hook keeps
 /// working unchanged.
 pub fn hook_command(event: &str) -> String {
-    format!("cairn hook {event} --agent codex")
+    hook_command_for_executable(event, None)
+}
+
+pub fn hook_command_for_executable(event: &str, executable: Option<&std::path::Path>) -> String {
+    format!(
+        "{} hook {event} --agent codex",
+        crate::hook_executable(executable)
+    )
 }
 
 /// Whether a hook entry is Cairn's own, by exact shape (FR-139).
@@ -181,17 +195,15 @@ pub fn hook_command(event: &str) -> String {
 /// whose command is exactly Cairn's for an event Cairn registers. A longer
 /// command that merely mentions `cairn hook` does not match.
 pub fn is_cairn_hook_entry(entry: &serde_json::Value, event: &str) -> bool {
-    let Some(hooks) = entry.get("hooks").and_then(|h| h.as_array()) else {
-        return false;
-    };
-    if hooks.len() != 1 {
-        return false;
-    }
-    let h = &hooks[0];
-    if h.get("type").and_then(|t| t.as_str()) != Some("command") {
-        return false;
-    }
-    h.get("command").and_then(|c| c.as_str()) == Some(hook_command(event).as_str())
+    is_cairn_hook_entry_for_executable(entry, event, None)
+}
+
+pub fn is_cairn_hook_entry_for_executable(
+    entry: &serde_json::Value,
+    event: &str,
+    executable: Option<&std::path::Path>,
+) -> bool {
+    entry == &hook_entry_for_executable(event, executable)
 }
 
 /// Classify a Codex tool response (D23).
@@ -268,7 +280,12 @@ impl AgentAdapter for Codex {
             .map(|r| r.scope)
             .unwrap_or(InstallationScope::User);
         if let Some(path) = scope::location(env, agent, ResourceKind::Mcp, mcp_scope) {
-            out.push(inspect_mcp_toml(&path, mcp_scope, find(ResourceKind::Mcp)));
+            out.push(inspect_mcp_toml(
+                &path,
+                mcp_scope,
+                find(ResourceKind::Mcp),
+                crate::mcp_entry_for_executable(env.cairn_executable.as_deref()),
+            ));
         }
 
         let life_scope = find(ResourceKind::Lifecycle)
@@ -279,6 +296,7 @@ impl AgentAdapter for Codex {
                 &path,
                 life_scope,
                 find(ResourceKind::Lifecycle),
+                env.cairn_executable.as_deref(),
             ));
         }
 
@@ -370,6 +388,7 @@ fn inspect_mcp_toml(
     path: &std::path::Path,
     scope: InstallationScope,
     recorded: Option<&RecordedInstall>,
+    canonical: serde_json::Value,
 ) -> Observed {
     let display = path.display().to_string();
     let text = read(path);
@@ -378,14 +397,7 @@ fn inspect_mcp_toml(
             Ok(v) => v,
             Err(e) => return malformed(ResourceKind::Mcp, scope, path, &e),
         };
-    classify_entry(
-        ResourceKind::Mcp,
-        scope,
-        path,
-        found,
-        recorded,
-        crate::mcp_entry(),
-    )
+    classify_entry(ResourceKind::Mcp, scope, path, found, recorded, canonical)
 }
 
 /// Inspect Codex's hooks file, including its trust state.
@@ -393,6 +405,7 @@ fn inspect_hooks(
     path: &std::path::Path,
     scope: InstallationScope,
     recorded: Option<&RecordedInstall>,
+    executable: Option<&std::path::Path>,
 ) -> Observed {
     let display = path.display().to_string();
     let text = read(path);
@@ -409,7 +422,12 @@ fn inspect_hooks(
         let ours = hooks
             .and_then(|h| h.get(ev))
             .and_then(|g| g.as_array())
-            .map(|groups| groups.iter().filter(|e| is_cairn_hook_entry(e, ev)).count())
+            .map(|groups| {
+                groups
+                    .iter()
+                    .filter(|e| is_cairn_hook_entry_for_executable(e, ev, executable))
+                    .count()
+            })
             .unwrap_or(0);
         if ours > 0 {
             present += 1;
@@ -431,6 +449,46 @@ fn inspect_hooks(
             .detail("more than one Cairn registration for a single event")
             .remedy("cairn setup");
     }
+    if present < EVENTS.len() {
+        let portable = EVENTS.iter().all(|event| {
+            hooks
+                .and_then(|value| value.get(*event))
+                .and_then(serde_json::Value::as_array)
+                .is_some_and(|entries| {
+                    entries
+                        .iter()
+                        .filter(|entry| is_cairn_hook_entry(entry, event))
+                        .count()
+                        == 1
+                })
+        });
+        if recorded.is_none() && portable {
+            return at(HealthCondition::Outdated)
+                .detail("legacy Cairn hooks use portable executable lookup")
+                .remedy("cairn setup");
+        }
+        if recorded_hook_entries(&value, recorded).is_some() {
+            return at(HealthCondition::Outdated)
+                .detail("Cairn's recorded hooks name an older executable path")
+                .remedy("cairn setup");
+        }
+        let unmatched = EVENTS.iter().any(|event| {
+            hooks
+                .and_then(|value| value.get(*event))
+                .and_then(serde_json::Value::as_array)
+                .is_some_and(|entries| {
+                    !entries.is_empty()
+                        && !entries.iter().any(|entry| {
+                            is_cairn_hook_entry_for_executable(entry, event, executable)
+                        })
+                })
+        });
+        if recorded.is_some() && (hook_candidates(&value).is_some() || unmatched) {
+            return at(HealthCondition::Modified)
+                .detail("the recorded Cairn hook registrations were edited")
+                .remedy("resolve the edit manually, then run `cairn setup`");
+        }
+    }
     if present == 0 {
         return at(HealthCondition::Missing).detail("no Cairn hook registrations in this file");
     }
@@ -440,6 +498,14 @@ fn inspect_hooks(
                 "{present} of {} Cairn hook registrations present",
                 EVENTS.len()
             ))
+            .remedy("cairn setup");
+    }
+    if executable.is_some()
+        && recorded.map(|record| record.owner) != Some(ResourceOwner::Manager)
+        && recorded_hook_entries(&value, recorded).is_none()
+    {
+        return at(HealthCondition::Outdated)
+            .detail("canonical Cairn hooks need their ownership record refreshed")
             .remedy("cairn setup");
     }
     // `[features] hooks = false` outranks trust: nothing runs however trusted
@@ -475,6 +541,50 @@ fn inspect_hooks(
     let mut o = at(HealthCondition::Healthy);
     o.activation = activation;
     o
+}
+
+fn hook_candidates(value: &serde_json::Value) -> Option<Vec<serde_json::Value>> {
+    let hooks = value.get("hooks")?;
+    EVENTS
+        .iter()
+        .map(|event| {
+            let entries = hooks.get(*event)?.as_array()?;
+            let candidates = entries
+                .iter()
+                .filter(|entry| hook_candidate(entry, event))
+                .cloned()
+                .collect::<Vec<_>>();
+            (candidates.len() == 1).then(|| candidates[0].clone())
+        })
+        .collect()
+}
+
+fn hook_candidate(entry: &serde_json::Value, event: &str) -> bool {
+    let Some(hooks) = entry.get("hooks").and_then(|value| value.as_array()) else {
+        return false;
+    };
+    let [hook] = hooks.as_slice() else {
+        return false;
+    };
+    hook.get("type").and_then(|value| value.as_str()) == Some("command")
+        && hook
+            .get("command")
+            .and_then(|value| value.as_str())
+            .is_some_and(|command| command.ends_with(&format!(" hook {event} --agent codex")))
+}
+
+pub(crate) fn recorded_hook_entries(
+    value: &serde_json::Value,
+    recorded: Option<&RecordedInstall>,
+) -> Option<Vec<serde_json::Value>> {
+    let entries = hook_candidates(value)?;
+    let digest = entries
+        .iter()
+        .map(serde_json::Value::to_string)
+        .collect::<Vec<_>>()
+        .join("\n");
+    let expected = recorded?.content_hash.as_deref()?;
+    (crate::model::canonical_hash(&digest) == expected).then_some(entries)
 }
 
 /// The key Codex records a trusted hook under, in its own `config.toml`.

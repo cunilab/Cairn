@@ -1,0 +1,640 @@
+[
+  {
+    "id": "a7f2c9",
+    "task": "The kiln team must label every glaze jar with its firing range before shelving it.\n\nThe kiln team must retain glaze test tiles for six months.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The kiln team must label every glaze jar with its firing range before shelving it.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes a standing jar-labeling rule."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The kiln team must retain glaze test tiles for six months.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes a lasting tile-retention requirement."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "b4e8d1",
+    "task": "At the moth archive, curators must record the collector on every new specimen sleeve.\n\nAt the moth archive, curators must store borrowed specimens in cabinet B.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "At the moth archive, curators must record the collector on every new specimen sleeve.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author adopts a permanent accession convention."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "c9a3f6",
+    "task": "The bell workshop must log tuning dates for finished bells.\n\nThe bell workshop must keep customer molds on the lower rack.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The bell workshop must log tuning dates for finished bells.\n\nThe bell workshop must keep customer molds on the lower rack.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author commits the workshop to both independent policies."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "d2b7e4",
+    "task": "For the estuary survey, boat leads must suspend sampling when the channel marker is submerged, except during a rescue directed by the harbor officer.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "For the estuary survey, boat leads must suspend sampling when the channel marker is submerged, except during a rescue directed by the harbor officer.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author sets a standing conditional suspension rule and its exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "e6c1a8",
+    "task": "For winter runs only, the sled coordinator must inspect each harness before departure, unless the veterinary lead has already signed that day's inspection.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "the sled coordinator must inspect each harness before departure",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author intended to capture the harness rule but cropped its scope and exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "f3d9b2",
+    "task": "The marionette troupe must transport painted heads in padded crates, except unfinished practice heads, which may travel in canvas bags.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The marionette troupe must transport every head in a padded crate.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author attempted to record the transport policy using an altered sentence."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "g8e4c7",
+    "task": "The following storage rule applies only to seeds collected on the north terrace.\n\nNursery staff must place those seeds in sealed amber jars before the evening inventory.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The following storage rule applies only to seeds collected on the north terrace.\n\nNursery staff must place those seeds in sealed amber jars before the evening inventory.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes the storage rule together with its cross-paragraph scope."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "h1f6d3",
+    "task": "The following check is required only for lanterns loaned to the ridge station.\n\nThe quartermaster must test their seals before dispatch.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The quartermaster must test their seals before dispatch.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author reports the complete action paragraph of the scoped rule."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "i5a2e9",
+    "task": "For the reef acoustics project, divers must retrieve recording pods after each survey.\n\nThat retrieval rule does not apply while the marine warden has closed the dive area.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "For the reef acoustics project, divers must retrieve recording pods after each survey.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author reports the complete retrieval paragraph."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "That retrieval rule does not apply while the marine warden has closed the dive area.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author reports the complete exception paragraph."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "j9b5f1",
+    "task": "The saltworks foreman reports that gate C stuck during two dawn inspections in May; no other gates or inspection times were observed, and the cause remains undetermined.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "The saltworks foreman reports that gate C stuck during two dawn inspections in May; no other gates or inspection times were observed, and the cause remains undetermined.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author preserves an attributed failure report with explicit observation and causal limits."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "k2c8a4",
+    "task": "According to the loom technician, shuttle 4 snagged twice with linen thread during Tuesday's trial; wool was not tested, and the technician has not identified a cause.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "shuttle 4 snagged twice with linen thread during Tuesday's trial",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author attempted to capture the trial report but omitted attribution and limits."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "l6d3b8",
+    "task": "Please count the empty trays on the mushroom shed's west bench this afternoon.\n\nThen bring me one clean tray for today's demonstration.",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "m3e9c2",
+    "task": "Could braided cord work for the kite museum's hanging display?\n\nWhat alternatives might we compare before choosing a suspension method?",
+    "findings": [],
+    "source_bound": true,
+    "expected": "no_durable_requirement",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "n8f4d6",
+    "task": "Please move today's cracked assay dish to my desk.\n\nFrom now on, mineral lab staff must mark cracked assay dishes with a red dot before placing them in the discard bin.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "From now on, mineral lab staff must mark cracked assay dishes with a red dot before placing them in the discard bin.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes an ongoing discard convention."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 1,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "o1a7e3",
+    "task": "The cave mapping team must record compass calibration dates in the expedition ledger.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The cave mapping team must record compass calibration dates in the expedition ledger.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author states a lasting ledger convention, but this payload is unbound."
+        }
+      }
+    ],
+    "source_bound": false,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "p5b2f9",
+    "task": "The icehouse crew must log each delivery at the south door.\n\nAn exception applies when",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The icehouse crew must log each delivery at the south door.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author attempts to capture a rule from a source with a truncated exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 1,
+    "truncated": true,
+    "redacted": false
+  },
+  {
+    "id": "q9c6a1",
+    "task": "The tide-clock team must send adjustment records to [REDACTED RECIPIENT] before reopening the gallery.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The tide-clock team must send adjustment records to [REDACTED RECIPIENT] before reopening the gallery.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author attempts to capture a policy whose recipient has been redacted."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": true
+  },
+  {
+    "id": "r2d8b5",
+    "task": "For future falconry demonstrations, handlers must",
+    "findings": [],
+    "source_bound": true,
+    "expected": "unknown",
+    "expected_required_passages": [],
+    "expected_admission_refusals": 0,
+    "truncated": true,
+    "redacted": false
+  },
+  {
+    "id": "s6e3c7",
+    "task": "The paper conservators must record paste batches in the treatment log.\n\nThe paper conservators must reserve shelf D for drying maps.\n\nThe paper conservators must retain removed bindings with their original volumes.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The paper conservators must record paste batches in the treatment log.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author adopts the paste-recording convention."
+        }
+      },
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "The paper conservators must retain removed bindings with their original volumes.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author adopts the binding-retention policy."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      },
+      {
+        "first_block": 1,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "t3f9d4",
+    "task": "Whenever the summit relay loses its reference pulse, the balloon crew must pause launches.\n\nThis pause ends only after the radio officer confirms a stable reference pulse for ten consecutive minutes.",
+    "findings": [
+      {
+        "type": "decision",
+        "scope": "project",
+        "content": "Whenever the summit relay loses its reference pulse, the balloon crew must pause launches.\n\nThis pause ends only after the radio officer confirms a stable reference pulse for ten consecutive minutes.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes the launch pause together with its release condition."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "u8a5e2",
+    "task": "The coral nursery staff must photograph transplanted fragments every Friday.\n\nThat schedule applies only to the shallow-water trays during the first month after transplantation.\n\nThe coral nursery staff must keep replacement tags in the blue locker.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The coral nursery staff must photograph transplanted fragments every Friday.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author reports the full schedule paragraph without its linked scope paragraph."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "The coral nursery staff must keep replacement tags in the blue locker.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes an independent tag-storage convention."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "missing",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 1
+      },
+      {
+        "first_block": 2,
+        "last_block": 2
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "v1b7f6",
+    "task": "The observatory custodian reports that only the east dome has a manual release lever; this inventory covers the two domes at the hill site and excludes the remote annex.",
+    "findings": [
+      {
+        "type": "fact",
+        "scope": "project",
+        "content": "The observatory custodian reports that only the east dome has a manual release lever; this inventory covers the two domes at the hill site and excludes the remote annex.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author records an attributed equipment fact with a bounded inventory scope."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "w5c2a9",
+    "task": "The organ restorer reports that the lowest reed fell silent during one test while the room was cold; no warm-room comparison was made, so the report does not establish temperature as the cause.",
+    "findings": [
+      {
+        "type": "failure",
+        "scope": "project",
+        "content": "The organ restorer reports that the lowest reed fell silent during one test while the room was cold; no warm-room comparison was made, so the report does not establish temperature as the cause.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author records a single observed failure and explicitly limits causal interpretation."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 0,
+    "truncated": false,
+    "redacted": false
+  },
+  {
+    "id": "x9d6b3",
+    "task": "At the dye garden, apprentices must rinse harvesting knives after cutting indigo, except knives marked for disposal.",
+    "findings": [
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "At the dye garden, apprentices must rinse harvesting knives after cutting indigo, except knives marked for disposal.",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author establishes the complete rinsing convention with its disposal exception."
+        }
+      },
+      {
+        "type": "convention",
+        "scope": "project",
+        "content": "apprentices must rinse harvesting knives after cutting indigo",
+        "capture_attestation": {
+          "basis": "user_report",
+          "support_summary": "The author also submits a cropped restatement that drops location and exception."
+        }
+      }
+    ],
+    "source_bound": true,
+    "expected": "covered",
+    "expected_required_passages": [
+      {
+        "first_block": 0,
+        "last_block": 0
+      }
+    ],
+    "expected_admission_refusals": 1,
+    "truncated": false,
+    "redacted": false
+  }
+]

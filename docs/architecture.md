@@ -1,6 +1,6 @@
 # Cairn architecture
 
-This describes the current alpha.9 system. [Product](product.md) owns intended behavior; code and migrations own exact fields and wire contracts.
+This describes the current source, whose package version remains alpha.9. Candidate changes are not proof of published behavior; see the [M1/M2 evidence](../evals/m1-m2/results.md). [Product](product.md) owns intended behavior; code and migrations own exact fields and wire contracts.
 
 ```text
 agent hooks and MCP  →  cairn / cairnd  →  cairn-server  →  PostgreSQL
@@ -18,9 +18,42 @@ SQLite stores binding and integration metadata, distinct capture and command spo
 
 ## Delivery and retrieval
 
+Explicit project capture supports one to eight separately supported findings in
+`cairn_remember(action: "capture")`. All items are checked before admission;
+each then uses the existing single-record durable write path and receives its
+own receipt or error. Batch admission is not transactional, and an uncertain
+acknowledgement must not cause a whole-batch replay. Separate records preserve
+independent source support; they do not establish semantic coherence or bypass
+the recall selector. [ADR 0008](adr/0008-independent-finding-capture.md) records
+the boundary and required evidence.
+
 An admitted payload is immutable and has stable operation identity. The daemon claims it and acknowledges it only after server acceptance. A lost acknowledgement causes retry with the same identity; the server returns its recorded receipt, producing one canonical effect over at-least-once transport. Capture and explicit commands retain separate spool rules. A policy change must resolve a prior operation's receipt state before replacing or suppressing that identity.
 
 Retrieval considers current session, branch, then project applicability, subject to account and project authorization. Evidence, authority, verification, conflict, supersession, and pinning affect selection; recency alone does not decide truth. Decay changes ranking and is explainable. Returned context is bounded and can be absent without implying an outage.
+
+Context without a task query provides continuity and authorized memory availability,
+while project findings require bounded task keywords. Native hooks send no query.
+Explicit `cairn_context(query)` uses lexical matching to gather candidates; ordinary
+`cairn_search` working recall requires a query. Query responses carry a policy and
+normalized query digest so older components cannot silently drop the selector.
+Explicit query context bypasses the outage cache. An older unqueried response has
+project bodies withheld and its trace is never reported as transmitted.
+
+The candidate server then selects task-conditioned exact excerpts inside those
+records before working search, detail or context delivery. Byte spans and source
+and excerpt hashes bind provenance to the delivered text; context traces retain
+that provenance in schema 10. Authorization, eligibility and source revision are
+checked again after inference. Automatic pins and warnings contain references or
+status, without memory bodies. Archive inspection retains the original records
+and their eligibility disclosures.
+
+Missing inference, provider failure or invalid extraction refuses matching
+working recall without whole-record fallback. Exact quotation validation does
+not establish semantic relevance or faithful omission of qualifiers; live M2
+claim-quality evidence remains pending. [Inference configuration](inference.md)
+documents the provider data boundary. [ADR 0004](adr/0004-extractive-semantic-selection.md)
+records the selection decision; the [ADR index](adr/README.md) preserves the
+other M1/M2 choices and rejected approaches.
 
 ## Degraded behavior and recovery
 
@@ -39,7 +72,8 @@ These alpha.9 defaults are safety bounds, not throughput, capacity, or disaster-
 | Boundary | Default or limit | Consequence |
 | --- | --- | --- |
 | Context | 3,000 tokens, minimum 600 | Returned context is bounded. |
-| Capture / context deadline | 250 ms / 1,500 ms | Deadline expiry returns an honest fallback. |
+| Capture / automatic context / explicit query context deadline | 250 ms / 1,500 ms / 20 s | Deadline expiry returns an honest fallback; queried bodies are never replayed from cache. |
+| Inference | 10 s HTTP timeout, 4 concurrent requests, 72 records, 64 KiB response | Capacity saturation and invalid or unavailable output refuse working recall. |
 | Outage cache | 200 sessions, 64 KiB each, 300 s TTL | Account-bound and finite; restart loses it. |
 | Event spool | 50,000 rows or 256 MiB of payloads | Oldest ordinary capture can be dropped and counted; protected boundary rows are retained, then admission is refused. This is not a total disk limit. |
 | Delivery claim / HTTP request | 60 s / 20 s | Expired claims are recoverable; server receipts make retries idempotent. |
@@ -48,3 +82,35 @@ These alpha.9 defaults are safety bounds, not throughput, capacity, or disaster-
 | Local snapshot I/O | 64 KiB chunks | Copy and hash avoid loading the whole SQLite file, but need free disk for backup. |
 
 Accepted knowledge, evidence, backups, and PostgreSQL volume growth have no automatic retention policy in alpha.9. Operators must size storage and test physical backup and restore. [Validation](validation.md) states the evidence needed before any wider operating claim.
+
+### Native capture finalization
+
+The pinned Codex profile can resume once at Stop to capture supported findings or
+state `no_durable_finding`. Native turn metadata is cross-checked with the session
+identity; generic clients do not claim this checkpoint. Local bookkeeping is
+partitioned by account, server URL digest, session and turn. Command admission and
+capture credit share a SQLite transaction. A separate intervention flag, native
+recursion guard and remaining hook deadline bound the interaction; errors release
+finalization. No prompt or assistant text is stored in checkpoint rows.
+[ADR 0009](adr/0009-bounded-native-finalization-checkpoint.md) owns its evidence and
+limitations; an admitted command is not semantic or full milestone acceptance.
+
+### Local capture completeness
+
+Native Codex input stores a redacted task record locally, keyed by account,
+server, session and turn, up to 16384 UTF-8 bytes. Local records expire after
+24 hours, are capped at 128 turns per credential lane, and are removed with
+sessions or replaced credential lanes. Minute maintenance runs while the daemon
+is active; an offline store cleans expired records on its next opening. Tasks
+never enter remote delivery spools. Native admitted findings have separate
+short-lived snapshots capped at eight per turn, 2048 content bytes and 8192
+serialized payload bytes each; refusal rolls back command admission.
+
+The separately configured comparator checks authored requirements against those
+actual findings, returning exact task quotes and known command IDs. Coverage is
+bound to task/finding hashes and comparator revision; missing, redacted or
+truncated input remains unknown. Generic clients cannot assert native coverage.
+Admission and agent-authored empty dispositions are distinct from semantic
+coverage. One finalization intervention permits review and supported correction
+without forcing a coding session to wait indefinitely. Comparator qualification
+and useful recall are open. See [ADR 0010](adr/0010-capture-completeness-boundary.md).

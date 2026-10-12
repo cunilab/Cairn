@@ -1,0 +1,98 @@
+{
+  "status": "model_not_qualified",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "initial_source_sha": "fc5f39a5ff21cefc8d6719d2fd7a827e76c33f09",
+  "followup_source_sha": "5bb16df196d262c9def78115ed8d193ad7130b08",
+  "calibration": {
+    "configured_model": "gpt-6.1-sol",
+    "configured_cli": "0.160.0",
+    "correct": 42,
+    "unknown": 0,
+    "passed": true,
+    "transport_calls_verified": 13
+  },
+  "initial_cases": [
+    {
+      "id": "mixed",
+      "relevant": "yes",
+      "faithful": "yes",
+      "reason": "Reports the required export currency without claiming implementation."
+    },
+    {
+      "id": "negation",
+      "relevant": "yes",
+      "faithful": "yes",
+      "reason": "Preserves the required duration and prohibition against extending it."
+    },
+    {
+      "id": "conditional",
+      "relevant": "yes",
+      "faithful": "no",
+      "reason": "Preserves account conditions but omits that retention is a user requirement, leaving implementation status ambiguous."
+    },
+    {
+      "id": "attribution",
+      "relevant": "yes",
+      "faithful": "yes",
+      "reason": "Preserves the user preference and its unimplemented status."
+    },
+    {
+      "id": "abstention",
+      "relevant": "yes",
+      "faithful": "yes",
+      "reason": "The source supports the useful statement that export currency is not established."
+    }
+  ],
+  "followup_cases": [
+    {
+      "id": "requirement_implementation",
+      "relevant": "yes",
+      "faithful": "yes",
+      "reason": "Both claims address invoice date format and preserve the distinction between customer requirements and current exports."
+    },
+    {
+      "id": "cross_sentence_attribution",
+      "relevant": "yes",
+      "faithful": "yes",
+      "reason": "The retention proposal retains its product-owner attribution and explicit distinction from current functionality."
+    },
+    {
+      "id": "negation",
+      "relevant": "yes",
+      "faithful": "yes",
+      "reason": "The statement preserves operator attribution and the prohibition on retries for authentication failures."
+    },
+    {
+      "id": "conditional_exception",
+      "relevant": "yes",
+      "faithful": "yes",
+      "reason": "The approval requirement preserves maintainer attribution, production scope, and the disposable-preview exception."
+    },
+    {
+      "id": "interleaved_clause",
+      "relevant": "no",
+      "faithful": "yes",
+      "reason": "The sidebar tab count is unrelated to backup upload encryption, though both delivered claims match the source."
+    },
+    {
+      "id": "no_adequate_statement",
+      "relevant": "yes",
+      "faithful": "yes",
+      "reason": "The source establishes no backup encryption requirement, so the empty output is appropriate."
+    }
+  ],
+  "mechanical_provenance_all_valid": true,
+  "private_evidence_sha256": {
+    "initial": "7135308ff379bc9a28eb059cfb6a1c735ccf0ba7c016608dc83c42c877a3e6a7",
+    "initial_judgment": "73c1601035f9189e20901c79b2ba3e642e31ff49ed28352f442565a235ebbda4",
+    "followup": "c5fe87670c0c7b99ed327a54b5613d9189527f333cc61980d6f40e3ed0dc7280",
+    "followup_judgment": "d79488b51af09003b8c0425d8f3e602f37f7b9d04102bed6758efccb88c1f73f",
+    "calibration": "abf766c87b31dd051a238539166d825db52074f09265142fea474f101e110a89"
+  },
+  "procedure_invalid_attempt_preserved": {
+    "reason": "Synthetic harness assumed project_memory was present for a valid empty selection; entire follow-up repeated after serialization-only correction, with original directory/database retained.",
+    "metadata_sha256": "b2365d20a956f2e91e0fff30a59b9f0fc95d2ef6f9378a5080436497140bd854"
+  },
+  "qualification": "Synthetic development screen only, not milestone corpus or semantic gate. One general instruction correction; no further tuning or full actor batch. First screen lost requirement attribution; follow-up retained an irrelevant clause. Stop this model qualification. No old frozen results rescored. Claude skipped. API key absent from this metadata."
+}

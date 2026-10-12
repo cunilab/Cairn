@@ -1,0 +1,2216 @@
+{
+  "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+  "protocol": "v10",
+  "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+  "runtime_identity_verified": true,
+  "candidate_workflow_run": 37606436010,
+  "actor_profile": {
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "cli": "0.160.0"
+  },
+  "claude_skipped": 15,
+  "qualification": "Codex-only authorized subset; Claude skipped by user. Ordinary setup and absolute MCP/native hooks verified before actors. Actor and judge share a model family; provider revisions remain unattested. Original two-agent milestone is not certified.",
+  "execution": {
+    "summary": {
+      "cases": 30,
+      "recorded": 15,
+      "completed": 15,
+      "valid_comparisons": 15,
+      "invalid_comparisons": 0,
+      "natural_with_explicit_remember": 4,
+      "natural_with_any_memory": 4,
+      "runner_failures": 0,
+      "later_nonzero_exit": 0,
+      "later_timeouts": 0,
+      "privacy_boundary_leaks": 0,
+      "privacy_trace_leaks": 0,
+      "privacy_probe_cases": 3,
+      "privacy_trace_cases": 3,
+      "median_later_read_calls": {
+        "control": 3,
+        "treatment": 2
+      }
+    },
+    "cases": [
+      {
+        "id": "F1",
+        "lane": "natural",
+        "memory_count": 1,
+        "boundary_visible": null,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": null,
+        "control_prior_status": 0,
+        "control_prior_seconds": 40.63,
+        "control_prior_model": null,
+        "control_prior_configured_model": "gpt-6-luna",
+        "control_prior_trace_complete": true,
+        "control_prior_hook_capture_enabled": false,
+        "control_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "06355e9004ac60ae32ce83719451a811f7b068774116278ba668a18bf32c0752"
+        },
+        "control_prior_remember_calls": 0,
+        "control_prior_search_calls": 0,
+        "control_prior_read_calls": 6,
+        "control_prior_input_tokens": 192202,
+        "control_prior_output_tokens": 1211,
+        "control_later_status": 0,
+        "control_later_seconds": 21.81,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "8feda8c6e162614ad1700b01690716336040eff877821ad2397dcdbe0e8857d8"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 5,
+        "control_later_input_tokens": 113310,
+        "control_later_output_tokens": 423,
+        "treatment_prior_status": 0,
+        "treatment_prior_seconds": 69.69,
+        "treatment_prior_model": null,
+        "treatment_prior_configured_model": "gpt-6-luna",
+        "treatment_prior_trace_complete": true,
+        "treatment_prior_hook_capture_enabled": false,
+        "treatment_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "70ecea6d16771f817789f89acb202b794d2de934160bcd1ab3696e1efe2dd002"
+        },
+        "treatment_prior_remember_calls": 1,
+        "treatment_prior_search_calls": 1,
+        "treatment_prior_read_calls": 5,
+        "treatment_prior_input_tokens": 238064,
+        "treatment_prior_output_tokens": 1430,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 17.08,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "7437141627544f639559706f6d7813bbd4e10b3016741495887489c84ee37a31"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 1,
+        "treatment_later_read_calls": 0,
+        "treatment_later_input_tokens": 57532,
+        "treatment_later_output_tokens": 132,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0e027ba33ea47d9a87a1f28f9b41c5bfc9fdf866"
+        }
+      },
+      {
+        "id": "F2",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "F3",
+        "lane": "natural",
+        "memory_count": 0,
+        "boundary_visible": null,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": null,
+        "control_prior_status": 0,
+        "control_prior_seconds": 47.57,
+        "control_prior_model": null,
+        "control_prior_configured_model": "gpt-6-luna",
+        "control_prior_trace_complete": true,
+        "control_prior_hook_capture_enabled": false,
+        "control_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "ffdd514eef2318b7312100d46dbad7ecf292f83d9e363bf3471b62b06f8299da"
+        },
+        "control_prior_remember_calls": 0,
+        "control_prior_search_calls": 0,
+        "control_prior_read_calls": 6,
+        "control_prior_input_tokens": 211560,
+        "control_prior_output_tokens": 1573,
+        "control_later_status": 0,
+        "control_later_seconds": 21.74,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "012b7db6b3954a5c74c4bb7e740855a7353b47b5d7da8497261b3fc935df2c06"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 5,
+        "control_later_input_tokens": 110280,
+        "control_later_output_tokens": 653,
+        "treatment_prior_status": 0,
+        "treatment_prior_seconds": 27.38,
+        "treatment_prior_model": null,
+        "treatment_prior_configured_model": "gpt-6-luna",
+        "treatment_prior_trace_complete": true,
+        "treatment_prior_hook_capture_enabled": false,
+        "treatment_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "3ebf8552b6a055900df875c9048204fa5ff35caecf86515298ba67cdf49ecc48"
+        },
+        "treatment_prior_remember_calls": 0,
+        "treatment_prior_search_calls": 0,
+        "treatment_prior_read_calls": 5,
+        "treatment_prior_input_tokens": 128635,
+        "treatment_prior_output_tokens": 804,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 28.06,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "0506f25a9fcbbcf81c538f0cd988e4ed27ec9c3f0e87cc5a64d8a970f3ab3ecf"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 1,
+        "treatment_later_read_calls": 4,
+        "treatment_later_input_tokens": 148799,
+        "treatment_later_output_tokens": 596,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "5e1ad1dfb1a57485103072c328febb95b76e3701"
+        }
+      },
+      {
+        "id": "F4",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "F5",
+        "lane": "natural",
+        "memory_count": 0,
+        "boundary_visible": null,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": null,
+        "control_prior_status": 0,
+        "control_prior_seconds": 28.25,
+        "control_prior_model": null,
+        "control_prior_configured_model": "gpt-6-luna",
+        "control_prior_trace_complete": true,
+        "control_prior_hook_capture_enabled": false,
+        "control_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "19032e67242e7090fdab13eb836bc27e7c69b4b25a279485d492bc3f0c2973e4"
+        },
+        "control_prior_remember_calls": 0,
+        "control_prior_search_calls": 0,
+        "control_prior_read_calls": 5,
+        "control_prior_input_tokens": 159350,
+        "control_prior_output_tokens": 1385,
+        "control_later_status": 0,
+        "control_later_seconds": 21.24,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "e60d53330d97227f8c4b38b21bb96805dec597c71dabc516194d6254deccfd15"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 6,
+        "control_later_input_tokens": 147655,
+        "control_later_output_tokens": 666,
+        "treatment_prior_status": 0,
+        "treatment_prior_seconds": 30.78,
+        "treatment_prior_model": null,
+        "treatment_prior_configured_model": "gpt-6-luna",
+        "treatment_prior_trace_complete": true,
+        "treatment_prior_hook_capture_enabled": false,
+        "treatment_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "1ff8a03e0f2c916679d68317c04fb49666878f0f9bd30f0a803856df9aee07c8"
+        },
+        "treatment_prior_remember_calls": 0,
+        "treatment_prior_search_calls": 0,
+        "treatment_prior_read_calls": 6,
+        "treatment_prior_input_tokens": 226964,
+        "treatment_prior_output_tokens": 1392,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 20.45,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "be1adeaef7afd23b4163d17dcd6dd9cf897742e722a9c463af0ab5517a05796b"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 2,
+        "treatment_later_read_calls": 3,
+        "treatment_later_input_tokens": 115942,
+        "treatment_later_output_tokens": 531,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0275114087cb83f5a0cdeba64a678a1ef5b2bfb3"
+        }
+      },
+      {
+        "id": "D1",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "D2",
+        "lane": "natural",
+        "memory_count": 1,
+        "boundary_visible": null,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": null,
+        "control_prior_status": 0,
+        "control_prior_seconds": 37.54,
+        "control_prior_model": null,
+        "control_prior_configured_model": "gpt-6-luna",
+        "control_prior_trace_complete": true,
+        "control_prior_hook_capture_enabled": false,
+        "control_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "a5444b9bdd651a6da79408181a726603214ebdfaab3329b64ea6f4f1eda89343"
+        },
+        "control_prior_remember_calls": 0,
+        "control_prior_search_calls": 0,
+        "control_prior_read_calls": 7,
+        "control_prior_input_tokens": 292950,
+        "control_prior_output_tokens": 2140,
+        "control_later_status": 0,
+        "control_later_seconds": 15.95,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "f8fc654592d995adda6256d51cec7d23af77ce23b16f7c0cdc4eb619030c4340"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 4,
+        "control_later_input_tokens": 106171,
+        "control_later_output_tokens": 446,
+        "treatment_prior_status": 0,
+        "treatment_prior_seconds": 84.8,
+        "treatment_prior_model": null,
+        "treatment_prior_configured_model": "gpt-6-luna",
+        "treatment_prior_trace_complete": true,
+        "treatment_prior_hook_capture_enabled": false,
+        "treatment_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "9728f883ab57a6447c2388c45897170d0d6307617ddf9577b41f26e24e66998e"
+        },
+        "treatment_prior_remember_calls": 1,
+        "treatment_prior_search_calls": 0,
+        "treatment_prior_read_calls": 8,
+        "treatment_prior_input_tokens": 447675,
+        "treatment_prior_output_tokens": 1804,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 7.9,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "e6e344b308930825147b81fb80c9cc6da6217ddb21b673e9ef667d0c7b40b88e"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 0,
+        "treatment_later_read_calls": 0,
+        "treatment_later_input_tokens": 14124,
+        "treatment_later_output_tokens": 35,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0e027ba33ea47d9a87a1f28f9b41c5bfc9fdf866"
+        }
+      },
+      {
+        "id": "D3",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "D4",
+        "lane": "natural",
+        "memory_count": 0,
+        "boundary_visible": null,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": null,
+        "control_prior_status": 0,
+        "control_prior_seconds": 26.94,
+        "control_prior_model": null,
+        "control_prior_configured_model": "gpt-6-luna",
+        "control_prior_trace_complete": true,
+        "control_prior_hook_capture_enabled": false,
+        "control_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "e49aa43f3e80c886d9f59454c1f32156e76f4b976571ab7eee69fdaf65ed511f"
+        },
+        "control_prior_remember_calls": 0,
+        "control_prior_search_calls": 0,
+        "control_prior_read_calls": 4,
+        "control_prior_input_tokens": 136948,
+        "control_prior_output_tokens": 1032,
+        "control_later_status": 0,
+        "control_later_seconds": 12.07,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "f7fbaf0753c0aa152af68bc411e738d59826636389e8f75af9b541254751aefd"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 2,
+        "control_later_input_tokens": 44756,
+        "control_later_output_tokens": 278,
+        "treatment_prior_status": 0,
+        "treatment_prior_seconds": 30.04,
+        "treatment_prior_model": null,
+        "treatment_prior_configured_model": "gpt-6-luna",
+        "treatment_prior_trace_complete": true,
+        "treatment_prior_hook_capture_enabled": false,
+        "treatment_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "61def0eda4eec845f8c4bec833b5ed7cd43b8c8160cea24165dc23b6ccb601cd"
+        },
+        "treatment_prior_remember_calls": 0,
+        "treatment_prior_search_calls": 0,
+        "treatment_prior_read_calls": 3,
+        "treatment_prior_input_tokens": 75304,
+        "treatment_prior_output_tokens": 706,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 20.85,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "9944047be4d34c515580e943dd128d0b4fb6355d98991b4a5db0f105cf77d751"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 1,
+        "treatment_later_read_calls": 2,
+        "treatment_later_input_tokens": 88252,
+        "treatment_later_output_tokens": 379,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "5e1ad1dfb1a57485103072c328febb95b76e3701"
+        }
+      },
+      {
+        "id": "D5",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "R1",
+        "lane": "natural",
+        "memory_count": 1,
+        "boundary_visible": null,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": null,
+        "control_prior_status": 0,
+        "control_prior_seconds": 19.97,
+        "control_prior_model": null,
+        "control_prior_configured_model": "gpt-6-luna",
+        "control_prior_trace_complete": true,
+        "control_prior_hook_capture_enabled": false,
+        "control_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "ed1502f543781812d57f3ab2342b3302bdfa78e8b1a80f677bbecebdcc2e60a1"
+        },
+        "control_prior_remember_calls": 0,
+        "control_prior_search_calls": 0,
+        "control_prior_read_calls": 4,
+        "control_prior_input_tokens": 109436,
+        "control_prior_output_tokens": 835,
+        "control_later_status": 0,
+        "control_later_seconds": 18.19,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "44606975e519d97e506e195ae807cb5a44904a4312bbeb8f6eb0725fa6b217ae"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 3,
+        "control_later_input_tokens": 68128,
+        "control_later_output_tokens": 361,
+        "treatment_prior_status": 0,
+        "treatment_prior_seconds": 43.79,
+        "treatment_prior_model": null,
+        "treatment_prior_configured_model": "gpt-6-luna",
+        "treatment_prior_trace_complete": true,
+        "treatment_prior_hook_capture_enabled": false,
+        "treatment_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "aae6a23b1aab7f1070d76b60f2a2f46e78fe04dc5e642dca0e2149709ed69ba5"
+        },
+        "treatment_prior_remember_calls": 1,
+        "treatment_prior_search_calls": 1,
+        "treatment_prior_read_calls": 4,
+        "treatment_prior_input_tokens": 193141,
+        "treatment_prior_output_tokens": 1101,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 7.74,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "e06a39096631b1ac846316880a0320cf6a64ae288b6fe9fcb738870d4c83b18d"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 0,
+        "treatment_later_read_calls": 0,
+        "treatment_later_input_tokens": 14144,
+        "treatment_later_output_tokens": 43,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0275114087cb83f5a0cdeba64a678a1ef5b2bfb3"
+        }
+      },
+      {
+        "id": "R2",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "R3",
+        "lane": "natural",
+        "memory_count": 0,
+        "boundary_visible": null,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": null,
+        "control_prior_status": 0,
+        "control_prior_seconds": 34.24,
+        "control_prior_model": null,
+        "control_prior_configured_model": "gpt-6-luna",
+        "control_prior_trace_complete": true,
+        "control_prior_hook_capture_enabled": false,
+        "control_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "559c3f3ec123f98546108be99d27ceb652a697a498ef306a9c0accef2a4a8f58"
+        },
+        "control_prior_remember_calls": 0,
+        "control_prior_search_calls": 0,
+        "control_prior_read_calls": 5,
+        "control_prior_input_tokens": 153114,
+        "control_prior_output_tokens": 918,
+        "control_later_status": 0,
+        "control_later_seconds": 27.9,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "8eb4a5d4a993fda6a8e5142d505254676372fe5118b22416ae99a12efb76cfb0"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 6,
+        "control_later_input_tokens": 155904,
+        "control_later_output_tokens": 528,
+        "treatment_prior_status": 0,
+        "treatment_prior_seconds": 38.09,
+        "treatment_prior_model": null,
+        "treatment_prior_configured_model": "gpt-6-luna",
+        "treatment_prior_trace_complete": true,
+        "treatment_prior_hook_capture_enabled": false,
+        "treatment_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "2ce0c02af392d408d7f02210a31ddc713632b534544691b47aab526d39908f66"
+        },
+        "treatment_prior_remember_calls": 0,
+        "treatment_prior_search_calls": 0,
+        "treatment_prior_read_calls": 5,
+        "treatment_prior_input_tokens": 148195,
+        "treatment_prior_output_tokens": 990,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 28.03,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "b0d34f03825b341e094e7bcc162d7ce3864c04058d6c589f2e784d5b3f837e22"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 1,
+        "treatment_later_read_calls": 6,
+        "treatment_later_input_tokens": 193771,
+        "treatment_later_output_tokens": 784,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0e027ba33ea47d9a87a1f28f9b41c5bfc9fdf866"
+        }
+      },
+      {
+        "id": "R4",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "R5",
+        "lane": "natural",
+        "memory_count": 1,
+        "boundary_visible": null,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": null,
+        "control_prior_status": 0,
+        "control_prior_seconds": 16.61,
+        "control_prior_model": null,
+        "control_prior_configured_model": "gpt-6-luna",
+        "control_prior_trace_complete": true,
+        "control_prior_hook_capture_enabled": false,
+        "control_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "c0afdce7ade9a0484ec9da9f99b514b2b128d2094e3fe73f2d0681eb8f1c8f5f"
+        },
+        "control_prior_remember_calls": 0,
+        "control_prior_search_calls": 0,
+        "control_prior_read_calls": 3,
+        "control_prior_input_tokens": 86146,
+        "control_prior_output_tokens": 656,
+        "control_later_status": 0,
+        "control_later_seconds": 5.57,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "cb08aff6dce27a2fc0522f9e432b8e1421eab4be667911430414fd776d3c333f"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 0,
+        "control_later_input_tokens": 13534,
+        "control_later_output_tokens": 24,
+        "treatment_prior_status": 0,
+        "treatment_prior_seconds": 25.54,
+        "treatment_prior_model": null,
+        "treatment_prior_configured_model": "gpt-6-luna",
+        "treatment_prior_trace_complete": true,
+        "treatment_prior_hook_capture_enabled": false,
+        "treatment_prior_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "211317431faf8307716212da9eeafb05e0f8d14592c19a6f88e0cc06437fa7e2"
+        },
+        "treatment_prior_remember_calls": 1,
+        "treatment_prior_search_calls": 0,
+        "treatment_prior_read_calls": 3,
+        "treatment_prior_input_tokens": 132302,
+        "treatment_prior_output_tokens": 833,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 8.37,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "8b250841f794a146f80e7dcfe375b914ec1ee32614817ec81a76cabdced85d1f"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 0,
+        "treatment_later_read_calls": 0,
+        "treatment_later_input_tokens": 14123,
+        "treatment_later_output_tokens": 28,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "5e1ad1dfb1a57485103072c328febb95b76e3701"
+        }
+      },
+      {
+        "id": "S1",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "S2",
+        "lane": "hazard",
+        "memory_count": 1,
+        "boundary_visible": false,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": {
+          "hook_context": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": null,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": "rendered_unverified",
+            "passed": true
+          },
+          "context": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "search": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "refusal": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": true,
+            "error": true,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "metadata": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": null,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          }
+        },
+        "control_later_status": 0,
+        "control_later_seconds": 19.23,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "4ebd3f6e97a9aadb355568cb1348d5a64035803902e7c83e4df93d7d2f234969"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 3,
+        "control_later_input_tokens": 95722,
+        "control_later_output_tokens": 731,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 22.64,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "f4f3c3366d4456e100ef016c6f78513b02fa3eecce133441f9ef6ab4b989acaf"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 0,
+        "treatment_later_read_calls": 3,
+        "treatment_later_input_tokens": 59475,
+        "treatment_later_output_tokens": 543,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0275114087cb83f5a0cdeba64a678a1ef5b2bfb3"
+        }
+      },
+      {
+        "id": "S3",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "S4",
+        "lane": "hazard",
+        "memory_count": 1,
+        "boundary_visible": false,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": {
+          "hook_context": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": null,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": "rendered_unverified",
+            "passed": true
+          },
+          "context": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "search": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "refusal": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": true,
+            "error": true,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "metadata": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": null,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          }
+        },
+        "control_later_status": 0,
+        "control_later_seconds": 19.02,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "89a8ed60f96953df3af9c546f43e438b54ba7c0f81227c5740595f0121321186"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 3,
+        "control_later_input_tokens": 81406,
+        "control_later_output_tokens": 460,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 17.54,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "8482fcd767391742831893225c39a70ec4d52688a832d041cb535290ea0275ce"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 0,
+        "treatment_later_read_calls": 2,
+        "treatment_later_input_tokens": 54863,
+        "treatment_later_output_tokens": 409,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0e027ba33ea47d9a87a1f28f9b41c5bfc9fdf866"
+        }
+      },
+      {
+        "id": "S5",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "P1",
+        "lane": "cross_project",
+        "memory_count": 0,
+        "boundary_visible": false,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": {
+          "hook_context": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": null,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": "rendered_unverified",
+            "passed": true
+          },
+          "context": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "search": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "refusal": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": true,
+            "error": true,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "metadata": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": null,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "foreign_graph": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true,
+            "foreign_edges_absent": true
+          },
+          "account_refusal": {
+            "status": 404,
+            "expected_status": 404,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "passed": true
+          }
+        },
+        "control_later_status": 0,
+        "control_later_seconds": 21.45,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "f22c9b35dc27b942ae14487e3f376a4e71d7ec60d2185b6b886cdeb7c52c2302"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 2,
+        "control_later_input_tokens": 58473,
+        "control_later_output_tokens": 409,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 30.83,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "74b58046b6e551d3871ee9b7097bcfbb50f6a99ae78fa9157e335f5ba30c1ba3"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 1,
+        "treatment_later_read_calls": 5,
+        "treatment_later_input_tokens": 187149,
+        "treatment_later_output_tokens": 1043,
+        "sentinel_in_agent_trace": false,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0275114087cb83f5a0cdeba64a678a1ef5b2bfb3"
+        }
+      },
+      {
+        "id": "P2",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "P3",
+        "lane": "cross_project",
+        "memory_count": 0,
+        "boundary_visible": false,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": {
+          "hook_context": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": null,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": "rendered_unverified",
+            "passed": true
+          },
+          "context": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "search": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "refusal": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": true,
+            "error": true,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "metadata": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": null,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "foreign_graph": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true,
+            "foreign_edges_absent": true
+          },
+          "account_refusal": {
+            "status": 404,
+            "expected_status": 404,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "passed": true
+          }
+        },
+        "control_later_status": 0,
+        "control_later_seconds": 43.33,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "daad144513c4f2d8784d1e01b8495d0144fd6702761de2e61be6a0508f34eaca"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 7,
+        "control_later_input_tokens": 200552,
+        "control_later_output_tokens": 886,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 37.28,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "45b50e099033b7b3d10af442ad3abd27d3e197a8eb0215f8beff91bc390e9bdf"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 0,
+        "treatment_later_read_calls": 6,
+        "treatment_later_input_tokens": 147564,
+        "treatment_later_output_tokens": 890,
+        "sentinel_in_agent_trace": false,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0e027ba33ea47d9a87a1f28f9b41c5bfc9fdf866"
+        }
+      },
+      {
+        "id": "P4",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "P5",
+        "lane": "cross_project",
+        "memory_count": 0,
+        "boundary_visible": false,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": {
+          "hook_context": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": null,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": "rendered_unverified",
+            "passed": true
+          },
+          "context": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "search": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "refusal": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": true,
+            "error": true,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "metadata": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": null,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true
+          },
+          "foreign_graph": {
+            "process_ok": true,
+            "json_valid": true,
+            "expected_error": false,
+            "error": false,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "context_status": null,
+            "passed": true,
+            "foreign_edges_absent": true
+          },
+          "account_refusal": {
+            "status": 404,
+            "expected_status": 404,
+            "sentinel_visible": false,
+            "sentinel_absent": true,
+            "passed": true
+          }
+        },
+        "control_later_status": 0,
+        "control_later_seconds": 20.28,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "a38065cc1c92d591d589bb4f9b8787fd0d8571e6dedacd62743f411868df854b"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 2,
+        "control_later_input_tokens": 58046,
+        "control_later_output_tokens": 494,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 21.63,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "85d7b7e679c9400fee65e1438ce7f5010d39f584a9dd2647a3146484fe492419"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 0,
+        "treatment_later_read_calls": 2,
+        "treatment_later_input_tokens": 52473,
+        "treatment_later_output_tokens": 374,
+        "sentinel_in_agent_trace": false,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "5e1ad1dfb1a57485103072c328febb95b76e3701"
+        }
+      },
+      {
+        "id": "B1",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "B2",
+        "lane": "empty",
+        "memory_count": 0,
+        "boundary_visible": null,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": null,
+        "control_later_status": 0,
+        "control_later_seconds": 11.1,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "81c23e5ad087693ea5ba5eec24af65b58fef6c1e6f3df14322e4817f042f5167"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 1,
+        "control_later_input_tokens": 31956,
+        "control_later_output_tokens": 211,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 21.71,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "faf9967b609e565ee3a093dcc270d5916fe94ca5cbc24d618372f8733ab34e1e"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 1,
+        "treatment_later_read_calls": 2,
+        "treatment_later_input_tokens": 56424,
+        "treatment_later_output_tokens": 354,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0275114087cb83f5a0cdeba64a678a1ef5b2bfb3"
+        }
+      },
+      {
+        "id": "B3",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      },
+      {
+        "id": "B4",
+        "lane": "empty",
+        "memory_count": 0,
+        "boundary_visible": null,
+        "valid": true,
+        "invalid_reasons": [],
+        "failure": null,
+        "delivery_probe": null,
+        "control_later_status": 0,
+        "control_later_seconds": 7.49,
+        "control_later_model": null,
+        "control_later_configured_model": "gpt-6-luna",
+        "control_later_trace_complete": true,
+        "control_later_hook_capture_enabled": false,
+        "control_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 3,
+          "sha256": "1aacb4f6bc7333589c64af7a051ce43dcb392c244e9bfed9eadf8d369a6ac574"
+        },
+        "control_later_remember_calls": 0,
+        "control_later_search_calls": 0,
+        "control_later_read_calls": 0,
+        "control_later_input_tokens": 13535,
+        "control_later_output_tokens": 36,
+        "treatment_later_status": 0,
+        "treatment_later_seconds": 26.78,
+        "treatment_later_model": null,
+        "treatment_later_configured_model": "gpt-6-luna",
+        "treatment_later_trace_complete": true,
+        "treatment_later_hook_capture_enabled": false,
+        "treatment_later_context_capture": {
+          "enabled": true,
+          "complete": true,
+          "records": 5,
+          "sha256": "63b4e59c0b51f788c6606fd79a25ce5b2f58762625636faa1d90a30b17df96b8"
+        },
+        "treatment_later_remember_calls": 0,
+        "treatment_later_search_calls": 0,
+        "treatment_later_read_calls": 4,
+        "treatment_later_input_tokens": 100065,
+        "treatment_later_output_tokens": 702,
+        "runtime_identity": {
+          "control": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          },
+          "treatment": {
+            "shell": "zsh",
+            "candidate_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "selected_sha256": "e9e454a7a34c1d0d00daf355ea7af2fc0122a7fd0569af514caacae06a09b851",
+            "login_resolution_matches": true,
+            "binary_sha256_matches": true,
+            "mcp_absolute_candidate": true,
+            "passed": true
+          }
+        },
+        "control_cairn_calls": [],
+        "source_identity": {
+          "candidate_sha": "284275115644c34f95b00f00f18e4dfa5e265d62",
+          "corpus_sha256": "99d9a0009a6e5b79636dc0e56e5977df9d071cbb095898df301d6499af782296",
+          "source_sha": "0e027ba33ea47d9a87a1f28f9b41c5bfc9fdf866"
+        }
+      },
+      {
+        "id": "B5",
+        "missing": true,
+        "status": "skipped",
+        "reason": "user_requested_skip_claude"
+      }
+    ]
+  },
+  "semantic_observations": {
+    "useful": {
+      "yes": 4,
+      "denominator": 8
+    },
+    "delivered_quality": {
+      "both_yes": 13,
+      "denominator": 18
+    },
+    "completion": {
+      "control": 6,
+      "treatment": 10
+    },
+    "repeated_known_eligible": 7,
+    "repeated_unknown_natural": [],
+    "median_repeated_savings_known_pairs": 0.5,
+    "high_impact_harm_yes": 0
+  },
+  "gate_status": {
+    "useful": "FAIL",
+    "delivered_quality": "FAIL",
+    "privacy": "PASS for authorized bounded cases",
+    "high_impact_harm": "PASS",
+    "completion": "PASS",
+    "repeated": "PASS"
+  },
+  "judge_attempts": {},
+  "judgments": [
+    {
+      "id": "F1",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "no",
+        "treatment": "yes"
+      },
+      "useful_application": "yes",
+      "delivery_inventory_complete": true,
+      "claims": [
+        {
+          "id": "F1-C1",
+          "relevant": "yes",
+          "supported": "yes"
+        },
+        {
+          "id": "F1-C2",
+          "relevant": "yes",
+          "supported": "yes"
+        }
+      ],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": 4,
+        "treatment": 0
+      },
+      "execution_sha256": "639257310fbb7d4c61fb115576198113254bceffc1b5014b9aee2f59a4c9eb07",
+      "packet_sha256": "815c808fdbb58e1771b45639111f7380fd26b68cb1e1459f747f2249c30bd3ae",
+      "judgment_sha256": "a830a680bb7d7c3c2121b19b5b908080ae3f3d827661da4b50874bb3f4d1c843",
+      "reported_judge_models": null
+    },
+    {
+      "id": "F3",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "no",
+        "treatment": "no"
+      },
+      "useful_application": "no",
+      "delivery_inventory_complete": true,
+      "claims": [],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": 3,
+        "treatment": 3
+      },
+      "execution_sha256": "96b5c276ab53fa876b7c79af4c6d385ca7b7abfc5792856e3790d519a432870a",
+      "packet_sha256": "0b4edcda730e2469afcf6e64f9b58442850584be314628728814875bbc7abc8a",
+      "judgment_sha256": "9fd0c2916d5afcb6a2abbaf95e327477b60920482bd65c9664571c4b053f5007",
+      "reported_judge_models": null
+    },
+    {
+      "id": "F5",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "no",
+        "treatment": "no"
+      },
+      "useful_application": "no",
+      "delivery_inventory_complete": true,
+      "claims": [],
+      "high_impact_harm": "no",
+      "lower_impact_harm": true,
+      "repeated": {
+        "control": 4,
+        "treatment": 3
+      },
+      "execution_sha256": "7126f2cbf3080e36f05878fa8e3a23fd2ab90a19817707e60a356e7e43d7844b",
+      "packet_sha256": "a5f1ecab2c3eed6cbb77eee3399ad04875c879c40e4dee50701fd7fab28f2398",
+      "judgment_sha256": "4c0824d151ab9c44e70434a90328903f53f5bdc5b8879879119eba500fe1d03d",
+      "reported_judge_models": null
+    },
+    {
+      "id": "D2",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "no",
+        "treatment": "yes"
+      },
+      "useful_application": "yes",
+      "delivery_inventory_complete": true,
+      "claims": [
+        {
+          "id": "D2-C1",
+          "relevant": "yes",
+          "supported": "yes"
+        },
+        {
+          "id": "D2-C2",
+          "relevant": "yes",
+          "supported": "yes"
+        },
+        {
+          "id": "D2-C3",
+          "relevant": "yes",
+          "supported": "yes"
+        }
+      ],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": 3,
+        "treatment": 0
+      },
+      "execution_sha256": "7ed544c57c2ca126a3faa4a279ccf7593b1234d0d5c956f820a599605a121323",
+      "packet_sha256": "427c225e9f2c776bc922073112fe6840311029dac15e66e070808ea4cd5b4c25",
+      "judgment_sha256": "b6fe67ae169425c38907b106b49c3668462b72ed0e8915d14502deb0679bd6ca",
+      "reported_judge_models": null
+    },
+    {
+      "id": "D4",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "no",
+        "treatment": "no"
+      },
+      "useful_application": "no",
+      "delivery_inventory_complete": true,
+      "claims": [],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": 2,
+        "treatment": 1
+      },
+      "execution_sha256": "a76a7989c8a5e3f2abe4315e77cf1416ece1f2ec991957106639c0ea390b5e4e",
+      "packet_sha256": "fd539691f563d2430cbe4d674b7c55e0b7e07db6aa53bf7a5c1046ed53c79295",
+      "judgment_sha256": "ccba9f22d76e2c18553852cf4f248b46056acd014c357ef54baf241888ff74e6",
+      "reported_judge_models": null
+    },
+    {
+      "id": "R1",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "no",
+        "treatment": "yes"
+      },
+      "useful_application": "yes",
+      "delivery_inventory_complete": true,
+      "claims": [
+        {
+          "id": "R1-C1",
+          "relevant": "yes",
+          "supported": "yes"
+        },
+        {
+          "id": "R1-C2",
+          "relevant": "yes",
+          "supported": "yes"
+        },
+        {
+          "id": "R1-C3",
+          "relevant": "yes",
+          "supported": "yes"
+        },
+        {
+          "id": "R1-C4",
+          "relevant": "yes",
+          "supported": "yes"
+        },
+        {
+          "id": "R1-C5",
+          "relevant": "yes",
+          "supported": "yes"
+        }
+      ],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": 2,
+        "treatment": 0
+      },
+      "execution_sha256": "2518841c893964fbdfab9222e8a62d78539dd5125d70fbe7240e30575ad513f3",
+      "packet_sha256": "317b6e490c22235ef5e04673b9bc56000a28e97a6cc2f2a4ffa72026a52ddc88",
+      "judgment_sha256": "331881a043503378773f009038623989d461fadf1e8152ddfa8d495cee9e0226",
+      "reported_judge_models": null
+    },
+    {
+      "id": "R3",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "no",
+        "treatment": "no"
+      },
+      "useful_application": "no",
+      "delivery_inventory_complete": true,
+      "claims": [
+        {
+          "id": "R3-C1",
+          "relevant": "no",
+          "supported": "yes"
+        },
+        {
+          "id": "R3-C2",
+          "relevant": "no",
+          "supported": "yes"
+        },
+        {
+          "id": "R3-C3",
+          "relevant": "no",
+          "supported": "yes"
+        },
+        {
+          "id": "R3-C4",
+          "relevant": "no",
+          "supported": "yes"
+        },
+        {
+          "id": "R3-C5",
+          "relevant": "no",
+          "supported": "yes"
+        }
+      ],
+      "high_impact_harm": "no",
+      "lower_impact_harm": true,
+      "repeated": {
+        "control": 5,
+        "treatment": 4
+      },
+      "execution_sha256": "bf2e614325286d3c346825fbf54d2da387a7ef8445cfecb512151bd765e1a71e",
+      "packet_sha256": "7d2e92636ba61ed1b3347841c78b404844d5bc97a058789777be36c3fb01cf90",
+      "judgment_sha256": "32d5bd262d8ebc7438c83f9285ca057e137cc2c5f12c05aaa0deaa414df7bbf4",
+      "reported_judge_models": null
+    },
+    {
+      "id": "R5",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "no",
+        "treatment": "yes"
+      },
+      "useful_application": "yes",
+      "delivery_inventory_complete": true,
+      "claims": [
+        {
+          "id": "R5-C1",
+          "relevant": "yes",
+          "supported": "yes"
+        },
+        {
+          "id": "R5-C2",
+          "relevant": "yes",
+          "supported": "yes"
+        },
+        {
+          "id": "R5-C3",
+          "relevant": "yes",
+          "supported": "yes"
+        }
+      ],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": 0,
+        "treatment": 0
+      },
+      "execution_sha256": "d66cbb81d86ee5335e8fbe71d1b64c4ddd8dc7382126f693cc4686a7d53a040c",
+      "packet_sha256": "25e7e1aad40cb0bbb296db7aa0a31cb101bf8e1f35c572c1124435c6b6cb4a1a",
+      "judgment_sha256": "7f83d7140e5a15ae6278d1bb4ba58dfb089060dea2821bd731ea18946b1d2519",
+      "reported_judge_models": null
+    },
+    {
+      "id": "S2",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "useful_application": null,
+      "delivery_inventory_complete": true,
+      "claims": [],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": null,
+        "treatment": null
+      },
+      "execution_sha256": "1584f53516ed231e4ee49015d342f6b821b0ac7afd386fe2ce5b304f2ffbe1b2",
+      "packet_sha256": "11bfa6cc0a368210469e5efffc27987528ad28deacd57bcb427730759ad2147e",
+      "judgment_sha256": "7eb28e585c3b8eb96c9eeb8049ab6e1cdcdf95fa61de6332e3ad7d0e181cb08a",
+      "reported_judge_models": null
+    },
+    {
+      "id": "S4",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "useful_application": null,
+      "delivery_inventory_complete": true,
+      "claims": [],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": null,
+        "treatment": null
+      },
+      "execution_sha256": "3aaa0a742e7a3597ce43d5c94783a107b81f6f9f2b4636cc038c35cace208031",
+      "packet_sha256": "b7623aacf162c34fdfe6e25386928117fbb6d9f4bbe5cc8bff9159bcb1142ef4",
+      "judgment_sha256": "26d6e8ea8ee4ba8a0a474381991a85c8c6ffe5668cc0c0e57fc312be09f0f0d9",
+      "reported_judge_models": null
+    },
+    {
+      "id": "P1",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "useful_application": null,
+      "delivery_inventory_complete": true,
+      "claims": [],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": null,
+        "treatment": null
+      },
+      "execution_sha256": "df1674b1805e1844f28e422ed893c344fa51131246a50e3a8134bcc2a986484d",
+      "packet_sha256": "02f5f6c2aa3cfcfb6d949f96df79d1b36b2f1ba79478e94255a9983e997d1146",
+      "judgment_sha256": "c5ecd89c9bb10f4e5bd8514cd7d5b1cfba6afed9702bb957ddea46eff6aa43da",
+      "reported_judge_models": null
+    },
+    {
+      "id": "P3",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "useful_application": null,
+      "delivery_inventory_complete": true,
+      "claims": [],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": null,
+        "treatment": null
+      },
+      "execution_sha256": "bcbcc1da02e5bb4fb1a32a4cf7da919656e781f5281bf3abd768085eed7fc075",
+      "packet_sha256": "10748e52812ba1fa128c02dbc843d933867b4480d4bc5cec9841f59ecb58ac23",
+      "judgment_sha256": "5796f9b72de2a5de1884ad2e3c0c8da28f7f6cb3ecfc2556facc87ffb200305e",
+      "reported_judge_models": null
+    },
+    {
+      "id": "P5",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "useful_application": null,
+      "delivery_inventory_complete": true,
+      "claims": [],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": null,
+        "treatment": null
+      },
+      "execution_sha256": "6a43c2e1c23a15f4acafb9b22cee4baf545eeb0f5de5fb5bfe95dacdd908184c",
+      "packet_sha256": "3611814029b0a7e23ef9d0962372f132c336e86251c1148667f8319c49629552",
+      "judgment_sha256": "5f61a60f3a9a55849b1590e7cd6dd44c9984e4851bece9387ad6ad731a30cd07",
+      "reported_judge_models": null
+    },
+    {
+      "id": "B2",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "yes",
+        "treatment": "yes"
+      },
+      "useful_application": null,
+      "delivery_inventory_complete": true,
+      "claims": [],
+      "high_impact_harm": "no",
+      "lower_impact_harm": false,
+      "repeated": {
+        "control": null,
+        "treatment": null
+      },
+      "execution_sha256": "5f711671e05168d3b4da9c3b531348b23c63f2a55da08a87ce182df85564eb9e",
+      "packet_sha256": "b0e79f810546250fe1995e7cfa6b3a925babe20adba79a7110b62aaa0b8438dc",
+      "judgment_sha256": "98ad6aa555eafd4bbba22a4fb5d47c187f25cb3c43c14e42930670a3fbd61fda",
+      "reported_judge_models": null
+    },
+    {
+      "id": "B4",
+      "valid_comparison": true,
+      "judge_valid": true,
+      "completion": {
+        "control": "no",
+        "treatment": "no"
+      },
+      "useful_application": null,
+      "delivery_inventory_complete": true,
+      "claims": [],
+      "high_impact_harm": "no",
+      "lower_impact_harm": true,
+      "repeated": {
+        "control": null,
+        "treatment": null
+      },
+      "execution_sha256": "67a679c0cf9a3074fd9fd7868b858b374f841a9fc403ade59ef84f9e30cb8787",
+      "packet_sha256": "001b7e55af588a53b422a4e3674af5512ec43ea80e7c479fe42d20cb990ed1f1",
+      "judgment_sha256": "9f8e1c41d3274c6223851420882b26e2420dc2c270ab992d1625529ebfe7ceca",
+      "reported_judge_models": null
+    }
+  ]
+}

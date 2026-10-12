@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-10",
+  "source_sha": "381eee31f64ece235edb4274fffbcd6c10de6eb6",
+  "status": "qualification_failed",
+  "corpus": "unchanged previously used F1; diagnostic only, not unseen or full milestone",
+  "actor": "codex-cli 0.160.0 / gpt-6-luna / low",
+  "judge": "existing independently calibrated gpt-6.1-sol; tool-free ordered complete-input transport",
+  "runner_valid": true,
+  "persisted_memories": 3,
+  "prior_capture_findings": 2,
+  "native_checkpoint_rows": 0,
+  "completion": {
+    "control": "no",
+    "treatment": "no"
+  },
+  "useful_application": "no",
+  "delivery_complete": true,
+  "claim_count": 9,
+  "relevant_and_supported": 6,
+  "unknown_labels": 0,
+  "mechanical_failures": [
+    "Codex Stop used capture-class fast dispatch and never reached new checkpoint",
+    "native metadata object was silently withheld by parser expecting string"
+  ],
+  "semantic_failure": "Captured implementation facts omitted the authored team requirement to restore both original credential files byte-for-byte; later answer failed useful application. Fixed capture credit would still admit those incomplete findings.",
+  "policy": "No corpus/provider/prompt iteration or full qualification advancement after this failed screen. A bounded checkpoint repair check remains permissible, separate from semantic qualification.",
+  "evidence_sha256": {
+    "protocol": "ce7d387b3be2e5d9ee71587d4d996ebd1ff74ab637c138cd1068f51837d8c6d4",
+    "runner_result": "666554a7ea01e620a3668d238c17261e9459bc37b940fa5773ce30d73e94e93e",
+    "delivery": "032de2dea2c4eb9108d66cdeb72f671cac9fed7fcddbd13ea3abe450c7f73af8",
+    "packet": "442ff7af8df838ed7ae57610087d2b21a7086ecd7218c8e708577862518599ca",
+    "judge": "e58e18613c543d629e23f28bf44f89346c5d06a0fbdaff109da6a62fbfc80280",
+    "judge_transport": "c33db5b43bf98ef25611f87a9a1c8787a04970e0674501ad8dfb6316dd1571d3",
+    "native_type_probe": "998773d2831a104d514ec224da9364390df95d6b19d58e4ac15547f566e7d697"
+  },
+  "limits": [
+    "Development diagnostic only; source fixes cannot retroactively pass this run.",
+    "Claude skipped by user instruction.",
+    "No production deployment changes."
+  ]
+}
