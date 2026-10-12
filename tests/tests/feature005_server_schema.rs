@@ -21,7 +21,7 @@
 //! Every test skips, loudly, without `CAIRN_TEST_DATABASE_URL`. A vacuous pass
 //! here would be a schema nobody checked.
 
-use cairn_e2e::feature005::{Pg, SERVER_SCHEMA_V10, SERVER_SCHEMA_V3};
+use cairn_e2e::feature005::{Pg, SERVER_SCHEMA_V10, SERVER_SCHEMA_V11, SERVER_SCHEMA_V3};
 use cairn_e2e::Server;
 
 macro_rules! pg {
@@ -111,7 +111,7 @@ fn v3_migrates_to_v4_and_keeps_what_v3_held() {
     // team revision while later migrations remove obsolete runtime state.
     assert_eq!(
         new.count("SELECT COALESCE(MAX(version), 0) FROM schema_migrations"),
-        SERVER_SCHEMA_V10
+        SERVER_SCHEMA_V11
     );
     assert!(
         new.count(
@@ -1279,4 +1279,38 @@ fn seed_team_row(pg: &Pg, content: &str) -> (uuid::Uuid, String) {
         pg.owner.id
     ));
     (id, writer)
+}
+
+
+#[test]
+fn schema_ten_trace_provenance_survives_upgrade_and_schema_eleven_accepts_only_full_record_lexical_provenance() {
+    let Some(mut old) = Server::start_at_schema(SERVER_SCHEMA_V10) else {
+        eprintln!("skipped: CAIRN_TEST_DATABASE_URL is not set");
+        return;
+    };
+    let (owner, _) = old.new_user("v10-trace-owner");
+    let project = uuid::Uuid::now_v7();
+    let session = uuid::Uuid::now_v7();
+    let trace = uuid::Uuid::now_v7();
+    let memory = uuid::Uuid::now_v7();
+    old.execute(&format!("INSERT INTO projects (id, name) VALUES ('{project}', 'v10 trace project')"));
+    old.execute(&format!("INSERT INTO project_members (project_id, user_id) VALUES ('{project}', '{owner}')"));
+    old.execute(&format!("INSERT INTO sessions (id, project_id, user_id, agent, branch, status, started_at) VALUES ('{session}', '{project}', '{owner}', 'test', 'main', 'active', now())"));
+    old.execute(&format!("INSERT INTO retrieval_traces (trace_id, project_id, session_id, account_id, trigger, delivery_point, degradation_level, latency_ms, delivery_state) VALUES ('{trace}', '{project}', '{session}', '{owner}', 'explicit', 'explicit', 'full', 1, 'generated')"));
+    let historical = r#"{"kind":"extractive_excerpt","source_content_sha256":"old-source","selected_content_sha256":"old-selected","spans":[{"start_byte":0,"end_byte":3}]}"#;
+    old.execute(&format!("INSERT INTO retrieval_trace_items (trace_id, ref_kind, domain, knowledge_id, status, source_updated_at, selection_provenance) VALUES ('{trace}', 'knowledge', 'project', '{memory}', 'selected', now(), '{historical}'::jsonb)"));
+
+    let upgraded = old.upgraded();
+    assert_eq!(upgraded.count("SELECT COALESCE(MAX(version), 0) FROM schema_migrations"), SERVER_SCHEMA_V11);
+    assert_eq!(upgraded.text(&format!("SELECT selection_provenance::text FROM retrieval_trace_items WHERE trace_id = '{trace}'")), historical, "upgrade relabeled or changed a historical trace");
+    let lexical = r#"{"kind":"lexical_full_record","content_sha256":"current-record"}"#;
+    upgraded.execute(&format!("INSERT INTO retrieval_trace_items (trace_id, ref_kind, domain, knowledge_id, status, source_updated_at, selection_provenance) VALUES ('{trace}', 'knowledge', 'project', '{}', 'selected', now(), '{lexical}'::jsonb)", uuid::Uuid::now_v7()));
+    assert!(
+        upgraded.try_execute(&format!(
+            "INSERT INTO retrieval_trace_items (trace_id, ref_kind, domain, knowledge_id, status, source_updated_at, selection_provenance) VALUES ('{trace}', 'knowledge', 'project', '{}', 'selected', now(), jsonb_build_object('kind', 'lexical_full_record', 'content_sha256', 'current-record', 'spans', '[]'::jsonb))",
+            uuid::Uuid::now_v7()
+        ))
+        .is_err(),
+        "lexical provenance must not masquerade as an excerpt"
+    );
 }

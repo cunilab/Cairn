@@ -2,7 +2,7 @@
 //! delivery spools, migration artifacts, diagnostics and transactions.
 
 pub mod capture_checkpoint;
-pub mod capture_review;
+pub mod capture_source;
 pub mod constraints;
 pub mod diag;
 pub mod integrations;

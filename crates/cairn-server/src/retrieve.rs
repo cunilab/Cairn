@@ -240,7 +240,7 @@ pub struct SectionItem {
     pub knowledge_id: Uuid,
     pub content: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub selection: Option<crate::selector::ExcerptProvenance>,
+    pub selection: Option<crate::selector::LexicalProvenance>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub attribution: Option<ProjectAttribution>,
     /// The canonical record's own fields, for the sections whose rendered
@@ -326,7 +326,7 @@ struct Candidate {
     reference: Reference,
     section: &'static str,
     content: String,
-    selection: Option<crate::selector::ExcerptProvenance>,
+    selection: Option<crate::selector::LexicalProvenance>,
     attribution: Option<ProjectAttribution>,
     source_updated_at: DateTime<Utc>,
     /// Set for `patterns` only. Carried from the candidate read all the way to
@@ -374,7 +374,6 @@ pub async fn retrieve(
     pool: &PgPool,
     reader: &ReaderContext,
     request: &RetrieveRequest,
-    selector: Option<&crate::selector::Selector>,
     schema_version: i64,
     budget_tokens: usize,
     // The hook's own context deadline. Passed in rather than defined here,
@@ -458,7 +457,6 @@ pub async fn retrieve(
         reader,
         request,
         &binding,
-        selector,
         schema_version,
         trace_id,
         tokens,
@@ -495,9 +493,7 @@ pub async fn retrieve(
 /// count as two failures.
 fn failure_reason(e: &ApiError) -> &'static str {
     match e.code {
-        "selector_unavailable" => "selector_unavailable",
-        "selector_invalid_response" => "selector_invalid_response",
-        "selector_source_changed" => "selector_source_changed",
+        "lexical_source_changed" => "lexical_source_changed",
         "store_unreachable" => "store_unreachable",
         _ => "store_unreachable",
     }
@@ -509,7 +505,6 @@ async fn generate(
     reader: &ReaderContext,
     request: &RetrieveRequest,
     binding: &auth::SessionBinding,
-    selector: Option<&crate::selector::Selector>,
     schema_version: i64,
     trace_id: Uuid,
     tokens: usize,
@@ -524,71 +519,41 @@ async fn generate(
         .filter(|q| !q.is_empty());
     let (mut candidates, project_memory_available) =
         gather(pool, reader, binding, request.session_id, query).await?;
-    if let Some(query) = query {
-        let sources = candidates
-            .iter()
-            .filter(|candidate| candidate.reference.domain_slot() == Some(KnowledgeDomain::Project))
-            .map(|candidate| crate::selector::SourceRecord {
-                id: candidate.reference.record_id(),
-                content: candidate.content.clone(),
-            })
-            .collect::<Vec<_>>();
-        let source_updates = candidates
-            .iter()
-            .filter(|candidate| candidate.reference.domain_slot() == Some(KnowledgeDomain::Project))
-            .map(|candidate| (candidate.reference.record_id(), candidate.source_updated_at))
-            .collect::<BTreeMap<_, _>>();
-        let selected = crate::selector::select(selector, query, &sources).await?;
-
-        // ReaderContext is a request-start snapshot; inference can outlive membership.
+    if query.is_some() {
         auth::require_member(pool, binding.project_id, reader.user_id()).await?;
         let rebound = auth::bind_session(pool, reader, request.session_id).await?;
         if rebound != Ok(*binding) {
             return Err(ApiError::new(
                 StatusCode::CONFLICT,
-                "selector_source_changed",
-                "session access changed during semantic selection; retry",
+                "lexical_source_changed",
+                "session access changed during lexical retrieval; retry",
             ));
         }
-        let mut excerpts = selected
-            .into_iter()
-            .map(|excerpt| (excerpt.id, excerpt))
-            .collect::<BTreeMap<_, _>>();
-        for source in &sources {
-            if !excerpts.contains_key(&source.id) {
-                continue;
-            }
-            let eligible = crate::reuse::eligible("m");
-            let unchanged: bool = sqlx::query_scalar(&format!(
-                "SELECT EXISTS (SELECT 1 FROM memories m
-                  WHERE m.id = $1 AND m.project_id = $2 AND m.content = $3
-                    AND m.updated_at = $4 AND ({eligible}))"
-            ))
-            .bind(source.id)
-            .bind(binding.project_id)
-            .bind(&source.content)
-            .bind(source_updates[&source.id])
-            .fetch_one(pool)
-            .await?;
+        let eligible = crate::reuse::eligible("m");
+        let unchanged_sql = format!(
+            "SELECT EXISTS (SELECT 1 FROM memories m
+              WHERE m.id = $1 AND m.project_id = $2 AND m.content = $3
+                AND m.updated_at = $4 AND ({eligible}))"
+        );
+        for candidate in candidates.iter().filter(|candidate| {
+            candidate.reference.domain_slot() == Some(KnowledgeDomain::Project)
+        }) {
+            let unchanged: bool = sqlx::query_scalar(&unchanged_sql)
+                .bind(candidate.reference.record_id())
+                .bind(binding.project_id)
+                .bind(&candidate.content)
+                .bind(candidate.source_updated_at)
+                .fetch_one(pool)
+                .await?;
             if !unchanged {
                 return Err(ApiError::new(
                     StatusCode::CONFLICT,
-                    "selector_source_changed",
-                    "a selected memory changed or became ineligible during semantic selection; retry",
+                    "lexical_source_changed",
+                    "a memory changed or became ineligible during lexical retrieval; retry",
                 ));
             }
         }
-        candidates.retain_mut(|candidate| {
-            if candidate.reference.domain_slot() != Some(KnowledgeDomain::Project) {
-                return true;
-            }
-            let Some(excerpt) = excerpts.remove(&candidate.reference.record_id()) else {
-                return false;
-            };
-            candidate.content = excerpt.content;
-            candidate.selection = Some(excerpt.provenance);
-            true
-        });
+        auth::require_member(pool, binding.project_id, reader.user_id()).await?;
     }
     let continuity = gather_continuity(
         pool,
@@ -638,7 +603,7 @@ async fn generate(
     let mut rank: i32 = 0;
 
     for section in DURABLE_SECTIONS {
-        for candidate in candidates.iter().filter(|c| c.section == *section) {
+        for candidate in candidates.iter_mut().filter(|c| c.section == *section) {
             let key = candidate.key();
 
             // Dedup: withheld unless it changed since it was delivered. A
@@ -672,6 +637,9 @@ async fn generate(
                 global_spent += cost;
             }
 
+            if candidate.reference.domain_slot() == Some(KnowledgeDomain::Project) {
+                candidate.selection = Some(crate::selector::provenance(&candidate.content));
+            }
             rank += 1;
             let rule = match *section {
                 "session_memory" | "branch_memory" | "project_memory" => RULE_PROJECT_RESERVE,
@@ -688,10 +656,10 @@ async fn generate(
                     ref_kind: candidate.ref_kind(),
                     domain: candidate.domain(),
                     knowledge_id: candidate.reference.record_id(),
-                    content: candidate.content.clone(),
-                    selection: candidate.selection.clone(),
-                    attribution: candidate.attribution.clone(),
-                    pattern: candidate.pattern.clone(),
+                    content: std::mem::take(&mut candidate.content),
+                    selection: candidate.selection.take(),
+                    attribution: candidate.attribution.take(),
+                    pattern: candidate.pattern.take(),
                     selection_rule: rule,
                     rank,
                     cost,

@@ -103,6 +103,11 @@ pub const MIGRATIONS: &[(i64, &str, &str)] = &[
         "capture_source_proof",
         include_str!("../migrations/0019_capture_source_proof.sql"),
     ),
+    (
+        20,
+        "remove_capture_review",
+        include_str!("../migrations/0020_remove_capture_review.sql"),
+    ),
 ];
 
 /// The schema version this build knows how to use.
@@ -521,5 +526,23 @@ mod tests {
                 .bind(kind.as_str()).bind(index as i64).bind(kind.as_str())
                 .execute(&pool).await.unwrap();
         }
+    }
+
+    #[tokio::test]
+    async fn review_removal_keeps_local_task_source_proof() {
+        let pool = sqlx::sqlite::SqlitePoolOptions::new().max_connections(1).connect("sqlite::memory:").await.unwrap();
+        run_to(&pool, 19).await.unwrap();
+        let project = uuid::Uuid::now_v7();
+        let session = uuid::Uuid::now_v7();
+        sqlx::query("INSERT INTO projects (id,name,git_common_dir,created_at,updated_at) VALUES (?1,'migration','/migration','now','now')").bind(project.to_string()).execute(&pool).await.unwrap();
+        sqlx::query("INSERT INTO sessions (id,project_id,user_id,agent,branch,worktree_path,agent_session_key,status,started_at,last_event_at,daemon_run_id) VALUES (?1,?2,'user','codex','main','/migration','caller','active','now','now','run')").bind(session.to_string()).bind(project.to_string()).execute(&pool).await.unwrap();
+        sqlx::query("INSERT INTO local_task_records (account_id,server_key,session_id,turn_id,task_text,task_digest,truncated,redacted,coverage_status,created_at,updated_at,expires_at) VALUES ('account','server',?1,'turn','bounded proof','digest',0,0,'unknown',1,1,2)").bind(session.to_string()).execute(&pool).await.unwrap();
+        run(&pool).await.unwrap();
+        let proof: String = sqlx::query_scalar("SELECT task_text FROM local_task_records").fetch_one(&pool).await.unwrap();
+        assert_eq!(proof, "bounded proof");
+        let columns: Vec<String> = sqlx::query_scalar("SELECT name FROM pragma_table_info('local_task_records')").fetch_all(&pool).await.unwrap();
+        assert!(!columns.iter().any(|column| column.starts_with("coverage_")));
+        let obsolete: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='local_capture_findings'").fetch_one(&pool).await.unwrap();
+        assert_eq!(obsolete, 0);
     }
 }

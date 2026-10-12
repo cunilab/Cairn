@@ -395,29 +395,10 @@ pub async fn run(event: &str) {
                 report_retrieval_outcome(&value, transport_ok, started, deadline).await;
             }
             if let Some(native_turn_id) = stop_gate_turn(agent, event, &raw, &key) {
-                // The Stop gate deliberately gets the short capture budget and
-                // one attempt. Any uncertainty leaves the agent free to end.
-                let gate = Request::CaptureDisposition {
-                    cwd: cwd.clone(),
-                    agent_session_key: key.clone(),
-                    native_turn_id,
-                    no_durable_finding: false,
-                };
-                let gate_deadline =
-                    capture_deadline(&config).min(deadline.saturating_sub(started.elapsed()));
-                match client::send_once_with_deadline(&gate, gate_deadline).await {
-                    Ok(reply) => {
-                        if reply.get("intervene").and_then(|value| value.as_bool()) == Some(true) {
-                            let _ = emit_stop_intervention();
-                        }
-                    }
-                    // The existing bounded drop journal is the only local,
-                    // payload-free diagnostic channel on this path. It records
-                    // the missed Stop checkpoint without changing fail-open.
-                    Err(error) if missed_checkpoint_is_journalled(&error) => {
-                        journal_capture_drop(agent, &cwd, "Stop", None, &error.message)
-                    }
-                    Err(_) => {}
+                let checkpoint = Request::NativeCaptureCheckpoint { cwd: cwd.clone(), agent_session_key: key.clone(), native_turn_id, no_durable_finding: false };
+                let gate_deadline = capture_deadline(&config).min(deadline.saturating_sub(started.elapsed()));
+                if client::send_once_with_deadline(&checkpoint, gate_deadline).await.ok().and_then(|reply| reply.get("intervene").and_then(|value| value.as_bool())) == Some(true) {
+                    let _ = emit_stop_intervention();
                 }
             }
         }
@@ -438,12 +419,6 @@ pub async fn run(event: &str) {
     }
 }
 
-fn missed_checkpoint_is_journalled(error: &cairn_core::wire::WireError) -> bool {
-    matches!(
-        error.code.as_str(),
-        cairn_core::wire::codes::DAEMON_UNAVAILABLE | cairn_core::wire::codes::STORAGE_UNAVAILABLE
-    )
-}
 
 /// A Stop interaction is eligible only on the pinned Codex shape. It retains
 /// identifiers, never prompt or assistant text, and does not guess a turn.
@@ -479,7 +454,7 @@ fn emit_stop_intervention() -> bool {
     use std::io::Write;
     let out = serde_json::json!({
         "decision": "block",
-        "reason": "Call cairn_session action=capture_review to check this turn's locally retained task against admitted findings. If it identifies omitted durable requirements, capture those requirements separately from implementation through cairn_remember action=capture, then review again. Unknown coverage is not success; if no comparator is available, state the limitation and finish. Preserve qualifiers; do not invent findings, store raw tasks as memory, include secrets, or replay unconfirmed writes.",
+        "reason": "Before ending this turn, explicitly capture any durable finding through cairn_remember action=capture. If there is none, finish normally. Preserve qualifiers; do not invent findings, store raw tasks as memory, include secrets, or replay unconfirmed writes.",
     });
     let mut stdout = std::io::stdout();
     writeln!(stdout, "{out}")
@@ -1158,16 +1133,4 @@ mod tests {
         .is_none());
     }
 
-    #[test]
-    fn only_unavailable_stop_gates_are_journalled() {
-        assert!(missed_checkpoint_is_journalled(
-            &cairn_core::wire::WireError::new(
-                cairn_core::wire::codes::DAEMON_UNAVAILABLE,
-                "timeout"
-            )
-        ));
-        assert!(!missed_checkpoint_is_journalled(
-            &cairn_core::wire::WireError::invalid("rejected")
-        ));
-    }
 }

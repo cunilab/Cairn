@@ -7,7 +7,6 @@
 mod arrival;
 mod briefing;
 mod capture;
-mod capture_review;
 mod deliver;
 mod handlers;
 mod integrations;
@@ -87,7 +86,7 @@ fn one_line(e: &anyhow::Error) -> String {
 /// everything this spawned) exits immediately after.
 async fn setup() -> anyhow::Result<Arc<Daemon>> {
     let (store, user_id, legacy_migration) = open_store().await?;
-    cairn_store::capture_review::prune_expired(&store).await?;
+    cairn_store::capture_source::prune_expired(&store).await?;
     let config = CairnConfig::load();
     let server = ServerCredentials::load(&config);
 
@@ -118,11 +117,11 @@ async fn setup() -> anyhow::Result<Arc<Daemon>> {
     tokio::spawn(async move {
         loop {
             tokio::time::sleep(std::time::Duration::from_secs(60)).await;
-            if cairn_store::capture_review::prune_expired(&maintenance.store)
+            if cairn_store::capture_source::prune_expired(&maintenance.store)
                 .await
                 .is_err()
             {
-                tracing::warn!("local capture-review retention cleanup unavailable");
+                tracing::warn!("local capture-source retention cleanup unavailable");
             }
         }
     });

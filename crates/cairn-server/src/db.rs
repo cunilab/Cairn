@@ -51,6 +51,7 @@ pub const MIGRATIONS: &[(i64, &str, &str)] = &[
         "extractive_recall",
         include_str!("../migrations/0010_extractive_recall.sql"),
     ),
+    (11, "lexical_full_record_provenance", include_str!("../migrations/0011_lexical_full_record_provenance.sql")),
 ];
 
 /// The highest migration this build carries.
@@ -58,7 +59,7 @@ pub const MIGRATIONS: &[(i64, &str, &str)] = &[
 /// Not what the server advertises: a deployment can be held at a lower schema
 /// deliberately, and what it can actually hold is the schema it **applied**.
 /// See [`applied_version`].
-pub const SCHEMA_VERSION: i64 = 10;
+pub const SCHEMA_VERSION: i64 = 11;
 
 /// The pool size a single server takes from PostgreSQL.
 pub const DEFAULT_MAX_CONNECTIONS: u32 = 10;

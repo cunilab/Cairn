@@ -63,8 +63,10 @@ pub const SERVER_SCHEMA_V4: i64 = 4;
 /// The version that gives `team_knowledge` its monotonic `revision`, and moves
 /// the team pull feed onto it (FR-456, FR-457, FR-465).
 pub const SERVER_SCHEMA_V5: i64 = 5;
-/// The current server schema after extractive project-memory recall provenance.
+/// Server schema carrying historical extractive project-memory provenance.
 pub const SERVER_SCHEMA_V10: i64 = 10;
+/// The current server schema after lexical full-record provenance.
+pub const SERVER_SCHEMA_V11: i64 = 11;
 /// The previous server schema, retained for staged-upgrade tests.
 pub const SERVER_SCHEMA_V9: i64 = 9;
 /// The server schema version Feature 005 upgrades *from*.
@@ -121,11 +123,6 @@ impl Pg {
     }
 
     /// A project fixture whose server has no configured semantic selector.
-    pub fn start_without_selector() -> Option<Self> {
-        let server = Server::start_own_database_without_selector()?;
-        Some(Self::seed(server))
-    }
-
     /// A server deliberately pinned at v3, for the migration story (US7).
     ///
     /// Nothing is seeded: a v3 database has no Feature 005 tables to seed into,

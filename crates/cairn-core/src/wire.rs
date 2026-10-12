@@ -793,14 +793,8 @@ pub enum Request {
         truncated: bool,
         redacted: bool,
     },
-    /// Compare this native turn's local task record and admitted findings.
-    CaptureReview {
-        cwd: String,
-        agent_session_key: String,
-        native_turn_id: Uuid,
-    },
-    /// Bounded local finalization gate; no task text accompanies this request.
-    CaptureDisposition {
+    /// Native finalization checkpoint; explicit no-finding never asserts completeness.
+    NativeCaptureCheckpoint {
         cwd: String,
         agent_session_key: String,
         native_turn_id: Uuid,

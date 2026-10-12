@@ -5,15 +5,8 @@
 //! the boundary between Git, storage and the agent, where a mock proves
 //! nothing (D13).
 
-use std::io::Read;
-use std::net::{Shutdown, TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
-use std::thread::JoinHandle;
 use tempfile::TempDir;
 
 /// Feature 005 fixtures: PostgreSQL at server schema v4, SQLite at local
@@ -1035,223 +1028,6 @@ fn test_database_url() -> Option<String> {
     )
 }
 
-#[derive(Clone, Copy)]
-enum TestSelectorMode {
-    Echo,
-    Disabled,
-}
-
-/// A local OpenAI-compatible selector used only by spawned test servers.
-///
-/// It returns each submitted source exactly as a quote. Tests that need a
-/// narrower, malformed, empty, or unavailable answer select that behavior with
-/// a private marker in the task query; production never sees those markers.
-struct TestSelector {
-    base_url: String,
-    stop: Arc<AtomicBool>,
-    gate: Arc<SelectorGate>,
-    thread: Option<JoinHandle<()>>,
-}
-
-struct SelectorGate {
-    entered: AtomicBool,
-    release: AtomicBool,
-}
-
-impl TestSelector {
-    fn start() -> Self {
-        let listener = TcpListener::bind("127.0.0.1:0").expect("test selector binds");
-        listener
-            .set_nonblocking(true)
-            .expect("test selector is nonblocking");
-        let base_url = format!(
-            "http://{}/v1",
-            listener.local_addr().expect("selector address")
-        );
-        let stop = Arc::new(AtomicBool::new(false));
-        let thread_stop = Arc::clone(&stop);
-        let gate = Arc::new(SelectorGate {
-            entered: AtomicBool::new(false),
-            release: AtomicBool::new(false),
-        });
-        let thread_gate = Arc::clone(&gate);
-        let thread = std::thread::spawn(move || {
-            while !thread_stop.load(Ordering::Relaxed) {
-                match listener.accept() {
-                    Ok((stream, _)) => test_selector_response(stream, &thread_gate),
-                    Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
-                        std::thread::sleep(std::time::Duration::from_millis(5));
-                    }
-                    Err(_) => break,
-                }
-            }
-        });
-        Self {
-            base_url,
-            stop,
-            gate,
-            thread: Some(thread),
-        }
-    }
-}
-
-impl Drop for TestSelector {
-    fn drop(&mut self) {
-        self.stop.store(true, Ordering::Relaxed);
-        if let Some(thread) = self.thread.take() {
-            let _ = thread.join();
-        }
-    }
-}
-
-fn test_selector_response(mut stream: TcpStream, gate: &SelectorGate) {
-    stream
-        .set_nonblocking(false)
-        .expect("accepted selector stream is blocking");
-    let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(1)));
-    let _ = stream.set_write_timeout(Some(std::time::Duration::from_secs(1)));
-    let mut request = Vec::new();
-    let mut buffer = [0_u8; 4096];
-    loop {
-        match stream.read(&mut buffer) {
-            Ok(0) => return,
-            Err(error) => {
-                eprintln!(
-                    "test selector read error={} bytes={}",
-                    error.kind(),
-                    request.len()
-                );
-                return;
-            }
-            Ok(read) => {
-                request.extend_from_slice(&buffer[..read]);
-                if request.len() > 1024 * 1024 {
-                    return;
-                }
-                let Some(headers_end) = request.windows(4).position(|window| window == b"\r\n\r\n")
-                else {
-                    continue;
-                };
-                let headers = String::from_utf8_lossy(&request[..headers_end]);
-                let content_length = headers
-                    .lines()
-                    .find_map(|line| {
-                        let (name, value) = line.split_once(':')?;
-                        name.eq_ignore_ascii_case("content-length")
-                            .then(|| value.trim().parse::<usize>().ok())
-                            .flatten()
-                    })
-                    .unwrap_or(0);
-                if request.len() >= headers_end + 4 + content_length {
-                    break;
-                }
-            }
-        }
-    }
-    let body = request
-        .windows(4)
-        .position(|window| window == b"\r\n\r\n")
-        .and_then(|headers_end| {
-            serde_json::from_slice::<serde_json::Value>(&request[headers_end + 4..]).ok()
-        })
-        .unwrap_or(serde_json::Value::Null);
-    let task = body["messages"]
-        .as_array()
-        .and_then(|messages| messages.last())
-        .and_then(|message| message["content"].as_str())
-        .and_then(|content| serde_json::from_str::<serde_json::Value>(content).ok())
-        .unwrap_or(serde_json::Value::Null);
-    let query = task["query"].as_str().unwrap_or_default();
-    if query.contains("[[selector:pause]]") {
-        gate.entered.store(true, Ordering::Release);
-        let mut released = false;
-        for _ in 0..1000 {
-            if gate.release.load(Ordering::Acquire) {
-                released = true;
-                break;
-            }
-            std::thread::sleep(std::time::Duration::from_millis(5));
-        }
-        if !released {
-            eprintln!("test selector pause timed out");
-            return;
-        }
-    }
-    let response = if query.contains("[[selector:outage]]") {
-        (503, serde_json::json!({"error":"test outage"}))
-    } else if query.contains("[[selector:invalid]]") {
-        let id = task["records"]
-            .as_array()
-            .and_then(|records| records.first())
-            .and_then(|record| record["id"].as_str())
-            .unwrap_or_default();
-        let content = serde_json::json!({"selections":[{"id":id,"quotes":["not an exact source substring"]}]}).to_string();
-        (
-            200,
-            serde_json::json!({"choices":[{"finish_reason":"stop","message":{"content":content}}]}),
-        )
-    } else {
-        let selections =
-            if query.contains("[[selector:empty]]") {
-                Vec::new()
-            } else {
-                task["records"]
-                .as_array()
-                .into_iter()
-                .flatten()
-                .filter_map(|record| Some(serde_json::json!({
-                    "id": record["id"].as_str()?,
-                    "quotes": [if query.contains("[[selector:first-sentence]]") {
-                        let source = record["content"].as_str()?;
-                        &source[..source.find('.').map(|end| end + 1).unwrap_or(source.len())]
-                    } else {
-                        record["content"].as_str()?
-                    }],
-                })))
-                .collect::<Vec<_>>()
-            };
-        let content = serde_json::json!({"selections": selections}).to_string();
-        let finish_reason = if query.contains("[[selector:length]]") {
-            serde_json::json!("length")
-        } else if query.contains("[[selector:filtered]]") {
-            serde_json::json!("content_filter")
-        } else if query.contains("[[selector:missing-finish]]") {
-            serde_json::Value::Null
-        } else if query.contains("[[selector:unexpected-finish]]") {
-            serde_json::json!("unexpected")
-        } else {
-            serde_json::json!("stop")
-        };
-        let mut choice =
-            serde_json::json!({"finish_reason":finish_reason,"message":{"content":content}});
-        if query.contains("[[selector:missing-finish]]") {
-            choice
-                .as_object_mut()
-                .expect("test choice object")
-                .remove("finish_reason");
-        }
-        (200, serde_json::json!({"choices":[choice]}))
-    };
-    let encoded = response.1.to_string();
-    let status = if response.0 == 200 {
-        "200 OK"
-    } else {
-        "503 Service Unavailable"
-    };
-    if let Err(error) = write!(
-        stream,
-        "HTTP/1.1 {status}\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{encoded}",
-        encoded.len()
-    ) {
-        eprintln!(
-            "test selector write error={} bytes={}",
-            error.kind(),
-            encoded.len()
-        );
-    }
-    let _ = stream.shutdown(Shutdown::Both);
-}
-
 /// A running `cairn-server` against a real PostgreSQL.
 ///
 /// Requires `CAIRN_TEST_DATABASE_URL`. Tests that need it report a clear skip
@@ -1276,7 +1052,6 @@ pub struct Server {
     /// depends on the distinction.
     max_schema_version: i64,
     child: std::process::Child,
-    selector: Option<TestSelector>,
 }
 
 impl Server {
@@ -1365,6 +1140,26 @@ impl Server {
         });
     }
 
+    /// Try one statement against this server's database, for schema refusal tests.
+    pub fn try_execute(&self, sql: &str) -> Result<(), String> {
+        let url = self.database_url.clone();
+        let sql = sql.to_string();
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .expect("runtime");
+        runtime.block_on(async move {
+            let pool = sqlx::PgPool::connect(&url).await.map_err(|error| error.to_string())?;
+            let result = sqlx::query(&sql)
+                .execute(&pool)
+                .await
+                .map(|_| ())
+                .map_err(|error| error.to_string());
+            pool.close().await;
+            result
+        })
+    }
+
     /// One text value against this server's database.
     pub fn text(&self, sql: &str) -> String {
         let url = self.database_url.clone();
@@ -1410,43 +1205,6 @@ impl Server {
         create_database(&admin, &name);
         let url = replace_database(&admin, &name);
         Some(Self::spawn_as(&url, i64::MAX, true, None))
-    }
-
-    /// A server with no selector configuration, for refusal-path tests.
-    pub fn start_own_database_without_selector() -> Option<Self> {
-        let admin = test_database_url()?;
-        let name = format!("cairn_own_{}", unique());
-        create_database(&admin, &name);
-        let url = replace_database(&admin, &name);
-        Some(Self::spawn_as_with_selector(
-            &url,
-            i64::MAX,
-            true,
-            None,
-            TestSelectorMode::Disabled,
-        ))
-    }
-
-    /// Wait until the test selector has accepted a paused request.
-    pub fn wait_for_selector(&self) {
-        let selector = self.selector.as_ref().expect("configured test selector");
-        for _ in 0..1600 {
-            if selector.gate.entered.load(Ordering::Acquire) {
-                return;
-            }
-            std::thread::sleep(std::time::Duration::from_millis(5));
-        }
-        panic!("test selector did not receive the paused request");
-    }
-
-    /// Let the test selector finish one paused request.
-    pub fn release_selector(&self) {
-        self.selector
-            .as_ref()
-            .expect("configured test selector")
-            .gate
-            .release
-            .store(true, Ordering::Release);
     }
 
     /// A server whose environment names one administrator account.
@@ -1726,31 +1484,9 @@ impl Server {
         owns_database: bool,
         admin: Option<(&str, &str)>,
     ) -> Self {
-        Self::spawn_as_with_selector(
-            url,
-            max_version,
-            owns_database,
-            admin,
-            TestSelectorMode::Echo,
-        )
-    }
-
-    fn spawn_as_with_selector(
-        url: &str,
-        max_version: i64,
-        owns_database: bool,
-        admin: Option<(&str, &str)>,
-        selector_mode: TestSelectorMode,
-    ) -> Self {
         let mut last = String::new();
         for _ in 0..4 {
-            match Self::try_start_with_selector(
-                url,
-                max_version,
-                owns_database,
-                admin,
-                selector_mode,
-            ) {
+            match Self::try_start(url, max_version, owns_database, admin) {
                 Ok(server) => return server,
                 Err(e) => last = e,
             }
@@ -1856,75 +1592,37 @@ impl Server {
         admin: Option<(&str, &str)>,
         addr: Option<String>,
     ) -> Self {
-        Self::spawn_at_with_selector(
-            url,
-            max_version,
-            owns_database,
-            admin,
-            addr,
-            TestSelectorMode::Echo,
-        )
-    }
-
-    fn spawn_at_with_selector(
-        url: &str,
-        max_version: i64,
-        owns_database: bool,
-        admin: Option<(&str, &str)>,
-        addr: Option<String>,
-        selector_mode: TestSelectorMode,
-    ) -> Self {
         let mut last = String::new();
         for _ in 0..8 {
-            match Self::try_start_at_with_selector(
-                url,
-                max_version,
-                owns_database,
-                admin,
-                addr.clone(),
-                selector_mode,
-            ) {
+            match Self::try_start_at(url, max_version, owns_database, admin, addr.clone()) {
                 Ok(server) => return server,
-                Err(e) => last = e,
+                Err(error) => last = error,
             }
             std::thread::sleep(std::time::Duration::from_millis(200));
         }
         panic!("cairn-server would not start: {last}");
     }
 
-    fn try_start_with_selector(
+    fn try_start(
         url: &str,
         max_version: i64,
         owns_database: bool,
         admin: Option<(&str, &str)>,
-        selector_mode: TestSelectorMode,
     ) -> Result<Self, String> {
-        Self::try_start_at_with_selector(
-            url,
-            max_version,
-            owns_database,
-            admin,
-            None,
-            selector_mode,
-        )
+        Self::try_start_at(url, max_version, owns_database, admin, None)
     }
 
-    fn try_start_at_with_selector(
+    fn try_start_at(
         url: &str,
         max_version: i64,
         owns_database: bool,
         admin: Option<(&str, &str)>,
         fixed_addr: Option<String>,
-        selector_mode: TestSelectorMode,
     ) -> Result<Self, String> {
         // Keep parallel fixtures from accepting a sibling's health response
         // while their own child is still migrating toward the same free port.
         static STARTUP: std::sync::Mutex<()> = std::sync::Mutex::new(());
         let _startup = STARTUP.lock().unwrap_or_else(|error| error.into_inner());
-        let selector = match selector_mode {
-            TestSelectorMode::Echo => Some(TestSelector::start()),
-            TestSelectorMode::Disabled => None,
-        };
         let addr = match fixed_addr {
             Some(addr) => addr,
             None => {
@@ -1968,17 +1666,8 @@ impl Server {
         let mut command = Command::new(server_binary());
         command
             .args(&args)
-            .env_remove("CAIRN_INFERENCE_BASE_URL")
-            .env_remove("CAIRN_INFERENCE_MODEL")
-            .env_remove("CAIRN_INFERENCE_API_KEY")
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::piped());
-        if let Some(selector) = selector.as_ref() {
-            command
-                .env("CAIRN_INFERENCE_BASE_URL", &selector.base_url)
-                .env("CAIRN_INFERENCE_MODEL", "test-extractive-selector")
-                .env("CAIRN_INFERENCE_API_KEY", "test-key");
-        }
         let mut child = command.spawn().expect("cairn-server runs");
 
         let base = format!("http://{addr}");
@@ -2003,7 +1692,6 @@ impl Server {
                     owns_database,
                     max_schema_version: max_version,
                     child,
-                    selector,
                 });
             }
             std::thread::sleep(std::time::Duration::from_millis(40));

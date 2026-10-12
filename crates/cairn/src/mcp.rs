@@ -300,12 +300,11 @@ fn tool_definitions() -> Vec<Value> {
                 "type": "object",
                 "properties": {
                     "cwd": cwd_property(),
-                    "action": { "type": "string", "enum": ["current", "start", "end", "checkpoint", "capture_disposition", "capture_review", "replay"] },
+                    "action": { "type": "string", "enum": ["current", "start", "end", "checkpoint", "no_durable_finding", "replay"] },
                     "agent": { "type": "string" },
                     "agent_session_key": { "type": "string" },
                     "session_id": { "type": "string" },
                     "status": { "type": "string", "enum": ["completed", "interrupted"] },
-                    "disposition": { "type": "string", "enum": ["no_durable_finding"], "description": "Native Codex only: state that this verified turn has no durable finding. Turn identity comes from framework metadata." },
                     // checkpoint
                     "next_action": { "type": "string", "description": "What you were about to do" },
                     "relevant_paths": { "type": "array", "items": { "type": "string" }, "description": "Repository-relative paths this work depends on" }
@@ -795,45 +794,14 @@ async fn dispatch(name: &str, args: &Value) -> Result<String, WireError> {
                     })
                     .await?
                 }
-                "capture_review" => {
-                    let turn = native_turn_id(args).ok_or_else(|| {
-                        WireError::invalid(
-                            "capture_review requires verified native Codex turn metadata",
-                        )
-                    })?;
-                    client::send_once(&Request::CaptureReview {
+                "no_durable_finding" => {
+                    let native_turn_id = native_turn_id(args).ok_or_else(|| WireError::invalid("no_durable_finding requires verified native Codex turn metadata"))?;
+                    client::send_once(&Request::NativeCaptureCheckpoint {
                         cwd,
-                        agent_session_key: key.ok_or_else(|| {
-                            WireError::invalid(
-                                "capture_review requires verified native Codex identity",
-                            )
-                        })?,
-                        native_turn_id: turn,
-                    })
-                    .await?
-                }
-                "capture_disposition" => {
-                    if str_arg(args, "disposition").as_deref() != Some("no_durable_finding") {
-                        return Err(WireError::invalid(
-                            "capture_disposition requires disposition no_durable_finding",
-                        ));
-                    }
-                    let native_turn_id = native_turn_id(args).ok_or_else(|| {
-                        WireError::invalid(
-                            "capture_disposition requires verified native Codex turn metadata",
-                        )
-                    })?;
-                    client::send_once(&Request::CaptureDisposition {
-                        cwd,
-                        agent_session_key: key.ok_or_else(|| {
-                            WireError::invalid(
-                                "capture_disposition requires verified native Codex identity",
-                            )
-                        })?,
+                        agent_session_key: key.ok_or_else(|| WireError::invalid("no_durable_finding requires verified native Codex identity"))?,
                         native_turn_id,
                         no_durable_finding: true,
-                    })
-                    .await?
+                    }).await?
                 }
                 "replay" => client::send(&Request::Replay { cwd }).await?,
                 other => return Err(WireError::invalid(format!("unknown action: {other}"))),
@@ -1155,7 +1123,7 @@ fn confirm_project_recall(value: &Value, query_digest: &str) -> Result<(), WireE
         || value["project_query_sha256"].as_str() != Some(query_digest)
     {
         return Err(WireError::new(cairn_core::wire::codes::SERVER_UNAVAILABLE,
-            "task-scoped project excerpts were not confirmed; configure server inference or upgrade the server and daemon"));
+            "task-scoped lexical project retrieval was not confirmed; upgrade the server and daemon"));
     }
     Ok(())
 }
@@ -1393,15 +1361,6 @@ mod tests {
         let params = json!({ "arguments": { "cwd": "/repo", "action": "capture" } });
         let args = call_arguments(&params, false).unwrap();
         assert!(native_turn_id(&args).is_none());
-        let session = tool_definitions()
-            .into_iter()
-            .find(|tool| tool["name"] == "cairn_session")
-            .unwrap();
-        assert!(session["inputSchema"]["properties"]["action"]["enum"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .any(|action| action == "capture_disposition"));
     }
 
     #[test]

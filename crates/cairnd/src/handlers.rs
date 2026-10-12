@@ -443,12 +443,12 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
             }
             let safe = cairn_core::redact::redact(&text);
             let redacted = redacted || safe != text;
-            cairn_store::capture_review::record_task(&d.store, &key, &safe, truncated, redacted)
+            cairn_store::capture_source::record_task(&d.store, &key, &safe, truncated, redacted)
                 .await
                 .map_err(storage_err)?;
             let current = native_checkpoint_key(d, &cwd, &agent_session_key, native_turn_id).await;
             if current.as_ref().ok() != Some(&key) {
-                cairn_store::capture_review::purge_lane(&d.store, key.account_id, &key.server_key)
+                cairn_store::capture_source::purge_lane(&d.store, key.account_id, &key.server_key)
                     .await
                     .map_err(storage_err)?;
                 return Err(current.err().unwrap_or_else(|| {
@@ -460,85 +460,14 @@ pub(crate) async fn handle(d: &Daemon, request: Request) -> Reply {
             }
             Ok(json!({"local_task_recorded":true,"truncated":truncated,"redacted":redacted}))
         }
-        Request::CaptureReview {
-            cwd,
-            agent_session_key,
-            native_turn_id,
-        } => {
+        Request::NativeCaptureCheckpoint { cwd, agent_session_key, native_turn_id, no_durable_finding } => {
             let key = native_checkpoint_key(d, &cwd, &agent_session_key, native_turn_id).await?;
-            let Some(input) = cairn_store::capture_review::load_review(&d.store, &key)
-                .await
-                .map_err(storage_err)?
-            else {
-                return Ok(json!({"coverage":"unknown","reason":"local_task_record_unavailable"}));
-            };
-            if input.truncated || input.redacted {
-                return Ok(json!({"coverage":"unknown","reason":"local_task_input_incomplete"}));
-            }
-            let comparator = match crate::capture_review::Comparator::from_env() {
-                Ok(Some(value)) => value,
-                _ => {
-                    return Ok(
-                        json!({"coverage":"unknown","reason":"capture_comparator_unavailable"}),
-                    )
-                }
-            };
-            let revision = comparator.revision();
-            let assessment = comparator.assess(&input).await;
-            if native_checkpoint_key(d, &cwd, &agent_session_key, native_turn_id).await? != key {
-                return Err(WireError::new(
-                    codes::NOT_LINKED,
-                    "capture account or server changed during review",
-                ));
-            }
-            let (status, missing) = match assessment {
-                Ok(value) => (value.status, value.missing),
-                Err(()) => ("unknown", Vec::new()),
-            };
-            let current =
-                cairn_store::capture_review::save_review(&d.store, &key, &input, status, &revision)
-                    .await
-                    .map_err(storage_err)?;
-            if !current {
-                return Ok(json!({"coverage":"unknown","reason":"capture_input_changed"}));
-            }
-            Ok(
-                json!({"coverage":status,"missing_requirements":missing,"comparator_revision":revision,
-                "task_digest":input.task_digest,"findings_digest":input.findings_digest,
-                "scope":"local_current_turn","admission_is_not_server_persistence":true}),
-            )
-        }
-        Request::CaptureDisposition {
-            cwd,
-            agent_session_key,
-            native_turn_id,
-            no_durable_finding,
-        } => {
-            let key = native_checkpoint_key(d, &cwd, &agent_session_key, native_turn_id).await?;
-            let revision = crate::capture_review::Comparator::from_env()
-                .ok()
-                .flatten()
-                .map(|value| value.revision())
-                .unwrap_or_default();
             if no_durable_finding {
-                cairn_store::capture_checkpoint::no_durable_finding(&d.store, &key)
-                    .await
-                    .map_err(storage_err)?;
-                Ok(
-                    json!({"intervene": false, "disposition": "no_durable_finding", "coverage":"unknown",
-                    "note":"agent disposition does not establish semantic completeness"}),
-                )
+                cairn_store::capture_checkpoint::no_durable_finding(&d.store, &key).await.map_err(storage_err)?;
+                Ok(json!({"intervene":false,"disposition":"no_durable_finding"}))
             } else {
-                let intervene = cairn_store::capture_checkpoint::intervene_for_coverage(
-                    &d.store, &key, &revision,
-                )
-                .await
-                .map_err(storage_err)?;
-                let coverage =
-                    cairn_store::capture_review::review_status(&d.store, &key, &revision)
-                        .await
-                        .map_err(storage_err)?;
-                Ok(json!({"intervene": intervene,"coverage":coverage}))
+                let intervene = cairn_store::capture_checkpoint::intervene(&d.store, &key).await.map_err(storage_err)?;
+                Ok(json!({"intervene":intervene}))
             }
         }
         Request::MemoryReinforce {
@@ -729,7 +658,7 @@ async fn replace_server_credentials(
         || (old.token.is_some() && server.token.is_none())
     {
         if let (Some(account), Some(url)) = (old.account_id, old.url.as_ref()) {
-            cairn_store::capture_review::purge_lane(&d.store, account, &cairn_core::digest(url))
+            cairn_store::capture_source::purge_lane(&d.store, account, &cairn_core::digest(url))
                 .await
                 .map_err(storage_err)?;
         }
@@ -1908,7 +1837,7 @@ mod tests {
         let old_key = native_checkpoint_key(&fixture.daemon, &fixture.cwd, &caller, turn)
             .await
             .unwrap();
-        cairn_store::capture_review::record_task(
+        cairn_store::capture_source::record_task(
             &fixture.daemon.store,
             &old_key,
             "Existing local task",
@@ -1959,23 +1888,12 @@ mod tests {
         replacement.unwrap();
         assert_eq!(recording.unwrap()["local_task_recorded"], true);
         assert_eq!(*fixture.daemon.server.read().await, new);
-        assert!(
-            cairn_store::capture_review::load_review(&fixture.daemon.store, &old_key)
-                .await
-                .unwrap()
-                .is_none()
-        );
-        let new_key = native_checkpoint_key(&fixture.daemon, &fixture.cwd, &caller, turn)
+        let remaining: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM local_task_records WHERE account_id=?1")
+            .bind(old.account_id.unwrap().to_string())
+            .fetch_one(fixture.daemon.store.pool())
             .await
             .unwrap();
-        assert_eq!(
-            cairn_store::capture_review::load_review(&fixture.daemon.store, &new_key)
-                .await
-                .unwrap()
-                .unwrap()
-                .task,
-            "Concurrent local task"
-        );
+        assert_eq!(remaining, 0);
     }
 
     #[tokio::test]
@@ -2052,102 +1970,13 @@ mod tests {
             .unwrap();
         assert_eq!(admission.unwrap()["accepted_for_delivery"], true);
         replacement.unwrap();
-        let snapshots: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM local_capture_findings")
+        let snapshots: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM local_task_records")
             .fetch_one(fixture.daemon.store.pool())
             .await
             .unwrap();
         assert_eq!(snapshots, 0);
     }
 
-    #[tokio::test]
-    async fn native_capture_credit_is_exact_and_completed_sessions_cannot_acknowledge() {
-        let fixture = fx::Repo::with(cairn_core::CairnConfig::default()).await;
-        let resolved = fixture.daemon.resolve(&fixture.cwd).await.unwrap();
-        let caller = Uuid::now_v7().to_string();
-        let session = repo::start_session(
-            &fixture.daemon.store,
-            repo::StartSession {
-                project_id: resolved.project.id,
-                user_id: fixture.daemon.user_id,
-                agent: "codex",
-                agent_session_key: &caller,
-                branch: "main",
-                commit_sha: None,
-                worktree_path: &resolved.worktree(),
-                daemon_run_id: fixture.daemon.run_id,
-            },
-        )
-        .await
-        .unwrap();
-        {
-            let mut server = fixture.daemon.server.write().await;
-            server.account_id = Some(Uuid::now_v7());
-            server.url = Some("http://checkpoint.invalid".into());
-        }
-        let turn = Uuid::now_v7();
-        handle(
-            &fixture.daemon,
-            Request::NativeTaskRecord {
-                cwd: fixture.cwd.clone(),
-                agent_session_key: caller.clone(),
-                native_turn_id: turn,
-                text: "The user requires preservation of the decision's conditions.".into(),
-                truncated: false,
-                redacted: false,
-            },
-        )
-        .await
-        .unwrap();
-        let capture: Request = serde_json::from_value(json!({
-            "op":"memory_capture","cwd":fixture.cwd,"agent_session_key":caller,
-            "native_turn_id":turn,"kind":"decision","scope":"project",
-            "content":"The user requires preservation of the decision's conditions.",
-            "capture_attestation":{"basis":"user_report","support_summary":"The user explicitly chose this requirement."}
-        })).unwrap();
-        assert_eq!(
-            handle(&fixture.daemon, capture).await.unwrap()["accepted_for_delivery"],
-            true
-        );
-        let gate = |turn_id| Request::CaptureDisposition {
-            cwd: fixture.cwd.clone(),
-            agent_session_key: caller.clone(),
-            native_turn_id: turn_id,
-            no_durable_finding: false,
-        };
-        assert_eq!(
-            handle(&fixture.daemon, gate(turn)).await.unwrap()["intervene"],
-            true
-        );
-        assert_eq!(
-            handle(&fixture.daemon, gate(turn)).await.unwrap()["intervene"],
-            false
-        );
-        let next = Uuid::now_v7();
-        assert_eq!(
-            handle(&fixture.daemon, gate(next)).await.unwrap()["intervene"],
-            true
-        );
-        assert_eq!(
-            handle(&fixture.daemon, gate(next)).await.unwrap()["intervene"],
-            false
-        );
-        sqlx::query("UPDATE sessions SET status='completed' WHERE id=?1")
-            .bind(session.id.to_string())
-            .execute(fixture.daemon.store.pool())
-            .await
-            .unwrap();
-        assert!(handle(
-            &fixture.daemon,
-            Request::CaptureDisposition {
-                cwd: fixture.cwd.clone(),
-                agent_session_key: caller,
-                native_turn_id: next,
-                no_durable_finding: true
-            }
-        )
-        .await
-        .is_err());
-    }
 
     #[tokio::test]
     async fn secret_metadata_is_refused_before_native_admission() {
@@ -2204,12 +2033,7 @@ mod tests {
             let error = handle(&fixture.daemon, request).await.expect_err(field);
             assert_eq!(error.code, codes::INVALID_REQUEST);
         }
-        for table in [
-            "command_spool",
-            "local_capture_findings",
-            "capture_checkpoints",
-            "command_seq",
-        ] {
+        for table in ["command_spool", "capture_checkpoints", "command_seq"] {
             let count: i64 = sqlx::query_scalar(&format!("SELECT COUNT(*) FROM {table}"))
                 .fetch_one(fixture.daemon.store.pool())
                 .await

@@ -36,7 +36,6 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub struct AppState {
     pub pool: PgPool,
-    pub selector: Option<selector::Selector>,
     /// Shared knowledge of the newest published release.
     pub releases: version::ReleaseCache,
     /// Whether the session cookie may only travel over HTTPS.
@@ -213,7 +212,6 @@ async fn main() -> anyhow::Result<()> {
     }
 
     seed_admin(&pool, &args).await?;
-    let selector = selector::Selector::from_env()?;
 
     // What the database actually holds, not what this binary could apply. A
     // held-back deployment must advertise the smaller answer.
@@ -259,7 +257,6 @@ async fn main() -> anyhow::Result<()> {
     let consolidation_required = schema_version >= consolidate::REQUIRED_SCHEMA;
     let state = AppState {
         pool,
-        selector,
         secure_cookies,
         releases: version::ReleaseCache::new(),
         schema_version,

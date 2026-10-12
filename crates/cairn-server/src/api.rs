@@ -13,7 +13,6 @@ use axum::{Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use sqlx::Row;
-use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use uuid::Uuid;
@@ -1461,7 +1460,6 @@ async fn retrieve_context(
         &state.pool,
         &reader,
         &body,
-        state.selector.as_ref(),
         state.schema_version,
         config.context_budget_tokens,
         deadline_ms,
@@ -2523,9 +2521,10 @@ async fn project_memories(
          ORDER BY scope_bucket ASC, relevance DESC, m.created_at DESC
          LIMIT $7",
     );
+    let query = q.q.as_deref().map(str::trim).filter(|query| !query.is_empty());
     let rows = sqlx::query(&memory_sql)
         .bind(id)
-        .bind(q.q.as_deref().map(str::trim).unwrap_or_default())
+        .bind(query.unwrap_or_default())
         .bind(&want_state)
         .bind(&q.scope)
         .bind(&q.scope_key)
@@ -2534,72 +2533,41 @@ async fn project_memories(
         .fetch_all(&state.pool)
         .await?;
 
-    let query =
-        q.q.as_deref()
-            .map(str::trim)
-            .filter(|query| !query.is_empty());
     let memories: Vec<Value> = if q.purpose == cairn_core::reuse::ReusePurpose::Reuse {
-        let query = query.expect("reuse query was validated");
-        let sources = rows
-            .iter()
-            .map(|row| crate::selector::SourceRecord {
-                id: row.get("id"),
-                content: row.get("content"),
-            })
-            .collect::<Vec<_>>();
-        let source_updates = rows
-            .iter()
-            .map(|row| {
-                (
-                    row.get::<Uuid, _>("id"),
-                    row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
-                )
-            })
-            .collect::<HashMap<_, _>>();
-        let selected = crate::selector::select(state.selector.as_ref(), query, &sources).await?;
-
-        // Membership and every selected source revision are checked again after
-        // inference, so a slow provider cannot bridge a revocation or edit.
         auth::require_member(&state.pool, id, user.id()).await?;
-        let mut excerpts = HashMap::new();
-        for excerpt in selected {
-            let source = sources
-                .iter()
-                .find(|source| source.id == excerpt.id)
-                .expect("selector only returns supplied ids");
-            let eligible = crate::reuse::eligible("m");
-            let unchanged: bool = sqlx::query_scalar(&format!(
-                "SELECT EXISTS (SELECT 1 FROM memories m
-                  WHERE m.id = $1 AND m.project_id = $2 AND m.content = $3
-                    AND m.updated_at = $4 AND ({eligible}))"
-            ))
-            .bind(excerpt.id)
-            .bind(id)
-            .bind(&source.content)
-            .bind(source_updates[&excerpt.id])
-            .fetch_one(&state.pool)
-            .await?;
+        let eligible = crate::reuse::eligible("m");
+        let unchanged_sql = format!(
+            "SELECT EXISTS (SELECT 1 FROM memories m
+              WHERE m.id = $1 AND m.project_id = $2 AND m.content = $3
+                AND m.updated_at = $4 AND ({eligible}))"
+        );
+        let mut memories = Vec::with_capacity(rows.len());
+        for row in &rows {
+            let content: &str = row.get("content");
+            let unchanged: bool = sqlx::query_scalar(&unchanged_sql)
+                .bind(row.get::<Uuid, _>("id"))
+                .bind(id)
+                .bind(content)
+                .bind(row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"))
+                .fetch_one(&state.pool)
+                .await?;
             if !unchanged {
                 return Err(ApiError::new(
                     StatusCode::CONFLICT,
-                    "selector_source_changed",
-                    "a selected memory changed or became ineligible during semantic selection; retry",
+                    "lexical_source_changed",
+                    "a memory changed or became ineligible during lexical retrieval; retry",
                 ));
             }
-            excerpts.insert(excerpt.id, excerpt);
+            let mut value = memory_json(row);
+            value["selection"] = serde_json::to_value(crate::selector::provenance(content))
+                .map_err(|_| ApiError::internal("could not encode lexical provenance"))?;
+            if let Some(attestation) = value["reuse"]["attestation"].as_object_mut() {
+                attestation.remove("support_summary");
+            }
+            memories.push(value);
         }
-        rows.iter()
-            .filter_map(|row| {
-                let excerpt = excerpts.remove(&row.get::<Uuid, _>("id"))?;
-                let mut value = memory_json(row);
-                value["content"] = json!(excerpt.content);
-                value["selection"] = serde_json::to_value(excerpt.provenance).ok()?;
-                if let Some(attestation) = value["reuse"]["attestation"].as_object_mut() {
-                    attestation.remove("support_summary");
-                }
-                Some(value)
-            })
-            .collect()
+        auth::require_member(&state.pool, id, user.id()).await?;
+        memories
     } else {
         rows.iter().map(memory_json).collect()
     };
@@ -2851,17 +2819,18 @@ async fn memory_detail(
         if !row.get::<bool, _>("reuse_eligible") {
             return Err(ApiError::not_found("no reusable memory"));
         }
-        let source = crate::selector::SourceRecord {
-            id,
-            content: row.get("content"),
-        };
-        let source_updated_at = row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at");
-        let mut selected = crate::selector::select(
-            state.selector.as_ref(),
-            query,
-            std::slice::from_ref(&source),
+        let matches_query: bool = sqlx::query_scalar(
+            "SELECT to_tsvector('english', $1) @@ replace(plainto_tsquery('english', $2)::text, ' & ', ' | ')::tsquery",
         )
+        .bind(row.get::<String, _>("content"))
+        .bind(query)
+        .fetch_one(&state.pool)
         .await?;
+        if !matches_query {
+            return Err(ApiError::not_found("no reusable memory matched the task query"));
+        }
+        let content: &str = row.get("content");
+        let source_updated_at = row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at");
 
         crate::commands::project_of_record(&state.pool, "memories", id, user.id()).await?;
         let eligible = crate::reuse::eligible("m");
@@ -2872,23 +2841,19 @@ async fn memory_detail(
         ))
         .bind(id)
         .bind(project_id)
-        .bind(&source.content)
+        .bind(content)
         .bind(source_updated_at)
         .fetch_one(&state.pool)
         .await?;
         if !unchanged {
             return Err(ApiError::new(
                 StatusCode::CONFLICT,
-                "selector_source_changed",
-                "the memory changed or became ineligible during semantic selection; retry",
+                "lexical_source_changed",
+                "the memory changed or became ineligible during lexical selection; retry",
             ));
         }
-        let excerpt = selected
-            .pop()
-            .ok_or_else(|| ApiError::not_found("no reusable excerpt matched the task query"))?;
-        value["content"] = json!(excerpt.content);
-        value["selection"] = serde_json::to_value(excerpt.provenance)
-            .map_err(|_| ApiError::internal("could not encode excerpt provenance"))?;
+        value["selection"] = serde_json::to_value(crate::selector::provenance(content))
+            .map_err(|_| ApiError::internal("could not encode lexical provenance"))?;
         value["project_recall_policy"] = json!(cairn_core::reuse::TASK_QUERY_POLICY);
         value["project_query_sha256"] = json!(cairn_core::digest(query));
         if let Some(attestation) = value["reuse"]["attestation"].as_object_mut() {
