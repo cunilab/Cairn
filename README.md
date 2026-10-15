@@ -1,8 +1,25 @@
 # Cairn
 
+> **Project status — discontinued (October 15, 2026).**
+> Cairn is an unfinished experiment. Active development and new releases have stopped; this repository is intended for archival after this note is merged. Do not treat its alpha release or unfinished work as a validated, production-ready agent memory solution. [PR #66](https://github.com/cunilab/Cairn/pull/66) remains a draft with failed semantic qualification and incomplete final verification.
+
+## Why development stopped
+
+I delegated too much product planning, implementation, and documentation to AI before clearly defining what I wanted to build. Long AI-generated documents became hard to review, so I relied on AI's conclusions and lost track of decisions, scope changes, and project direction. Complexity grew beyond what I understood or needed, while the promised usefulness of memory and recall was not demonstrated. Continuing would spend more time and tokens without clear value. Existing open-source agent-memory tools are worth evaluating instead of maintaining another custom system.
+
+## Lessons from Cairn
+
+- **Own the direction.** Define problem, goals, success criteria, and non-goals before asking AI to help.
+- **Use AI as advisor and executor.** Review decisions; delegate bounded tasks, not product ownership.
+- **Keep documentation useful.** Read it, keep it short, and write only what improves understanding or decisions.
+- **Prove user value.** Passing tests and CI do not replace evidence that the product solves its intended problem.
+- **Stop when warranted.** Record failed experiments and reuse existing tools when building more brings little benefit.
+
+These lessons informed [Cunilab's product-development document templates](https://github.com/cunilab/Document-Template-for-Product-Development). Cairn stays public as a record of the experiment, including unfinished work and failed evaluations.
+
 Persistent, project-aware memory for AI coding agents. Cairn captures safe, bounded activity during coding work and brings relevant decisions, failed approaches, and procedures into later sessions. People can inspect the evidence behind a memory and correct it when circumstances change.
 
-**Current status:** this checkout and the latest published release are `v0.1.0-alpha.9`. Cairn is pre-1.0; interfaces and storage may change between releases. Claude Code and Codex are the primary native agent paths. [Integration capabilities](docs/integrations.md) describe OpenCode and generic MCP limits. [Roadmap](docs/roadmap.md) describes future outcomes separately from shipped behavior.
+**Last published release:** `v0.1.0-alpha.9` (historical alpha; not a validated stable release). Claude Code and Codex were the primary native agent paths. [Integration capabilities](docs/integrations.md) and [roadmap](docs/roadmap.md) describe the experimental scope, not current development plans.
 
 ## How it works
 
